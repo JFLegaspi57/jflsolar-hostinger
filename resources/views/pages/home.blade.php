@@ -8,7 +8,7 @@
     {{-- Hero — owner-supplied rooftop photo. Mobile/tablet: photo band above the text. Desktop: split, photo fading into the slate panel. --}}
     <section aria-labelledby="hero-title" class="on-dark relative isolate overflow-hidden bg-steel-950 text-white">
         <div class="relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">
-            <img src="/images/hero-rooftop-1280.jpg" srcset="/images/hero-rooftop-640.jpg 640w, /images/hero-rooftop-960.jpg 960w, /images/hero-rooftop-1280.jpg 1280w"
+            <img src="/images/home-rooftop-1280.jpg" srcset="/images/home-rooftop-640.jpg 640w, /images/home-rooftop-960.jpg 960w, /images/home-rooftop-1280.jpg 1280w"
                 sizes="(min-width: 1024px) 62vw, 100vw" width="1280" height="577" fetchpriority="high" decoding="async"
                 alt="Two technicians in hard hats and safety vests checking a rooftop solar array"
                 class="absolute inset-0 h-full w-full object-cover object-[35%_60%] lg:object-[40%_60%]" />
