@@ -109,7 +109,6 @@
             <div>
                 <h2 class="mb-4 text-xl font-bold text-steel-950">{{ PageText::get('about.location.title') }}</h2>
                 <x-addresses :settings="$settings" />
-                <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'md', 'mt-6') }}">{{ PageText::get('about.contact.button') }}</a>
             </div>
         </div>
     </x-section>
