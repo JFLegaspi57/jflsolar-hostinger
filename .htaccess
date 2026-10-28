@@ -1,0 +1,16 @@
+# Hostinger Git deployment (docs/HOSTINGER.md, section 10): the whole repository is
+# deployed into public_html, but only public/ is the website. Every request is served
+# from public/, so code, libraries and the .git folder cannot be reached from the web.
+# (Settings and uploads are not in this folder at all: they live in ../jflsolar-data.)
+# In the zip-release layout this file sits in jflsolar-app/, which is not web-served.
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Without mod_rewrite nothing outside public/ may be served.
+<IfModule !mod_rewrite.c>
+    Require all denied
+</IfModule>
