@@ -38,11 +38,17 @@ $app = Application::configure(basePath: dirname(__DIR__))
 // into public_html, and every deploy replaces files there. Settings (.env) and
 // everything written at run time (photos, sessions, cache, logs) therefore live in
 // jflsolar-data/ next to public_html — untouched by deploys and unreachable from the web.
-// Other layouts (zip release, local development) have no such folder and are unchanged.
-$data = dirname($app->basePath()).DIRECTORY_SEPARATOR.'jflsolar-data';
-if (is_file($data.DIRECTORY_SEPARATOR.'.env')) {
-    $app->useEnvironmentPath($data);
-    $app->useStoragePath($data.DIRECTORY_SEPARATOR.'storage');
+// A site first installed from a zip release keeps them in jflsolar-app/ instead, so
+// connecting GitHub needs no file moves: that folder is used if jflsolar-data is absent.
+// Other layouts (zip release, local development) are unchanged: in the zip layout the
+// match is the application folder itself; locally neither folder exists.
+foreach (['jflsolar-data', 'jflsolar-app'] as $folder) {
+    $data = dirname($app->basePath()).DIRECTORY_SEPARATOR.$folder;
+    if (is_file($data.DIRECTORY_SEPARATOR.'.env')) {
+        $app->useEnvironmentPath($data);
+        $app->useStoragePath($data.DIRECTORY_SEPARATOR.'storage');
+        break;
+    }
 }
 
 return $app;

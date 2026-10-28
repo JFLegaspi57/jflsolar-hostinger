@@ -7,8 +7,15 @@ define('LARAVEL_START', microtime(true));
 
 // Determine if the application is in maintenance mode... (Hostinger Git deployment keeps
 // storage in ../../jflsolar-data next to public_html; see bootstrap/app.php)
-if (file_exists($maintenance = __DIR__.'/../../jflsolar-data/storage/framework/maintenance.php')
-    || file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
+// Same precedence as bootstrap/app.php: the first folder with a .env holds the storage.
+$storage = __DIR__.'/../storage';
+foreach ([__DIR__.'/../../jflsolar-data', __DIR__.'/../../jflsolar-app'] as $data) {
+    if (is_file($data.'/.env')) {
+        $storage = $data.'/storage';
+        break;
+    }
+}
+if (file_exists($maintenance = $storage.'/framework/maintenance.php')) {
     require $maintenance;
 }
 

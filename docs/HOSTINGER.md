@@ -168,23 +168,22 @@ domains/<your-domain>/
 ```
 
 The site uses `jflsolar-data/` automatically whenever `jflsolar-data/.env` exists.
+A site first installed from a zip already has `.env` and `storage/` in `jflsolar-app/`
+next to `public_html`; when there is no `jflsolar-data/`, that folder is used instead.
 
 ### One-time switch from the zip install
 
-1. **Keep the settings and photos.** In File Manager, at the top level (next to
-   `public_html`): create a folder `jflsolar-data`. Move `jflsolar-app/.env` and the
-   whole `jflsolar-app/storage` folder into `jflsolar-data/`. Check that
-   `jflsolar-data/storage/app/media/` contains the photo folders.
-2. **Empty `public_html`** (Hostinger needs an empty folder for the first Git deploy).
-   Delete everything inside `public_html` — not the folder itself.
-3. **Connect the repository** (JFL's Hostinger account): hPanel → **Websites** →
+1. **Connect the repository** (JFL's Hostinger account): hPanel → **Websites** →
    this site → **Advanced → Git** (or *GitHub deployment*) → **Connect with GitHub**,
    allow access to `jflsolar-hostinger`, branch **main**, directory **public_html**
-   (the default). Turn **Auto-deployment** on, then **Deploy**.
-4. **Database:** import any `database/upgrades/upgrade-*.sql` you have not imported yet.
-5. **Check** the home page, a product photo, the Contact form and `/admin`.
-6. Delete the old `jflsolar-app` folder only after everything works (it no longer
-   holds anything the site uses).
+   (the default). Turn **Auto-deployment** on, then **Deploy**. If Hostinger says the
+   folder must be empty, delete everything inside `public_html` (not the folder) and
+   deploy again — nothing the site needs is kept there.
+2. **Do not delete `jflsolar-app/`**: its `.env` and `storage/` (photos) stay in use.
+   (Optionally, later: create `jflsolar-data/` and move `.env` and `storage/` into it;
+   then `jflsolar-app/` can be deleted.)
+3. **Database:** import any `database/upgrades/upgrade-*.sql` you have not imported yet.
+4. **Check** the home page, a product photo, the Contact form and `/admin`.
 
 ### Publishing a new version (developer)
 

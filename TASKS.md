@@ -21,6 +21,7 @@
 - [ ] Mailbox + SMTP settings for inquiry alerts (optional)
 - [ ] Point the domain to Hostinger; set `SITE_ENV=production`
 - [x] Codex visual/UX and accessibility review H2 — passed after fixes (REVIEW.md)
-- [ ] Hostinger: upload the 2026-10-28 release and import upgrade-2026-10-28.sql (Page text, package photos, header without phone)
+- [x] Deploy repo JFLegaspi57/jflsolar-hostinger published (2026-10-28) with scripts/publish-hostinger.mjs (source + vendor + public/build; root .htaccess; settings/uploads in ../jflsolar-data)
+- [ ] Hostinger (JFL account): move .env + storage to jflsolar-data, empty public_html, connect the GitHub repo (auto-deploy), import upgrade-2026-10-28.sql, check the site (incl. that /vendor, /.git, /composer.json are not reachable)
 - [x] Ported the Vercel changes of 2026-10-19/20 (see ../jflsolar/PORT-TO-HOSTINGER.md; Codex H3 PASS)
 - [ ] Update the admin guide (sign-in now email + password; Inquiries page; Page text menu)

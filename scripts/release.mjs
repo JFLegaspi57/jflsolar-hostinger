@@ -48,8 +48,9 @@ cpSync(join(root, "public", "build"), join(app, "public", "build"), { recursive:
 cpSync(join(app, "public"), web, { recursive: true });
 rmSync(join(app, "public"), { recursive: true, force: true });
 const index = readFileSync(join(web, "index.php"), "utf8")
-  .replaceAll("__DIR__.'/../../jflsolar-data/", "__DIR__.'/../jflsolar-data/")
-  .replaceAll("__DIR__.'/../storage/", "__DIR__.'/../jflsolar-app/storage/")
+  .replaceAll("__DIR__.'/../../jflsolar-data'", "__DIR__.'/../jflsolar-data'")
+  .replaceAll("__DIR__.'/../../jflsolar-app'", "__DIR__.'/../jflsolar-app'")
+  .replaceAll("__DIR__.'/../storage'", "__DIR__.'/../jflsolar-app/storage'")
   .replaceAll("__DIR__.'/../vendor/", "__DIR__.'/../jflsolar-app/vendor/")
   .replaceAll("__DIR__.'/../bootstrap/", "__DIR__.'/../jflsolar-app/bootstrap/")
   .replace("$app->handleRequest(", "// The web root is public_html, next to the application folder.\n$app->usePublicPath(__DIR__);\n\n$app->handleRequest(");
