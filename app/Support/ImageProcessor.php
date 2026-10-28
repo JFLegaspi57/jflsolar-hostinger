@@ -53,6 +53,8 @@ final class ImageProcessor
         $widths = array_values(array_filter(MediaAsset::IMAGE_WIDTHS, fn ($t) => $t <= $w));
         if (! $widths) {
             $widths = [$w]; // smaller than the smallest variant: keep its own size
+        } elseif ($w - end($widths) >= 200) {
+            $widths[] = $w; // well above the largest fixed size: also keep full resolution for HD screens
         }
 
         if (! is_dir($targetDir) && ! @mkdir($targetDir, 0775, true)) {
