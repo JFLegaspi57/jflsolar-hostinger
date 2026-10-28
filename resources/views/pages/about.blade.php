@@ -16,7 +16,7 @@
     $extra = $blocks->where('section', 'about')->reject(fn ($b) => in_array($b->key, $known, true));
 @endphp
 <x-site-layout title="About JFL Solar" path="/about" description="JFL Solar provides solar PV installation, consultancy and equipment distribution in the Philippines. Our mission, vision and approach.">
-    <x-page-hero :eyebrow="PageText::get('about.header.eyebrow')" :title="$intro?->title ?? 'About JFL Solar'"
+    <x-page-hero :eyebrow="PageText::get('about.header.eyebrow')" :title="$intro?->title ?? 'Who We Are'"
         image="/images/about-rooftop-1280.jpg" srcset="/images/about-rooftop-640.jpg 640w, /images/about-rooftop-960.jpg 960w, /images/about-rooftop-1280.jpg 1280w"
         imageAlt="Rows of solar panels installed on a flat commercial rooftop" focus="40% 60%">
         {{-- Track record figures supplied by the owner (updated 2026-10-29). --}}
