@@ -29,7 +29,8 @@
     </x-page-hero>
 
     <x-section labelledby="story-title">
-        <div class="grid gap-10 lg:grid-cols-2">
+        {{-- Two columns only when both blocks exist; on its own, "The Company" runs full width. --}}
+        <div class="grid gap-10 {{ $intro && $history ? 'lg:grid-cols-2' : '' }}">
             @if ($intro)
                 <div>
                     <h2 id="story-title" class="sr-only">Who we are</h2>
