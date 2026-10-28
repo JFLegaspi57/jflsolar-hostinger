@@ -6,12 +6,14 @@
     $t = fn (string $key) => PageText::get($key);
 @endphp
 <x-site-layout title="Solar Services" path="/services" description="Solar PV assessment, consultancy, proposal, installation, commissioning and after-sales support for residential, commercial and industrial customers in the Philippines.">
-    <x-page-header :eyebrow="$t('services.header.eyebrow')" :title="$t('services.header.title')" :intro="$t('services.header.intro')">
-        <div class="flex flex-wrap gap-3">
-            <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button() }}">{{ $t('services.header.button1') }}</a>
-            <a href="/packages" class="{{ Ui::button('secondary') }}">{{ $t('services.header.button2') }}</a>
+    <x-page-hero :eyebrow="$t('services.header.eyebrow')" :title="$t('services.header.title')" :intro="$t('services.header.intro')"
+        image="/images/services-rooftop-1280.jpg" srcset="/images/services-rooftop-640.jpg 640w, /images/services-rooftop-960.jpg 960w, /images/services-rooftop-1280.jpg 1280w"
+        imageAlt="JFL Solar installer walking along a newly installed rooftop solar array under a blue sky" focus="40% 55%">
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">{{ $t('services.header.button1') }}</a>
+            <a href="/packages" class="{{ Ui::button('light', 'lg') }}">{{ $t('services.header.button2') }}</a>
         </div>
-    </x-page-header>
+    </x-page-hero>
 
     <x-section labelledby="who-title" id="installation">
         <x-section-heading id="who-title" :eyebrow="$t('services.who.eyebrow')" :title="$t('services.who.title')" />
