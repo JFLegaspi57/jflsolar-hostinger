@@ -16,9 +16,17 @@
     $extra = $blocks->where('section', 'about')->reject(fn ($b) => in_array($b->key, $known, true));
 @endphp
 <x-site-layout title="About JFL Solar" path="/about" description="JFL Solar provides solar PV installation, consultancy and equipment distribution in the Philippines. Our mission, vision and approach.">
-    <x-page-hero :eyebrow="PageText::get('about.header.eyebrow')" :title="$intro?->title ?? 'About JFL Solar'" :intro="$settings->service_area"
+    <x-page-hero :eyebrow="PageText::get('about.header.eyebrow')" :title="$intro?->title ?? 'About JFL Solar'"
         image="/images/about-rooftop-1280.jpg" srcset="/images/about-rooftop-640.jpg 640w, /images/about-rooftop-960.jpg 960w, /images/about-rooftop-1280.jpg 1280w"
-        imageAlt="Rows of solar panels installed on a flat commercial rooftop" focus="40% 60%" />
+        imageAlt="Rows of solar panels installed on a flat commercial rooftop" focus="40% 60%">
+        {{-- Track record figures supplied by the owner (2026-10-29). --}}
+        <p class="mt-6 text-lg font-semibold text-white">Our Track Record in Renewable Energy Execution (Installed &amp; Supplied)</p>
+        <ul class="mt-4 space-y-2 text-steel-100">
+            @foreach (['Solar Panels/PV Modules: Over 3MWp', 'Inverters: Over 1.5MW of inverter capacity', 'Batteries: Over 2.5MWh of Energy Storage'] as $item)
+                <li class="flex items-start gap-2.5"><x-icon name="check" class="mt-1 size-4 text-gold-400" />{{ $item }}</li>
+            @endforeach
+        </ul>
+    </x-page-hero>
 
     <x-section labelledby="story-title">
         <div class="grid gap-10 lg:grid-cols-2">
