@@ -8,7 +8,7 @@
     <x-page-hero eyebrow="Products" title="Solar equipment" intro="We offer free comprehensive and unparalleled technical support, from installation, commissioning, and to troubleshooting, for all clients who purchase their supplies from us."
         image="/images/products-rooftop-1280.jpg" srcset="/images/products-rooftop-640.jpg 640w, /images/products-rooftop-960.jpg 960w, /images/products-rooftop-1280.jpg 1280w"
         imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
-        <p class="mt-5 text-2xl font-extrabold text-gold-400">Sagot ka namin!</p>
+        <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
     </x-page-hero>
     {{-- Brand strip (logos from the owner's brand sheet). --}}
     <section aria-label="Brands we carry" class="border-b border-steel-200 bg-white">
