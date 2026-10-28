@@ -8,12 +8,7 @@
 <x-site-layout title="Solar Services" path="/services" description="Solar PV assessment, consultancy, proposal, installation, commissioning and after-sales support for residential, commercial and industrial customers in the Philippines.">
     <x-page-hero :eyebrow="$t('services.header.eyebrow')" :title="$t('services.header.title')" :intro="$t('services.header.intro')"
         image="/images/services-rooftop-1280.jpg" srcset="/images/services-rooftop-640.jpg 640w, /images/services-rooftop-960.jpg 960w, /images/services-rooftop-1280.jpg 1280w"
-        imageAlt="JFL Solar installer walking along a newly installed rooftop solar array under a blue sky" focus="45% 55%" :flip="true">
-        <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-            <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">{{ $t('services.header.button1') }}</a>
-            <a href="/packages" class="{{ Ui::button('light', 'lg') }}">{{ $t('services.header.button2') }}</a>
-        </div>
-    </x-page-hero>
+        imageAlt="JFL Solar installer walking along a newly installed rooftop solar array under a blue sky" focus="45% 55%" :flip="true" />
 
     <x-section labelledby="who-title" id="installation">
         <x-section-heading id="who-title" :eyebrow="$t('services.who.eyebrow')" :title="$t('services.who.title')" />
@@ -66,7 +61,6 @@
                 <h2 id="cta-title" class="text-3xl font-extrabold text-white">{{ $t('services.cta.title') }}</h2>
                 <p class="mt-2 text-steel-300">{{ $t('services.cta.text') }} {{ $t('services.cta.call') }} <a href="{{ Site::telHref($settings->phone_e164) }}" class="font-semibold text-white underline">{{ $settings->phone_display }}</a>.</p>
             </div>
-            <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">{{ $t('services.cta.button') }}</a>
         </div>
         <p class="mt-6 text-sm text-steel-400">{{ $t('services.cta.equipment') }} <a href="/products" class="font-semibold text-white underline">{{ $t('services.cta.equipment_link') }}</a>.</p>
     </x-section>
