@@ -5,15 +5,18 @@
     $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['brand'] !== '';
 @endphp
 <x-site-layout title="Solar Equipment" path="/products" description="Solar panels, inverters, batteries, mounting hardware, cables, connectors and protection devices. Search the JFL Solar catalogue and request a product quote.">
-    <x-page-hero eyebrow="Products" title="Solar equipment" intro="For DIY buyers and professional installers. Prices are confirmed on request; listing a brand does not imply an authorised distributorship."
+    <x-page-hero eyebrow="Products" title="Solar equipment" intro="We offer free comprehensive and unparalleled technical support, from installation, commissioning, and to troubleshooting, for all clients who purchase their supplies from us."
         image="/images/products-rooftop-1280.jpg" srcset="/images/products-rooftop-640.jpg 640w, /images/products-rooftop-960.jpg 960w, /images/products-rooftop-1280.jpg 1280w"
-        imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%" />
+        imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
+        <p class="mt-5 text-2xl font-extrabold text-gold-400">Sagot ka namin!</p>
+    </x-page-hero>
     {{-- Brand strip (logos from the owner's brand sheet). --}}
     <section aria-label="Brands we carry" class="border-b border-steel-200 bg-white">
         <x-container>
             <img src="/images/brand-logos-v2-2400.webp" srcset="/images/brand-logos-v2-1200.webp 1200w, /images/brand-logos-v2-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
                 width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full"
                 alt="Brands we carry: GoodWe, Jinko Solar, Solis, Luxpower Tek, Seraphim, AESOLAR, Dyness, ATE and Projoy Electric">
+            <p class="pb-4 text-center text-sm text-steel-600">For DIY buyers and professional installers. Prices are confirmed on request; listing a brand does not imply an authorised distributorship.</p>
         </x-container>
     </section>
     <x-container class="py-10">
