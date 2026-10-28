@@ -63,11 +63,10 @@ final class ImageProcessor
         $bytes = 0;
         $written = [];
         foreach ($widths as $target) {
-            $resized = $target === $w ? $img : imagescale($img, $target, (int) round($h * $target / $w), IMG_BICUBIC);
-            imagesavealpha($resized, true);
+            $resized = $target === $w ? $img : self::resize($img, $target, max(1, (int) round($h * $target / $w)));
             $out = "{$targetDir}/{$target}.webp";
-            $ok = imagewebp($resized, $out, self::QUALITY);
-            if ($resized !== $img) {
+            $ok = $resized && imagewebp($resized, $out, self::QUALITY);
+            if ($resized && $resized !== $img) {
                 imagedestroy($resized);
             }
             if (! $ok) {
@@ -84,6 +83,30 @@ final class ImageProcessor
         imagedestroy($img);
 
         return ['width' => $w, 'height' => $h, 'widths' => $widths, 'bytes' => $bytes];
+    }
+
+    /**
+     * Downscale with imagecopyresampled. imagescale() returns false on some hosts'
+     * GD builds (seen on Hostinger), which broke uploads; this works everywhere.
+     */
+    private static function resize(\GdImage $img, int $width, int $height): \GdImage|false
+    {
+        $out = @imagecreatetruecolor($width, $height);
+        if (! $out) {
+            return false;
+        }
+        imagealphablending($out, false);
+        imagesavealpha($out, true);
+        imagefill($out, 0, 0, imagecolorallocatealpha($out, 0, 0, 0, 127));
+        imagealphablending($out, true);
+        if (! imagecopyresampled($out, $img, 0, 0, 0, 0, $width, $height, imagesx($img), imagesy($img))) {
+            imagedestroy($out);
+
+            return false;
+        }
+        imagesavealpha($out, true);
+
+        return $out;
     }
 
     /** Rotate/flip a JPEG according to its EXIF Orientation tag. */
