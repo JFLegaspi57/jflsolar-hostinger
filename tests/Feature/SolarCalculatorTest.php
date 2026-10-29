@@ -79,7 +79,7 @@ class SolarCalculatorTest extends TestCase
     {
         $this->get('/solar-calculator')->assertOk()->assertSee('Your results appear here');
         $this->get('/solar-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
-            ->assertOk()->assertSee('kWp')->assertSee('Request a quotation')->assertSee('from=calculator', false);
+            ->assertOk()->assertSee('kWp')->assertSee('Talk to Us About This')->assertSee('from=calculator', false);
         $this->get('/solar-calculator?type=grid&mode=appliances')->assertOk();
 
         $this->get('/contact?from=calculator&type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
