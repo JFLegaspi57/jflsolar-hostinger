@@ -35,7 +35,7 @@ class ContactController extends Controller
         if (! $pkg && ! $product && $request->query('from') === 'calculator') {
             $in = SolarCalculator::input($request->query());
             if ($r = SolarCalculator::calculate($in)) {
-                $values['message'] = SolarCalculator::summary($in, $r);
+                $values['message'] = SolarCalculator::summary($in, $r, SolarCalculator::priceRange($in, $r, $s['packages']));
                 $values['bill_range'] = $in['mode'] === 'bill' ? SolarCalculator::billRange($in['bill']) : '';
             }
         }

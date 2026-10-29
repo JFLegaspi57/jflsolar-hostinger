@@ -44,10 +44,12 @@ class PageController extends Controller
     {
         $in = SolarCalculator::input($request->query());
         $submitted = $request->query('type') !== null;
+        $result = $submitted ? SolarCalculator::calculate($in) : null;
 
         return view('pages.calculator', [
             'in' => $in,
-            'result' => $submitted ? SolarCalculator::calculate($in) : null,
+            'result' => $result,
+            'price' => $result ? SolarCalculator::priceRange($in, $result, PublicContent::snapshot()['packages']) : null,
             'submitted' => $submitted,
         ]);
     }
