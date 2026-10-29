@@ -38,8 +38,8 @@
 
     <x-page-hero eyebrow="PV System Calculator" title="How much solar do you need?"
         intro="Start from your monthly electricity bill or your list of appliances. We'll estimate the panels, inverter and battery for your home or business, and how much you could save."
-        image="/images/packages-roof3-1280.jpg" srcset="/images/packages-roof3-640.jpg 640w, /images/packages-roof3-960.jpg 960w, /images/packages-roof3-1280.jpg 1280w"
-        imageAlt="Rows of solar panels on a rooftop under a clear sky" focus="50% 50%" />
+        image="/images/calculator-crew-1280.jpg" srcset="/images/calculator-crew-640.jpg 640w, /images/calculator-crew-960.jpg 960w, /images/calculator-crew-1280.jpg 1280w"
+        imageAlt="Two JFL Solar technicians in hard hats installing solar panels on a metal rooftop at sunset" focus="55% 45%" :flip="true" />
 
     <x-section labelledby="calc-title">
         <h2 id="calc-title" class="sr-only">Calculator</h2>
