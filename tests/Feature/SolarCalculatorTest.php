@@ -77,10 +77,11 @@ class SolarCalculatorTest extends TestCase
 
     public function test_page_renders_and_prefills_quote(): void
     {
-        $this->get('/solar-calculator')->assertOk()->assertSee('Your results appear here');
-        $this->get('/solar-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
+        $this->get('/pv-calculator')->assertOk()->assertSee('Your results appear here');
+        $this->get('/pv-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
             ->assertOk()->assertSee('kWp')->assertSee('Talk to Us About This')->assertSee('from=calculator', false);
-        $this->get('/solar-calculator?type=grid&mode=appliances')->assertOk();
+        $this->get('/pv-calculator?type=grid&mode=appliances')->assertOk();
+        $this->get('/solar-calculator?type=grid&bill=5000')->assertStatus(301)->assertRedirect('/pv-calculator?type=grid&bill=5000');
 
         $this->get('/contact?from=calculator&type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
             ->assertOk()->assertSee('From the PV System Calculator: about');
