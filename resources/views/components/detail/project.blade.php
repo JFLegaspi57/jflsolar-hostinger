@@ -5,6 +5,7 @@
     use App\Support\Site;
     use App\Support\Ui;
     $size = $project->system_size_confirmed ? Pricing::formatCapacity($project->system_size_kwp, 'kWp') : null;
+    $videos = \App\Support\VideoEmbed::all($project->video_urls ?? null);
     $others = $project->photos->reject(fn ($p) => $project->cover && $p->id === $project->cover->id)->values();
     $facts = [
         ['Type', Labels::PROJECT_TYPE[$project->project_type], false],
@@ -39,6 +40,24 @@
             </div>
             @if ($project->cover?->caption)<figcaption class="px-4 py-2 text-sm text-steel-600">{{ $project->cover->caption }}</figcaption>@endif
         </figure>
+
+        @if ($videos)
+            <section aria-labelledby="videos-title" class="mt-12">
+                <h2 id="videos-title" class="text-xl font-bold text-steel-950">{{ count($videos) === 1 ? 'Video' : 'Videos' }}</h2>
+                <ul class="mt-4 grid gap-6 {{ count($videos) > 1 ? 'lg:grid-cols-2' : '' }}">
+                    @foreach ($videos as $i => $v)
+                        <li>
+                            <div class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950"
+                                style="aspect-ratio: {{ $v['vertical'] ? '9 / 16' : '16 / 9' }}; {{ $v['vertical'] ? 'max-width: 22rem; margin-inline: auto;' : '' }}">
+                                <iframe src="{{ $v['src'] }}" title="{{ $project->title }} — video {{ $i + 1 }} ({{ $v['service'] }})" loading="lazy"
+                                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen
+                                    referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            </section>
+        @endif
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
             <x-paragraphs :text="$project->description ?: $project->summary" class="max-w-2xl text-lg text-steel-700" />
