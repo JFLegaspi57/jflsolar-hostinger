@@ -206,8 +206,64 @@ final class SolarCalculator
         return ['count' => $count, 'kw' => $max, 'label' => $count.' × '.$max.' kW'];
     }
 
+    /** Calculator system type → package system_type. */
+    private const PACKAGE_SYSTEM = ['grid' => 'on_grid', 'hybrid' => 'hybrid', 'offgrid' => 'off_grid'];
+
+    /**
+     * Indicative price range, scaled from JFL Solar's own published installed packages of the
+     * same system type (price per kWp × recommended kWp). Only real, priced, non-sample packages
+     * count, so the range follows whatever prices are set in the admin. Null when there are none
+     * or the system is far outside the sizes the packages cover.
+     *
+     * @param  iterable<\App\Models\Package>  $packages  publicly visible packages
+     */
+    public static function priceRange(array $in, array $r, iterable $packages): ?array
+    {
+        $refs = [];
+        foreach ($packages as $p) {
+            if ($p->package_type !== 'installed_system' || $p->system_type !== self::PACKAGE_SYSTEM[$in['type']]
+                || $p->is_sample || $p->price_is_sample || ! $p->array_kwp || $p->array_kwp <= 0) {
+                continue;
+            }
+            $price = $p->price();
+            if (! $price['hasAmount'] || ! $p->price_php) {
+                continue;
+            }
+            $refs[] = ['pkg' => $p, 'perKwp' => $p->price_php / $p->array_kwp, 'kwp' => (float) $p->array_kwp];
+        }
+        if (! $refs) {
+            return null;
+        }
+        $sizes = array_column($refs, 'kwp');
+        if ($r['kwp'] < min($sizes) * 0.7 || $r['kwp'] > max($sizes) * 1.3) {
+            return null;
+        }
+
+        $rates = array_column($refs, 'perKwp');
+        $lowRate = min($rates);
+        $highRate = max($rates);
+        if ($highRate < $lowRate * 1.1) {           // keep at least a ±5% spread
+            $mid = ($lowRate + $highRate) / 2;
+            [$lowRate, $highRate] = [$mid * 0.95, $mid * 1.05];
+        }
+        $low = floor($lowRate * $r['kwp'] / 5000) * 5000;
+        $high = ceil($highRate * $r['kwp'] / 5000) * 5000;
+
+        usort($refs, fn ($a, $b) => abs($a['kwp'] - $r['kwp']) <=> abs($b['kwp'] - $r['kwp']));
+        $yearly = $r['savings'] * 12;
+        $pkgBattery = (float) ($refs[0]['pkg']->battery_kwh ?? 0);
+
+        return [
+            'low' => $low, 'high' => $high, 'count' => count($refs),
+            'closest' => $refs[0]['pkg'],
+            // The scaled price follows panel size; a bigger battery than the closest package is quoted on top.
+            'extraBattery' => $pkgBattery > 0 && $r['battery'] > $pkgBattery + 0.5 ? $r['battery'] - $pkgBattery : null,
+            'payback' => $yearly > 0 ? [($low / $yearly), ($high / $yearly)] : null,
+        ];
+    }
+
     /** One-paragraph summary for a quotation request. */
-    public static function summary(array $in, array $r): string
+    public static function summary(array $in, array $r, ?array $price = null): string
     {
         $type = self::TYPES[$in['type']]['short'];
         $parts = [
@@ -216,10 +272,11 @@ final class SolarCalculator
                 .($r['battery'] > 0 ? ', '.self::num($r['battery'], 1).' kWh battery' : '').').',
             'Estimated use: '.self::num($r['monthly'], 0).' kWh a month'
                 .($in['mode'] === 'bill' ? ' (bill about ₱'.number_format($in['bill']).')' : ' (from my appliance list)').'.',
+            $price ? 'Indicative price shown: ₱'.number_format($price['low']).' – ₱'.number_format($price['high']).'.' : '',
             'Please send me a quotation.',
         ];
 
-        return implode(' ', $parts);
+        return implode(' ', array_filter($parts));
     }
 
     /** Matching BILL_RANGES key for a monthly bill in pesos. */
