@@ -3,9 +3,11 @@
     use App\Support\PublicContent;
     use App\Support\Site;
     $settings = PublicContent::settings();
+    // The Contact page already lists every contact route and address, so its footer is shorter.
+    $compact = ($path ?? null) === '/contact';
 @endphp
 <footer class="on-dark bg-steel-950 text-steel-200">
-    <div class="mx-auto grid max-w-[76rem] gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr] lg:px-8">
+    <div class="mx-auto grid max-w-[76rem] gap-10 px-4 py-14 sm:px-6 md:grid-cols-2 {{ $compact ? '' : 'lg:grid-cols-[1.3fr_1fr_1fr_1fr]' }} lg:px-8">
         <div class="space-y-4">
             <x-logo plate />
             <p class="max-w-xs text-sm text-steel-300">{{ Site::DESCRIPTION }}</p>
@@ -14,13 +16,14 @@
 
         <nav aria-label="Footer">
             <h2 class="mb-3 text-sm font-semibold tracking-wide text-white uppercase">Explore</h2>
-            <ul class="space-y-1 text-sm">
+            <ul class="{{ $compact ? 'flex flex-wrap gap-x-6 gap-y-1' : 'space-y-1' }} text-sm">
                 @foreach (Site::NAV as $item)
                     <li><a href="{{ $item['href'] }}" class="inline-flex min-h-9 items-center hover:text-white hover:underline">{{ $item['label'] }}</a></li>
                 @endforeach
             </ul>
         </nav>
 
+        @unless ($compact)
         <div>
             <h2 class="mb-3 text-sm font-semibold tracking-wide text-white uppercase">Contact</h2>
             <ul class="space-y-1 text-sm">
@@ -47,6 +50,7 @@
                 </div>
             @endif
         </div>
+        @endunless
     </div>
     <div class="border-t border-white/10">
         <div class="mx-auto flex max-w-[76rem] flex-col gap-2 px-4 py-5 text-xs text-steel-400 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
