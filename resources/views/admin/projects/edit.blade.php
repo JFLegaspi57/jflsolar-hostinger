@@ -21,6 +21,10 @@
             <x-admin.text :form="$form" name="scope" label="Scope of work" maxlength="600" class="sm:col-span-2" hint="e.g. “Assessment, supply, installation and commissioning”." />
             <x-admin.textarea :form="$form" name="summary" label="Short summary" maxlength="300" rows="2" class="sm:col-span-2" />
             <x-admin.textarea :form="$form" name="description" label="Description" maxlength="6000" rows="5" class="sm:col-span-2" />
+            @if (\App\Http\Controllers\Admin\ProjectController::hasVideoColumn())
+                <x-admin.textarea :form="$form" name="video_urls" label="Video links" maxlength="2000" rows="3" class="sm:col-span-2"
+                    hint="Paste a YouTube or Facebook video link — one per line, up to 5. The video must be public (or “Unlisted” on YouTube). Videos play on the project page." />
+            @endif
         </x-admin.fieldset>
         <x-admin.fieldset legend="Display and internal">
             <x-admin.checkbox :form="$form" name="featured" label="Show on the home page" />
