@@ -45,6 +45,7 @@
     <main id="main" class="flex-1">
         {{ $slot }}
     </main>
+    @include('partials.reviews')
     @include('partials.site-footer')
 </body>
 </html>
