@@ -38,15 +38,22 @@ class RulesTest extends TestCase
         $this->assertSame('Oct 1, 2026 – Oct 31, 2026', Pricing::promoWindow('2026-10-01', '2026-10-31'));
     }
 
-    public function test_inquiry_validation_requires_one_usable_contact_method(): void
+    public function test_inquiry_validation_requires_phone_email_and_location(): void
     {
         $base = Inquiries::read(['name' => 'Ana Cruz', 'inquiry_type' => 'residential', 'message' => 'Please quote a 6 kW system.']);
-        $this->assertArrayHasKey('contact', Inquiries::validate($base));
-        $this->assertSame([], Inquiries::validate(['phone' => '0917 123 4567'] + $base));
-        $this->assertArrayHasKey('phone', Inquiries::validate(['phone' => '12'] + $base));
-        $this->assertArrayHasKey('email', Inquiries::validate(['email' => 'not-an-email'] + $base));
-        $this->assertArrayHasKey('inquiry_type', Inquiries::validate(['phone' => '0917 123 4567', 'inquiry_type' => 'bogus'] + $base));
-        $this->assertArrayHasKey('item', Inquiries::validate(['phone' => '0917 123 4567', 'item_slug' => 'x', 'item_type' => ''] + $base));
+        $errors = Inquiries::validate($base);
+        $this->assertArrayHasKey('phone', $errors);
+        $this->assertArrayHasKey('email', $errors);
+        $this->assertArrayHasKey('location', $errors);
+        $ok = ['phone' => '0917 123 4567', 'email' => 'ana@example.com', 'location' => 'Quezon City'] + $base;
+        $this->assertSame([], Inquiries::validate($ok));
+        $this->assertArrayHasKey('email', Inquiries::validate(['email' => ''] + $ok));
+        $this->assertArrayHasKey('phone', Inquiries::validate(['phone' => ''] + $ok));
+        $this->assertArrayHasKey('location', Inquiries::validate(['location' => ''] + $ok));
+        $this->assertArrayHasKey('phone', Inquiries::validate(['phone' => '12'] + $ok));
+        $this->assertArrayHasKey('email', Inquiries::validate(['email' => 'not-an-email'] + $ok));
+        $this->assertArrayHasKey('inquiry_type', Inquiries::validate(['inquiry_type' => 'bogus'] + $ok));
+        $this->assertArrayHasKey('item', Inquiries::validate(['item_slug' => 'x', 'item_type' => ''] + $ok));
     }
 
     public function test_inquiry_input_is_trimmed_bounded_and_stripped_of_control_characters(): void
