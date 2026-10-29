@@ -7,6 +7,7 @@ use App\Models\Inquiry;
 use App\Support\Contact;
 use App\Support\Inquiries;
 use App\Support\PublicContent;
+use App\Support\SolarCalculator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -29,6 +30,14 @@ class ContactController extends Controller
             $values = array_merge($values, ['item_type' => 'package', 'item_slug' => $pkg->slug, 'item_name' => $pkg->name, 'inquiry_type' => 'package']);
         } elseif ($product) {
             $values = array_merge($values, ['item_type' => 'product', 'item_slug' => $product->slug, 'item_name' => $product->name, 'inquiry_type' => 'equipment']);
+        }
+        // Coming from the solar calculator: re-run it from the same query and pre-fill the message.
+        if (! $pkg && ! $product && $request->query('from') === 'calculator') {
+            $in = SolarCalculator::input($request->query());
+            if ($r = SolarCalculator::calculate($in)) {
+                $values['message'] = SolarCalculator::summary($in, $r);
+                $values['bill_range'] = $in['mode'] === 'bill' ? SolarCalculator::billRange($in['bill']) : '';
+            }
         }
         if ($request->session()->hasOldInput()) {
             $values = array_merge($values, array_intersect_key((array) $request->old(), $values));

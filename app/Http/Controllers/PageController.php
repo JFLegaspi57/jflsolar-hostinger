@@ -6,6 +6,7 @@ use App\Support\Catalog;
 use App\Support\Compare;
 use App\Support\PublicContent;
 use App\Support\Site;
+use App\Support\SolarCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -37,6 +38,18 @@ class PageController extends Controller
         $s = PublicContent::snapshot();
 
         return view('pages.about', ['settings' => $s['settings'], 'blocks' => $s['blocks'], 'blockImages' => $s['blockImages']]);
+    }
+
+    public function calculator(Request $request): View
+    {
+        $in = SolarCalculator::input($request->query());
+        $submitted = $request->query('type') !== null;
+
+        return view('pages.calculator', [
+            'in' => $in,
+            'result' => $submitted ? SolarCalculator::calculate($in) : null,
+            'submitted' => $submitted,
+        ]);
     }
 
     public function packages(Request $request): View
@@ -136,7 +149,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/products', '/projects', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/products', '/projects', '/solar-calculator', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
