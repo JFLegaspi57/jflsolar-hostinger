@@ -11,7 +11,7 @@
     $r = $result;
     $quoteHref = '/contact?'.http_build_query(array_merge(request()->query(), ['from' => 'calculator'])).'#quote';
 @endphp
-<x-site-layout title="Solar Calculator" path="/solar-calculator" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
+<x-site-layout title="PV System Calculator" path="/solar-calculator" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
     <x-slot:head>
         <style>
             .calc-opt { display: block; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-panel); background: #fff; padding: 1rem; }
@@ -36,7 +36,7 @@
         </style>
     </x-slot:head>
 
-    <x-page-hero eyebrow="Solar calculator" title="How much solar do you need?"
+    <x-page-hero eyebrow="PV System Calculator" title="How much solar do you need?"
         intro="Start from your monthly electricity bill or your list of appliances. We'll estimate the panels, inverter and battery for your home or business, and how much you could save."
         image="/images/packages-roof3-1280.jpg" srcset="/images/packages-roof3-640.jpg 640w, /images/packages-roof3-960.jpg 960w, /images/packages-roof3-1280.jpg 1280w"
         imageAlt="Rows of solar panels on a rooftop under a clear sky" focus="50% 50%" />
