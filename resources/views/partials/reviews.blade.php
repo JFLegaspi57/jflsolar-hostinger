@@ -4,7 +4,7 @@
     <section aria-labelledby="reviews-title" class="border-t border-steel-200 bg-steel-50 py-16 sm:py-20">
         <x-container>
             <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                <x-section-heading id="reviews-title" eyebrow="Customer reviews" title="What people say about JFL Solar" />
+                <x-section-heading id="reviews-title" eyebrow="Customer reviews" title="What people say about us" />
                 <a href="{{ \App\Support\Reviews::SOURCE_URL }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center gap-2 font-semibold text-steel-900 underline-offset-4 hover:underline">
                     <x-icon name="facebook" class="size-5" /> Read all reviews on Facebook<span class="sr-only"> (opens in a new tab)</span>
                 </a>
