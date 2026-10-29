@@ -10,7 +10,9 @@
     $billShown = in_array($v['inquiry_type'], Labels::BILL_RELEVANT, true);
 @endphp
 <x-site-layout title="Contact and Request a Quote" path="/contact" description="Request a quotation for solar installation, consultancy, packages or equipment. Call, message on WhatsApp or Viber, or send an inquiry to JFL Solar.">
-    <x-page-header eyebrow="Contact" title="Request a quote" :intro="trim($settings->service_area.' '.($settings->service_area_note ?? ''))" />
+    <x-page-hero eyebrow="Contact" title="Request a quote" :intro="trim($settings->service_area.' '.($settings->service_area_note ?? ''))"
+        image="/images/contact-site-1280.jpg" srcset="/images/contact-site-640.jpg 640w, /images/contact-site-960.jpg 960w, /images/contact-site-1280.jpg 1280w, /images/contact-site-1600.jpg 1600w"
+        imageAlt="Aerial view of a JFL Solar installation covering the roofs of a fenced commercial building" focus="45% 40%" />
     <x-container class="grid gap-12 py-10 sm:py-14 lg:grid-cols-[1.25fr_1fr]">
         <section id="quote" aria-labelledby="quote-title" class="scroll-mt-28">
             <h2 id="quote-title" class="text-2xl font-bold text-steel-950">Send an inquiry</h2>
