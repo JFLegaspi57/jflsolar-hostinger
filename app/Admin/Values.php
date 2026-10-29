@@ -73,7 +73,7 @@ final class Values
         return [
             'title' => $p->title, 'slug' => $p->slug, 'location' => self::s($p->location), 'project_type' => $p->project_type,
             'system_size_kwp' => self::s($p->system_size_kwp), 'system_size_confirmed' => self::b($p->system_size_confirmed), 'scope' => self::s($p->scope),
-            'summary' => $p->summary, 'description' => $p->description, 'admin_notes' => self::s($p->admin_notes),
+            'summary' => $p->summary, 'description' => $p->description, 'video_urls' => self::s($p->video_urls ?? null), 'admin_notes' => self::s($p->admin_notes),
             'featured' => self::b($p->featured), 'is_sample' => self::b($p->is_sample),
         ];
     }
