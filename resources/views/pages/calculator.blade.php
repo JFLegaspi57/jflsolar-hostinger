@@ -31,7 +31,7 @@
             .js [data-mode-panel][hidden] { display: none; }
             .calc-grid { grid-template-columns: minmax(0, 1fr); }
             .calc-grid fieldset { min-width: 0; }
-            @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } .calc-results { position: sticky; top: 6rem; max-height: calc(100vh - 7rem); overflow-y: auto; } }
+            @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } }
             @media print { header, footer, .calc-noprint { display: none !important; } }
         </style>
     </x-slot:head>
