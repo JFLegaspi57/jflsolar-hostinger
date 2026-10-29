@@ -22,10 +22,6 @@
                 </p>
                 <h1 id="hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ PageText::get('home.hero.title') }}</h1>
                 <p class="mt-6 text-lg text-steel-100">{{ PageText::get('home.hero.intro') }}</p>
-                <div class="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">{{ PageText::get('home.hero.button1') }} <x-icon name="arrow" class="size-4" /></a>
-                    <a href="/products" class="{{ Ui::button('light', 'lg') }}">{{ PageText::get('home.hero.button2') }}</a>
-                </div>
                 <p class="mt-6 text-sm font-semibold text-steel-100">{{ $settings->service_area }}</p>
             </div>
         </x-container>
