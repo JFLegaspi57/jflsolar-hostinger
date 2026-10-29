@@ -18,6 +18,7 @@ Route::get('/products', [PageController::class, 'products']);
 Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug', '[a-z0-9-]+');
 Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
+Route::get('/solar-calculator', [PageController::class, 'calculator']);
 Route::get('/contact', [ContactController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'submit']);
 Route::get('/privacy', [PageController::class, 'privacy']);
