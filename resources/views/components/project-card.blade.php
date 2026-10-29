@@ -6,7 +6,12 @@
     $size = $project->system_size_confirmed ? Pricing::formatCapacity($project->system_size_kwp, 'kWp') : null;
 @endphp
 <article class="group relative overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-white">
-    <div class="aspect-[3/2] overflow-hidden bg-steel-100">
+    <div class="relative aspect-[3/2] overflow-hidden bg-steel-100">
+        @if (\App\Support\VideoEmbed::all($project->video_urls ?? null))
+            <span class="absolute top-3 left-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-steel-950/80 px-2.5 py-1 text-xs font-semibold text-white">
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="size-3.5" fill="currentColor"><path d="M8 5.5v13l11-6.5z" /></svg> Video
+            </span>
+        @endif
         @if ($project->cover)
             <x-media-image :asset="$project->cover" :admin="$admin" sizes="(min-width: 1024px) 380px, (min-width: 640px) 50vw, 100vw" class="transition-transform duration-300 group-hover:scale-[1.02]" />
         @else
