@@ -267,7 +267,7 @@ final class SolarCalculator
     {
         $type = self::TYPES[$in['type']]['short'];
         $parts = [
-            'From the solar calculator: about '.self::num($r['kwp'], 2).' kWp '.$type.' system',
+            'From the PV System Calculator: about '.self::num($r['kwp'], 2).' kWp '.$type.' system',
             '('.$r['panels'].' × '.$in['panel'].' W panels, '.$r['inverter']['label'].' inverter'
                 .($r['battery'] > 0 ? ', '.self::num($r['battery'], 1).' kWh battery' : '').').',
             'Estimated use: '.self::num($r['monthly'], 0).' kWh a month'

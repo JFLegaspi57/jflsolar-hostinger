@@ -12,10 +12,10 @@ final class Site
 
     public const NAV = [
         ['href' => '/services', 'label' => 'Solar Services'],
+        ['href' => '/solar-calculator', 'label' => 'PV System Calculator'],
         ['href' => '/packages', 'label' => 'Packages'],
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
-        ['href' => '/solar-calculator', 'label' => 'Calculator'],
         ['href' => '/about', 'label' => 'About'],
         ['href' => '/contact', 'label' => 'Contact'],
     ];
