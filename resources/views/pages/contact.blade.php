@@ -71,23 +71,17 @@
                             @if ($err('name')) aria-invalid="true" aria-describedby="f-name-error" @endif class="{{ $input }}">
                     </x-form-field>
 
-                    <fieldset aria-describedby="{{ $describe('contact-hint', $err('contact') ? 'contact-error' : null) }}" class="space-y-4">
+                    <fieldset class="space-y-4">
                         <legend class="text-base font-semibold text-steel-950">How can we reach you?</legend>
-                        <p id="contact-hint" class="-mt-2 text-sm text-steel-600">Give at least one: phone or email.</p>
-                        @if ($err('contact'))
-                            <p id="contact-error" class="flex items-start gap-1.5 text-sm font-semibold text-danger-700"><x-icon name="x" class="mt-0.5 size-4" /> {{ $err('contact') }}</p>
-                        @endif
                         <div class="grid gap-4 sm:grid-cols-2">
-                            <x-form-field id="f-phone" label="Mobile or phone" :error="$err('phone')">
-                                <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ $v['phone'] }}" maxlength="{{ Inquiries::LIMITS['phone'] }}"
-                                    @if ($err('phone') || $err('contact')) aria-invalid="true" @endif
-                                    @if ($d = $describe($err('phone') ? 'f-phone-error' : null, $err('contact') ? 'contact-error' : null)) aria-describedby="{{ $d }}" @endif
+                            <x-form-field id="f-phone" label="Mobile or phone" :error="$err('phone')" required>
+                                <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ $v['phone'] }}" maxlength="{{ Inquiries::LIMITS['phone'] }}" required
+                                    @if ($err('phone')) aria-invalid="true" aria-describedby="f-phone-error" @endif
                                     class="{{ $input }} tabular">
                             </x-form-field>
-                            <x-form-field id="f-email" label="Email" :error="$err('email')">
-                                <input id="f-email" name="email" type="email" autocomplete="email" spellcheck="false" value="{{ $v['email'] }}" maxlength="{{ Inquiries::LIMITS['email'] }}"
-                                    @if ($err('email') || $err('contact')) aria-invalid="true" @endif
-                                    @if ($d = $describe($err('email') ? 'f-email-error' : null, $err('contact') ? 'contact-error' : null)) aria-describedby="{{ $d }}" @endif
+                            <x-form-field id="f-email" label="Email" :error="$err('email')" required>
+                                <input id="f-email" name="email" type="email" autocomplete="email" spellcheck="false" value="{{ $v['email'] }}" maxlength="{{ Inquiries::LIMITS['email'] }}" required
+                                    @if ($err('email')) aria-invalid="true" aria-describedby="f-email-error" @endif
                                     class="{{ $input }}">
                             </x-form-field>
                         </div>
@@ -101,8 +95,9 @@
                     </x-form-field>
 
                     <div class="grid gap-4 sm:grid-cols-2">
-                        <x-form-field id="f-location" label="Location" hint="City or province (optional)" :error="$err('location')">
-                            <input id="f-location" name="location" autocomplete="address-level2" value="{{ $v['location'] }}" maxlength="{{ Inquiries::LIMITS['location'] }}"
+                        <x-form-field id="f-location" label="Location" hint="City or province" :error="$err('location')" required>
+                            <input id="f-location" name="location" autocomplete="address-level2" value="{{ $v['location'] }}" maxlength="{{ Inquiries::LIMITS['location'] }}" required
+                                @if ($err('location')) aria-invalid="true" @endif
                                 aria-describedby="{{ $describe('f-location-hint', $err('location') ? 'f-location-error' : null) }}" class="{{ $input }}">
                         </x-form-field>
                         <div data-bill-field data-relevant="{{ implode(',', Labels::BILL_RELEVANT) }}" @unless ($billShown) hidden @endunless>
