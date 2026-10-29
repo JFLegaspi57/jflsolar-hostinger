@@ -11,7 +11,7 @@ final class Site
     public const DESCRIPTION = 'Solar PV installation, consultancy and equipment distribution for homes and businesses across the Philippines.';
 
     public const NAV = [
-        ['href' => '/services', 'label' => 'Solar Services'],
+        ['href' => '/services', 'label' => 'Services'],
         ['href' => '/pv-calculator', 'label' => 'PV Calculator'],
         ['href' => '/packages', 'label' => 'Packages'],
         ['href' => '/products', 'label' => 'Products'],
