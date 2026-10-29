@@ -3,7 +3,7 @@
 namespace App\Support;
 
 /**
- * Solar sizing calculator (public /solar-calculator page).
+ * Solar sizing calculator (public /pv-calculator page).
  *
  * Everything runs on the server from the GET query, so the page works without
  * JavaScript. Results are planning estimates only — no prices are shown, because
