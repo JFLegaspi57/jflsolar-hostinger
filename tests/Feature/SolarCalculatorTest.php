@@ -48,6 +48,33 @@ class SolarCalculatorTest extends TestCase
         $this->assertNull(SolarCalculator::calculate(SolarCalculator::input(['type' => 'grid', 'bill' => '0'])));
     }
 
+    public function test_price_range_scales_from_real_installed_packages(): void
+    {
+        $pkg = fn (string $slug, float $kwp, ?float $price, array $extra = []) => (new \App\Models\Package)->forceFill($extra + [
+            'slug' => $slug, 'name' => $slug, 'package_type' => 'installed_system', 'system_type' => 'hybrid', 'array_kwp' => $kwp,
+            'battery_kwh' => 16, 'pricing_mode' => 'fixed', 'price_php' => $price, 'price_is_sample' => false, 'is_sample' => false,
+        ]);
+        $packages = [
+            $pkg('a', 8.68, 460000), $pkg('b', 9.92, 550000),
+            $pkg('sample', 9, 100000, ['is_sample' => true]),
+            $pkg('equipment', 9, 100000, ['package_type' => 'equipment_bundle']),
+            $pkg('quote', 9, null, ['pricing_mode' => 'quote']),
+        ];
+        $in = SolarCalculator::input(['type' => 'hybrid', 'mode' => 'bill', 'bill' => '8000', 'rate' => '12.5', 'day' => '50']);
+        $r = SolarCalculator::calculate($in);
+        $p = SolarCalculator::priceRange($in, $r, $packages);
+
+        $this->assertSame(2, $p['count']);                                   // sample, equipment-only and quote-only ignored
+        $this->assertLessThanOrEqual(460000 / 8.68 * $r['kwp'], $p['low']);
+        $this->assertGreaterThanOrEqual(550000 / 9.92 * $r['kwp'], $p['high']);
+        $this->assertSame('a', $p['closest']->slug);
+
+        $grid = SolarCalculator::input(['type' => 'grid'] + $in);
+        $this->assertNull(SolarCalculator::priceRange($grid, SolarCalculator::calculate($grid), $packages));
+        $huge = SolarCalculator::input(['bill' => '90000'] + $in);
+        $this->assertNull(SolarCalculator::priceRange($huge, SolarCalculator::calculate($huge), $packages));
+    }
+
     public function test_page_renders_and_prefills_quote(): void
     {
         $this->get('/solar-calculator')->assertOk()->assertSee('Your results appear here');
