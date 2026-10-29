@@ -1,5 +1,7 @@
 <x-site-layout title="Projects" path="/projects" description="Solar PV projects by JFL Solar for residential, commercial and industrial clients.">
-    <x-page-header eyebrow="Projects" title="Project gallery" intro="Residential, commercial and industrial solar work." />
+    <x-page-hero eyebrow="Projects" title="Project gallery" intro="Residential, commercial and industrial solar work."
+        image="/images/projects-aerial-1280.jpg" srcset="/images/projects-aerial-640.jpg 640w, /images/projects-aerial-960.jpg 960w, /images/projects-aerial-1280.jpg 1280w, /images/projects-aerial-1600.jpg 1600w"
+        imageAlt="Aerial view of a large commercial rooftop covered with rows of solar panels" focus="65% 30%" />
     <x-container class="py-10 sm:py-14">
         @if ($projects->contains('is_sample', true) && ! \App\Support\Site::isProduction())
             <p role="note" class="mb-8 rounded-[var(--radius-control)] border border-dashed border-steel-400 bg-steel-50 px-4 py-3 text-steel-800">
