@@ -154,17 +154,4 @@
         </x-section>
     @endif
 
-    {{-- Contact band --}}
-    <x-section labelledby="contact-title">
-        <div class="grid gap-10 lg:grid-cols-2">
-            <div>
-                <x-section-heading id="contact-title" :eyebrow="PageText::get('home.contact.eyebrow')" :title="PageText::get('home.contact.title')" :intro="$settings->service_area_note" />
-                <div class="mt-8"><a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">{{ PageText::get('home.contact.button') }} <x-icon name="arrow" class="size-4" /></a></div>
-            </div>
-            <div class="space-y-6">
-                <x-contact-routes :settings="$settings" />
-                <x-addresses :settings="$settings" />
-            </div>
-        </div>
-    </x-section>
 </x-site-layout>
