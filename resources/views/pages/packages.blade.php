@@ -6,7 +6,7 @@
 <x-site-layout title="Solar Packages" path="/packages" description="Installed solar systems and equipment-only bundles with inverter kW, array kWp and battery kWh, inclusions, exclusions and pricing basis. Compare packages and ask JFL Solar.">
     <x-page-hero eyebrow="Packages" title="Solar packages" :intro="$intro"
         image="/images/packages-rooftop-1280.jpg" srcset="/images/packages-rooftop-640.jpg 640w, /images/packages-rooftop-960.jpg 960w, /images/packages-rooftop-1280.jpg 1280w"
-        imageAlt="Two JFL Solar technicians in hard hats fastening rooftop solar panels at sunrise" focus="50% 55%" :flip="true" />
+        imageAlt="Two JFL Solar technicians in hard hats fastening rooftop solar panels at sunrise" focus="50% 55%" />
 
     <x-container class="pt-10 pb-24">
         <nav aria-label="Package type" class="-mx-1 flex flex-wrap gap-2">
