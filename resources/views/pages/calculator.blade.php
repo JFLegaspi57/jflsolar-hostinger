@@ -11,7 +11,7 @@
     $r = $result;
     $quoteHref = '/contact?'.http_build_query(array_merge(request()->query(), ['from' => 'calculator'])).'#quote';
 @endphp
-<x-site-layout title="PV System Calculator" path="/solar-calculator" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
+<x-site-layout title="PV System Calculator" path="/pv-calculator" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
     <x-slot:head>
         <style>
             .calc-opt { display: block; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-panel); background: #fff; padding: 1rem; }
@@ -43,7 +43,7 @@
 
     <x-section labelledby="calc-title">
         <h2 id="calc-title" class="sr-only">Calculator</h2>
-        <form action="/solar-calculator#results" method="get" class="calc-grid grid gap-10" data-calc-form>
+        <form action="/pv-calculator#results" method="get" class="calc-grid grid gap-10" data-calc-form>
             <div class="min-w-0 space-y-10">
                 {{-- 1. System type --}}
                 <fieldset>
@@ -149,7 +149,7 @@
 
                 <div class="calc-noprint flex flex-wrap items-center gap-3">
                     <button type="submit" class="{{ Ui::button('primary', 'lg') }}">Calculate</button>
-                    @if ($submitted)<a href="/solar-calculator" class="{{ Ui::button('secondary', 'lg') }}">Start over</a>@endif
+                    @if ($submitted)<a href="/pv-calculator" class="{{ Ui::button('secondary', 'lg') }}">Start over</a>@endif
                 </div>
             </div>
 
