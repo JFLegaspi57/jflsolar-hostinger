@@ -31,7 +31,7 @@
             .js [data-mode-panel][hidden] { display: none; }
             .calc-grid { grid-template-columns: minmax(0, 1fr); }
             .calc-grid fieldset { min-width: 0; }
-            @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } .calc-results { position: sticky; top: 6rem; } }
+            @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } .calc-results { position: sticky; top: 6rem; max-height: calc(100vh - 7rem); overflow-y: auto; } }
             @media print { header, footer, .calc-noprint { display: none !important; } }
         </style>
     </x-slot:head>
@@ -194,6 +194,23 @@
                         </div>
                     @endif
 
+                    <div class="mt-4 rounded-[var(--radius-control)] bg-white/5 border border-white/10 p-4">
+                        <p class="text-xs font-semibold tracking-wide text-steel-300 uppercase">Indicative price, installed</p>
+                        @if ($price)
+                            <p class="mt-1 text-2xl font-extrabold text-white tabular">₱{{ number_format($price['low']) }} – ₱{{ number_format($price['high']) }}</p>
+                            @if ($price['payback'])
+                                <p class="mt-1 text-sm text-steel-300">Pays for itself in about <span class="tabular">{{ $n($price['payback'][0]) }}–{{ $n($price['payback'][1]) }}</span> years</p>
+                            @endif
+                            @if ($price['extraBattery'])
+                                <p class="mt-2 text-sm text-gold-400">Covers the panels, inverter and {{ $n($r['battery'] - $price['extraBattery']) }} kWh of battery. The extra {{ $n($price['extraBattery']) }} kWh of battery is priced on quotation.</p>
+                            @endif
+                            <p class="mt-2 text-sm text-steel-300">Based on our listed {{ strtolower(Calc::TYPES[$in['type']]['label']) }} packages. Closest: <a href="/packages/{{ $price['closest']->slug }}" class="font-semibold text-white underline">{{ $price['closest']->name }}</a></p>
+                        @else
+                            <p class="mt-1 text-lg font-bold text-white">Price on quotation</p>
+                            <p class="mt-1 text-sm text-steel-300">We don't have a listed {{ Calc::TYPES[$in['type']]['short'] }} package close to this size. Request a quotation for a price.</p>
+                        @endif
+                    </div>
+
                     <div class="calc-noprint mt-6 space-y-3">
                         <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'md', 'w-full') }}">Request a quotation</a>
                         <button type="button" data-print hidden class="w-full text-center text-sm font-semibold text-white underline">Print this estimate</button>
@@ -212,6 +229,7 @@
                 ['Panels', 'Energy needed ÷ (peak sun hours × efficiency) gives the array size, rounded up to whole panels. Battery systems add enough to recharge the battery; off-grid adds 25% for cloudy days.'],
                 ['Inverter', 'The smallest standard size that matches the panels. If you listed appliances, it must also carry about 80% of them running at once.'],
                 ['Battery', 'Hybrid batteries cover your evening use. Off-grid batteries hold your full daily use for the number of days you choose. Usable capacity is taken as 90%.'],
+                ['Indicative price', 'Scaled from the installed prices of our listed packages of the same system type (price per kWp × your system size). Roof type, wiring distance and site conditions can move the final price either way.'],
                 ['Savings', 'Solar first powers what you use during the day. Hybrid systems store the extra for the evening. With grid-tied and hybrid systems, any excess is exported and credited at the lower net-metering rate.'],
                 ['What it doesn\'t include', 'Roof direction, shading, wiring distance and local weather. These are checked during the site assessment, and the final design and price come with your quotation.'],
             ] as [$title, $body])
