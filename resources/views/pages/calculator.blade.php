@@ -207,12 +207,12 @@
                             <p class="mt-2 text-sm text-steel-300">Based on our listed {{ strtolower(Calc::TYPES[$in['type']]['label']) }} packages. Closest: <a href="/packages/{{ $price['closest']->slug }}" class="font-semibold text-white underline">{{ $price['closest']->name }}</a></p>
                         @else
                             <p class="mt-1 text-lg font-bold text-white">Price on quotation</p>
-                            <p class="mt-1 text-sm text-steel-300">We don't have a listed {{ Calc::TYPES[$in['type']]['short'] }} package close to this size. Request a quotation for a price.</p>
+                            <p class="mt-1 text-sm text-steel-300">We don't have a listed {{ Calc::TYPES[$in['type']]['short'] }} package close to this size. Talk to us for a price.</p>
                         @endif
                     </div>
 
                     <div class="calc-noprint mt-6 space-y-3">
-                        <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'md', 'w-full') }}">Request a quotation</a>
+                        <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'md', 'w-full') }}">Talk to Us About This</a>
                         <button type="button" data-print hidden class="w-full text-center text-sm font-semibold text-white underline">Print this estimate</button>
                     </div>
                     <p class="mt-4 text-xs text-steel-300">A planning estimate, not an offer. Your quotation follows a site assessment.</p>
