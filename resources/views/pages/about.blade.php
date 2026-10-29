@@ -111,16 +111,4 @@
         </x-section>
     @endif
 
-    <x-section labelledby="warranty-title">
-        <div class="grid gap-10 lg:grid-cols-2">
-            <div>
-                <x-section-heading id="warranty-title" :eyebrow="PageText::get('about.warranty.eyebrow')" :title="PageText::get('about.warranty.title')" />
-                <p class="mt-4 text-steel-700">{{ $settings->general_warranty ?: 'Warranty terms to be confirmed.' }}</p>
-            </div>
-            <div>
-                <h2 class="mb-4 text-xl font-bold text-steel-950">{{ PageText::get('about.location.title') }}</h2>
-                <x-addresses :settings="$settings" />
-            </div>
-        </div>
-    </x-section>
 </x-site-layout>
