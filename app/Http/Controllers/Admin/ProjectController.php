@@ -11,8 +11,10 @@ use App\Http\Controllers\Controller;
 use App\Models\MediaAsset;
 use App\Models\Project;
 use App\Support\Labels;
+use App\Support\VideoEmbed;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 
 class ProjectController extends Controller
@@ -73,10 +75,29 @@ class ProjectController extends Controller
             'featured' => $p->bool('featured'),
             'is_sample' => $p->bool('is_sample'),
         ];
+        // Video links need the 2026-10-29 database update; until it is imported the box is hidden and skipped.
+        if (self::hasVideoColumn()) {
+            $videos = $p->text('video_urls', 'Video links', 2000);
+            $lines = VideoEmbed::lines($videos);
+            $bad = array_values(array_filter($lines, fn ($l) => VideoEmbed::parse($l) === null));
+            if ($bad) {
+                $p->errors['video_urls'] = 'Use YouTube or Facebook video links only. Not recognised: '.mb_strimwidth($bad[0], 0, 80, '…');
+            } elseif (count($lines) > VideoEmbed::MAX_LINKS) {
+                $p->errors['video_urls'] = 'Add up to '.VideoEmbed::MAX_LINKS.' video links.';
+            }
+            $row['video_urls'] = $lines ? implode("\n", $lines) : null;
+        }
         if (! $p->ok()) {
             return Saver::invalid($p);
         }
 
         return Saver::save($request, Project::class, 'projects', $record, $row);
+    }
+
+    public static function hasVideoColumn(): bool
+    {
+        static $has;
+
+        return $has ??= Schema::hasColumn('projects', 'video_urls');
     }
 }
