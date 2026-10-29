@@ -13,9 +13,9 @@
     {{-- Brand strip (logos from the owner's brand sheet). --}}
     <section aria-label="Brands we carry" class="border-b border-steel-200 bg-white">
         <x-container>
-            <img src="/images/brand-logos-v2-2400.webp" srcset="/images/brand-logos-v2-1200.webp 1200w, /images/brand-logos-v2-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
+            <img src="/images/brand-logos-v3-2400.webp" srcset="/images/brand-logos-v3-1200.webp 1200w, /images/brand-logos-v3-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
                 width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full"
-                alt="Brands we carry: GoodWe, Jinko Solar, Solis, Luxpower Tek, Seraphim, AESOLAR, Dyness, ATE and Projoy Electric">        </x-container>
+                alt="Brands we carry: GoodWe, Jinko Solar, Solis, Luxpower Tek, Seraphim, AESOLAR, Sungrow, Dyness, ATE and Projoy Electric">        </x-container>
     </section>
     <x-container class="py-10">
         <form action="/products" method="get" role="search" aria-label="Search products" class="grid gap-3 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
