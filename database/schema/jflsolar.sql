@@ -270,6 +270,7 @@ CREATE TABLE `projects` (
   `scope` varchar(600) DEFAULT NULL,
   `summary` varchar(300) NOT NULL DEFAULT '',
   `description` text NOT NULL,
+  `video_urls` text DEFAULT NULL,
   `admin_notes` text DEFAULT NULL,
   `status` varchar(10) NOT NULL DEFAULT 'draft',
   `featured` tinyint(1) NOT NULL DEFAULT 0,
@@ -349,6 +350,7 @@ INSERT INTO `migrations` VALUES
 (2,'0001_01_01_000001_create_cache_table',1),
 (3,'0001_01_01_000002_create_jobs_table',1),
 (4,'2026_10_17_000100_create_site_tables',1),
-(5,'2026_10_28_000100_create_page_texts_table',1);
+(5,'2026_10_28_000100_create_page_texts_table',1),
+(6,'2026_10_29_000100_add_video_urls_to_projects',1);
 commit;
 SET FOREIGN_KEY_CHECKS = 1;
