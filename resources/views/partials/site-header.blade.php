@@ -10,13 +10,14 @@
     <div class="mx-auto flex h-[4.5rem] max-w-[76rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-20 lg:px-8">
         <x-logo priority />
         <div class="ml-auto flex items-center gap-1 lg:gap-4">
-            <nav aria-label="Main" class="hidden lg:block">
+            <nav aria-label="Main" class="site-nav hidden lg:block">
+                <style>@media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
                         @php $active = $isActive($item['href']); @endphp
                         <li>
                             <a href="{{ $item['href'] }}" @if ($active) aria-current="page" @endif
-                                class="relative inline-flex min-h-11 items-center px-3 text-[0.95rem] font-semibold transition-colors {{ $active ? 'text-steel-950' : 'text-steel-700 hover:text-steel-950' }}">
+                                class="relative inline-flex min-h-11 items-center px-3 text-[0.95rem] font-semibold whitespace-nowrap transition-colors {{ $active ? 'text-steel-950' : 'text-steel-700 hover:text-steel-950' }}">
                                 {{ $item['label'] }}
                                 @if ($active)<span aria-hidden="true" class="absolute inset-x-3 bottom-1 h-[3px] rounded bg-gold-500"></span>@endif
                             </a>
