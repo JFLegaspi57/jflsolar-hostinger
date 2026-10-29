@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Middleware\EnsureStaff;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PageController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public site
@@ -18,7 +19,9 @@ Route::get('/products', [PageController::class, 'products']);
 Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug', '[a-z0-9-]+');
 Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
-Route::get('/solar-calculator', [PageController::class, 'calculator']);
+Route::get('/pv-calculator', [PageController::class, 'calculator']);
+// Old address: keep shared links working (query string carried over).
+Route::get('/solar-calculator', fn (Request $r) => redirect()->to('/pv-calculator'.(($q = (string) $r->server('QUERY_STRING')) !== '' ? '?'.$q : ''), 301));
 Route::get('/contact', [ContactController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'submit']);
 Route::get('/privacy', [PageController::class, 'privacy']);
