@@ -15,6 +15,7 @@ final class Site
         ['href' => '/packages', 'label' => 'Packages'],
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
+        ['href' => '/solar-calculator', 'label' => 'Calculator'],
         ['href' => '/about', 'label' => 'About'],
         ['href' => '/contact', 'label' => 'Contact'],
     ];
