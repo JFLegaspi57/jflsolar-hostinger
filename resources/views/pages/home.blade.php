@@ -11,7 +11,7 @@
             <img src="/images/home-roof2-1280.jpg" srcset="/images/home-roof2-640.jpg 640w, /images/home-roof2-960.jpg 960w, /images/home-roof2-1280.jpg 1280w"
                 sizes="(min-width: 1024px) 62vw, 100vw" width="1280" height="577" fetchpriority="high" decoding="async"
                 alt="Two JFL Solar technicians in hard hats and safety vests installing panels on a large commercial rooftop"
-                class="absolute inset-0 h-full w-full object-cover" style="object-position: 30% 55%" />
+                class="absolute inset-0 h-full w-full object-cover" style="object-position: 5% 55%" />
             <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-steel-950 to-transparent lg:hidden"></div>
             <div aria-hidden="true" class="absolute inset-0 hidden bg-gradient-to-r from-transparent from-55% to-steel-950 lg:block"></div>
         </div>
