@@ -5,9 +5,14 @@
         <x-container>
             <div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                 <x-section-heading id="reviews-title" eyebrow="Customer reviews" title="What people say about us" />
-                <a href="{{ \App\Support\Reviews::SOURCE_URL }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center gap-2 font-semibold text-steel-900 underline-offset-4 hover:underline">
-                    <x-icon name="facebook" class="size-5" /> Read all reviews on Facebook<span class="sr-only"> (opens in a new tab)</span>
-                </a>
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <a href="{{ \App\Support\Reviews::SOURCE_URL }}" target="_blank" rel="noopener" class="inline-flex min-h-11 shrink-0 items-center gap-2 font-semibold text-steel-900 underline-offset-4 hover:underline">
+                        <x-icon name="facebook" class="size-5" /> Read all reviews<span class="sr-only"> on Facebook (opens in a new tab)</span>
+                    </a>
+                    <a href="{{ \App\Support\Reviews::SOURCE_URL }}" target="_blank" rel="noopener" class="{{ \App\Support\Ui::button('primary', 'md') }}">
+                        Write a review<span class="sr-only"> on Facebook (opens in a new tab)</span>
+                    </a>
+                </div>
             </div>
             <ul class="mt-10 grid gap-6 md:grid-cols-3" data-reviews>
                 @foreach ($reviews as $r)
