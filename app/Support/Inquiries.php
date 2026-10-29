@@ -93,17 +93,22 @@ final class Inquiries
         if (mb_strlen($v['name']) < 2) {
             $e['name'] = 'Enter your name.';
         }
-        if ($v['email'] !== '' && ! preg_match('/^[^\s@<>()[\],;:"]+@[^\s@<>()[\],;:"]+\.[a-z]{2,}$/i', $v['email'])) {
-            $e['email'] = 'Enter a valid email address, like name@example.com.';
-        }
-        if ($v['phone'] !== '') {
+        // Phone, email and location are all required.
+        if ($v['phone'] === '') {
+            $e['phone'] = 'Enter your mobile or phone number.';
+        } else {
             $digits = strlen(preg_replace('/\D/', '', $v['phone']));
             if (! preg_match('/^[0-9+()\-.\s]+$/', $v['phone']) || $digits < 7 || $digits > 15) {
                 $e['phone'] = 'Enter a valid phone number, like 0917 123 4567.';
             }
         }
-        if ($v['email'] === '' && $v['phone'] === '') {
-            $e['contact'] = 'Give us a phone number or an email address so we can reply.';
+        if ($v['email'] === '') {
+            $e['email'] = 'Enter your email address.';
+        } elseif (! preg_match('/^[^\s@<>()[\],;:"]+@[^\s@<>()[\],;:"]+\.[a-z]{2,}$/i', $v['email'])) {
+            $e['email'] = 'Enter a valid email address, like name@example.com.';
+        }
+        if (mb_strlen($v['location']) < 2) {
+            $e['location'] = 'Enter your city or province.';
         }
         if (! array_key_exists($v['inquiry_type'], Labels::INQUIRY_TYPES)) {
             $e['inquiry_type'] = 'Choose what your inquiry is about.';
