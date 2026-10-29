@@ -211,6 +211,8 @@ await pub.goto(base + "/contact", { waitUntil: "load" });
 await new Promise((r) => setTimeout(r, 3500));
 await pub.$eval("#f-name", (e) => (e.value = "Test Customer"));
 await pub.$eval("#f-phone", (e) => (e.value = "0917 123 4567"));
+await pub.$eval("#f-email", (e) => (e.value = "customer@example.com"));
+await pub.$eval("#f-location", (e) => (e.value = "Quezon City"));
 await pub.select("#f-type", "residential");
 await pub.$eval("#f-message", (e) => (e.value = "Testing the inquiry inbox from the e2e test."));
 await Promise.all([pub.waitForNavigation({ waitUntil: "load" }), pub.$eval("form[data-inquiry-form]", (f) => f.requestSubmit())]);
