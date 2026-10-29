@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => \App\Support\Site::DESCRIPTION, 'path' => '/', 'noindex' => false])
+@props(['title' => null, 'description' => \App\Support\Site::DESCRIPTION, 'path' => '/', 'noindex' => false, 'reviewsAboveFooter' => true])
 @php
     use App\Support\Site;
     $fullTitle = $path === '/' || ! $title ? Site::NAME.' — '.Site::TAGLINE : $title.' | '.Site::NAME;
@@ -45,7 +45,7 @@
     <main id="main" class="flex-1">
         {{ $slot }}
     </main>
-    @include('partials.reviews')
+    @if ($reviewsAboveFooter) @include('partials.reviews') @endif
     @include('partials.site-footer')
 </body>
 </html>
