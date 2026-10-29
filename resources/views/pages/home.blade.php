@@ -4,7 +4,7 @@
     use App\Support\Site;
     use App\Support\Ui;
 @endphp
-<x-site-layout path="/" description="Solar PV installation, consultancy and equipment distribution for homes, businesses and installers across the Philippines. Request a quote from JFL Solar.">
+<x-site-layout path="/" :reviews-above-footer="false" description="Solar PV installation, consultancy and equipment distribution for homes, businesses and installers across the Philippines. Request a quote from JFL Solar.">
     {{-- Hero — owner-supplied rooftop photo. Mobile/tablet: photo band above the text. Desktop: split, photo fading into the slate panel. --}}
     <section aria-labelledby="hero-title" class="hero-tilt on-dark relative isolate overflow-hidden bg-steel-950 text-white" data-hero-tilt>
         <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">
@@ -27,6 +27,9 @@
         </x-container>
     </section>
     @include('partials.hero-tilt')
+
+    {{-- Customer reviews right under the banner (on other pages they sit above the footer). --}}
+    @include('partials.reviews')
 
     {{-- Two pathways --}}
     <section aria-labelledby="paths-title" class="border-b border-steel-200 bg-white">
