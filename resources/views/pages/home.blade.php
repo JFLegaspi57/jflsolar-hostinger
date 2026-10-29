@@ -22,7 +22,6 @@
                 </p>
                 <h1 id="hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ PageText::get('home.hero.title') }}</h1>
                 <p class="mt-6 text-lg text-steel-100">{{ PageText::get('home.hero.intro') }}</p>
-                <p class="mt-6 text-sm font-semibold text-steel-100">{{ $settings->service_area }}</p>
             </div>
         </x-container>
     </section>
