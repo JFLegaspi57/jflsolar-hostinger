@@ -43,6 +43,7 @@ Route::prefix('admin')->group(function () {
         Route::post('password', [Admin\AuthController::class, 'updatePassword']);
 
         Route::get('/', [Admin\DashboardController::class, 'index']);
+        Route::get('visitors', [Admin\VisitorsController::class, 'index']);
         Route::get('media/{path}', [MediaController::class, 'admin'])->where('path', '(packages|products|projects|blocks)/.*');
 
         $uuid = '[0-9a-f-]{36}';
