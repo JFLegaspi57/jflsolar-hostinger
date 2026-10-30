@@ -4,7 +4,7 @@
     $chip = 'inline-flex min-h-11 shrink-0 items-center rounded-full border border-steel-300 px-4 text-sm font-semibold whitespace-nowrap text-steel-800 hover:border-steel-900 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white';
     $hasFilters = $filters['q'] !== '' || $filters['category'] !== '' || $filters['brand'] !== '';
 @endphp
-<x-site-layout title="Solar Equipment" path="/products" description="Solar panels, inverters, batteries, mounting hardware, cables, connectors and protection devices. Search the JFL Solar catalogue and request a product quote.">
+<x-site-layout title="Solar Equipment" path="/products" :reviews-above-footer="false" description="Solar panels, inverters, batteries, mounting hardware, cables, connectors and protection devices. Search the JFL Solar catalogue and request a product quote.">
     <x-page-hero eyebrow="Products" title="Solar equipment" intro="We offer free comprehensive and unparalleled technical support, from installation, commissioning, and to troubleshooting, for all clients who purchase their supplies from us."
         image="/images/products-rooftop-1280.jpg" srcset="/images/products-rooftop-640.jpg 640w, /images/products-rooftop-960.jpg 960w, /images/products-rooftop-1280.jpg 1280w"
         imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
