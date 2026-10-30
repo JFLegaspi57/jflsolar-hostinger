@@ -44,15 +44,16 @@
             @csrf
             <div class="sm:col-span-2">
                 <label for="fb-token" class="mb-1.5 block font-semibold text-steel-950">Access token <span class="text-sm font-normal text-steel-600">(required)</span></label>
-                <input id="fb-token" name="token" type="password" required maxlength="1000" autocomplete="off" spellcheck="false" class="{{ $input }}">
+                {{-- Plain text (masked with CSS) so browsers never autofill a saved password here. --}}
+                <textarea id="fb-token" name="token" required maxlength="1000" rows="3" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" class="{{ $input }} py-2 font-mono text-sm" style="-webkit-text-security: disc"></textarea>
             </div>
             <div>
                 <label for="fb-app-id" class="mb-1.5 block font-semibold text-steel-950">App ID</label>
-                <input id="fb-app-id" name="app_id" inputmode="numeric" maxlength="40" autocomplete="off" class="{{ $input }}">
+                <input id="fb-app-id" name="app_id" inputmode="numeric" maxlength="40" autocomplete="off" data-1p-ignore data-lpignore="true" class="{{ $input }}">
             </div>
             <div>
                 <label for="fb-app-secret" class="mb-1.5 block font-semibold text-steel-950">App secret</label>
-                <input id="fb-app-secret" name="app_secret" type="password" maxlength="100" autocomplete="off" spellcheck="false" class="{{ $input }}">
+                <input id="fb-app-secret" name="app_secret" type="text" maxlength="100" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-1p-ignore data-lpignore="true" class="{{ $input }}" style="-webkit-text-security: disc">
             </div>
             <p class="text-sm text-steel-600 sm:col-span-2">Without the app ID and secret it still works, but Facebook's token stops working after about an hour, and you would need to connect again.</p>
             <div class="sm:col-span-2">
