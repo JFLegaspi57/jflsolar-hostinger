@@ -19,7 +19,6 @@ final class Visitors
 {
     public const TZ = 'Asia/Manila';
     public const COOKIE = 'jfl_vid';
-    public const SEEN_COOKIE = 'jfl_vd';
 
     /** Create the two tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
@@ -78,6 +77,28 @@ final class Visitors
             'pv' => $pv, 'id_hash' => self::hash($visitorId), 'day' => $now->toDateString(), 'hour' => (int) $now->format('G'),
             'path' => mb_substr('/'.ltrim($path, '/'), 0, 190), 'created_at' => now(),
         ]);
+    }
+
+    /** The page was served: remember for 2 hours which page and browser this view id belongs to. */
+    public static function pending(string $pv, string $visitorId, string $path): void
+    {
+        Cache::put('pv:'.$pv, ['vid' => $visitorId, 'path' => '/'.ltrim($path, '/')], now()->addHours(2));
+    }
+
+    /**
+     * The page's script checked in, so a real browser is showing it: record the visit-day
+     * (with country and city) and the page view. Unknown or already used ids do nothing.
+     */
+    public static function start(string $pv, ?string $ip): bool
+    {
+        $p = Cache::pull('pv:'.$pv);
+        if (! is_array($p) || empty($p['vid'])) {
+            return false;
+        }
+        self::record($p['vid'], GeoIp::lookup($ip));
+        self::recordPage($pv, $p['vid'], (string) $p['path']);
+
+        return true;
     }
 
     /** Time-on-page report from the browser (sent when the visitor leaves or switches away). */
