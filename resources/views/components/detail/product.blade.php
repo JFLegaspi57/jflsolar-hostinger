@@ -52,7 +52,7 @@
                     </a>
                 @endif
                 @if ($product->manual)
-                    <a href="{{ $product->manual->url(null, $admin) }}" download class="{{ $product->datasheet ? 'mt-1' : 'mt-4' }} flex min-h-11 items-center gap-2 font-semibold text-steel-900 underline" style="width: fit-content">
+                    <a href="{{ $product->manual->url(null, $admin) }}" @if ($product->manual->externalUrl()) target="_blank" rel="noopener" @else download @endif class="{{ $product->datasheet ? 'mt-1' : 'mt-4' }} flex min-h-11 items-center gap-2 font-semibold text-steel-900 underline" style="width: fit-content">
                         <x-icon name="file" class="size-5 text-gold-800" />
                         Download user manual (PDF{{ $product->manual->bytes ? ', '.max(1, round($product->manual->bytes / 1024)).' KB' : '' }})
                     </a>
