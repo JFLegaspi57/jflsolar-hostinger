@@ -11,6 +11,7 @@
         ['/admin/text', 'Page text', false],
         ['/admin/content', 'Site content', false],
         ['/admin/settings', 'Contact & settings', false],
+        ['/admin/facebook-reviews', 'Facebook reviews', true],
         ['/admin/staff', 'Staff', true],
     ];
     $active = fn ($href) => $href === '/admin' ? request()->is('admin') : request()->is(ltrim($href, '/'), ltrim($href, '/').'/*');
