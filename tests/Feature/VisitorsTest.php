@@ -17,7 +17,7 @@ class VisitorsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        Cache::forget('visitor-tables-v1');
+        Cache::forget('visitor-tables-v2');
     }
 
     public function test_a_browser_is_counted_once_a_day_and_robots_are_not(): void
