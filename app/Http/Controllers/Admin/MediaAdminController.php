@@ -207,6 +207,32 @@ class MediaAdminController extends Controller
         return $this->removePdf($product, 'manual');
     }
 
+    /**
+     * Points the user manual at the manufacturer's own copy (for manuals too large to upload).
+     * Replaces an uploaded manual; no file is stored. The link is kept in the asset's caption.
+     */
+    public function manualLink(Request $request, string $product): RedirectResponse
+    {
+        $p = Product::query()->find($product) ?? abort(404);
+        $edit = '/admin/products/'.$p->id;
+        $url = trim((string) $request->input('url', ''));
+        if (strlen($url) > 300 || ! preg_match('#^https://[A-Za-z0-9.-]+\.[A-Za-z]{2,}(/[^\s<>"]*)?$#', $url) || filter_var($url, FILTER_VALIDATE_URL) === false) {
+            return redirect($edit.'#manual')->withErrors(['url' => 'Enter the full https:// address of the manufacturer’s PDF (up to 300 characters).'], 'manual')->withInput();
+        }
+        $name = mb_substr(rawurldecode(basename((string) parse_url($url, PHP_URL_PATH))) ?: 'user-manual.pdf', 0, 200);
+        $old = MediaAsset::query()->where('product_id', $p->id)->where('kind', 'manual')->first();
+        if ($old) {
+            $oldFiles = clone $old;
+            $old->forceFill(['caption' => $url, 'file_name' => $name, 'bytes' => null])->save();
+            MediaStore::deleteFiles($oldFiles);   // removes an uploaded file it replaces (nothing if it was a link)
+        } else {
+            MediaAsset::query()->create(['kind' => 'manual', 'storage_key' => "products/{$p->id}/".Str::uuid(), 'product_id' => $p->id, 'alt' => '', 'caption' => $url, 'file_name' => $name, 'widths' => []]);
+        }
+        PublicContent::flush();
+
+        return $this->sheetDone($edit, 'manual', $old ? 'User manual link saved.' : 'User manual link added.');
+    }
+
     /** Stores a product PDF of the given kind (datasheet | manual); the working file is kept until the new one is stored. */
     private function storePdf(Request $request, string $product, string $kind): RedirectResponse
     {
@@ -225,7 +251,8 @@ class MediaAdminController extends Controller
         }
         $name = mb_substr((string) $request->file('file')->getClientOriginalName(), 0, 200);
         if ($old) {
-            $ok = MediaAsset::query()->whereKey($old->id)->where('storage_key', $old->storage_key)->update(['storage_key' => $key, 'file_name' => $name, 'bytes' => $check['bytes'], 'updated_at' => now()]);
+            // caption => null: an uploaded file replaces a manual that was a link.
+            $ok = MediaAsset::query()->whereKey($old->id)->where('storage_key', $old->storage_key)->update(['storage_key' => $key, 'file_name' => $name, 'bytes' => $check['bytes'], 'caption' => null, 'updated_at' => now()]);
             if (! $ok) {
                 MediaStore::deleteFiles(new MediaAsset(['storage_key' => $key, 'kind' => $kind]));
 
