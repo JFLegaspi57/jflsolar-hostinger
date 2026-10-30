@@ -5,8 +5,8 @@
 @endphp
 <x-site-layout title="Solar Packages" path="/packages" description="Installed solar systems and equipment-only bundles with inverter kW, array kWp and battery kWh, inclusions, exclusions and pricing basis. Compare packages and ask JFL Solar.">
     <x-page-hero eyebrow="Packages" title="Solar packages" :intro="$intro"
-        image="/images/packages-stock-1280.jpg" srcset="/images/packages-stock-640.jpg 640w, /images/packages-stock-960.jpg 960w, /images/packages-stock-1280.jpg 1280w, /images/packages-stock-1470.jpg 1470w"
-        imageAlt="Pallets of boxed solar inverters stacked in the JFL Solar warehouse" focus="40% 35%" />
+        image="/images/packages-vents-1280.jpg" srcset="/images/packages-vents-640.jpg 640w, /images/packages-vents-960.jpg 960w, /images/packages-vents-1280.jpg 1280w"
+        imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%" />
 
     <x-container class="pt-10 pb-24">
         <nav aria-label="Package type" class="-mx-1 flex flex-wrap gap-2">
