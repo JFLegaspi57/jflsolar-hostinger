@@ -93,6 +93,11 @@ Route::prefix('admin')->group(function () {
             Route::post('staff/{user}/active', [Admin\StaffController::class, 'active'])->whereNumber('user');
             Route::post('staff/{user}/reset', [Admin\StaffController::class, 'reset'])->whereNumber('user');
             Route::post('staff/{user}/delete', [Admin\StaffController::class, 'destroy'])->whereNumber('user');
+
+            Route::get('facebook-reviews', [Admin\FacebookReviewsController::class, 'show']);
+            Route::post('facebook-reviews/connect', [Admin\FacebookReviewsController::class, 'connect']);
+            Route::post('facebook-reviews/sync', [Admin\FacebookReviewsController::class, 'sync']);
+            Route::post('facebook-reviews/disconnect', [Admin\FacebookReviewsController::class, 'disconnect']);
         });
     });
 });
