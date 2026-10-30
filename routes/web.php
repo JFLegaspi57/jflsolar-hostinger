@@ -88,6 +88,7 @@ Route::prefix('admin')->group(function () {
         Route::post('products/{id}/datasheet/delete', [Admin\MediaAdminController::class, 'deleteDatasheet'])->where('id', $uuid);
         Route::post('products/{id}/manual', [Admin\MediaAdminController::class, 'manual'])->where('id', $uuid);
         Route::post('products/{id}/manual/delete', [Admin\MediaAdminController::class, 'deleteManual'])->where('id', $uuid);
+        Route::post('products/{id}/manual/link', [Admin\MediaAdminController::class, 'manualLink'])->where('id', $uuid);
 
         Route::get('content', [Admin\ContentController::class, 'index']);
         Route::get('content/new', [Admin\ContentController::class, 'create']);
