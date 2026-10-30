@@ -14,6 +14,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SecurityHeaders::class);
+        $middleware->web(append: [\App\Http\Middleware\CountVisitors::class]);
         // No proxies are trusted: the client address is the connection's address,
         // so visitors cannot spoof X-Forwarded-For to dodge rate limits. (Hostinger's
         // web server terminates HTTPS itself and sets HTTPS for PHP directly.)
