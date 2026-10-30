@@ -51,6 +51,12 @@
                         Download datasheet (PDF{{ $product->datasheet->bytes ? ', '.max(1, round($product->datasheet->bytes / 1024)).' KB' : '' }})
                     </a>
                 @endif
+                @if ($product->manual)
+                    <a href="{{ $product->manual->url(null, $admin) }}" download class="{{ $product->datasheet ? 'mt-1' : 'mt-4' }} flex min-h-11 items-center gap-2 font-semibold text-steel-900 underline" style="width: fit-content">
+                        <x-icon name="file" class="size-5 text-gold-800" />
+                        Download user manual (PDF{{ $product->manual->bytes ? ', '.max(1, round($product->manual->bytes / 1024)).' KB' : '' }})
+                    </a>
+                @endif
             </div>
 
             <div class="space-y-3 lg:col-start-1 lg:row-start-1">
