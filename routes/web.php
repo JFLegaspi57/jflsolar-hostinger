@@ -28,9 +28,13 @@ Route::get('/solar-calculator', fn (Request $r) => redirect()->to('/pv-calculato
 Route::post('/pv', function (Request $r) {
     $id = (string) $r->input('id', '');
     $s = (int) $r->input('s', 0);
-    if (preg_match('/^[a-f0-9]{24}$/', $id) && $s > 0) {
+    if (preg_match('/^[a-f0-9]{24}$/', $id)) {
         try {
-            \App\Support\Visitors::recordDuration($id, $s);
+            if ($r->input('start') === '1') {
+                \App\Support\Visitors::start($id, $r->ip());   // page shown in a real browser: count it
+            } elseif ($s > 0) {
+                \App\Support\Visitors::recordDuration($id, $s);
+            }
         } catch (\Throwable) {
         }
     }
