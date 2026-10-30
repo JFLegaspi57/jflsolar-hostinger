@@ -10,7 +10,7 @@ return new class extends Migration
     /** Visitor counts (admin → Visitors). The website also creates these itself if missing. */
     public function up(): void
     {
-        Cache::forget('visitor-tables-v1');
+        Cache::forget('visitor-tables-v2');
         Visitors::ensureTables();
     }
 
@@ -18,6 +18,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('visitor_days');
         Schema::dropIfExists('visitor_ids');
-        Cache::forget('visitor-tables-v1');
+        Cache::forget('visitor-tables-v2');
     }
 };
