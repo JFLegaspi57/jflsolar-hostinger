@@ -36,7 +36,7 @@ class FacebookReviewsTest extends TestCase
             ], 'paging' => ['next' => 'https://graph.facebook.com/123/ratings?after=CUR&access_token=PAGETOKEN']]);
         });
 
-        $page = FacebookReviews::connect('SHORT', '111', 'SECRET');
+        $page = FacebookReviews::connect('EAASHORT', '111', 'SECRET');
         $this->assertSame('JFL Solar', $page['page_name']);
         $this->assertTrue($page['never_expires']);
         $this->assertStringNotContainsString('PAGETOKEN', Storage::disk('local')->get('facebook/connection.enc'));
