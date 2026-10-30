@@ -1,5 +1,5 @@
 {{-- Three random customer recommendations from the JFL Solar Facebook page, shown above the footer on every public page. --}}
-@php $reviews = \App\Support\Reviews::random(3); @endphp
+@php \App\Support\FacebookReviews::refreshIfDue(); $reviews = \App\Support\Reviews::random(3); @endphp
 @if ($reviews)
     <section aria-labelledby="reviews-title" class="border-t border-steel-200 bg-steel-50 py-16 sm:py-20">
         <x-container>
