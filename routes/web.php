@@ -22,6 +22,21 @@ Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug'
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
 // Old address: keep shared links working (query string carried over).
 Route::get('/solar-calculator', fn (Request $r) => redirect()->to('/pv-calculator'.(($q = (string) $r->server('QUERY_STRING')) !== '' ? '?'.$q : ''), 301));
+// Time-on-page reports from the page's own timing script (admin → Visitors). Sent with
+// navigator.sendBeacon, so no CSRF token (see bootstrap/app.php); it can only fill in a
+// duration for a page view the server itself recorded in the last few hours.
+Route::post('/pv', function (Request $r) {
+    $id = (string) $r->input('id', '');
+    $s = (int) $r->input('s', 0);
+    if (preg_match('/^[a-f0-9]{24}$/', $id) && $s > 0) {
+        try {
+            \App\Support\Visitors::recordDuration($id, $s);
+        } catch (\Throwable) {
+        }
+    }
+
+    return response()->noContent();
+})->middleware('throttle:120,1');
 Route::get('/contact', [ContactController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'submit']);
 Route::get('/privacy', [PageController::class, 'privacy']);
