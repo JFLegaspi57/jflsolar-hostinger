@@ -51,9 +51,18 @@
                     var d = new FormData(); d.append('id', id); d.append('s', s);
                     navigator.sendBeacon('/pv', d);
                 }
-                // Check in once the page is showing: only browsers that run this script are counted as visitors.
-                if (navigator.sendBeacon) { var h = new FormData(); h.append('id', id); h.append('start', '1'); navigator.sendBeacon('/pv', h); }
-                document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') send(); else since = Date.now(); });
+                // Check in once the page has been on screen for a second: only real browsers showing the page are
+                // counted (robots and uptime checkers either don't run this script or close the page instantly).
+                var started = false, timer = 0;
+                function checkIn() {
+                    if (started || !navigator.sendBeacon) return;
+                    started = true;
+                    var h = new FormData(); h.append('id', id); h.append('start', '1'); navigator.sendBeacon('/pv', h);
+                }
+                function arm() { if (!started && !timer && document.visibilityState === 'visible') timer = setTimeout(checkIn, 1000); }
+                function disarm() { clearTimeout(timer); timer = 0; }
+                arm();
+                document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') { disarm(); send(); } else { since = Date.now(); arm(); } });
                 window.addEventListener('pagehide', send);
                 window.addEventListener('pageshow', function (e) { if (e.persisted) since = Date.now(); });
             })();
