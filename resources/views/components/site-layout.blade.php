@@ -37,6 +37,26 @@
     @vite(['resources/css/app.css', 'resources/js/site.js'])
     <script type="application/ld+json">{!! \App\Support\Seo::organizationJsonLd(\App\Support\PublicContent::settings()) !!}</script>
     {{ $head ?? '' }}
+    @isset($pageviewId)
+        {{-- Time on page for the admin Visitors report: counts only while the page is on screen, sent when the visitor leaves or switches away. --}}
+        <script>
+            (function () {
+                var id = '{{ $pageviewId }}', total = 0, since = document.visibilityState === 'visible' ? Date.now() : 0, sent = 0;
+                function pause() { if (since) { total += Date.now() - since; since = 0; } }
+                function send() {
+                    pause();
+                    var s = Math.round(total / 1000);
+                    if (s < 1 || s === sent || !navigator.sendBeacon) return;
+                    sent = s;
+                    var d = new FormData(); d.append('id', id); d.append('s', s);
+                    navigator.sendBeacon('/pv', d);
+                }
+                document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') send(); else since = Date.now(); });
+                window.addEventListener('pagehide', send);
+                window.addEventListener('pageshow', function (e) { if (e.persisted) since = Date.now(); });
+            })();
+        </script>
+    @endisset
 </head>
 <body class="flex min-h-dvh flex-col antialiased">
     <a href="#main" class="sr-only z-50 rounded bg-gold-500 px-4 py-3 font-semibold text-steel-950 focus:not-sr-only focus:fixed focus:top-2 focus:left-2">Skip to main content</a>
