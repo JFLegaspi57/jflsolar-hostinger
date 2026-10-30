@@ -20,18 +20,32 @@ class VisitorsTest extends TestCase
         Cache::forget('visitor-tables-v3');
     }
 
-    public function test_a_browser_is_counted_once_a_day_and_robots_are_not(): void
+    public function test_only_browsers_that_run_the_page_script_are_counted(): void
     {
-        $first = $this->withHeader('User-Agent', self::UA)->get('/');
-        $first->assertOk()->assertCookie(Visitors::COOKIE);
-        $vid = $first->getCookie(Visitors::COOKIE, false)->getValue();
+        $id = fn ($res) => preg_match("/var id = '([a-f0-9]{24})'/", $res->getContent(), $m) ? $m[1] : null;
 
-        $this->withHeader('User-Agent', self::UA)->withUnencryptedCookie(Visitors::COOKIE, $vid)->get('/services')->assertOk();
-        $this->withHeader('User-Agent', 'Googlebot/2.1')->get('/about')->assertOk();
-        $this->withHeaders(['User-Agent' => self::UA, 'DNT' => '1'])->get('/about')->assertOk();
+        // A robot / uptime checker just loads the page: nothing is recorded.
+        $this->withHeader('User-Agent', self::UA)->get('/')->assertOk();
+        $this->assertSame(0, DB::table('visitor_days')->count());
+
+        // A browser loads the page and its script checks in: counted once.
+        $first = $this->withHeader('User-Agent', self::UA)->get('/');
+        $vid = $first->getCookie(Visitors::COOKIE, false)->getValue();
+        $this->post('/pv', ['id' => $id($first), 'start' => '1'])->assertNoContent();
+        $this->post('/pv', ['id' => $id($first), 'start' => '1'])->assertNoContent();   // repeat: ignored
+        $second = $this->withHeader('User-Agent', self::UA)->withUnencryptedCookie(Visitors::COOKIE, $vid)->get('/services');
+        $this->post('/pv', ['id' => $id($second), 'start' => '1']);
+        $this->post('/pv', ['id' => $id($second), 's' => '42']);
+        $this->post('/pv', ['id' => str_repeat('0', 24), 'start' => '1']);              // made-up id: ignored
+
+        // Robots by name and "Do Not Track" browsers are not even offered a check-in.
+        $bot = $this->withHeader('User-Agent', 'Googlebot/2.1')->get('/about');
+        $this->post('/pv', ['id' => $id($bot), 'start' => '1']);
 
         $this->assertSame(1, DB::table('visitor_ids')->count());
         $this->assertSame(1, DB::table('visitor_days')->count());
+        $this->assertSame(['/', '/services'], DB::table('page_views')->orderBy('id')->pluck('path')->all());
+        $this->assertSame(42, (int) DB::table('page_views')->where('path', '/services')->value('duration_s'));
     }
 
     public function test_new_and_returning_are_split_by_first_visit(): void
