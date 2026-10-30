@@ -29,18 +29,21 @@ class MediaAsset extends Model
         ];
     }
 
+    /** Product PDFs: kind => stored file name. */
+    public const PDF_FILES = ['datasheet' => 'datasheet.pdf', 'manual' => 'manual.pdf'];
+
     /** File names stored for this asset. */
     public function files(): array
     {
-        return $this->kind === 'datasheet'
-            ? ['datasheet.pdf']
+        return isset(self::PDF_FILES[$this->kind])
+            ? [self::PDF_FILES[$this->kind]]
             : array_map(fn ($w) => "{$w}.webp", $this->widths ?? []);
     }
 
     /** URL of one variant: /media/… for the public, /admin/media/… for staff (drafts). */
     public function url(?int $width = null, bool $admin = false): string
     {
-        $file = $this->kind === 'datasheet' ? 'datasheet.pdf' : ($width ?? $this->bestWidth(1280)).'.webp';
+        $file = self::PDF_FILES[$this->kind] ?? ($width ?? $this->bestWidth(1280)).'.webp';
 
         return ($admin ? '/admin/media/' : '/media/').$this->storage_key.'/'.$file;
     }
