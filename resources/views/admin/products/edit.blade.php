@@ -81,7 +81,9 @@
             @php $manualError = $errors->getBag('manual')->first('file'); @endphp
             <section id="manual" aria-labelledby="um-title" class="scroll-mt-6 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-5 sm:p-6">
                 <h2 id="um-title" class="text-lg font-bold text-steel-950">User manual (PDF)</h2>
-                @if ($product->manual)
+                @if ($product->manual && $product->manual->externalUrl())
+                    <p class="mt-1 text-sm text-steel-700">Current: link to the manufacturer’s copy — <a href="{{ $product->manual->externalUrl() }}" target="_blank" rel="noopener" class="font-semibold break-all underline">{{ $product->manual->externalUrl() }}</a></p>
+                @elseif ($product->manual)
                     <p class="mt-1 text-sm text-steel-700">Current: <a href="{{ $product->manual->url(null, true) }}" target="_blank" rel="noopener" class="font-semibold underline">{{ $product->manual->file_name ?? 'manual.pdf' }}</a>{{ $product->manual->bytes ? ' ('.round($product->manual->bytes / 1024).' KB)' : '' }}</p>
                 @else
                     <p class="mt-1 text-sm text-steel-600">No user manual uploaded. Use the manufacturer’s official manual only. It appears on the product page right below the datasheet.</p>
@@ -95,6 +97,16 @@
                         @if ($manualError)<p id="um-file-error" role="alert" class="mt-1 text-sm font-semibold text-danger-700">{{ $manualError }}</p>@endif
                     </div>
                     <button type="submit" data-pending-label="Uploading…" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-steel-900 px-5 font-semibold text-white disabled:opacity-60">Upload user manual</button>
+                </form>
+                @php $linkError = $errors->getBag('manual')->first('url'); @endphp
+                <form method="post" action="/admin/products/{{ $product->id }}/manual/link" class="mt-4 flex flex-wrap items-end gap-3 border-t border-steel-200 pt-4">
+                    @csrf
+                    <div class="min-w-0 flex-1">
+                        <label for="um-url" class="mb-1 block font-semibold">Or link to the manufacturer’s manual <span class="text-sm font-normal text-steel-600">(for PDFs over 4 MB)</span></label>
+                        <input id="um-url" name="url" type="url" inputmode="url" maxlength="300" required placeholder="https://…/manual.pdf" value="{{ old('url', $product->manual?->externalUrl()) }}" @if ($linkError) aria-invalid="true" aria-describedby="um-url-error" @endif class="min-h-11 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3 text-base">
+                        @if ($linkError)<p id="um-url-error" role="alert" class="mt-1 text-sm font-semibold text-danger-700">{{ $linkError }}</p>@endif
+                    </div>
+                    <button type="submit" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-steel-900 px-5 font-semibold text-white">Save link</button>
                 </form>
                 @if ($product->manual)
                     <div class="mt-3">
