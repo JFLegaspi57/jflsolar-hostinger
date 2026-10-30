@@ -46,6 +46,7 @@ class ProductController extends Controller
         $media = $product->media()->get();
         $product->images = $media->where('kind', 'image')->values();
         $product->datasheet = $media->firstWhere('kind', 'datasheet');
+        $product->manual = $media->firstWhere('kind', 'manual');
 
         return $this->form($request, $product);
     }

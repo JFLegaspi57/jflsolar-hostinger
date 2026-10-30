@@ -22,6 +22,7 @@ class PreviewController extends Controller
             $record->load('category');
             $record->images = $images;
             $record->datasheet = $media->firstWhere('kind', 'datasheet');
+            $record->manual = $media->firstWhere('kind', 'manual');
         } else {
             $record->photos = $images;
             $record->cover = $images->firstWhere('is_cover', true) ?? $images->first();

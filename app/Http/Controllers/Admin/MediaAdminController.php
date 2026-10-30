@@ -188,51 +188,76 @@ class MediaAdminController extends Controller
     /** Upload or replace a product datasheet (PDF). The working datasheet is kept until the new one is stored. */
     public function datasheet(Request $request, string $product): RedirectResponse
     {
+        return $this->storePdf($request, $product, 'datasheet');
+    }
+
+    public function deleteDatasheet(string $product): RedirectResponse
+    {
+        return $this->removePdf($product, 'datasheet');
+    }
+
+    /** Upload or replace a product user manual (PDF). Works the same way as the datasheet. */
+    public function manual(Request $request, string $product): RedirectResponse
+    {
+        return $this->storePdf($request, $product, 'manual');
+    }
+
+    public function deleteManual(string $product): RedirectResponse
+    {
+        return $this->removePdf($product, 'manual');
+    }
+
+    /** Stores a product PDF of the given kind (datasheet | manual); the working file is kept until the new one is stored. */
+    private function storePdf(Request $request, string $product, string $kind): RedirectResponse
+    {
+        $label = self::PDF_LABELS[$kind];
         $p = Product::query()->find($product) ?? abort(404);
         $edit = '/admin/products/'.$p->id;
         $check = ImageProcessor::checkPdf($request->file('file'));
         if (isset($check['error'])) {
-            return $this->sheetDone($edit, $check['error'], true);
+            return $this->sheetDone($edit, $kind, $check['error'], true);
         }
-        $old = MediaAsset::query()->where('product_id', $p->id)->where('kind', 'datasheet')->first();
+        $old = MediaAsset::query()->where('product_id', $p->id)->where('kind', $kind)->first();
         $key = "products/{$p->id}/".Str::uuid();
         $dir = MediaStore::path($key);
-        if (! @mkdir($dir, 0775, true) || ! $request->file('file')->move($dir, 'datasheet.pdf')) {
-            return $this->sheetDone($edit, 'The datasheet could not be stored. Please try again.', true);
+        if (! @mkdir($dir, 0775, true) || ! $request->file('file')->move($dir, MediaAsset::PDF_FILES[$kind])) {
+            return $this->sheetDone($edit, $kind, "The {$label} could not be stored. Please try again.", true);
         }
         $name = mb_substr((string) $request->file('file')->getClientOriginalName(), 0, 200);
         if ($old) {
             $ok = MediaAsset::query()->whereKey($old->id)->where('storage_key', $old->storage_key)->update(['storage_key' => $key, 'file_name' => $name, 'bytes' => $check['bytes'], 'updated_at' => now()]);
             if (! $ok) {
-                MediaStore::deleteFiles(new MediaAsset(['storage_key' => $key, 'kind' => 'datasheet']));
+                MediaStore::deleteFiles(new MediaAsset(['storage_key' => $key, 'kind' => $kind]));
 
-                return $this->sheetDone($edit, 'The datasheet was changed by someone else. Reload and try again.', true);
+                return $this->sheetDone($edit, $kind, "The {$label} was changed by someone else. Reload and try again.", true);
             }
             MediaStore::deleteFiles($old);
         } else {
-            MediaAsset::query()->create(['kind' => 'datasheet', 'storage_key' => $key, 'product_id' => $p->id, 'alt' => '', 'file_name' => $name, 'bytes' => $check['bytes'], 'widths' => []]);
+            MediaAsset::query()->create(['kind' => $kind, 'storage_key' => $key, 'product_id' => $p->id, 'alt' => '', 'file_name' => $name, 'bytes' => $check['bytes'], 'widths' => []]);
         }
 
         PublicContent::flush();
 
-        return $this->sheetDone($edit, $old ? 'Datasheet replaced.' : 'Datasheet uploaded.');
+        return $this->sheetDone($edit, $kind, ucfirst($label).($old ? ' replaced.' : ' uploaded.'));
     }
 
-    public function deleteDatasheet(string $product): RedirectResponse
+    private function removePdf(string $product, string $kind): RedirectResponse
     {
-        $m = MediaAsset::query()->where('product_id', $product)->where('kind', 'datasheet')->first() ?? abort(404);
+        $m = MediaAsset::query()->where('product_id', $product)->where('kind', $kind)->first() ?? abort(404);
         $m->delete();
         MediaStore::deleteFiles($m);
         PublicContent::flush();
 
-        return $this->sheetDone('/admin/products/'.$product, 'Datasheet removed.');
+        return $this->sheetDone('/admin/products/'.$product, $kind, ucfirst(self::PDF_LABELS[$kind]).' removed.');
     }
 
-    /** Datasheet feedback is shown in the datasheet section, next to its controls. */
-    private function sheetDone(string $edit, string $message, bool $error = false): RedirectResponse
-    {
-        $to = redirect($edit.'#datasheet');
+    private const PDF_LABELS = ['datasheet' => 'datasheet', 'manual' => 'user manual'];
 
-        return $error ? $to->withErrors(['file' => $message], 'datasheet') : $to->with('datasheet_status', $message);
+    /** PDF feedback is shown in that PDF's section (#datasheet or #manual), next to its controls. */
+    private function sheetDone(string $edit, string $kind, string $message, bool $error = false): RedirectResponse
+    {
+        $to = redirect($edit.'#'.$kind);
+
+        return $error ? $to->withErrors(['file' => $message], $kind) : $to->with($kind.'_status', $message);
     }
 }
