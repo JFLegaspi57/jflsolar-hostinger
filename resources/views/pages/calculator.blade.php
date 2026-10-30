@@ -127,7 +127,7 @@
                 </fieldset>
 
                 {{-- 3. Advanced --}}
-                <details class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4" @if (request()->hasAny(['sun', 'eff', 'panel', 'unit', 'export', 'days']) && collect(['sun', 'eff', 'panel', 'unit', 'export', 'days'])->contains(fn ($k) => (float) $in[$k] !== (float) Calc::DEFAULTS[$k])) open @endif>
+                <details class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4" open>
                     <summary class="inline-flex min-h-11 cursor-pointer items-center font-semibold text-steel-900">Advanced settings</summary>
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
                         @foreach ([
