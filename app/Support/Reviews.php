@@ -20,12 +20,21 @@ final class Reviews
         if ($all !== null) {
             return $all;
         }
-        $rows = json_decode((string) @file_get_contents(resource_path('data/facebook-reviews.json')), true);
+        $saved = json_decode((string) @file_get_contents(resource_path('data/facebook-reviews.json')), true);
+        // Reviews from the live Facebook check first (full text), then the saved list; same review only once.
+        $rows = array_merge(FacebookReviews::items(), is_array($saved) ? $saved : []);
         $all = [];
-        foreach (is_array($rows) ? $rows : [] as $row) {
-            if (is_array($row) && isset($row[0], $row[1]) && trim((string) $row[1]) !== '') {
-                $all[] = ['name' => self::shortName((string) $row[0]), 'text' => self::excerpt((string) $row[1])];
+        $seen = [];
+        foreach ($rows as $row) {
+            if (! is_array($row) || ! isset($row[1]) || trim((string) $row[1]) === '') {
+                continue;
             }
+            $key = mb_substr(mb_strtolower(preg_replace('/[^\p{L}\p{N}]+/u', '', (string) $row[1])), 0, 60);
+            if (isset($seen[$key])) {
+                continue;
+            }
+            $seen[$key] = true;
+            $all[] = ['name' => self::shortName((string) ($row[0] ?? '')), 'text' => self::excerpt((string) $row[1])];
         }
 
         return $all;
@@ -47,6 +56,9 @@ final class Reviews
     /** "Francis Caesar M Pira" → "Francis P." (first name and last initial only). */
     public static function shortName(string $name): string
     {
+        if (trim($name) === '') {
+            return 'Facebook customer';   // Facebook sometimes hides the reviewer's name
+        }
         $parts = preg_split('/\s+/u', trim($name)) ?: [];
         if (count($parts) < 2) {
             return trim($name);
