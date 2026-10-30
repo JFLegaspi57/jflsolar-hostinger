@@ -37,7 +37,8 @@
 
             <section>
                 <h2>Cookies and tracking</h2>
-                <p>The public website does not use analytics, advertising or tracking cookies. The website sets a session cookie needed for the inquiry form's security check, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>
+                <p>The website sets a session cookie needed for the inquiry form's security check, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>
+                <p>To count how many people visit, the website also gives your browser a random visitor number in a cookie (kept for up to about 13 months). We store only a scrambled form of that number and the dates it visited — no name, IP address, location or browsing history — and use it only to see how many new and returning visitors the website has. It is not shared with anyone and no advertising or third-party analytics services are used. If your browser sends a “Do Not Track” or “Global Privacy Control” signal, you are not counted. You can also delete or block cookies in your browser settings.</p>
             </section>
 
             <section>
