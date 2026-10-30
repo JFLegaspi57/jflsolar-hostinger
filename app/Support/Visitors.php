@@ -24,7 +24,7 @@ final class Visitors
     /** Create the two tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
     {
-        if (Cache::get('visitor-tables-v1')) {
+        if (Cache::get('visitor-tables-v2')) {
             return;
         }
         if (! Schema::hasTable('visitor_ids')) {
@@ -43,7 +43,15 @@ final class Visitors
                 $t->index('id_hash');
             });
         }
-        Cache::forever('visitor-tables-v1', true);
+        // v2: approximate place of each visit-day (country code + name, city). No IP address is kept.
+        if (! Schema::hasColumn('visitor_days', 'country')) {
+            Schema::table('visitor_days', function (Blueprint $t) {
+                $t->char('country', 2)->nullable();
+                $t->string('country_name', 60)->nullable();
+                $t->string('city', 80)->nullable();
+            });
+        }
+        Cache::forever('visitor-tables-v2', true);
     }
 
     public static function today(): CarbonImmutable
@@ -57,13 +65,16 @@ final class Visitors
     }
 
     /** Record one visit-day for this visitor (called at most once a day per browser). */
-    public static function record(string $visitorId): void
+    public static function record(string $visitorId, ?array $place = null): void
     {
         self::ensureTables();
         $day = self::today()->toDateString();
         $hash = self::hash($visitorId);
 
-        $inserted = DB::table('visitor_days')->insertOrIgnore(['day' => $day, 'id_hash' => $hash]);
+        $inserted = DB::table('visitor_days')->insertOrIgnore([
+            'day' => $day, 'id_hash' => $hash,
+            'country' => $place['country'] ?? null, 'country_name' => $place['country_name'] ?? null, 'city' => $place['city'] ?? null,
+        ]);
         if ($inserted === 0) {
             return;   // already counted today
         }
@@ -125,6 +136,27 @@ final class Visitors
         }
 
         return $out;
+    }
+
+    /**
+     * Unique visitors by country, and by city, between two days. Visits with no known place are "Unknown".
+     *
+     * @return array{countries: list<array{code: ?string, name: string, visitors: int}>, cities: list<array{city: string, country: string, visitors: int}>}
+     */
+    public static function places(CarbonImmutable $from, CarbonImmutable $to, int $limit = 15): array
+    {
+        self::ensureTables();
+        $range = [$from->toDateString(), $to->toDateString()];
+        $countries = DB::table('visitor_days')->whereBetween('day', $range)
+            ->selectRaw('country, MAX(country_name) AS country_name, COUNT(DISTINCT id_hash) AS n')
+            ->groupBy('country')->orderByDesc('n')->limit($limit)->get()
+            ->map(fn ($r) => ['code' => $r->country, 'name' => $r->country ? ($r->country_name ?: $r->country) : 'Unknown', 'visitors' => (int) $r->n])->all();
+        $cities = DB::table('visitor_days')->whereBetween('day', $range)
+            ->selectRaw('city, MAX(country_name) AS country_name, COUNT(DISTINCT id_hash) AS n')
+            ->groupBy('city', 'country')->orderByDesc('n')->limit($limit)->get()
+            ->map(fn ($r) => ['city' => $r->city ?: 'Unknown', 'country' => (string) ($r->country_name ?? ''), 'visitors' => (int) $r->n])->all();
+
+        return ['countries' => $countries, 'cities' => $cities];
     }
 
     /** Total distinct visitors ever recorded. */
