@@ -23,6 +23,7 @@ class VisitorsController extends Controller
             'allTime' => Visitors::allTime(),
             'placesPeriod' => $placesPeriod,
             'places' => Visitors::places($placesPeriod['from'], $placesPeriod['to']),
+            'activity' => Visitors::activity($placesPeriod['from'], $placesPeriod['to']),
             'geo' => ['ready' => GeoIp::ready()] + GeoIp::status(),
         ]);
     }
