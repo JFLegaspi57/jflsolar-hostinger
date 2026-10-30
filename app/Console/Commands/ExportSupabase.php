@@ -97,7 +97,9 @@ class ExportSupabase extends Command
         // 2. Every referenced file.
         $files = [];
         foreach ($data['media_assets'] as $m) {
-            foreach (in_array($m['kind'], ['datasheet', 'manual'], true) ? [$m['kind'].'.pdf'] : array_map(fn ($w) => "{$w}.webp", $m['widths']) as $f) {
+            // A manual that links to the manufacturer's copy (https:// in caption) has no stored file.
+            $linked = $m['kind'] === 'manual' && str_starts_with((string) ($m['caption'] ?? ''), 'https://');
+            foreach ($linked ? [] : (in_array($m['kind'], ['datasheet', 'manual'], true) ? [$m['kind'].'.pdf'] : array_map(fn ($w) => "{$w}.webp", $m['widths'])) as $f) {
                 $files[] = $m['storage_key'].'/'.$f;
             }
         }
