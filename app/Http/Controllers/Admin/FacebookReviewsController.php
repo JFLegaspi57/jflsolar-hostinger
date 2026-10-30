@@ -32,6 +32,14 @@ class FacebookReviewsController extends Controller
         if ($token === '' || mb_strlen($token) > 1000 || mb_strlen($appId) > 40 || mb_strlen($secret) > 100) {
             return redirect('/admin/facebook-reviews')->with('status_error', 'Paste the access token from Facebook (and the app ID and secret, if you have them).');
         }
+        // Facebook access tokens start with "EAA" and are long; refuse anything else (e.g. a password
+        // the browser filled in by mistake) before it is sent anywhere.
+        if (! preg_match('/^EAA[A-Za-z0-9]{40,}$/', $token)) {
+            return redirect('/admin/facebook-reviews')->with('status_error', 'That does not look like a Facebook access token. It should be a long code starting with “EAA”. Copy it again from the Graph API Explorer.');
+        }
+        if ($appId !== '' && ! preg_match('/^[0-9]{5,30}$/', $appId)) {
+            return redirect('/admin/facebook-reviews')->with('status_error', 'The App ID should be numbers only.');
+        }
         if (($appId === '') !== ($secret === '')) {
             return redirect('/admin/facebook-reviews')->with('status_error', 'Enter both the app ID and the app secret, or leave both empty.');
         }
