@@ -12,8 +12,12 @@ use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Counts people (not robots or staff) who open public pages. At most one database write
- * per browser per day: a second cookie remembers that today's visit is already counted.
+ * Prepares counting for people (not robots or staff) who open public pages.
+ *
+ * Nothing is written here. The page remembers (for 2 hours) which page this view is and which
+ * browser asked for it; the visit is only recorded when the page's own script checks in
+ * (POST /pv, see Visitors::start). Real browsers run that script; uptime checkers and simple
+ * robots don't, so they never appear in the numbers.
  * Browsers that send "Do Not Track" or "Global Privacy Control" are not counted.
  */
 class CountVisitors
@@ -32,21 +36,13 @@ class CountVisitors
             if (! $this->shouldCount($request, $response)) {
                 return $response;
             }
-            $today = Visitors::today()->toDateString();
             $vid = (string) $request->cookie(Visitors::COOKIE, '');
             if (! preg_match('/^[a-f0-9]{32}$/', $vid)) {
                 $vid = bin2hex(random_bytes(16));
                 $response->headers->setCookie(Cookie::make(Visitors::COOKIE, $vid, 60 * 24 * 400, '/', null, $request->isSecure(), true, false, 'lax'));
             }
-            Visitors::recordPage($pv, $vid, $request->path());
-            if ($request->cookie(Visitors::SEEN_COOKIE) === $today) {
-                return $response;
-            }
+            Visitors::pending($pv, $vid, $request->path());
             GeoIp::refreshIfDue();
-            Visitors::record($vid, GeoIp::lookup($request->ip()));
-            // Remember until midnight (Philippine time) that today's visit is counted.
-            $minutes = (int) max(1, now(Visitors::TZ)->diffInMinutes(Visitors::today()->addDay()));
-            $response->headers->setCookie(Cookie::make(Visitors::SEEN_COOKIE, $today, $minutes, '/', null, $request->isSecure(), true, false, 'lax'));
         } catch (\Throwable $e) {
             Log::warning('Visitor count skipped: '.$e->getMessage());
         }
