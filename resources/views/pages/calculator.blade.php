@@ -11,7 +11,7 @@
     $r = $result;
     $quoteHref = '/contact?'.http_build_query(array_merge(request()->query(), ['from' => 'calculator'])).'#quote';
 @endphp
-<x-site-layout title="PV System Calculator" path="/pv-calculator" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
+<x-site-layout title="PV System Calculator" path="/pv-calculator" :reviews-above-footer="false" description="Estimate the solar panels, inverter and battery your home or business needs from your monthly electricity bill or appliance list, then request a JFL Solar quotation.">
     <x-slot:head>
         <style>
             .calc-opt { display: block; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-panel); background: #fff; padding: 1rem; }

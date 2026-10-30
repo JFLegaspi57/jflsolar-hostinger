@@ -1,4 +1,4 @@
-<x-site-layout title="Projects" path="/projects" description="Solar PV projects by JFL Solar for residential, commercial and industrial clients.">
+<x-site-layout title="Projects" path="/projects" :reviews-above-footer="false" description="Solar PV projects by JFL Solar for residential, commercial and industrial clients.">
     <x-page-hero eyebrow="Projects" title="Project gallery" intro="Residential, commercial and industrial solar work."
         image="/images/projects-roofvents-1280.jpg" srcset="/images/projects-roofvents-640.jpg 640w, /images/projects-roofvents-960.jpg 960w, /images/projects-roofvents-1280.jpg 1280w, /images/projects-roofvents-1600.jpg 1600w"
         imageAlt="Rows of newly installed solar panels on a commercial metal roof with roof vents under a blue sky" focus="50% 62%" :flip="true" />
