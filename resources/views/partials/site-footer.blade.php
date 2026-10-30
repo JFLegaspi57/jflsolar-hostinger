@@ -30,6 +30,7 @@
                 @foreach (Contact::channels($settings) as $c)
                     <li>
                         <a href="{{ $c['href'] }}" @if ($c['external']) target="_blank" rel="noopener noreferrer" @endif class="inline-flex min-h-9 items-center gap-2 hover:text-white hover:underline">
+                            <x-icon :name="['phone' => 'phone', 'whatsapp' => 'whatsapp', 'viber' => 'viber', 'messenger' => 'messenger', 'facebook' => 'facebook', 'email' => 'mail'][$c['key']] ?? 'chat'" class="size-4 text-gold-500" />
                             <span class="text-steel-400">{{ $c['label'] }}:</span> <span class="tabular">{{ $c['detail'] }}</span>
                             @if ($c['external'])<span class="sr-only">(opens in a new tab)</span>@endif
                         </a>
