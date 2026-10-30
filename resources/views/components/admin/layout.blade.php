@@ -3,6 +3,7 @@
     $user = auth()->user();
     $items = [
         ['/admin', 'Overview', false],
+        ['/admin/visitors', 'Visitors', false],
         ['/admin/inquiries', 'Inquiries', false],
         ['/admin/packages', 'Packages', false],
         ['/admin/products', 'Products', false],
