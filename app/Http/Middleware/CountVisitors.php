@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -21,6 +22,10 @@ class CountVisitors
 
     public function handle(Request $request, Closure $next): Response
     {
+        // An id for this page view; the page's small timing script reports back with it.
+        $pv = bin2hex(random_bytes(12));
+        View::share('pageviewId', $pv);
+
         $response = $next($request);
 
         try {
@@ -33,6 +38,7 @@ class CountVisitors
                 $vid = bin2hex(random_bytes(16));
                 $response->headers->setCookie(Cookie::make(Visitors::COOKIE, $vid, 60 * 24 * 400, '/', null, $request->isSecure(), true, false, 'lax'));
             }
+            Visitors::recordPage($pv, $vid, $request->path());
             if ($request->cookie(Visitors::SEEN_COOKIE) === $today) {
                 return $response;
             }
