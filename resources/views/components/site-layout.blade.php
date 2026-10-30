@@ -38,7 +38,7 @@
     <script type="application/ld+json">{!! \App\Support\Seo::organizationJsonLd(\App\Support\PublicContent::settings()) !!}</script>
     {{ $head ?? '' }}
     @isset($pageviewId)
-        {{-- Time on page for the admin Visitors report: counts only while the page is on screen, sent when the visitor leaves or switches away. --}}
+        {{-- Visitors report: checks in when the page shows (only real browsers are counted), then reports time on screen when the visitor leaves or switches away. --}}
         <script>
             (function () {
                 var id = '{{ $pageviewId }}', total = 0, since = document.visibilityState === 'visible' ? Date.now() : 0, sent = 0;
@@ -51,6 +51,8 @@
                     var d = new FormData(); d.append('id', id); d.append('s', s);
                     navigator.sendBeacon('/pv', d);
                 }
+                // Check in once the page is showing: only browsers that run this script are counted as visitors.
+                if (navigator.sendBeacon) { var h = new FormData(); h.append('id', id); h.append('start', '1'); navigator.sendBeacon('/pv', h); }
                 document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') send(); else since = Date.now(); });
                 window.addEventListener('pagehide', send);
                 window.addEventListener('pageshow', function (e) { if (e.persisted) since = Date.now(); });
