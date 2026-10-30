@@ -97,7 +97,7 @@ class ExportSupabase extends Command
         // 2. Every referenced file.
         $files = [];
         foreach ($data['media_assets'] as $m) {
-            foreach ($m['kind'] === 'datasheet' ? ['datasheet.pdf'] : array_map(fn ($w) => "{$w}.webp", $m['widths']) as $f) {
+            foreach (in_array($m['kind'], ['datasheet', 'manual'], true) ? [$m['kind'].'.pdf'] : array_map(fn ($w) => "{$w}.webp", $m['widths']) as $f) {
                 $files[] = $m['storage_key'].'/'.$f;
             }
         }
