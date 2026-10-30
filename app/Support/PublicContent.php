@@ -101,6 +101,7 @@ final class PublicContent
             $p->setRelation('category', $categoryById->get($p->category_id));
             $p->images = $own->where('kind', 'image')->values();
             $p->datasheet = $own->firstWhere('kind', 'datasheet');
+            $p->manual = $own->firstWhere('kind', 'manual');
 
             return $p;
         })->values();

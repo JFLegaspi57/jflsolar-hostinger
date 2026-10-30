@@ -30,7 +30,7 @@ final class MediaStore
     {
         // Widths: the standard 640/1280/2000, or a smaller original's own width;
         // the controller also requires the file to be listed on the asset.
-        $re = '#^((?:'.implode('|', self::FOLDERS).')/'.self::UUID.'/'.self::UUID.')/([1-9][0-9]{0,3}\.webp|datasheet\.pdf)$#';
+        $re = '#^((?:'.implode('|', self::FOLDERS).')/'.self::UUID.'/'.self::UUID.')/([1-9][0-9]{0,3}\.webp|datasheet\.pdf|manual\.pdf)$#';
         if (! preg_match($re, $path, $m)) {
             return null;
         }
