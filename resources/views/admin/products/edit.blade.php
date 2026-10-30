@@ -77,6 +77,33 @@
                     </div>
                 @endif
             </section>
+
+            @php $manualError = $errors->getBag('manual')->first('file'); @endphp
+            <section id="manual" aria-labelledby="um-title" class="scroll-mt-6 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-5 sm:p-6">
+                <h2 id="um-title" class="text-lg font-bold text-steel-950">User manual (PDF)</h2>
+                @if ($product->manual)
+                    <p class="mt-1 text-sm text-steel-700">Current: <a href="{{ $product->manual->url(null, true) }}" target="_blank" rel="noopener" class="font-semibold underline">{{ $product->manual->file_name ?? 'manual.pdf' }}</a>{{ $product->manual->bytes ? ' ('.round($product->manual->bytes / 1024).' KB)' : '' }}</p>
+                @else
+                    <p class="mt-1 text-sm text-steel-600">No user manual uploaded. Use the manufacturer’s official manual only. It appears on the product page right below the datasheet.</p>
+                @endif
+                @if (session('manual_status'))<p role="status" class="mt-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 px-3 py-2 text-sm font-semibold text-ok-700">{{ session('manual_status') }}</p>@endif
+                <form method="post" action="/admin/products/{{ $product->id }}/manual" enctype="multipart/form-data" class="mt-4 flex flex-wrap items-end gap-3">
+                    @csrf
+                    <div>
+                        <label for="um-file" class="mb-1 block font-semibold">{{ $product->manual ? 'Replace with' : 'Upload' }} PDF <span class="text-sm font-normal text-steel-600">(max 4 MB)</span></label>
+                        <input id="um-file" name="file" type="file" accept="application/pdf" required @if ($manualError) aria-invalid="true" aria-describedby="um-file-error" @endif class="block text-sm file:mr-3 file:min-h-11 file:rounded file:border-0 file:bg-steel-900 file:px-4 file:font-semibold file:text-white">
+                        @if ($manualError)<p id="um-file-error" role="alert" class="mt-1 text-sm font-semibold text-danger-700">{{ $manualError }}</p>@endif
+                    </div>
+                    <button type="submit" data-pending-label="Uploading…" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-steel-900 px-5 font-semibold text-white disabled:opacity-60">Upload user manual</button>
+                </form>
+                @if ($product->manual)
+                    <div class="mt-3">
+                        <x-admin.confirm :action="'/admin/products/'.$product->id.'/manual/delete'" title="Remove the user manual?" confirm-label="Remove user manual" label="Remove user manual">
+                            <p>The PDF is deleted and the download link disappears from the product page.</p>
+                        </x-admin.confirm>
+                    </div>
+                @endif
+            </section>
         </div>
     @endunless
 </x-admin.layout>
