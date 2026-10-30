@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\GeoIp;
 use App\Support\Visitors;
 use Closure;
 use Illuminate\Http\Request;
@@ -35,7 +36,8 @@ class CountVisitors
             if ($request->cookie(Visitors::SEEN_COOKIE) === $today) {
                 return $response;
             }
-            Visitors::record($vid);
+            GeoIp::refreshIfDue();
+            Visitors::record($vid, GeoIp::lookup($request->ip()));
             // Remember until midnight (Philippine time) that today's visit is counted.
             $minutes = (int) max(1, now(Visitors::TZ)->diffInMinutes(Visitors::today()->addDay()));
             $response->headers->setCookie(Cookie::make(Visitors::SEEN_COOKIE, $today, $minutes, '/', null, $request->isSecure(), true, false, 'lax'));
