@@ -10,13 +10,45 @@
         imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
         <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
     </x-page-hero>
-    {{-- Brand strip (logos from the owner's brand sheet). --}}
+    {{-- Brand strip (logos from the owner's brand sheet). Each logo is a link to that brand's products:
+         the link shows its own slice of the same image, so it lines up exactly and can lift on hover. --}}
+    @php
+        // [label, brand filter value, x, y, width, height] in pixels of the 2400×520 image (logo box plus padding).
+        $logos = [
+            ['GoodWe', 'GoodWe', 43, 80, 506, 158], ['Jinko Solar', 'Jinko Solar', 589, 80, 348, 158], ['Solis', 'Solis', 978, 80, 328, 158],
+            ['Luxpower Tek', 'LuxPower', 1347, 80, 479, 158], ['Seraphim', 'Seraphim', 1868, 80, 486, 158],
+            ['AESOLAR', 'AE Solar', 70, 287, 534, 145], ['Sungrow', 'Sungrow', 645, 287, 552, 145], ['Dyness', 'Dyness', 1238, 287, 437, 145],
+            ['ATE', 'Alltopelec (ATE)', 1717, 287, 238, 145], ['Projoy Electric', 'Projoy', 1997, 287, 331, 145],
+        ];
+    @endphp
     <section aria-label="Brands we carry" class="border-b border-steel-200 bg-white">
         <x-container>
-            <img src="/images/brand-logos-v3-2400.webp" srcset="/images/brand-logos-v3-1200.webp 1200w, /images/brand-logos-v3-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
-                width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full"
-                alt="Brands we carry: GoodWe, Jinko Solar, Solis, Luxpower Tek, Seraphim, AESOLAR, Sungrow, Dyness, ATE and Projoy Electric">        </x-container>
+            <div class="brand-strip relative">
+                <img src="/images/brand-logos-v3-2400.webp" srcset="/images/brand-logos-v3-1200.webp 1200w, /images/brand-logos-v3-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
+                    width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full" alt="">
+                <ul class="m-0 list-none p-0">
+                    @foreach ($logos as [$label, $brand, $x, $y, $w, $h])
+                        <li>
+                            <a href="/products?brand={{ urlencode($brand) }}#results" class="brand-logo" title="{{ $label }} products"
+                                @if ($filters['brand'] === $brand) aria-current="page" @endif
+                                style="left: {{ round($x / 24, 3) }}%; top: {{ round($y / 5.2, 3) }}%; width: {{ round($w / 24, 3) }}%; height: {{ round($h / 5.2, 3) }}%;
+                                       background-size: {{ round(2400 / $w * 100, 3) }}% auto; background-position: {{ round($x / (2400 - $w) * 100, 3) }}% {{ round($y / (520 - $h) * 100, 3) }}%;">
+                                <span class="sr-only">{{ $label }} products</span>
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </x-container>
     </section>
+    <style>
+        .brand-strip .brand-logo { position: absolute; display: block; border-radius: 0.75rem; background-color: #fff; background-image: url('/images/brand-logos-v3-2400.webp'); background-repeat: no-repeat;
+            transition: transform 0.25s ease, box-shadow 0.25s ease; }
+        .brand-strip .brand-logo:hover, .brand-strip .brand-logo:focus-visible { transform: translateY(-4px) scale(1.07); box-shadow: 0 10px 24px -8px rgba(31, 41, 55, 0.35), 0 0 0 1px rgba(31, 41, 55, 0.08); z-index: 1; }
+        .brand-strip .brand-logo:focus-visible { outline: 3px solid #f5b400; outline-offset: 2px; }
+        .brand-strip .brand-logo[aria-current="page"] { box-shadow: 0 0 0 2px #f5b400; }
+        @media (prefers-reduced-motion: reduce) { .brand-strip .brand-logo { transition: box-shadow 0.25s ease; } .brand-strip .brand-logo:hover, .brand-strip .brand-logo:focus-visible { transform: none; } }
+    </style>
     <x-container class="py-10">
         <form action="/products" method="get" role="search" aria-label="Search products" class="grid gap-3 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
             <div>
@@ -50,7 +82,7 @@
             @endforeach
         </nav>
 
-        <div class="mt-6 flex flex-wrap items-baseline justify-between gap-2">
+        <div id="results" class="mt-6 flex flex-wrap items-baseline justify-between gap-2" style="scroll-margin-top: 6rem">
             <h2 class="text-2xl font-bold text-steel-950">{{ $activeCategory?->name ?? 'All products' }}</h2>
             <p role="status" class="text-sm text-steel-600">
                 {{ $results->count() }} {{ $results->count() === 1 ? 'product' : 'products' }}@if ($filters['q'] !== '') matching “{{ $filters['q'] }}”@endif @if ($filters['brand'] !== '') · {{ $filters['brand'] }}@endif
