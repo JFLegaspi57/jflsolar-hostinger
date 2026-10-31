@@ -4,7 +4,10 @@
     use App\Support\Ui;
     $input = 'min-h-12 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3.5 text-base text-steel-950 placeholder:text-steel-600 focus:border-steel-900 aria-[invalid=true]:border-danger-700 aria-[invalid=true]:bg-danger-50/40';
     $err = fn ($k) => $errors->first($k) ?: null;
-    $pickup = Shop::pickupAddress($settings);
+    $payDefault = old('payment', $modes[0] ?? 'in_person');
+    $placeDefault = old('pickup', array_key_first($locations));
+    $radio = 'mt-1 size-5 shrink-0 border-steel-500';
+    $choice = 'flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border border-steel-300 p-4 hover:border-steel-900';
 @endphp
 <x-site-layout title="Checkout" path="/checkout" :noindex="true" :reviews-above-footer="false">
     <x-container class="py-10 sm:py-14">
@@ -40,7 +43,7 @@
                             <input id="c-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ old('phone') }}" maxlength="30" required
                                 @if ($err('phone')) aria-invalid="true" aria-describedby="c-phone-error" @endif class="{{ $input }} tabular">
                         </x-form-field>
-                        <x-form-field id="c-email" label="Email" hint="Your payment receipt is sent here." :error="$err('email')" required>
+                        <x-form-field id="c-email" label="Email" hint="Your order details are sent here." :error="$err('email')" required>
                             <input id="c-email" name="email" type="email" autocomplete="email" spellcheck="false" value="{{ old('email') }}" maxlength="254" required
                                 aria-describedby="c-email-hint{{ $err('email') ? ' c-email-error' : '' }}" @if ($err('email')) aria-invalid="true" @endif class="{{ $input }}">
                         </x-form-field>
@@ -50,26 +53,45 @@
                     </x-form-field>
                 </fieldset>
 
-                <section aria-labelledby="pickup-h" class="rounded-[var(--radius-panel)] border border-steel-300 p-5">
-                    <h2 id="pickup-h" class="text-xl font-bold text-steel-950">Pickup</h2>
-                    <p class="mt-2 text-steel-800">Online orders are picked up at:</p>
-                    <address class="mt-1 font-semibold not-italic text-steel-950">{{ $pickup }}</address>
-                    <p class="mt-2 text-sm text-steel-700">After your payment is confirmed we call or message you to arrange the pickup time. Need delivery? <a href="/contact#quote" class="underline">Ask us for a quote</a> instead.</p>
-                </section>
+                <fieldset class="space-y-3" @if ($err('pickup')) aria-describedby="c-pickup-error" @endif>
+                    <legend class="text-xl font-bold text-steel-950">Pickup at</legend>
+                    @foreach ($locations as $key => $address)
+                        <label class="{{ $choice }}">
+                            <input type="radio" name="pickup" value="{{ $key }}" @checked($placeDefault === $key) class="{{ $radio }}">
+                            <span><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[$key]) }}</span><span class="block text-steel-700">{{ $address }}</span></span>
+                        </label>
+                    @endforeach
+                    @if ($err('pickup'))<p id="c-pickup-error" class="text-sm font-semibold text-danger-700">{{ $err('pickup') }}</p>@endif
+                    <p class="text-sm text-steel-700">We call or message you when your order is ready to collect. Need delivery? <a href="/contact#quote" class="underline">Ask us for a quote</a> instead.</p>
+                </fieldset>
+
+                <fieldset class="space-y-3" @if ($err('payment')) aria-describedby="c-payment-error" @endif>
+                    <legend class="text-xl font-bold text-steel-950">Payment</legend>
+                    @foreach ($modes as $mode)
+                        <label class="{{ $choice }}">
+                            <input type="radio" name="payment" value="{{ $mode }}" @checked($payDefault === $mode) class="{{ $radio }}">
+                            <span>
+                                <span class="block font-semibold text-steel-950">{{ Shop::PAYMENT_MODES[$mode] }}</span>
+                                <span class="block text-steel-700">{{ $mode === 'in_person' ? 'Your order is reserved. Pay at the counter when you collect it.' : 'Pay now on PayMongo’s secure page with '.Shop::methodsText().'. We never see your card or wallet details.' }}</span>
+                            </span>
+                        </label>
+                    @endforeach
+                    @if ($err('payment'))<p id="c-payment-error" class="text-sm font-semibold text-danger-700">{{ $err('payment') }}</p>@endif
+                </fieldset>
 
                 <div>
                     <label class="flex items-start gap-3">
                         <input type="checkbox" name="agree" value="1" @checked(old('agree') === '1') required
                             @if ($err('agree')) aria-invalid="true" aria-describedby="c-agree-error" @endif class="mt-1 size-5 rounded border-steel-500">
-                        <span class="text-steel-800">I will pick up my order at the address above, and I agree to the <a href="/terms" class="underline">terms of use</a> and <a href="/privacy" class="underline">privacy notice</a>.</span>
+                        <span class="text-steel-800">I will pick up my order at the place I chose, and I agree to the <a href="/terms" class="underline">terms of use</a> and <a href="/privacy" class="underline">privacy notice</a>.</span>
                     </label>
                     @if ($err('agree'))<p id="c-agree-error" class="mt-1.5 text-sm font-semibold text-danger-700">{{ $err('agree') }}</p>@endif
                 </div>
                 @if ($err('total'))<p role="alert" class="font-semibold text-danger-700">{{ $err('total') }}</p>@endif
 
                 <div>
-                    <button type="submit" class="{{ Ui::button('primary', 'lg', 'w-full sm:w-auto') }}">Continue to payment · {{ Pricing::formatPhp($summary['total']) }}</button>
-                    <p class="mt-2 text-sm text-steel-600">You’ll pay on PayMongo’s secure page with {{ Shop::methodsText() }}. We never see your card or wallet details.</p>
+                    <button type="submit" class="{{ Ui::button('primary', 'lg', 'w-full sm:w-auto') }}">Place order · {{ Pricing::formatPhp($summary['total']) }}</button>
+                    @if (in_array('online', $modes, true))<p class="mt-2 text-sm text-steel-600">If you chose to pay online, you go to PayMongo’s payment page next.</p>@endif
                 </div>
             </form>
 

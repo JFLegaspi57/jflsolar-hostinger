@@ -38,8 +38,10 @@
             @if (\App\Support\Shop::enabled())
             <section>
                 <h2>Online orders</h2>
-                <p>When you order online we keep your name, phone number, email address, any notes you add, the items you ordered, the amount paid, the payment method and PayMongo's payment reference, so we can prepare your order, arrange pickup and keep a record of the sale. Only signed-in JFL Solar staff can view orders, and a copy may be emailed to our business inbox. We keep order records for as long as the law requires us to keep sales records, then delete them.</p>
-                <p>Payments are handled by PayMongo on its own secure page. To set up the payment we send PayMongo your name, email address, phone number, order number and the items and amounts in your order. You enter your card, GCash, Maya or bank details on PayMongo's page, not ours, and we do not store them. PayMongo processes your payment and sends your receipt under its own privacy policy.</p>
+                <p>When you order online we keep your name, phone number, email address, any notes you add, the items you ordered, where you will pick them up, and how and when you paid{{ \App\Support\Shop::onlinePayment() ? " (for online payments, PayMongo's payment reference)" : '' }}, so we can prepare your order, arrange pickup and keep a record of the sale. Only signed-in JFL Solar staff can view orders, and a copy may be emailed to our business inbox. We keep order records for as long as the law requires us to keep sales records, then delete them.</p>
+                @if (\App\Support\Shop::onlinePayment())
+                <p>Online payments are handled by PayMongo on its own secure page. To set up the payment we send PayMongo your name, email address, phone number, order number and the items and amounts in your order. You enter your card, GCash, Maya or bank details on PayMongo's page, not ours, and we do not store them. PayMongo processes your payment and sends your receipt under its own privacy policy.</p>
+                @endif
                 <p>Before you check out, the items in your cart are kept on our server and linked to your browser by the website's session cookie.</p>
             </section>
 

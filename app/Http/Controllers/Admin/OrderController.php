@@ -9,12 +9,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
-/** Online orders paid through PayMongo. Staff prepare them and record pickup. */
+/** Online orders: paid through PayMongo, or reserved to pay at pickup. Staff prepare them and record pickup. */
 class OrderController extends Controller
 {
     /** Tabs: what staff need to act on first. */
     public const VIEWS = [
-        'paid' => ['paid'],
+        'paid' => ['reserved', 'paid'],
         'ready' => ['ready'],
         'completed' => ['completed'],
         'unpaid' => ['pending_payment'],
@@ -50,10 +50,33 @@ class OrderController extends Controller
         $data = [];
         $status = (string) $request->input('status', '');
         if ($status !== '') {
-            // Payment is confirmed only by PayMongo, so staff cannot mark an unpaid order paid here.
-            $allowed = ['paid' => ['ready', 'completed', 'cancelled'], 'ready' => ['paid', 'completed', 'cancelled'], 'completed' => ['ready'], 'pending_payment' => ['cancelled'], 'cancelled' => []];
-            if (! in_array($status, $allowed[$o->status] ?? [], true)) {
+            $inPerson = $o->payment_mode === 'in_person';
+            $unpaid = $o->paid_at === null;
+            // Online orders are marked paid only by PayMongo. Pay-at-pickup orders are marked paid
+            // by staff, who record how the customer paid at the counter.
+            $allowed = [
+                'pending_payment' => ['cancelled'],
+                'reserved' => ['ready', 'paid', 'completed', 'cancelled'],
+                'paid' => ['ready', 'completed', 'cancelled'],
+                'ready' => [$unpaid ? 'reserved' : 'paid', 'completed', 'cancelled'],
+                'completed' => ['ready'],
+                'cancelled' => [],
+            ][$o->status] ?? [];
+            if ($unpaid && ! $inPerson) {
+                $allowed = array_values(array_diff($allowed, ['paid', 'completed']));
+            }
+            if ($unpaid && $status === 'paid' && $o->status === 'ready') {
+                $allowed = [];   // record the payment with "Paid & picked up" instead
+            }
+            if (! in_array($status, $allowed, true)) {
                 return $back->with('status_error', 'That status change is not possible for this order.');
+            }
+            if ($inPerson && $unpaid && in_array($status, ['paid', 'completed'], true)) {
+                $method = (string) $request->input('counter_method', '');
+                if (! array_key_exists($method, Shop::COUNTER_METHODS)) {
+                    return $back->with('status_error', 'Choose how the customer paid before recording the payment.');
+                }
+                $data += ['paid_at' => now(), 'amount_paid_php' => $o->total_php, 'payment_method' => $method];
             }
             $data['status'] = $status;
         }
@@ -74,7 +97,14 @@ class OrderController extends Controller
             return $back->with('status_error', 'Someone else changed this order while you had it open. Check it and try again.');
         }
 
-        return $back->with('status', isset($data['status']) ? 'Order marked “'.Shop::STATUSES[$data['status']].'”.' : 'Notes saved.');
+        $message = match (true) {
+            ! isset($data['status']) => 'Notes saved.',
+            isset($data['paid_at']) && $data['status'] === 'completed' => 'Payment recorded — order picked up.',
+            isset($data['paid_at']) => 'Payment recorded.',
+            default => 'Order marked “'.Shop::STATUSES[$data['status']].'”.',
+        };
+
+        return $back->with('status', $message);
     }
 
     /** Orders exist only once the shop has been switched on; until then this page does not either. */

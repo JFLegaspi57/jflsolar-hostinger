@@ -21,20 +21,50 @@ final class Shop
 
     /** Order statuses, in the order they normally happen. */
     public const STATUSES = [
-        'pending_payment' => 'Awaiting payment',
+        'pending_payment' => 'Awaiting online payment',
+        'reserved' => 'Reserved — pay at pickup',
         'paid' => 'Paid — to prepare',
         'ready' => 'Ready for pickup',
         'completed' => 'Picked up',
         'cancelled' => 'Cancelled',
     ];
 
-    /** Cart and checkout are live only when switched on and PayMongo is configured. */
+    /** Ways to pay, in the order offered: in person at pickup, online through PayMongo. */
+    public const PAYMENT_MODES = ['in_person' => 'Pay in person when you pick up', 'online' => 'Pay online now'];
+
+    /** How staff record a payment taken at the counter. */
+    public const COUNTER_METHODS = ['cash' => 'Cash', 'gcash' => 'GCash', 'maya' => 'Maya', 'card' => 'Card', 'bank_transfer' => 'Bank transfer', 'check' => 'Check'];
+
+    /** Online payment is possible: both PayMongo values are set. */
+    public static function onlinePayment(): bool
+    {
+        return config('shop.paymongo.secret_key') !== '' && config('shop.paymongo.webhook_secret') !== '';
+    }
+
+    public static function inPersonPayment(): bool
+    {
+        return (bool) config('shop.pay_in_person');
+    }
+
+    /** @return list<string> payment modes customers can choose right now */
+    public static function paymentModes(): array
+    {
+        return array_keys(array_filter(['in_person' => self::inPersonPayment(), 'online' => self::onlinePayment()]));
+    }
+
+    /** The shop is live for customers: switched on, and at least one way to pay is available. */
     public static function enabled(): bool
     {
-        return (bool) config('shop.enabled')
-            && config('shop.paymongo.secret_key') !== ''
-            && config('shop.paymongo.webhook_secret') !== '';
+        return (bool) config('shop.enabled') && self::paymentModes() !== [];
     }
+
+    /** @return array<string, string> pickup places customers can choose: key => address */
+    public static function pickupLocations(\App\Models\SiteSetting $settings): array
+    {
+        return array_filter(['warehouse' => (string) $settings->warehouse_address, 'office' => (string) $settings->office_address], fn ($a) => trim($a) !== '');
+    }
+
+    public const LOCATION_NAMES = ['warehouse' => 'Warehouse', 'office' => 'Office'];
 
     /**
      * Staff preview: the shop is off, but the visitor is signed in to the admin, so they
@@ -161,7 +191,7 @@ final class Shop
         ];
     }
 
-    public const METHOD_NAMES = ['gcash' => 'GCash', 'paymaya' => 'Maya', 'card' => 'card', 'qrph' => 'QR Ph', 'grab_pay' => 'GrabPay', 'shopee_pay' => 'ShopeePay', 'billease' => 'BillEase', 'dob' => 'online banking', 'brankas_bdo' => 'BDO online', 'brankas_landbank' => 'Landbank online', 'brankas_metrobank' => 'Metrobank online'];
+    public const METHOD_NAMES = ['gcash' => 'GCash', 'paymaya' => 'Maya', 'card' => 'card', 'qrph' => 'QR Ph', 'grab_pay' => 'GrabPay', 'shopee_pay' => 'ShopeePay', 'billease' => 'BillEase', 'dob' => 'online banking', 'brankas_bdo' => 'BDO online', 'brankas_landbank' => 'Landbank online', 'brankas_metrobank' => 'Metrobank online', 'cash' => 'cash', 'maya' => 'Maya', 'bank_transfer' => 'bank transfer', 'check' => 'check'];
 
     public static function methodName(?string $method): string
     {
@@ -180,10 +210,26 @@ final class Shop
         return implode(', ', $list).' or '.$last;
     }
 
-    /** Where online orders are collected: the warehouse, or the office if no warehouse is listed. */
-    public static function pickupAddress(\App\Models\SiteSetting $settings): string
+    /** Address of a pickup place (falls back to the first one listed). */
+    public static function pickupAddress(\App\Models\SiteSetting $settings, ?string $location = null): string
     {
-        return (string) ($settings->warehouse_address ?: $settings->office_address);
+        $places = self::pickupLocations($settings);
+
+        return $places[$location ?? ''] ?? (string) (reset($places) ?: $settings->office_address);
+    }
+
+    /** One line for product pages: how customers pay and collect. */
+    public static function howToBuy(\App\Models\SiteSetting $settings): string
+    {
+        $places = self::pickupLocations($settings);
+        $where = count($places) > 1 ? 'our office or warehouse' : 'our '.strtolower(self::LOCATION_NAMES[array_key_first($places) ?? 'office']);
+        $modes = self::paymentModes();
+
+        return match (true) {
+            $modes === ['in_person'] => "Order online, then pay and pick up at {$where}.",
+            $modes === ['online'] => 'Pay online with '.self::methodsText().", then pick up at {$where}.",
+            default => "Order online and pay when you pick up at {$where}, or pay online now with ".self::methodsText().'.',
+        };
     }
 
     /** Fingerprint of what the customer saw at checkout (items, quantities, prices). */
@@ -220,7 +266,7 @@ final class Shop
     /** Create the order tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
     {
-        if (Cache::get('shop-tables-v1')) {
+        if (Cache::get('shop-tables-v2')) {
             return;
         }
         try {
@@ -232,7 +278,7 @@ final class Shop
             }
         }
         self::$hasTables = true;
-        Cache::forever('shop-tables-v1', true);
+        Cache::forever('shop-tables-v2', true);
     }
 
     private static function createTables(): void
@@ -272,6 +318,13 @@ final class Shop
                 $t->decimal('unit_price_php', 12, 2);
                 $t->unsignedInteger('quantity');
                 $t->decimal('line_total_php', 12, 2);
+            });
+        }
+        // v2: pay in person at pickup, and the choice of pickup place.
+        if (! Schema::hasColumn('orders', 'payment_mode')) {
+            Schema::table('orders', function (Blueprint $t) {
+                $t->string('payment_mode', 10)->default('online');
+                $t->string('pickup_location', 10)->default('warehouse');
             });
         }
     }

@@ -3,9 +3,11 @@
     $o = $order;
     $btn = 'inline-flex min-h-11 items-center rounded-[var(--radius-control)] px-4 text-sm font-semibold';
     $digits = preg_replace('/[^0-9+]/', '', $o->customer_phone);
+    $payAtCounter = $o->payment_mode === 'in_person' && ! $o->paid_at && in_array($o->status, ['reserved', 'ready'], true);
     $actions = [
+        'reserved' => ['ready' => 'Mark ready for pickup'],
         'paid' => ['ready' => 'Mark ready for pickup', 'completed' => 'Mark picked up'],
-        'ready' => ['completed' => 'Mark picked up', 'paid' => 'Back to “to prepare”'],
+        'ready' => $payAtCounter ? ['reserved' => 'Back to “to prepare”'] : ['completed' => 'Mark picked up', 'paid' => 'Back to “to prepare”'],
         'completed' => ['ready' => 'Undo pickup'],
         'pending_payment' => [],
         'cancelled' => [],
@@ -28,12 +30,14 @@
                     <dt class="font-semibold">Customer</dt><dd>{{ $o->customer_name }}</dd>
                     <dt class="font-semibold">Phone</dt><dd><a href="tel:{{ $digits }}" class="underline tabular">{{ $o->customer_phone }}</a></dd>
                     <dt class="font-semibold">Email</dt><dd><a href="mailto:{{ $o->customer_email }}" class="underline break-all">{{ $o->customer_email }}</a></dd>
-                    <dt class="font-semibold">Fulfilment</dt><dd>Pickup</dd>
+                    <dt class="font-semibold">Pickup at</dt><dd>{{ \App\Support\Shop::LOCATION_NAMES[$o->pickup_location] ?? 'Office' }}</dd>
                     <dt class="font-semibold">Payment</dt>
                     <dd>
                         @if ($o->paid_at)
                             Paid {{ Pricing::formatPhp($o->amount_paid_php ?? $o->total_php) }}{{ $o->payment_method ? ' by '.\App\Support\Shop::methodName($o->payment_method) : '' }} on {{ $o->paid_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}
                             @if ($o->paymongo_payment_id)<br><span class="font-mono text-sm text-steel-600">PayMongo {{ $o->paymongo_payment_id }}</span>@endif
+                        @elseif ($o->payment_mode === 'in_person')
+                            Pays {{ Pricing::formatPhp($o->total_php) }} in person at pickup — not paid yet
                         @else
                             Not paid
                         @endif
@@ -76,12 +80,27 @@
                         </form>
                     @endforeach
                 </div>
-                @if (in_array($o->status, ['paid', 'ready', 'pending_payment'], true))
+                @if ($payAtCounter)
+                    <form method="post" action="/admin/orders/{{ $o->id }}" class="mt-4 space-y-2 border-t border-steel-200 pt-4">
+                        @csrf
+                        <input type="hidden" name="lock_version" value="{{ $o->lock_version }}">
+                        <label for="counter-method" class="block font-semibold text-steel-950">Customer paid {{ Pricing::formatPhp($o->total_php) }} by</label>
+                        <select id="counter-method" name="counter_method" required class="min-h-11 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3">
+                            <option value="">Choose…</option>
+                            @foreach (\App\Support\Shop::COUNTER_METHODS as $key => $label)<option value="{{ $key }}">{{ $label }}</option>@endforeach
+                        </select>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="submit" name="status" value="completed" class="{{ $btn }} bg-steel-900 text-white hover:bg-steel-800">Paid &amp; picked up</button>
+                            @if ($o->status === 'reserved')<button type="submit" name="status" value="paid" class="{{ $btn }} border border-steel-300 bg-white text-steel-900 hover:border-steel-900">Paid, not picked up yet</button>@endif
+                        </div>
+                    </form>
+                @endif
+                @if (in_array($o->status, ['reserved', 'paid', 'ready', 'pending_payment'], true))
                     <form method="post" action="/admin/orders/{{ $o->id }}" class="mt-3">@csrf<input type="hidden" name="status" value="cancelled"><input type="hidden" name="lock_version" value="{{ $o->lock_version }}">
                         <button type="submit" class="{{ $btn }} border border-danger-700 bg-white text-danger-700 hover:bg-danger-50">Cancel order</button>
                     </form>
                     @if ($o->paid_at)
-                        <p class="mt-2 text-sm text-steel-600">Cancelling here does not refund the customer. Issue any refund in the PayMongo dashboard.</p>
+                        <p class="mt-2 text-sm text-steel-600">Cancelling here does not refund the customer. {{ $o->payment_mode === 'online' ? 'Issue any refund in the PayMongo dashboard.' : 'Return the payment to the customer yourself.' }}</p>
                     @endif
                 @endif
             </div>

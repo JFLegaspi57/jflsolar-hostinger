@@ -59,7 +59,7 @@ class ShopTest extends TestCase
     {
         preg_match('/name="fingerprint" value="([a-f0-9]{64})"/', $this->get('/checkout')->getContent(), $m);
 
-        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1', 'fingerprint' => $m[1] ?? ''], $changes);
+        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1', 'payment' => 'online', 'pickup' => 'office', 'fingerprint' => $m[1] ?? ''], $changes);
     }
 
     /** Places an order for 2 × ₱480 and returns it (status pending_payment). */
@@ -96,9 +96,13 @@ class ShopTest extends TestCase
     public function test_shop_is_hidden_until_switched_on_and_configured(): void
     {
         $p = $this->product();
-        config(['shop.paymongo.secret_key' => '']);
+        config(['shop.enabled' => false]);
         $this->get('/cart')->assertNotFound();
         $this->get('/products/'.$p->slug)->assertOk()->assertDontSee('Add to cart')->assertSee('Request a Product Quote');
+
+        // Switched on but no way to pay (no PayMongo, pay at pickup off): still hidden.
+        config(['shop.enabled' => true, 'shop.paymongo.secret_key' => '', 'shop.pay_in_person' => false]);
+        $this->get('/cart')->assertNotFound();
 
         config(['shop.paymongo.secret_key' => 'sk_test_abc']);
         $this->get('/products/'.$p->slug)->assertSee('Add to cart');
@@ -374,11 +378,83 @@ class ShopTest extends TestCase
         $this->actingAs($staff)->get('/cart')->assertOk()->assertSee('Staff preview')->assertSee('₱960');
         $this->actingAs($staff)->post('/checkout', $this->checkoutForm())->assertRedirect('/checkout')->assertSessionHas('checkout_preview');
         $this->assertSame(0, Order::query()->count());
-        Http::assertNothingSent();
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), 'paymongo'));
 
         // Switched off entirely: staff see nothing either.
         config(['shop.staff_preview' => false]);
         $this->actingAs($staff)->get('/cart')->assertNotFound();
+    }
+
+    public function test_pay_at_pickup_reserves_the_order_without_paymongo_and_alerts_the_owner(): void
+    {
+        Mail::fake();
+        Http::fake();
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->get('/checkout')->assertSee('Pay in person when you pick up')->assertSee('Pay online now');
+        $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person', 'pickup' => 'office']));
+
+        $order = Order::query()->latest('id')->firstOrFail();
+        $response->assertRedirect($order->publicPath());
+        $this->assertSame('reserved', $order->status);
+        $this->assertSame('in_person', $order->payment_mode);
+        $this->assertSame('office', $order->pickup_location);
+        $this->assertNull($order->paid_at);
+        $this->assertNull($order->paymongo_checkout_id);
+        $this->assertSame([], session('cart'));
+        Http::assertNotSent(fn ($r) => str_contains($r->url(), 'paymongo'));
+        Mail::assertSent(NewOrder::class, fn ($m) => str_contains($m->envelope()->subject, 'pay at pickup'));
+        $this->get($order->publicPath())->assertSee('Nothing has been charged')->assertSee('at our office')->assertSee('₱960');
+    }
+
+    public function test_shop_runs_without_paymongo_when_paying_at_pickup(): void
+    {
+        config(['shop.paymongo.secret_key' => '', 'shop.paymongo.webhook_secret' => '']);
+        $p = $this->product();
+        $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay and pick up');
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->get('/checkout')->assertSee('Pay in person when you pick up')->assertDontSee('Pay online now');
+        // With one way to pay, the form needs no choice; "online" cannot be forced.
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'online']));
+        $this->assertSame('in_person', Order::query()->latest('id')->value('payment_mode'));
+        $this->assertStringNotContainsString('paymongo', (string) $this->get('/checkout')->headers->get('Content-Security-Policy'));
+
+        config(['shop.pay_in_person' => false]);
+        $this->get('/cart')->assertNotFound();   // no way to pay → no shop
+    }
+
+    public function test_staff_record_counter_payment_for_pay_at_pickup_orders(): void
+    {
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']));
+        $order = Order::query()->latest('id')->firstOrFail();
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+
+        $this->actingAs($staff)->get('/admin/orders')->assertSee($order->reference)->assertSee('Pays at pickup');
+        $this->actingAs($staff)->get('/admin/orders/'.$order->id)->assertSee('Paid &amp; picked up', false);
+        // The payment method is required.
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'completed', 'lock_version' => 0])->assertSessionHas('status_error');
+        $this->assertNull($order->refresh()->paid_at);
+
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'ready', 'lock_version' => 0]);
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'completed', 'counter_method' => 'cash', 'lock_version' => 1])->assertSessionHas('status', 'Payment recorded — order picked up.');
+        $order->refresh();
+        $this->assertSame('completed', $order->status);
+        $this->assertSame('cash', $order->payment_method);
+        $this->assertSame(960.0, $order->amount_paid_php);
+        $this->assertNotNull($order->paid_at);
+    }
+
+    public function test_reservations_per_visitor_are_limited(): void
+    {
+        config(['shop.reservations_per_day' => 1]);
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']));
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']))->assertSessionHas('checkout_error');
+        $this->assertSame(1, Order::query()->count());
     }
 
     public function test_privacy_and_terms_explain_online_orders_only_while_the_shop_is_on(): void

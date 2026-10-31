@@ -75,5 +75,10 @@ Owner request: customers can buy priced products online. Choices:
 - A payment that arrives after staff cancelled the order is recorded and flagged (staff
   note + email alert) instead of being ignored. Payments bump `lock_version`, and staff
   status changes are conditional on the status they saw.
+- **Pay at pickup (H8, 2026-10-31, owner request):** customers may reserve online and pay
+  in person at the office or warehouse they choose. Works without PayMongo; with PayMongo
+  configured the customer chooses. Reservations alert the owner at once and are limited
+  per visitor per day (no payment = no-show risk). Only staff mark them paid, recording
+  the counter method; online orders are still marked paid only by PayMongo.
 - The customer pays exactly the total shown on the checkout page (fingerprint check);
   orders above `SHOP_MAX_TOTAL` (default ₱300,000) go to the quotation form.

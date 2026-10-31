@@ -204,9 +204,10 @@ recovery file in `jflsolar-data/storage/app/`; then connect the repository as ab
 
 ## 11. Online shop (cart + PayMongo payments)
 
-Customers can add **fixed-price, “Available to order”** products to a cart and pay online
-through PayMongo (QR Ph, GCash, Maya, cards). Orders are **pickup only**, at the
-warehouse address in Contact & settings (or the office if no warehouse is listed).
+Customers can add **fixed-price, “Available to order”** products to a cart and either
+**pay in person when they pick up** (no payment account needed) or, once PayMongo is set
+up, **pay online** (QR Ph, GCash, Maya, cards). Orders are **pickup only**; the customer
+chooses the **office or warehouse** (addresses from Contact & settings).
 Products on “Request price”, sample listings and items not “Available to order” keep
 the normal quote button. Products whose price note says “per meter” are sold in metres.
 
@@ -221,7 +222,16 @@ phpMyAdmin step).
 on the Terms page through Page text or a content block). PayMongo also asks for them
 during account activation.
 
-### Switching it on — test mode first
+### Switching it on with pay at pickup only (no PayMongo)
+
+In File Manager open `jflsolar-data/.env` (zip installs: `jflsolar-app/.env`), add
+`SHOP_ENABLED=true` and save. That's all: customers can now order and pay at the counter.
+Pay-at-pickup orders arrive in **Admin → Orders → To prepare** as “Reserved — pay at
+pickup”, with an email alert if `ORDER_NOTIFY_EMAIL` / `INQUIRY_NOTIFY_EMAIL` is set.
+When the customer collects, choose how they paid (cash, GCash, Maya, card, bank transfer,
+check) and click **Paid & picked up**.
+
+### Adding online payment — test mode first
 
 1. Create a PayMongo account at paymongo.com. In the Dashboard → **Developers → API keys**,
    copy the **secret key** (`sk_test_…`).
