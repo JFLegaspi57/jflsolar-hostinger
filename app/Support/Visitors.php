@@ -69,23 +69,22 @@ final class Visitors
     /**
      * All-time numbers for the homepage banner (live: recalculated at most every 15 seconds):
      * first-time visitors (each browser once), returning visitors (came back on another day),
-     * registered users (active accounts) and total visits (one per visitor per day).
+     * and total visits (one per visitor per day).
      *
      * Also today's visitors (different browsers today, Philippine time).
      *
-     * @return array{today:int, first:int, returning:int, members:int, visits:int}|null
+     * @return array{today:int, first:int, returning:int, visits:int}|null
      */
     public static function publicStats(): ?array
     {
         try {
-            return Cache::remember('public-visitor-stats', 15, function () {
+            return Cache::remember('public-visitor-stats-v2', 15, function () {
                 self::ensureTables();
 
                 return [
                     'today' => (int) DB::table('visitor_days')->where('day', self::today()->toDateString())->count(),
                     'first' => (int) DB::table('visitor_ids')->count(),
                     'returning' => (int) DB::table('visitor_ids')->where('days', '>', 1)->count(),
-                    'members' => \App\Support\Members::hasTables() ? (int) \App\Models\Member::query()->where('status', 'active')->count() : 0,
                     'visits' => (int) DB::table('visitor_days')->count(),
                 ];
             });

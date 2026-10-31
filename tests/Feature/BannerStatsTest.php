@@ -37,15 +37,15 @@ class BannerStatsTest extends TestCase
         \App\Support\Members::ensureTables();
         (new Member)->forceFill(['name' => 'A', 'email' => 'a@example.com', 'password' => 'x long password', 'status' => 'active'])->save();
         (new Member)->forceFill(['name' => 'B', 'email' => 'b@example.com', 'password' => 'x long password', 'status' => 'disabled'])->save();
-        Cache::forget('public-visitor-stats');
+        Cache::forget('public-visitor-stats-v2');
 
-        $page = $this->get('/')->assertOk()->assertSee('First-time visitors')->assertSee('Returning visitors')->assertSee('Registered users')->assertSee('Total visits')->assertSee('Today’s visitors', false)->assertSee('id="live-stats"', false);
+        $page = $this->get('/')->assertOk()->assertSee('First-time visitors')->assertSee('Returning visitors')->assertSee('Total visits')->assertSee('Today’s visitors', false)->assertSee('id="live-stats"', false);
         $this->assertMatchesRegularExpression('/data-stat="today"[^>]*>2</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="first"[^>]*>2</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="returning"[^>]*>1</', $page->getContent());
-        $this->assertMatchesRegularExpression('/data-stat="members"[^>]*>1</', $page->getContent());   // active accounts only
+        $page->assertDontSee('Registered users');
         $this->assertMatchesRegularExpression('/data-stat="visits"[^>]*>4</', $page->getContent());
 
-        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['today' => 2, 'first' => 2, 'returning' => 1, 'members' => 1, 'visits' => 4])->assertHeader('Cache-Control', 'no-store, private');
+        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4])->assertHeader('Cache-Control', 'no-store, private');
     }
 }
