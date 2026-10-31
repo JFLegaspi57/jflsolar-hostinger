@@ -4,7 +4,7 @@
     use App\Support\Site;
     $settings = PublicContent::settings();
     $menuContacts = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
-    $cartCount = \App\Support\Shop::enabled() ? \App\Support\Shop::count() : null;
+    $cartCount = \App\Support\Shop::visible() ? \App\Support\Shop::count() : null;
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">

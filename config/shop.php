@@ -5,6 +5,10 @@ return [
     // keys are set, so deploying this code changes nothing on the live site by itself.
     'enabled' => filter_var(env('SHOP_ENABLED', false), FILTER_VALIDATE_BOOL),
 
+    // While the shop is off, signed-in staff still see the cart and checkout pages (marked
+    // "Staff preview"; no order is saved and nothing is charged). Customers see nothing.
+    'staff_preview' => filter_var(env('SHOP_STAFF_PREVIEW', true), FILTER_VALIDATE_BOOL),
+
     // Largest quantity of one product in one order (pieces, or metres for per-metre items).
     'max_quantity' => (int) env('SHOP_MAX_QUANTITY', 500),
 

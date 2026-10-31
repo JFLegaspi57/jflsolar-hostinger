@@ -36,6 +36,26 @@ final class Shop
             && config('shop.paymongo.webhook_secret') !== '';
     }
 
+    /**
+     * Staff preview: the shop is off, but the visitor is signed in to the admin, so they
+     * see the cart and checkout (no order is saved, nothing is charged).
+     */
+    public static function previewing(): bool
+    {
+        if (self::enabled() || ! config('shop.staff_preview')) {
+            return false;
+        }
+        $user = auth()->user();
+
+        return $user !== null && $user->active && ! $user->must_change_password;
+    }
+
+    /** Cart and checkout pages are shown: shop on, or a staff preview. */
+    public static function visible(): bool
+    {
+        return self::enabled() || self::previewing();
+    }
+
     private static ?bool $hasTables = null;
 
     /** Forget the per-request "tables exist" answer (tests, after dropping tables). */

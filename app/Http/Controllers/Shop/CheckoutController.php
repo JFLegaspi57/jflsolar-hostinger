@@ -23,7 +23,7 @@ class CheckoutController extends Controller
 
     public function show(): View|RedirectResponse
     {
-        abort_unless(Shop::enabled(), 404);
+        abort_unless(Shop::visible(), 404);
         $summary = Shop::summary();
         if (! $summary['lines']) {
             return redirect('/cart');
@@ -34,7 +34,7 @@ class CheckoutController extends Controller
 
     public function submit(Request $request): RedirectResponse
     {
-        abort_unless(Shop::enabled(), 404);
+        abort_unless(Shop::visible(), 404);
 
         // Honeypot: people never see or fill this field.
         if (trim((string) $request->input('website', '')) !== '') {
@@ -86,6 +86,11 @@ class CheckoutController extends Controller
         if (! hash_equals(Shop::fingerprint($summary), (string) $request->input('fingerprint'))) {
             return redirect('/checkout')->withInput($values)
                 ->with('checkout_error', 'A price or item in your cart changed while you were checking out. Please review the new total, then continue to payment.');
+        }
+
+        if (Shop::previewing()) {
+            return redirect('/checkout')->withInput($values)
+                ->with('checkout_preview', 'Staff preview: the form is filled in correctly. Customers would now go to PayMongo’s payment page. No order was saved and nothing was charged — online payment is not switched on yet.');
         }
 
         Shop::ensureTables();

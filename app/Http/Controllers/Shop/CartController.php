@@ -13,7 +13,7 @@ class CartController extends Controller
 {
     public function show(Request $request): View
     {
-        abort_unless(Shop::enabled(), 404);
+        abort_unless(Shop::visible(), 404);
         $summary = Shop::summary();
 
         return view('pages.cart', [
@@ -24,7 +24,7 @@ class CartController extends Controller
 
     public function add(Request $request): RedirectResponse
     {
-        abort_unless(Shop::enabled(), 404);
+        abort_unless(Shop::visible(), 404);
         $product = Shop::catalog()->get((string) $request->input('product'));
         if (! $product) {
             return back()->with('cart_error', 'Sorry, that item can’t be bought online right now. Please request a quote instead.');
@@ -42,7 +42,7 @@ class CartController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
-        abort_unless(Shop::enabled(), 404);
+        abort_unless(Shop::visible(), 404);
         $cart = Shop::raw();
         $quantities = $request->input('quantity', []);
         if (is_array($quantities)) {
