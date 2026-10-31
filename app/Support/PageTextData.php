@@ -138,7 +138,7 @@ final class PageTextData
         'faq.q7.q' => 'Do you serve my area?',
         'faq.q7.a' => 'We serve customers across the Philippines. Installation scheduling, site assessment, delivery charges and project feasibility are confirmed during quotation.',
         'faq.q8.q' => 'What warranty do I get?',
-        'faq.q8.a' => 'Each product page shows the manufacturer’s warranty where we have it, and your quotation states the coverage and claim process in writing. During a warranty claim, we provide a replacement or loaner unit for inverters, batteries and solar panels so your system keeps running.',
+        'faq.q8.a' => 'Each product page shows the manufacturer’s warranty where we have it, and your quotation states the coverage and claim process in writing. During a warranty claim, our suppliers provide a replacement or loaner unit for inverters, batteries and solar panels, and we coordinate the claim for you, so your system keeps running.',
         'faq.q9.q' => 'What support do I get after I buy?',
         'faq.q9.a' => 'Clients who buy their supplies from us get free technical support, from installation and commissioning up to troubleshooting. Sagot ka namin!',
         'faq.q10.q' => 'Can I send my extra solar power to the grid (net metering)?',
