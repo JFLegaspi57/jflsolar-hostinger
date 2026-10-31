@@ -31,6 +31,7 @@ class AccountController extends Controller
             'member' => $member,
             'orders' => $orders,
             'subscribed' => Newsletter::isSubscribed($member->email),
+            'basket' => Shop::visible() ? Shop::summary() : null,
         ]);
     }
 
