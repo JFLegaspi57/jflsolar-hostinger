@@ -1,4 +1,4 @@
-@props(['product', 'admin' => false])
+@props(['product', 'admin' => false, 'heading' => 'h3'])
 @php
     use App\Support\Labels;
     use App\Support\Site;
@@ -17,9 +17,9 @@
     </div>
     <div class="flex flex-1 flex-col p-4">
         <p class="text-xs font-semibold tracking-wide text-steel-600 uppercase">{{ $product->category?->name }}@if ($product->brand) · {{ $product->brand }}@endif</p>
-        <h3 class="mt-1 line-clamp-2 min-h-[2lh] text-base leading-snug font-bold text-steel-950">
+        <{{ $heading }} class="mt-1 line-clamp-2 min-h-[2lh] text-base leading-snug font-bold text-steel-950">
             <a href="/products/{{ $product->slug }}" class="after:absolute after:inset-0 hover:underline">{{ $product->name }}</a>
-        </h3>
+        </{{ $heading }}>
         <p class="mt-0.5 min-h-[1lh] truncate font-mono text-xs text-steel-600">{{ $product->model ?? '' }}</p>
         <div class="mt-3 flex flex-1 flex-wrap items-end justify-between gap-2">
             <p class="font-semibold {{ $price['hasAmount'] ? 'text-steel-950 tabular' : 'text-steel-700' }} text-sm">{{ $price['hasAmount'] ? $price['headline'] : 'Request price' }}</p>

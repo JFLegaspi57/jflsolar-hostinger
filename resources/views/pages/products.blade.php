@@ -89,7 +89,34 @@
             </p>
         </div>
 
-        @if ($results->isNotEmpty())
+        @if ($results->isNotEmpty() && $filters['category'] === '')
+            {{-- All products: one group per category, in the menu's category order. --}}
+            @php $byCategory = $results->groupBy('category_id'); @endphp
+            @foreach ($categories as $c)
+                @continue(! $byCategory->has($c->id))
+                @php $items = $byCategory->get($c->id); @endphp
+                <section aria-labelledby="cat-{{ $c->slug }}" class="mt-8" style="scroll-margin-top: 6rem" id="group-{{ $c->slug }}">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-steel-200 pb-2">
+                        <h3 id="cat-{{ $c->slug }}" class="text-xl font-bold text-steel-950">{{ $c->name }} <span class="text-base font-normal text-steel-600">({{ $items->count() }})</span></h3>
+                        <a href="/products?category={{ $c->slug }}{{ $filters['brand'] !== '' ? '&brand='.rawurlencode($filters['brand']) : '' }}{{ $filters['q'] !== '' ? '&q='.rawurlencode($filters['q']) : '' }}#results" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-900 underline">Only {{ $c->name }}</a>
+                    </div>
+                    <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        @foreach ($items as $p)
+                            <li class="flex"><x-product-card :product="$p" heading="h4" /></li>
+                        @endforeach
+                    </ul>
+                </section>
+            @endforeach
+            @php $other = $results->reject(fn ($p) => $categories->contains('id', $p->category_id)); @endphp
+            @if ($other->isNotEmpty())
+                <section aria-labelledby="cat-other" class="mt-10">
+                    <h3 id="cat-other" class="border-b border-steel-200 pb-2 text-xl font-bold text-steel-950">Other products</h3>
+                    <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                        @foreach ($other as $p)<li class="flex"><x-product-card :product="$p" heading="h4" /></li>@endforeach
+                    </ul>
+                </section>
+            @endif
+        @elseif ($results->isNotEmpty())
             <ul class="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach ($results as $p)
                     <li class="flex"><x-product-card :product="$p" /></li>
