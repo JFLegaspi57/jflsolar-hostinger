@@ -10,6 +10,7 @@
     <x-container class="py-10 sm:py-14">
         <p><a href="/cart" class="font-semibold text-steel-800 underline">← Back to cart</a></p>
         <h1 class="mt-3 text-3xl font-extrabold text-steel-950 sm:text-4xl">Checkout</h1>
+        @include('partials.shop-preview-note')
 
         <div class="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
             <form method="post" action="/checkout" novalidate class="space-y-6">
@@ -19,6 +20,9 @@
                     <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label>
                 </div>
 
+                @if (session('checkout_preview'))
+                    <p role="status" class="rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-4 font-semibold text-ok-700">{{ session('checkout_preview') }}</p>
+                @endif
                 @if (session('checkout_error'))
                     <p role="alert" class="rounded-[var(--radius-control)] border border-[#f3c3be] bg-danger-50 p-4 font-semibold text-danger-700">{{ session('checkout_error') }}</p>
                 @elseif ($errors->any())

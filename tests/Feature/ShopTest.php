@@ -357,6 +357,30 @@ class ShopTest extends TestCase
         $this->assertFalse(Schema::hasTable('orders'));
     }
 
+    public function test_signed_in_staff_preview_the_shop_while_it_is_off_and_nothing_is_saved(): void
+    {
+        config(['shop.enabled' => false]);
+        $p = $this->product();
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+
+        // Customers: no shop at all.
+        $this->get('/products/'.$p->slug)->assertDontSee('Add to cart');
+        $this->get('/cart')->assertNotFound();
+
+        // Staff: full preview, clearly labelled; checkout stops before payment.
+        Http::fake();
+        $this->actingAs($staff)->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Staff preview');
+        $this->actingAs($staff)->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->actingAs($staff)->get('/cart')->assertOk()->assertSee('Staff preview')->assertSee('₱960');
+        $this->actingAs($staff)->post('/checkout', $this->checkoutForm())->assertRedirect('/checkout')->assertSessionHas('checkout_preview');
+        $this->assertSame(0, Order::query()->count());
+        Http::assertNothingSent();
+
+        // Switched off entirely: staff see nothing either.
+        config(['shop.staff_preview' => false]);
+        $this->actingAs($staff)->get('/cart')->assertNotFound();
+    }
+
     public function test_privacy_and_terms_explain_online_orders_only_while_the_shop_is_on(): void
     {
         $this->get('/privacy')->assertSee('Online orders')->assertSee('PayMongo');

@@ -211,7 +211,10 @@ Products on “Request price”, sample listings and items not “Available to o
 the normal quote button. Products whose price note says “per meter” are sold in metres.
 
 The shop is **off** until it is switched on in `.env`, so updating the website changes
-nothing by itself. The order tables are created automatically on first use (no
+nothing for customers. **Staff preview:** while it is off, anyone signed in to the admin
+sees the cart and checkout on the public pages, marked “Staff preview” — checkout stops
+before payment, saves no order and charges nothing. Set `SHOP_STAFF_PREVIEW=false` to
+hide it from staff too. The order tables are created automatically on first use (no
 phpMyAdmin step).
 
 **Before going live, write your refund / cancellation and pickup rules** (for example

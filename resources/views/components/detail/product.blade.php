@@ -7,7 +7,7 @@
     $cover = $images->firstWhere('is_cover', true) ?? $images->first();
     $rest = $images->reject(fn ($m) => $cover && $m->id === $cover->id)->values();
     $quoteHref = '/contact?product='.rawurlencode($product->slug).'#quote';
-    $buyable = ! $admin && \App\Support\Shop::enabled() && \App\Support\Shop::sellable($product);
+    $buyable = ! $admin && \App\Support\Shop::visible() && \App\Support\Shop::sellable($product);
     $perMetre = $buyable && \App\Support\Shop::perMetre($product);
     $glyph = match ($product->category?->slug) { 'inverters' => 'inverter', 'batteries' => 'battery', 'solar-panels' => 'panel', default => 'hardware' };
     $crumbs = [['href' => '/', 'label' => 'Home'], ['href' => '/products', 'label' => 'Products']];
@@ -42,6 +42,9 @@
                     <p class="mt-3"><x-badge :tone="$product->availability === 'unavailable' ? 'ended' : 'neutral'">{{ Labels::AVAILABILITY[$product->availability] }}</x-badge></p>
                     <p class="mt-2 text-xs text-steel-600">{{ $buyable ? 'We do not show live stock levels. After you pay, we contact you to confirm your pickup.' : 'Availability is confirmed when we quote. We do not show live stock levels.' }}</p>
                     @if ($buyable)
+                        @if (\App\Support\Shop::previewing())
+                            <p class="mt-4"><x-badge tone="pending">Staff preview — customers don’t see this yet</x-badge></p>
+                        @endif
                         @if (session('cart_added'))
                             <div role="status" class="mt-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-3 text-ok-700">
                                 <p class="flex items-center gap-2 font-semibold"><x-icon name="check" class="size-5" /> Added to your cart — {{ session('cart_added') }} in total.</p>

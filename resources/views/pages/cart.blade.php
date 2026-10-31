@@ -6,6 +6,7 @@
 <x-site-layout title="Your cart" path="/cart" :noindex="true" :reviews-above-footer="false">
     <x-container class="py-10 sm:py-14">
         <h1 class="text-3xl font-extrabold text-steel-950 sm:text-4xl">Your cart</h1>
+        @include('partials.shop-preview-note')
 
         @if ($cancelled)
             <p role="status" class="mt-6 rounded-[var(--radius-control)] border border-steel-300 bg-steel-50 p-4 text-steel-800">Payment for order <span class="font-mono">{{ $cancelled }}</span> was not completed, so nothing was charged. Your items are still here.</p>
