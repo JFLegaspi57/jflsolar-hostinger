@@ -1,7 +1,7 @@
 @php
     use App\Support\Site;
     use App\Support\Ui;
-    $intro = 'We offer free comprehensive and unparalleled technical support, from installation, commissioning, and to troubleshooting, for all clients who purchase their supplies from us.';
+    $intro = 'Choose your own inverter, solar panels and battery, set the quantities, and add mounting, cables, safety devices and accessories. Every part shows its price and your total updates as you go. Buy your supplies from us and get free technical support, from installation and commissioning to troubleshooting.';
 @endphp
 <x-site-layout title="Build Your Own Solar Package" path="/packages/build-your-own" :reviews-above-footer="false" description="Build your own solar package: choose a hybrid inverter, solar panels and battery, add mounting, cables, safety devices and accessories, see the total and add everything to your basket. Pickup prices from JFL Solar.">
     <x-page-hero eyebrow="Packages" title="Build Your Own" :intro="$intro"
