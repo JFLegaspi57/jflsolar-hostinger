@@ -7,6 +7,9 @@
     $addons = \App\Support\PackageBuilder::addons($lines);
     $addonTotal = collect($addons)->flatMap(fn ($g) => $g['products'])->sum(fn ($p) => (float) $p->price_php * max(0, (int) old('addon.'.$p->id, 0)));
     $maxQty = (int) config('shop.max_quantity', 500);
+    $panelIdx = \App\Support\PackageBuilder::panelLine($lines);
+    $mount = $panelIdx !== null ? \App\Support\PackageBuilder::mountingProducts($addons) : [];
+    $panelQty = $panelIdx !== null ? (int) old('quantity.'.$panelIdx, collect($lines)->firstWhere('index', $panelIdx)['quantity'] ?? 0) : 0;
 @endphp
 <section id="build" aria-labelledby="build-title" style="scroll-margin-top: 7rem" class="rounded-[var(--radius-panel)] border border-steel-300 bg-white p-5 sm:p-6">
     <h2 id="build-title" class="text-xl font-bold text-steel-950">{{ $heading }}</h2>
@@ -65,6 +68,32 @@
                 </tfoot>
             </table>
         </div>
+
+        @if ($mount)
+            @php $mountTotal = collect($mount)->sum(fn ($m) => (float) $m['product']->price_php * ($m['per'] * $panelQty + $m['fixed'])); @endphp
+            <div data-mount data-panel-line="{{ $panelIdx }}" class="mt-5 rounded-[var(--radius-panel)] border border-gold-500 bg-gold-50 p-4">
+                <h3 class="text-lg font-bold text-steel-950">Recommended mounting for <span data-mount-n>{{ $panelQty }}</span> <span data-mount-word>{{ $panelQty === 1 ? 'panel' : 'panels' }}</span></h3>
+                <p class="mt-1 text-sm text-steel-700">A suggestion for a standard roof mount — not in your total until you add it. Your installer may adjust it for your roof.</p>
+                <div class="mt-3 overflow-x-auto">
+                    <table class="w-full text-left text-[0.95rem]">
+                        <caption class="sr-only">Recommended mounting parts</caption>
+                        <tbody class="divide-y divide-steel-200">
+                            @foreach ($mount as $m)
+                                <tr data-mount-row data-id="{{ $m['product']->id }}" data-per="{{ $m['per'] }}" data-fixed="{{ $m['fixed'] }}" data-price="{{ (float) $m['product']->price_php }}">
+                                    <td class="py-2 pr-4"><a href="/products/{{ $m['product']->slug }}" class="font-semibold text-steel-900 hover:underline">{{ $m['product']->name }}</a><span class="block text-sm text-steel-600">{{ $m['rule'] }}</span></td>
+                                    <td class="py-2 pr-4 text-right whitespace-nowrap tabular">{{ Pricing::formatPhp($m['product']->price_php) }}</td>
+                                    <td class="py-2 pr-4 text-right font-semibold whitespace-nowrap tabular">× <span data-mount-qty>{{ $m['per'] * $panelQty + $m['fixed'] }}</span></td>
+                                    <td class="py-2 text-right font-semibold whitespace-nowrap tabular" data-mount-amount>{{ Pricing::formatPhp((float) $m['product']->price_php * ($m['per'] * $panelQty + $m['fixed'])) }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot><tr><th scope="row" colspan="3" class="pr-4 text-right font-bold text-steel-950" style="padding-top: .5rem">Mounting</th><td class="text-right font-bold text-steel-950 tabular" style="padding-top: .5rem" data-mount-total>{{ Pricing::formatPhp($mountTotal) }}</td></tr></tfoot>
+                    </table>
+                </div>
+                <button type="button" data-mount-apply hidden class="{{ Ui::button('dark', 'md', 'mt-3 w-full sm:w-auto') }}">Add recommended mounting</button>
+                <p class="mt-2 text-sm text-steel-700" data-mount-done hidden role="status">Added to the Mounting hardware add-ons below — change the quantities there if you need to.</p>
+            </div>
+        @endif
 
         @if ($addons)
             <h3 class="mt-6 text-lg font-bold text-steel-950">Add-ons <span class="text-base font-normal text-steel-600">(optional)</span></h3>
@@ -139,7 +168,36 @@
                 const addonEl = form.querySelector('[data-addon-total]');
                 if (addonEl) addonEl.textContent = peso(extra);
                 form.querySelector('[data-total]').textContent = peso(main + extra);
+                // Recommended mounting follows the number of panels.
+                const mountBox = form.querySelector('[data-mount]');
+                if (mountBox) {
+                    const n = Math.max(0, parseInt(form.querySelector('[name="quantity[' + mountBox.dataset.panelLine + ']"]')?.value, 10) || 0);
+                    mountBox.querySelector('[data-mount-n]').textContent = n;
+                    mountBox.querySelector('[data-mount-word]').textContent = n === 1 ? 'panel' : 'panels';
+                    let mt = 0;
+                    mountBox.querySelectorAll('[data-mount-row]').forEach((row) => {
+                        const q = n > 0 ? (+row.dataset.per) * n + (+row.dataset.fixed) : 0;
+                        row.querySelector('[data-mount-qty]').textContent = q;
+                        row.querySelector('[data-mount-amount]').textContent = peso(q * (+row.dataset.price));
+                        mt += q * (+row.dataset.price);
+                    });
+                    mountBox.querySelector('[data-mount-total]').textContent = peso(mt);
+                    mountBox.querySelector('[data-mount-apply]').disabled = n < 1;
+                }
             };
+            const mountBox = form.querySelector('[data-mount]');
+            if (mountBox) {
+                const apply = mountBox.querySelector('[data-mount-apply]');
+                apply.hidden = false;
+                apply.addEventListener('click', () => {
+                    mountBox.querySelectorAll('[data-mount-row]').forEach((row) => {
+                        const input = form.querySelector('#ba-' + row.dataset.id);
+                        if (input) { input.value = row.querySelector('[data-mount-qty]').textContent; input.closest('details')?.setAttribute('open', ''); }
+                    });
+                    mountBox.querySelector('[data-mount-done]').hidden = false;
+                    update();
+                });
+            }
             form.addEventListener('input', update);
             form.addEventListener('change', update);
             update();
