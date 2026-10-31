@@ -1,3 +1,3 @@
-<x-site-layout :title="$pkg->name" :path="'/packages/'.$pkg->slug" :description="$pkg->summary ?: $pkg->name" :noindex="$pkg->is_sample">
+<x-site-layout :title="$pkg->name" :path="'/packages/'.$pkg->slug" :description="$pkg->summary ?: $pkg->name" :noindex="$pkg->is_sample" :reviews-above-footer="false">
     <x-detail.package :pkg="$pkg" :settings="$settings" />
 </x-site-layout>
