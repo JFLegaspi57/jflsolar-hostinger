@@ -232,8 +232,9 @@ during account activation.
 
 ### Switching it on with pay at pickup only (no PayMongo)
 
-In File Manager open `jflsolar-data/.env` (zip installs: `jflsolar-app/.env`), add
-`SHOP_ENABLED=true` and save. That's all: customers can now order and pay at the counter.
+**The shop was launched on 2026-10-31 and is on by default.** To switch it off, open
+`jflsolar-data/.env` in File Manager (zip installs: `jflsolar-app/.env`), add
+`SHOP_ENABLED=false` and save. With it on, customers order and pay at the counter.
 At checkout they say how they will pay: **cash, GCash, bank transfer or check**
 (`SHOP_IN_PERSON_METHODS` limits the list). Your GCash number and bank details are not
 shown on the site: send them to the customer when you confirm a GCash or bank-transfer
