@@ -114,3 +114,13 @@ Owner request: customers can buy priced products online. Choices:
   opened while signed in (not when DNT/GPC is sent; never while staff are signed in), kept ~13
   months, plus a members CSV. The privacy notice says so.
 
+
+- **Website chat assistant (2026-10-31, owner request):** "Chat with us" bubble on every public
+  page, answered by Claude (Anthropic API, `claude-haiku-5-5` by default) from a system prompt
+  built from the live site content (products, prices, availability, packages, contact and
+  ordering rules), with strict "never invent prices/stock/warranties" rules. Shown only when
+  `ANTHROPIC_API_KEY` is set. No chat transcripts are stored; the browser keeps the current chat
+  in sessionStorage. When a customer wants a person, the assistant collects name + mobile and a
+  `request_callback` tool saves an Inquiry (topic, summary, last messages) and emails staff like
+  the contact form. Cost guards: 15/min and 40/hour per visitor, 1,500 messages/day site-wide.
+  The privacy notice names Anthropic as the AI provider.

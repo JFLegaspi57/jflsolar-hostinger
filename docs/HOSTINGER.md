@@ -285,3 +285,21 @@ To switch the shop off again, set `SHOP_ENABLED=false`. Existing orders stay in 
   PayMongo itself, so paid orders still appear.
 - The customer gets PayMongo's email receipt and a private order page (link in the
   browser after paying) that shows the current status.
+
+## 12. Chat assistant ("Chat with us")
+
+The chat bubble answers customers with Claude (an AI by Anthropic), using only what is on the
+website: products, prices, availability, packages, contact details and how ordering works.
+It appears only after you add an API key.
+
+1. Go to <https://console.anthropic.com>, create an account for the business, add a payment
+   method (usage is billed per message; a typical chat costs well under ₱1), and create an
+   **API key**.
+2. In hPanel → **Files** → `.env`, set `ANTHROPIC_API_KEY=` to that key (keep `CHATBOT_ENABLED=true`).
+3. Open the website: the **Chat with us** button appears at the bottom right.
+
+When a customer asks for a person, the assistant asks for their name and mobile number and
+saves a **callback request** in **Admin → Inquiries** (also emailed if `INQUIRY_NOTIFY_EMAIL` is
+set). Limits (`CHATBOT_PER_VISITOR_HOURLY`, `CHATBOT_DAILY_CAP`) cap the monthly cost; set
+`CHATBOT_ENABLED=false` to hide the chat at any time. Product and price changes reach the
+assistant within 5 minutes.
