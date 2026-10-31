@@ -317,4 +317,111 @@ class MembersTest extends TestCase
         $this->get('/')->assertDontSee('href="/forum"', false);
         $this->get('/terms')->assertDontSee('Forum rules');
     }
+
+    public function test_profile_social_links_are_checked_and_cleaned_up(): void
+    {
+        $m = $this->member();
+        $this->actingAs($m, 'member');
+        $this->get('/account')->assertSee('Profile')->assertSee('https://www.tiktok.com/@yourname');
+        $this->post('/account/profile', ['facebook_url' => 'facebook.com/maria.santos', 'youtube_url' => 'https://youtu.be/abc123', 'instagram_url' => 'maria_solar', 'tiktok_url' => '@maria.ph'])
+            ->assertRedirect('/account#profile')->assertSessionHas('account_status');
+        $m->refresh();
+        $this->assertSame('https://facebook.com/maria.santos', $m->facebook_url);
+        $this->assertSame('https://youtu.be/abc123', $m->youtube_url);
+        $this->assertSame('https://www.instagram.com/maria_solar', $m->instagram_url);
+        $this->assertSame('https://www.tiktok.com/@maria.ph', $m->tiktok_url);
+
+        foreach (['https://evil.example/facebook.com', 'javascript:alert(1)', 'https://facebook.com', 'https://facebook.com.evil.example/x', 'https://user@facebook.com/x', 'https://facebook.com/x"onmouseover=1'] as $bad) {
+            $this->post('/account/profile', ['facebook_url' => $bad])->assertSessionHasErrors('facebook_url');
+        }
+        $this->assertSame('https://facebook.com/maria.santos', $m->fresh()->facebook_url);
+
+        // Emptying a field removes the link.
+        $this->post('/account/profile', ['facebook_url' => '', 'youtube_url' => '', 'instagram_url' => '', 'tiktok_url' => '']);
+        $this->assertNull($m->fresh()->instagram_url);
+    }
+
+    public function test_profile_photo_is_cropped_private_and_removable(): void
+    {
+        $m = $this->member();
+        $this->actingAs($m, 'member');
+        $this->post('/account/profile', ['photo' => \Illuminate\Http\UploadedFile::fake()->create('virus.jpg', 10, 'image/jpeg')])->assertSessionHasErrors('photo');
+        $this->post('/account/profile', ['photo' => \Illuminate\Http\UploadedFile::fake()->image('me.jpg', 800, 600)])->assertSessionHas('account_status');
+        $m->refresh();
+        $this->assertNotNull($m->photo);
+        $file = \App\Support\Members::photoDir($m).'/'.$m->photo;
+        $this->assertSame([320, 320], array_slice(getimagesize($file), 0, 2));   // square crop
+        $url = \App\Support\Members::photoUrl($m);
+        $this->get('/account')->assertSee($url, false);
+        $this->get('/')->assertSee($url, false);   // small avatar in the header
+        $this->get($url)->assertOk()->assertHeader('Content-Type', 'image/webp');
+
+        // Not visible to other members or the public; visible to staff.
+        $other = $this->member(['email' => 'other@example.com']);
+        $this->actingAs($other, 'member')->get($url)->assertNotFound();
+        auth('member')->logout();
+        $this->get($url)->assertNotFound();
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->get($url)->assertOk();
+        $this->actingAs($staff, 'web')->get('/admin/members')->assertSee($url, false);
+        auth('web')->logout();
+
+        // Replace, then remove: old files are deleted.
+        $this->actingAs($m, 'member')->post('/account/profile', ['photo' => \Illuminate\Http\UploadedFile::fake()->image('new.png', 300, 500)]);
+        $this->assertFileDoesNotExist($file);
+        $newFile = \App\Support\Members::photoDir($m).'/'.$m->fresh()->photo;
+        $this->assertFileExists($newFile);
+        $this->post('/account/profile', ['remove_photo' => '1']);
+        $this->assertNull($m->fresh()->photo);
+        $this->assertFileDoesNotExist($newFile);
+    }
+
+    public function test_deleting_the_account_deletes_the_photo(): void
+    {
+        $m = $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
+        $this->post('/account/profile', ['photo' => \Illuminate\Http\UploadedFile::fake()->image('me.jpg', 400, 400)]);
+        $file = \App\Support\Members::photoDir($m).'/'.$m->fresh()->photo;
+        $this->assertFileExists($file);
+        $this->post('/account/delete', ['password' => self::PASSWORD]);
+        $this->assertFileDoesNotExist($file);
+    }
+
+    public function test_staff_see_each_members_sign_ins_and_pages_viewed(): void
+    {
+        $m = $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
+        $this->get('/products?category=batteries')->assertOk();
+        $this->get('/contact')->assertOk();
+        $this->withHeader('DNT', '1')->get('/about')->assertOk();   // asked not to be tracked
+        $this->withHeaders(['DNT' => '0']);
+        $rows = DB::table('member_activity')->where('member_id', $m->id)->orderBy('id')->get();
+        $this->assertSame(['login', 'page', 'page'], $rows->pluck('kind')->all());
+        $this->assertSame(['/products?category=batteries', '/contact'], $rows->where('kind', 'page')->pluck('path')->values()->all());
+        $this->assertNull($rows->first()->path);
+        $this->assertFalse(DB::table('member_activity')->where('path', '/about')->exists());
+        $this->post('/logout');
+
+        // Not recorded when signed out.
+        $this->get('/services')->assertOk();
+        $this->assertFalse(DB::table('member_activity')->where('path', '/services')->exists());
+
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->get('/admin/members')->assertOk()->assertSee('/admin/members/'.$m->id, false)->assertSee('Download list (CSV)');
+        $this->actingAs($staff, 'web')->get('/admin/members/'.$m->id)->assertOk()
+            ->assertSee('maria@example.com')->assertSee('Sign-ins')->assertSee('Pages viewed while signed in')
+            ->assertSee('Product')->assertSee('category=batteries')->assertSee('Contact');
+        $csv = $this->actingAs($staff, 'web')->get('/admin/members/export')->assertOk()->streamedContent();
+        $this->assertStringContainsString('maria@example.com', $csv);
+        $this->assertStringContainsString('last_sign_in_place', $csv);
+
+        // Staff browsing is never recorded against a member.
+        $this->actingAs($staff, 'web')->get('/projects');
+        $this->assertFalse(DB::table('member_activity')->where('path', '/projects')->exists());
+
+        // Members can't see it.
+        auth('web')->logout();
+        $this->actingAs($m, 'member')->get('/admin/members/'.$m->id)->assertRedirect('/admin/login');
+        $this->get('/privacy')->assertSee('which pages of this website you open');
+    }
 }

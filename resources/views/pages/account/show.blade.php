@@ -39,6 +39,42 @@
             </section>
 
             <div class="space-y-8">
+                <section id="profile" aria-labelledby="profile-h" class="{{ $card }}">
+                    <h2 id="profile-h" class="text-xl font-bold text-steel-950">Profile</h2>
+                    <p class="mt-1 text-sm text-steel-600">Only you and the JFL Solar team can see your photo and links.</p>
+                    <form method="post" action="/account/profile" enctype="multipart/form-data" class="mt-4 space-y-4">
+                        @csrf
+                        <div class="flex items-center gap-4">
+                            @if ($photo = \App\Support\Members::photoUrl($member))
+                                <img src="{{ $photo }}" alt="Your profile photo" width="80" height="80" style="width: 5rem; height: 5rem" class="shrink-0 rounded-full border border-steel-200 object-cover">
+                            @else
+                                <span style="width: 5rem; height: 5rem" class="inline-flex shrink-0 items-center justify-center rounded-full bg-steel-100 text-steel-600"><x-icon name="user" class="size-10" /></span>
+                            @endif
+                            <div class="min-w-0 flex-1">
+                                <label for="p-photo" class="mb-1 block font-semibold text-steel-950">{{ $member->photo ? 'Change photo' : 'Add a photo' }}</label>
+                                <input id="p-photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" @if ($err('photo')) aria-invalid="true" aria-describedby="p-photo-error" @endif class="block w-full text-sm text-steel-800">
+                                @if ($err('photo'))<p id="p-photo-error" class="mt-1 text-sm font-semibold text-danger-700">{{ $err('photo') }}</p>@endif
+                                @if ($member->photo)
+                                    <label class="mt-2 flex cursor-pointer items-center gap-2 text-sm text-steel-800"><input type="checkbox" name="remove_photo" value="1" class="size-4 rounded border-steel-500"> Remove my photo</label>
+                                @endif
+                            </div>
+                        </div>
+                        @foreach (\App\Support\Members::SOCIALS as $field => [$label, , $pattern])
+                            @php $icon = ['facebook_url' => 'facebook', 'youtube_url' => 'youtube', 'instagram_url' => 'instagram', 'tiktok_url' => 'tiktok'][$field]; @endphp
+                            <x-form-field :id="'p-'.$field" :label="$label" :error="$err($field)">
+                                <div class="relative">
+                                    <span class="absolute text-steel-600" style="left: .75rem; top: 50%; transform: translateY(-50%); pointer-events: none"><x-icon :name="$icon" class="size-5" /></span>
+                                    <input id="p-{{ $field }}" name="{{ $field }}" type="text" inputmode="url" autocomplete="url" spellcheck="false" maxlength="300"
+                                        value="{{ old($field, $member->{$field}) }}" placeholder="{{ sprintf($pattern, 'yourname') }}" style="padding-left: 2.6rem"
+                                        @if ($err($field)) aria-invalid="true" aria-describedby="p-{{ $field }}-error" @endif class="{{ $input }}">
+                                </div>
+                            </x-form-field>
+                        @endforeach
+                        <p class="text-sm text-steel-600">Paste the link to your page, or just type @yourname.</p>
+                        <button type="submit" class="{{ Ui::button('primary') }}">Save profile</button>
+                    </form>
+                </section>
+
                 <section id="details" aria-labelledby="details-h" class="{{ $card }}">
                     <h2 id="details-h" class="text-xl font-bold text-steel-950">Your details</h2>
                     <form method="post" action="/account" class="mt-4 space-y-4">

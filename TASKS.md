@@ -36,6 +36,7 @@
 - [x] Shop launched to the public (2026-10-31): SHOP_ENABLED defaults to true
 - [x] Member accounts (sign up / sign in / account page with orders), newsletter list with Admin → Subscribers export (MembersTest); forum built then removed at owner request
 - [x] Header "Log in" button opens a log in / create account pop-up
+- [x] Member profile photo + social links; Admin → Members record with sign-ins, places and pages viewed; members CSV
 - [ ] Owner: write refund / cancellation and pickup rules before going live
 - [ ] Owner: PayMongo account → test keys + webhook in .env → test order → live keys
 - [x] Independent security review (Claude subagent, 2026-10-31): no BLOCKER; 5 MAJOR + 8 MINOR fixed (inert when off, payment after cancel, payment/staff race, missed-webhook backup check, Enter key in cart, price-change fingerprint, max total, refresh limit, privacy wording, duplicate notes, table-creation race). ShopTest now 21 tests.

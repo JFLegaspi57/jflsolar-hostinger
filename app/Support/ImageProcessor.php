@@ -88,6 +88,56 @@ final class ImageProcessor
     }
 
     /**
+     * Profile photo: the same checks as process(), then a centred square crop saved as one
+     * WebP of $size × $size pixels at $outFile. Metadata (GPS etc.) is dropped.
+     *
+     * @return array{bytes:int}|array{error:string}
+     */
+    public static function avatar(?UploadedFile $file, string $outFile, int $size = 320): array
+    {
+        if (! $file || ! $file->isValid() || $file->getSize() === 0) {
+            return ['error' => 'Choose a photo.'];
+        }
+        if ($file->getSize() > self::MAX_BYTES) {
+            return ['error' => 'This photo is larger than 8 MB. Please choose a smaller one.'];
+        }
+        $path = $file->getRealPath();
+        $info = @getimagesize($path);
+        if (! $info || ! in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP, IMAGETYPE_AVIF], true)) {
+            return ['error' => 'This file is not a supported photo. Use JPEG, PNG or WebP.'];
+        }
+        if ($info[0] * $info[1] > self::MAX_PIXELS) {
+            return ['error' => 'This photo is too large to process. Please choose a smaller one.'];
+        }
+        $img = @imagecreatefromstring((string) file_get_contents($path));
+        if (! $img) {
+            return ['error' => 'This photo could not be processed. Try another one.'];
+        }
+        if ($info[2] === IMAGETYPE_JPEG) {
+            $img = self::orient($img, $path);
+        }
+        imagepalettetotruecolor($img);
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $side = min($w, $h);
+        $out = @imagecreatetruecolor($size, $size);
+        $ok = $out && imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255))
+            && imagecopyresampled($out, $img, 0, 0, intdiv($w - $side, 2), intdiv($h - $side, 2), $size, $size, $side, $side);
+        imagedestroy($img);
+        $dir = dirname($outFile);
+        if (! $ok || (! is_dir($dir) && ! @mkdir($dir, 0775, true)) || ! imagewebp($out, $outFile, self::QUALITY)) {
+            if ($out) {
+                imagedestroy($out);
+            }
+
+            return ['error' => 'The photo could not be saved. Please try again.'];
+        }
+        imagedestroy($out);
+
+        return ['bytes' => (int) filesize($outFile)];
+    }
+
+    /**
      * Downscale with imagecopyresampled. imagescale() returns false on some hosts'
      * GD builds (seen on Hostinger), which broke uploads; this works everywhere.
      */

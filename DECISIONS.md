@@ -106,3 +106,10 @@ Owner request: customers can buy priced products online. Choices:
   tables, if created, are left in the database; nothing reads them).
   Tables are created on first use (`Members`/`Newsletter::ensureTables`).
 
+- **Member profiles and activity (2026-10-31, owner request):** members may add a profile photo
+  (square 320px WebP, re-encoded, metadata dropped; served only to the member and staff) and
+  Facebook/YouTube/Instagram/TikTok links (checked against each site's own addresses). Staff
+  see, per member, sign-ins with approximate place (GeoIP city/country; IP not stored) and pages
+  opened while signed in (not when DNT/GPC is sent; never while staff are signed in), kept ~13
+  months, plus a members CSV. The privacy notice says so.
+

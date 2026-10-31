@@ -34,7 +34,11 @@
             @if ($member)
                 <a href="/account" aria-label="Your account" @if (request()->is('account')) aria-current="page" @endif
                     style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">
-                    <x-icon name="user" class="size-4" />
+                    @if ($photo = \App\Support\Members::photoUrl($member))
+                        <img src="{{ $photo }}" alt="" width="24" height="24" class="size-6 rounded-full object-cover">
+                    @else
+                        <x-icon name="user" class="size-4" />
+                    @endif
                     <span class="auth-label">Account</span>
                 </a>
             @else

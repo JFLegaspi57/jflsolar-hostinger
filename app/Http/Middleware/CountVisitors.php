@@ -32,6 +32,16 @@ class CountVisitors
 
         $response = $next($request);
 
+        // Signed-in customers: pages they open are listed on their record in Admin → Members.
+        try {
+            if ($this->isPageView($request, $response) && ! auth()->check() && ($member = \App\Support\Members::current())) {
+                $query = $request->getQueryString();
+                \App\Support\Members::logActivity($member, 'page', '/'.ltrim($request->path(), '/').($query ? '?'.$query : ''), $request->ip());
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Member page view skipped: '.$e->getMessage());
+        }
+
         try {
             if (! $this->shouldCount($request, $response)) {
                 return $response;
@@ -50,22 +60,29 @@ class CountVisitors
         return $response;
     }
 
-    private function shouldCount(Request $request, Response $response): bool
+    /** A public web page opened by a real browser that hasn't asked not to be tracked. */
+    private function isPageView(Request $request, Response $response): bool
     {
         if (! $request->isMethod('GET') || $response->getStatusCode() !== 200) {
             return false;
         }
-        if ($request->is('admin', 'admin/*', 'media/*', 'robots.txt', 'sitemap.xml', 'build/*')) {
+        if ($request->is('admin', 'admin/*', 'media/*', 'robots.txt', 'sitemap.xml', 'build/*', 'account/photo/*')) {
             return false;
         }
         if (! str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             return false;
         }
+
+        return $request->header('DNT') !== '1' && $request->header('Sec-GPC') !== '1';
+    }
+
+    private function shouldCount(Request $request, Response $response): bool
+    {
+        if (! $this->isPageView($request, $response)) {
+            return false;
+        }
         if (auth()->check()) {
             return false;   // signed-in staff
-        }
-        if ($request->header('DNT') === '1' || $request->header('Sec-GPC') === '1') {
-            return false;
         }
         $ua = (string) $request->userAgent();
 

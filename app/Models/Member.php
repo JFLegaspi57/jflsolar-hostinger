@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
  */
 class Member extends Authenticatable
 {
-    protected $fillable = ['name', 'email', 'phone', 'password', 'status'];
+    protected $fillable = ['name', 'email', 'phone', 'password', 'status'];   // photo and social links are set with forceFill
 
     protected $hidden = ['password', 'remember_token'];
 
