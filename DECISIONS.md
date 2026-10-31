@@ -88,3 +88,10 @@ Owner request: customers can buy priced products online. Choices:
   refuses card with any other pickup place. The order summary page says it is not an official receipt.
 - The customer pays exactly the total shown on the checkout page (fingerprint check);
   orders above `SHOP_MAX_TOTAL` (default ₱300,000) go to the quotation form.
+
+- **Own domain is canonical and indexed (2026-10-31, owner request):** on jflsolar.ph /
+  www.jflsolar.ph, links, canonical tags, sitemap and robots.txt use https://jflsolar.ph and
+  search engines are allowed (live mode), even if APP_URL still holds the Hostinger temporary
+  address. `SEARCH_INDEXING=false` now only keeps other hosts (the temporary address) out.
+  Only those exact hosts are trusted from the request. Shop rate limits are named per
+  feature (a shared `throttle:N,1` counter caused 429s at checkout).

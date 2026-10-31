@@ -611,4 +611,20 @@ class ShopTest extends TestCase
         }
         $this->post('/checkout', [])->assertStatus(429)->assertSee('Please wait a minute');
     }
+
+    public function test_jflsolar_ph_is_indexed_with_its_own_canonical_address_while_a_temporary_address_stays_hidden(): void
+    {
+        config(['site.env' => 'production', 'site.indexing' => false, 'site.url' => 'https://temp-host.hostingersite.com']);
+        PublicContent::flush();
+
+        $own = $this->get('https://jflsolar.ph/');
+        $own->assertSee('<link rel="canonical" href="https://jflsolar.ph/">', false)->assertSee('index, follow', false);
+        $this->assertNull($own->headers->get('X-Robots-Tag'));
+        $this->get('https://www.jflsolar.ph/robots.txt')->assertSee('Allow: /')->assertSee('Sitemap: https://jflsolar.ph/sitemap.xml');
+        $this->get('https://jflsolar.ph/sitemap.xml')->assertSee('<loc>https://jflsolar.ph/products</loc>', false)->assertDontSee('hostingersite');
+
+        $temp = $this->get('https://temp-host.hostingersite.com/');
+        $temp->assertSee('noindex, nofollow', false);
+        $this->get('https://evil.example/robots.txt')->assertDontSee('Allow: /');
+    }
 }
