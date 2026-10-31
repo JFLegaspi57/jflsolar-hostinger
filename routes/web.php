@@ -41,22 +41,22 @@ Route::post('/pv', function (Request $r) {
     }
 
     return response()->noContent();
-})->middleware('throttle:120,1');
+})->middleware('throttle:beacon');
 Route::get('/contact', [ContactController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'submit']);
 // Online shop (off unless SHOP_ENABLED=true and PayMongo keys are set — see config/shop.php).
 Route::get('/cart', [Shop\CartController::class, 'show']);
 Route::post('/cart', [Shop\CartController::class, 'update']);
-Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:60,1');
+Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');
 Route::get('/checkout', [Shop\CheckoutController::class, 'show']);
-Route::post('/checkout', [Shop\CheckoutController::class, 'submit'])->middleware('throttle:6,1');
+Route::post('/checkout', [Shop\CheckoutController::class, 'submit'])->middleware('throttle:checkout');
 Route::get('/checkout/done', [Shop\CheckoutController::class, 'done']);
 Route::get('/checkout/preview', [Shop\CheckoutController::class, 'preview']);
 Route::get('/checkout/preview/print', [Shop\CheckoutController::class, 'previewPrint']);
-Route::get('/orders/{reference}/print', [Shop\CheckoutController::class, 'print'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:30,1');
-Route::get('/orders/{reference}', [Shop\CheckoutController::class, 'status'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:30,1');
+Route::get('/orders/{reference}/print', [Shop\CheckoutController::class, 'print'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:orders');
+Route::get('/orders/{reference}', [Shop\CheckoutController::class, 'status'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:orders');
 // PayMongo → site, verified by signature instead of a CSRF token (bootstrap/app.php).
-Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middleware('throttle:120,1');
+Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middleware('throttle:webhook');
 Route::get('/privacy', [PageController::class, 'privacy']);
 Route::get('/terms', [PageController::class, 'terms']);
 Route::get('/robots.txt', [PageController::class, 'robots']);
