@@ -18,7 +18,38 @@
         <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem]">
-            <section aria-labelledby="orders-h" class="{{ $card }} self-start">
+            <div class="space-y-8 self-start">
+            @if ($basket)
+                <section id="basket" aria-labelledby="basket-h" class="{{ $card }}">
+                    <div class="flex flex-wrap items-baseline justify-between gap-2">
+                        <h2 id="basket-h" class="text-xl font-bold text-steel-950">Your basket</h2>
+                        @if ($basket['count'])<span class="text-sm text-steel-600">{{ $basket['count'] }} {{ $basket['count'] === 1 ? 'item' : 'items' }}</span>@endif
+                    </div>
+                    @if (! $basket['lines'])
+                        <p class="mt-3 text-steel-700">Your basket is empty.</p>
+                        <p class="mt-4"><a href="/products" class="{{ Ui::button('secondary') }}">Browse products</a></p>
+                    @else
+                        <ul class="mt-3 divide-y divide-steel-200">
+                            @foreach ($basket['lines'] as $line)
+                                <li class="flex items-start justify-between gap-3 py-3">
+                                    <div class="min-w-0">
+                                        <a href="/products/{{ $line['product']->slug }}" class="font-semibold text-steel-950 underline-offset-2 hover:underline">{{ $line['product']->name }}</a>
+                                        <p class="text-sm text-steel-600 tabular">{{ $line['qty'] }} {{ $line['unit'] }} × {{ Pricing::formatPhp($line['unit_price']) }}</p>
+                                    </div>
+                                    <span class="font-semibold text-steel-950 tabular">{{ Pricing::formatPhp($line['line_total']) }}</span>
+                                </li>
+                            @endforeach
+                        </ul>
+                        <p class="mt-2 flex justify-between border-t border-steel-300 pt-3 text-lg font-bold text-steel-950"><span>Total</span><span class="tabular">{{ Pricing::formatPhp($basket['total']) }}</span></p>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            <a href="/checkout" class="{{ Ui::button('primary') }}">Check out</a>
+                            <a href="/cart" class="{{ Ui::button('secondary') }}">Edit basket</a>
+                        </div>
+                    @endif
+                </section>
+            @endif
+
+            <section aria-labelledby="orders-h" class="{{ $card }}">
                 <h2 id="orders-h" class="text-xl font-bold text-steel-950">Your orders</h2>
                 @if ($orders->isEmpty())
                     <p class="mt-3 text-steel-700">No orders yet. Orders you place while signed in appear here.</p>
@@ -37,6 +68,7 @@
                     </ul>
                 @endif
             </section>
+            </div>
 
             <div class="space-y-8">
                 <section id="profile" aria-labelledby="profile-h" class="{{ $card }}">

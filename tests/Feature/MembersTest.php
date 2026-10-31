@@ -424,4 +424,15 @@ class MembersTest extends TestCase
         $this->actingAs($m, 'member')->get('/admin/members/'.$m->id)->assertRedirect('/admin/login');
         $this->get('/privacy')->assertSee('which pages of this website you open');
     }
+
+    public function test_account_page_shows_the_basket(): void
+    {
+        $category = ProductCategory::query()->where('status', 'published')->firstOrFail();
+        $p = Product::query()->create(['slug' => 'basket-breaker', 'name' => 'Breaker DC 2P 25A', 'brand' => 'Leikeking', 'model' => 'DC MCB 25A', 'category_id' => $category->id, 'summary' => '', 'description' => 'x', 'specs' => [], 'pricing_mode' => 'fixed', 'price_php' => 480, 'price_basis' => 'Pickup price per piece', 'price_is_sample' => false, 'availability' => 'available', 'status' => 'published', 'is_sample' => false]);
+        PublicContent::flush();
+        $this->actingAs($this->member(), 'member');
+        $this->get('/account')->assertSee('Your basket')->assertSee('Your basket is empty');
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 3]);
+        $this->get('/account')->assertSee('Breaker DC 2P 25A')->assertSee('3 pieces')->assertSee('₱1,440')->assertSee('href="/checkout"', false);
+    }
 }
