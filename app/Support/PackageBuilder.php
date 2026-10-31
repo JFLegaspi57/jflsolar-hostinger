@@ -206,6 +206,58 @@ final class PackageBuilder
         return $groups;
     }
 
+    /**
+     * Recommended mounting per number of solar panels (owner's rule):
+     * product slug => [label, quantity per panel, fixed quantity, rule shown to customers].
+     */
+    public const MOUNTING = [
+        'railing' => ['Railings', 1, 0, '1 per panel'],
+        'l-foot' => ['L-feet', 3, 0, '3 per railing'],
+        'mid-clamp' => ['Mid clamps', 2, 0, '2 per panel'],
+        'end-clamp' => ['End clamps', 0, 4, '4 per system'],
+    ];
+
+    /** @return list<array{slug: string, label: string, quantity: int, rule: string}> for N panels */
+    public static function mountingFor(int $panels): array
+    {
+        if ($panels < 1) {
+            return [];
+        }
+
+        return array_map(fn ($slug, $r) => ['slug' => $slug, 'label' => $r[0], 'quantity' => $r[1] * $panels + $r[2], 'rule' => $r[3]], array_keys(self::MOUNTING), self::MOUNTING);
+    }
+
+    /** Index of the builder line that holds the solar panels, if any. */
+    public static function panelLine(array $lines): ?int
+    {
+        $cat = PublicContent::snapshot()['categories']->firstWhere('slug', 'solar-panels');
+        foreach ($lines as $l) {
+            if ($cat && ($l['options'][0]->category_id ?? null) === $cat->id) {
+                return $l['index'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Mounting products on sale among the add-ons, with their per-panel rule.
+     *
+     * @return list<array{product: \App\Models\Product, per: int, fixed: int, rule: string}>
+     */
+    public static function mountingProducts(array $addons): array
+    {
+        $bySlug = collect($addons)->flatMap(fn ($g) => $g['products'])->keyBy('slug');
+        $out = [];
+        foreach (self::MOUNTING as $slug => [$label, $per, $fixed, $rule]) {
+            if ($p = $bySlug->get($slug)) {
+                $out[] = ['product' => $p, 'per' => $per, 'fixed' => $fixed, 'rule' => $rule];
+            }
+        }
+
+        return $out;
+    }
+
     /** "10 pcs" → 10, "1 unit" → 1, empty → 1. */
     public static function defaultQuantity(?string $text): int
     {
