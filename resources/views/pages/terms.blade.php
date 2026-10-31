@@ -22,7 +22,7 @@
             @if (\App\Support\Shop::enabled())
             <section>
                 <h2>Online orders</h2>
-                <p>Items marked “Add to cart” can be ordered on this website for pickup at our office or warehouse. Prices are pickup prices in Philippine pesos at the time you place the order. Delivery is not included in online orders.</p>
+                <p>Items marked “Add to cart” can be ordered on this website for pickup at {{ \App\Support\Shop::pickupWhere($settings) }}. Please call our Sales team before you come to pick up. Prices are pickup prices in Philippine pesos at the time you place the order. Delivery is not included in online orders.</p>
                 @if (\App\Support\Shop::inPersonPayment())
                 <p>If you choose to pay at pickup, your order is reserved and you pay the order total in person when you collect it. We contact you when it is ready.</p>
                 @endif

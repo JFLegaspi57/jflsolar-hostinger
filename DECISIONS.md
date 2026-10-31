@@ -82,5 +82,7 @@ Owner request: customers can buy priced products online. Choices:
   the counter method; online orders are still marked paid only by PayMongo.
   The customer picks cash, GCash, bank transfer or check at checkout (owner request);
   GCash numbers and bank details are sent by staff, not published on the site.
+  Pickup is at the warehouse only, and customers are asked to call Sales (the site's main
+  number) before coming (owner request, 2026-10-31; `SHOP_PICKUP_LOCATIONS` can re-add the office).
 - The customer pays exactly the total shown on the checkout page (fingerprint check);
   orders above `SHOP_MAX_TOTAL` (default ₱300,000) go to the quotation form.

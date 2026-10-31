@@ -31,6 +31,7 @@
             @if (isset(Shop::IN_PERSON_CHOICES[$o->payment_preference]))
                 <p class="mt-2 max-w-2xl text-steel-700">{{ Shop::IN_PERSON_CHOICES[$o->payment_preference]['hint'] }}</p>
             @endif
+            <div class="mt-4 max-w-2xl">@include('partials.shop-call-sales', ['reference' => $o->reference])</div>
             <p class="mt-2 text-steel-700">Please bring your order number <span class="font-mono font-semibold">{{ $o->reference }}</span>. Keep this page’s address to check your order later.</p>
         @elseif ($o->status === 'cancelled')
             <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">This order was cancelled</h1>
@@ -42,6 +43,9 @@
                 @if ($o->payment_mode === 'online')A payment receipt was emailed to {{ $o->customer_email }}.@endif
                 @if ($o->status !== 'completed')We will call or message you on {{ $o->customer_phone }} to arrange pickup.@endif
             </p>
+            @if ($o->status !== 'completed')
+                <div class="mt-4 max-w-2xl">@include('partials.shop-call-sales', ['reference' => $o->reference])</div>
+            @endif
             <p class="mt-2 text-steel-700">Keep this page’s address to check your order later.</p>
         @endif
 
@@ -61,6 +65,7 @@
             <aside class="self-start space-y-3 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-5">
                 <h2 class="text-lg font-bold text-steel-950">Pickup at our {{ strtolower(Shop::LOCATION_NAMES[$o->pickup_location] ?? 'office') }}</h2>
                 <address class="not-italic text-steel-800">{{ Shop::pickupAddress($settings, $o->pickup_location) }}</address>
+                <p class="text-sm font-semibold text-steel-950">Call Sales before you come, so we can have your order ready.</p>
                 <p class="text-sm text-steel-700">Questions? Call <a href="{{ Site::telHref($settings->phone_e164) }}" class="font-semibold underline tabular">{{ $settings->phone_display ?? $settings->phone_e164 }}</a> and mention order <span class="font-mono">{{ $o->reference }}</span>.</p>
             </aside>
         </div>
