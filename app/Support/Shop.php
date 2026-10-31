@@ -148,7 +148,7 @@ final class Shop
         if (self::enabled() || ! config('shop.staff_preview')) {
             return false;
         }
-        $user = auth()->user();
+        $user = auth('web')->user();
 
         return $user !== null && $user->active && ! $user->must_change_password;
     }
@@ -342,7 +342,7 @@ final class Shop
     /** Create the order tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
     {
-        if (Cache::get('shop-tables-v3')) {
+        if (Cache::get('shop-tables-v4')) {
             return;
         }
         try {
@@ -354,7 +354,7 @@ final class Shop
             }
         }
         self::$hasTables = true;
-        Cache::forever('shop-tables-v3', true);
+        Cache::forever('shop-tables-v4', true);
     }
 
     private static function createTables(): void
@@ -407,6 +407,12 @@ final class Shop
         if (! Schema::hasColumn('orders', 'payment_preference')) {
             Schema::table('orders', function (Blueprint $t) {
                 $t->string('payment_preference', 20)->nullable();
+            });
+        }
+        // v4: the member account that placed the order (null for guest checkout).
+        if (! Schema::hasColumn('orders', 'member_id')) {
+            Schema::table('orders', function (Blueprint $t) {
+                $t->unsignedBigInteger('member_id')->nullable()->index();
             });
         }
     }

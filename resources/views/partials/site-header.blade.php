@@ -5,6 +5,7 @@
     $settings = PublicContent::settings();
     $menuContacts = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
     $cartCount = \App\Support\Shop::visible() ? \App\Support\Shop::count() : null;
+    $member = \App\Support\Members::current();
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
@@ -26,6 +27,11 @@
                     @endforeach
                 </ul>
             </nav>
+            <a href="{{ $member ? '/account' : '/login' }}" @if (request()->is('account', 'login', 'signup')) aria-current="page" @endif
+                class="inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
+                <x-icon name="user" class="size-6" />
+                <span class="sr-only">{{ $member ? 'Your account' : 'Sign in or create an account' }}</span>
+            </a>
             @if ($cartCount !== null)
                 <a href="/cart" @if (request()->is('cart', 'checkout')) aria-current="page" @endif
                     class="relative inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
@@ -68,6 +74,7 @@
                         </ul>
                     </nav>
                     <div class="mt-auto space-y-3 border-t border-steel-200 p-4">
+                        <a href="{{ $member ? '/account' : '/login' }}" data-close-dialog class="flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-steel-300 font-semibold text-steel-950 hover:bg-steel-50"><x-icon name="user" class="size-5" /> {{ $member ? 'Your account' : 'Sign in / Create account' }}</a>
                         <a href="{{ Site::QUOTE_HREF }}" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">Request a Quote</a>
                         <ul class="space-y-1">
                             @foreach ($menuContacts as $c)

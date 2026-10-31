@@ -32,6 +32,10 @@
             </section>
             @endif
             <section>
+                <h2>Accounts</h2>
+                <p>You may create one account for yourself. Keep your password private; you are responsible for activity on your account. We may disable accounts used for spam, abuse or fraud. You can ask us to delete your account at any time.</p>
+            </section>
+            <section>
                 <h2>Contacting us</h2>
                 <p>Sending an inquiry does not create a contract. We will reply to discuss your requirements.</p>
             </section>

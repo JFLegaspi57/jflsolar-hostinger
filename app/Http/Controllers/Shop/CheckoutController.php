@@ -38,6 +38,7 @@ class CheckoutController extends Controller
         return view('pages.checkout', [
             'summary' => $summary, 'settings' => $settings, 'fingerprint' => Shop::fingerprint($summary),
             'choices' => Shop::paymentChoices($settings), 'locations' => Shop::pickupLocations($settings),
+            'member' => \App\Support\Members::current(),
         ]);
     }
 
@@ -185,6 +186,7 @@ class CheckoutController extends Controller
             'customer_notes' => $values['notes'] ?: null,
             'fulfilment' => 'pickup',
             'total_php' => $summary['total'],
+            'member_id' => \App\Support\Members::current()?->id,
         ];
         $items = array_map(fn ($line) => [
             'product_id' => $line['product']->id,

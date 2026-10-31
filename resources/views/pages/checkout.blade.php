@@ -14,6 +14,11 @@
         <p><a href="/cart" class="font-semibold text-steel-800 underline">← Back to cart</a></p>
         <h1 class="mt-3 text-3xl font-extrabold text-steel-950 sm:text-4xl">Checkout</h1>
         @include('partials.shop-preview-note')
+        @if ($member)
+            <p class="mt-4 text-steel-700">Signed in as <span class="font-semibold text-steel-950">{{ $member->name }}</span>. This order will appear in <a href="/account" class="underline">your account</a>.</p>
+        @else
+            <p class="mt-4 text-steel-700">Have an account? <a href="/login?next=%2Fcheckout" class="font-semibold underline">Sign in</a> to fill in your details and keep track of your orders. Or just continue as a guest.</p>
+        @endif
 
         <div class="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
             <form method="post" action="/checkout" novalidate class="space-y-6">
@@ -35,16 +40,16 @@
                 <fieldset class="space-y-4">
                     <legend class="text-xl font-bold text-steel-950">Your details</legend>
                     <x-form-field id="c-name" label="Full name" :error="$err('name')" required>
-                        <input id="c-name" name="name" type="text" autocomplete="name" value="{{ old('name') }}" maxlength="100" required
+                        <input id="c-name" name="name" type="text" autocomplete="name" value="{{ old('name', $member?->name) }}" maxlength="100" required
                             @if ($err('name')) aria-invalid="true" aria-describedby="c-name-error" @endif class="{{ $input }}">
                     </x-form-field>
                     <div class="grid gap-4 sm:grid-cols-2">
                         <x-form-field id="c-phone" label="Mobile or phone" :error="$err('phone')" required>
-                            <input id="c-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ old('phone') }}" maxlength="30" required
+                            <input id="c-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="{{ old('phone', $member?->phone) }}" maxlength="30" required
                                 @if ($err('phone')) aria-invalid="true" aria-describedby="c-phone-error" @endif class="{{ $input }} tabular">
                         </x-form-field>
                         <x-form-field id="c-email" label="Email" hint="Your order details are sent here." :error="$err('email')" required>
-                            <input id="c-email" name="email" type="email" autocomplete="email" spellcheck="false" value="{{ old('email') }}" maxlength="254" required
+                            <input id="c-email" name="email" type="email" autocomplete="email" spellcheck="false" value="{{ old('email', $member?->email) }}" maxlength="254" required
                                 aria-describedby="c-email-hint{{ $err('email') ? ' c-email-error' : '' }}" @if ($err('email')) aria-invalid="true" @endif class="{{ $input }}">
                         </x-form-field>
                     </div>

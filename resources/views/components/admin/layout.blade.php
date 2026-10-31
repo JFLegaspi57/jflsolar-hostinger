@@ -6,6 +6,8 @@
         ['/admin/visitors', 'Visitors', false],
         ['/admin/inquiries', 'Inquiries', false],
         ['/admin/orders', 'Orders', false],
+        ['/admin/members', 'Members', false],
+        ['/admin/subscribers', 'Subscribers', false],
         ['/admin/packages', 'Packages', false],
         ['/admin/products', 'Products', false],
         ['/admin/categories', 'Categories', false],

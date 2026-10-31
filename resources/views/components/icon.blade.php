@@ -25,6 +25,7 @@
         'file' => 'M14 3H6v18h12V7l-4-4Zm0 0v4h4',
         'cart' => 'M3 4h2.2l2.3 11h11L21 7.5H6.3M9.5 20.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4ZM17.5 20.5a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z',
         'external' => 'M14 4h6v6M20 4l-9 9M18 14v6H4V6h6',
+        'user' => 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM4 21a8 8 0 0 1 16 0',
     ];
 @endphp
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" focusable="false"

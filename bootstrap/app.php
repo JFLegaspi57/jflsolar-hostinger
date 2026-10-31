@@ -19,7 +19,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // No proxies are trusted: the client address is the connection's address,
         // so visitors cannot spoof X-Forwarded-For to dodge rate limits. (Hostinger's
         // web server terminates HTTPS itself and sets HTTPS for PHP directly.)
-        $middleware->redirectGuestsTo('/admin/login');
+        // Staff pages send signed-out visitors to the staff sign-in; member pages to /login.
+        $middleware->redirectGuestsTo(fn (Request $request) => $request->is('admin', 'admin/*') ? '/admin/login' : '/login');
         $middleware->redirectUsersTo('/admin');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -31,7 +32,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         // to the form with everything the person typed, instead of a bare 419 page.
         $exceptions->render(function (TokenMismatchException $e, Request $request) {
             return redirect()->back(fallback: $request->is('admin/*') ? '/admin' : '/')
-                ->withInput($request->except(['_token', 'password', 'password_confirmation', 'current_password']))
+                ->withInput($request->except(['_token', 'password', 'password_confirmation', 'current_password', 'token']))
                 ->with($request->is('contact') ? 'inquiry_message' : 'status_error', 'This page had been open for a long time, so the form expired. Your details are still here — please send it again.');
         });
     })->create();
