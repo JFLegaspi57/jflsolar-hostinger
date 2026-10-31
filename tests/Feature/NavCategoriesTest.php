@@ -35,7 +35,13 @@ class NavCategoriesTest extends TestCase
         $this->assertStringContainsString('>Complete Packages<', $html);
         $this->assertStringContainsString('href="/packages?type=materials"', $html);
         $this->assertStringContainsString('>Materials Only<', $html);
-        $this->assertStringNotContainsString('nav-dd-link font-semibold">All packages<', $html);   // the Packages link itself opens the full list
+        $this->assertStringNotContainsString('nav-dd-link font-semibold">All packages<', $html);
+        // Order: Materials Only, Build Your Own, Complete Packages (menu and the Packages page buttons).
+        $menu = substr($html, strpos($html, 'aria-label="Package types"'));
+        $this->assertTrue(strpos($menu, '>Materials Only<') < strpos($menu, 'Build Your Own<') && strpos($menu, 'Build Your Own<') < strpos($menu, '>Complete Packages<'));
+        $page = $this->get('/packages')->getContent();
+        $buttons = substr($page, strpos($page, 'aria-label="Package type"'));
+        $this->assertTrue(strpos($buttons, '>All packages<') < strpos($buttons, '>Materials Only<') && strpos($buttons, '>Materials Only<') < strpos($buttons, 'Build Your Own') && strpos($buttons, 'Build Your Own') < strpos($buttons, '>Complete Packages<'));   // the Packages link itself opens the full list
         // The open filter is marked in the menu.
         $this->assertMatchesRegularExpression('#href="/packages\\?type=materials"\\s+aria-current="page"\\s+class="nav-dd-link"#', $this->get('/packages?type=materials')->getContent());
     }
