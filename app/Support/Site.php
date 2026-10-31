@@ -38,6 +38,21 @@ final class Site
         return config('site.url').$path;
     }
 
+    /** The business's own web addresses (used when APP_URL still holds a temporary host). */
+    public const OWN_HOSTS = ['jflsolar.ph', 'www.jflsolar.ph'];
+
+    /**
+     * Absolute address for links that leave the page (emails, printouts): the jflsolar.ph
+     * host the visitor is on, when they are on it; otherwise APP_URL. Only the business's own
+     * hosts are taken from the request, so a forged Host header cannot change the links.
+     */
+    public static function publicUrl(string $path = ''): string
+    {
+        $host = strtolower((string) request()->getHost());
+
+        return (in_array($host, self::OWN_HOSTS, true) ? 'https://'.$host : config('site.url')).$path;
+    }
+
     public static function telHref(string $e164): string
     {
         return 'tel:'.$e164;

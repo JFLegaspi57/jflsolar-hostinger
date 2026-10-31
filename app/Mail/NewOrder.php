@@ -33,7 +33,7 @@ class NewOrder extends Mailable
             'order' => $o,
             'settings' => \App\Support\PublicContent::settings(),
             'preview' => $this->preview,
-            'printUrl' => $this->preview ? null : Site::url($o->printPath()),
+            'printUrl' => $this->preview ? null : Site::publicUrl($o->printPath()),
             'rows' => [
                 'Order' => $o->reference,
                 'Placed' => ($o->created_at ?? now())->copy()->setTimezone('Asia/Manila')->format('M j, Y g:i A'),
@@ -51,7 +51,7 @@ class NewOrder extends Mailable
             'notes' => $o->customer_notes,
             'sendDetails' => ! $o->paid_at ? ['gcash' => 'GCash number', 'bank_transfer' => 'bank details'][$o->payment_preference] ?? null : null,
             'site' => Site::NAME,
-            'adminUrl' => $o->id ? Site::url('/admin/orders/'.$o->id) : null,
+            'adminUrl' => $o->id ? Site::publicUrl('/admin/orders/'.$o->id) : null,
         ]);
     }
 }
