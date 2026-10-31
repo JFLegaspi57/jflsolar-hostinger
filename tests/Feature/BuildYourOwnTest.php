@@ -35,7 +35,7 @@ class BuildYourOwnTest extends TestCase
         PublicContent::flush();
 
         $html = $this->get('/packages/build-your-own')->assertOk()
-            ->assertSee('Build Your Own')->assertSee('We offer free comprehensive and unparalleled technical support')->assertSee('Sagot ka namin!')->assertSee('Your system')->assertSee('BYO Inverter 8kW')->assertDontSee('BYO Inverter Quote')
+            ->assertSee('Build Your Own')->assertSee('Choose your own inverter, solar panels and battery')->assertSee('free technical support, from installation and commissioning to troubleshooting')->assertSee('Sagot ka namin!')->assertSee('Your system')->assertSee('BYO Inverter 8kW')->assertDontSee('BYO Inverter Quote')
             ->assertSee('₱205,000')   // 1 × 40,000 + 10 × 5,900 + 1 × 106,000
             ->assertSee('BYO Clamp')->assertSee('class="addon-chev', false)->assertSee('data-addons-toggle', false)->getContent();
         $this->assertLessThan(strpos($html, 'BYO Inverter 8kW'), strpos($html, 'BYO Inverter 6kW'));   // cheapest first = default
