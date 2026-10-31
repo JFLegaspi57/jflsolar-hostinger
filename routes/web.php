@@ -17,6 +17,7 @@ Route::get('/services', [PageController::class, 'services']);
 Route::get('/about', [PageController::class, 'about']);
 Route::get('/packages', [PageController::class, 'packages']);
 Route::get('/packages/compare', [PageController::class, 'compare']);
+Route::get('/packages/build-your-own', [PageController::class, 'buildYourOwn']);
 Route::get('/packages/{slug}', [PageController::class, 'package'])->where('slug', '[a-z0-9-]+');
 Route::get('/products', [PageController::class, 'products']);
 Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug', '[a-z0-9-]+');

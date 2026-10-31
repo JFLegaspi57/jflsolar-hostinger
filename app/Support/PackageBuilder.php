@@ -39,6 +39,38 @@ final class PackageBuilder
         return $lines;
     }
 
+    /** Build Your Own page: main part categories, label and starting quantity. */
+    public const CUSTOM_PARTS = [
+        'inverters' => ['Hybrid Inverter', 1],
+        'solar-panels' => ['Solar Panels', 10],
+        'batteries' => ['Battery', 1],
+    ];
+
+    /**
+     * Lines for the Build Your Own page: every product sold online in each main category
+     * (cheapest first), starting from a typical small system the customer then changes.
+     */
+    public static function customLines(): array
+    {
+        if (! Shop::visible()) {
+            return [];
+        }
+        $products = Shop::catalog();
+        $categories = PublicContent::snapshot()['categories']->keyBy('slug');
+        $lines = [];
+        $i = 0;
+        foreach (self::CUSTOM_PARTS as $slug => [$label, $qty]) {
+            $category = $categories->get($slug);
+            $options = $category ? $products->where('category_id', $category->id)->sortBy(fn ($p) => [(float) $p->price_php, mb_strtolower($p->name)])->values()->all() : [];
+            if ($options) {
+                $lines[] = ['index' => $i, 'label' => $label, 'detail' => '', 'quantity' => $qty, 'options' => $options];
+            }
+            $i++;
+        }
+
+        return $lines;
+    }
+
     /** Product categories offered as optional add-ons under "Build your package", in this order. */
     public const ADDON_CATEGORIES = ['mounting-hardware', 'wire-and-cables', 'ac-safety-devices', 'dc-safety-devices', 'accessories'];
 

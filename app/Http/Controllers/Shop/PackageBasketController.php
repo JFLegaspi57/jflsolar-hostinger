@@ -16,10 +16,15 @@ class PackageBasketController extends Controller
     public function add(Request $request, string $slug): RedirectResponse
     {
         abort_unless(Shop::visible(), 404);
-        $pkg = PublicContent::snapshot()['packages']->firstWhere('slug', $slug);
-        abort_unless($pkg instanceof Package, 404);
-        $back = redirect('/packages/'.$pkg->slug.'#build');
-        $lines = PackageBuilder::lines($pkg);
+        if ($slug === 'build-your-own') {
+            $back = redirect('/packages/build-your-own#build');
+            $lines = PackageBuilder::customLines();
+        } else {
+            $pkg = PublicContent::snapshot()['packages']->firstWhere('slug', $slug);
+            abort_unless($pkg instanceof Package, 404);
+            $back = redirect('/packages/'.$pkg->slug.'#build');
+            $lines = PackageBuilder::lines($pkg);
+        }
         if (! $lines) {
             return $back->with('pkg_error', 'Sorry, this package can’t be bought online right now. Please ask us for a quotation.');
         }

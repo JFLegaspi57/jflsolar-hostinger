@@ -91,6 +91,11 @@ class PageController extends Controller
         ]);
     }
 
+    public function buildYourOwn(): View
+    {
+        return view('pages.build-your-own', ['lines' => \App\Support\PackageBuilder::customLines(), 'settings' => PublicContent::settings()]);
+    }
+
     public function package(string $slug): View
     {
         $pkg = PublicContent::package($slug) ?? abort(404);
@@ -155,7 +160,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/products', '/projects', '/pv-calculator', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
