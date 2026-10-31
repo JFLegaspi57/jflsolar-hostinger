@@ -32,12 +32,12 @@
             <div class="rounded-[var(--radius-panel)] border border-steel-300 bg-white p-6 shadow-sm">
                 <x-price-block :price="$pkg->price($promo)" :promo="$promo" :promo-label="$pkg->promo_label" :promo-window="Pricing::promoWindow($pkg->promoStart(), $pkg->promoEnd())" size="lg" />
                 @if ($build)
-                    <a href="#build" class="{{ Ui::button('primary', 'lg', 'mt-6 w-full') }}"><x-icon name="cart" class="size-5" /> Customize &amp; Add to Basket</a>
-                    <a href="{{ $askHref }}" class="{{ Ui::button('secondary', 'lg', 'mt-3 w-full') }}">Ask About This Package</a>
+                    {{-- Buyable online: one action only (no inquiry or call buttons). --}}
+                    <a href="#build" class="{{ Ui::button('primary', 'lg', 'mt-6 w-full') }}"><x-icon name="cart" class="size-5" /> Add to Basket and Customize</a>
                 @else
                     <a href="{{ $askHref }}" class="{{ Ui::button('primary', 'lg', 'mt-6 w-full') }}">Ask About This Package</a>
+                    <a href="{{ Site::telHref($settings->phone_e164) }}" class="mt-3 flex min-h-11 items-center justify-center gap-2 font-semibold text-steel-900 hover:underline"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                 @endif
-                <a href="{{ Site::telHref($settings->phone_e164) }}" class="mt-3 flex min-h-11 items-center justify-center gap-2 font-semibold text-steel-900 hover:underline"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                 @if ($settings->service_area_note)<p class="mt-4 border-t border-steel-200 pt-4 text-sm text-steel-600">{{ $settings->service_area_note }}</p>@endif
             </div>
         </aside>
