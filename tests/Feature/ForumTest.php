@@ -156,4 +156,24 @@ class ForumTest extends TestCase
         $this->actingAs($m, 'member')->ask()->assertRedirect('/login?next=%2Fforum%2Fnew');
         $this->assertFalse(Forum::hasTables() && ForumTopic::query()->exists());
     }
+
+    public function test_account_page_shows_latest_forum_topics_and_the_members_own_posts(): void
+    {
+        $m = $this->member();
+        $this->actingAs($m, 'member');
+        $this->get('/account')->assertSee('Latest in the forum')->assertSee('No questions yet')->assertSee('You haven’t posted yet', false);
+
+        $this->ask();   // first post: waits for approval
+        $other = $this->member(['forum_trusted' => true]);
+        $this->flushSession();   // a different person, a different browser session
+        $this->actingAs($other, 'member')->ask(['title' => 'Net metering application in Cavite', 'category' => 'grid']);
+
+        $this->flushSession();
+        $page = $this->actingAs($m, 'member')->get('/account');
+        $page->assertSee('Net metering application in Cavite')       // latest published topic from someone else
+            ->assertSee('Asked: Which battery for a 6 kW hybrid inverter?')   // my own post
+            ->assertSee('Waiting for approval');
+        // My pending topic is not in "Latest in the forum" (not public yet).
+        $this->assertSame(1, substr_count($page->getContent(), 'Which battery for a 6 kW hybrid inverter?'));
+    }
 }

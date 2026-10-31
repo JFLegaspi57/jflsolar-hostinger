@@ -68,6 +68,47 @@
                     </ul>
                 @endif
             </section>
+
+            <section id="forum" aria-labelledby="forum-h" class="{{ $card }}">
+                <div class="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2 id="forum-h" class="text-xl font-bold text-steel-950">Forum</h2>
+                    <a href="/forum/new" class="{{ Ui::button('secondary', 'sm') }}">Ask a question</a>
+                </div>
+
+                <h3 class="mt-4 text-sm font-semibold tracking-wide text-steel-600 uppercase">Latest in the forum</h3>
+                @if ($forumLatest->isEmpty())
+                    <p class="mt-2 text-steel-700">No questions yet. Be the first to ask!</p>
+                @else
+                    <ul class="mt-1 divide-y divide-steel-200">
+                        @foreach ($forumLatest as $t)
+                            <li class="flex flex-wrap items-baseline justify-between gap-2 py-2.5">
+                                <a href="{{ $t->path() }}" class="min-w-0 font-semibold text-steel-950 underline-offset-2 hover:underline">{{ $t->title }}</a>
+                                <span class="text-sm text-steel-600">{{ $t->replies_count }} {{ $t->replies_count === 1 ? 'reply' : 'replies' }} · {{ $t->last_post_at?->timezone('Asia/Manila')->diffForHumans() }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                    <p class="mt-2"><a href="/forum" class="text-sm font-semibold underline">See all questions</a></p>
+                @endif
+
+                <h3 class="mt-6 text-sm font-semibold tracking-wide text-steel-600 uppercase">Your recent posts</h3>
+                @if ($forumMine->isEmpty())
+                    <p class="mt-2 text-steel-700">You haven’t posted yet.</p>
+                @else
+                    <ul class="mt-1 divide-y divide-steel-200">
+                        @foreach ($forumMine as $p)
+                            <li class="py-2.5">
+                                <p class="flex flex-wrap items-baseline justify-between gap-2">
+                                    <a href="{{ $p->topic->path() }}#post-{{ $p->id }}" class="min-w-0 font-semibold text-steel-950 underline-offset-2 hover:underline">{{ $p->is_opening ? 'Asked:' : 'Replied in:' }} {{ $p->topic->title }}</a>
+                                    <span class="text-sm text-steel-600">{{ $p->created_at->timezone('Asia/Manila')->format('M j, g:i A') }}</span>
+                                </p>
+                                <p class="mt-0.5 text-sm text-steel-700">{{ \Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', $p->body), 120) }}</p>
+                                @if ($p->status === 'pending')<p class="mt-1"><span class="rounded-full bg-warn-50 px-2 text-xs font-semibold text-warn-800">Waiting for approval</span></p>@endif
+                                @if ($p->status === 'hidden')<p class="mt-1"><span class="rounded-full bg-danger-50 px-2 text-xs font-semibold text-danger-700">Hidden by our team</span></p>@endif
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </section>
             </div>
 
             <div class="space-y-8">
