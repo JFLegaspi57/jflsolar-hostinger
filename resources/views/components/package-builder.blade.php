@@ -96,14 +96,32 @@
         @endif
 
         @if ($addons)
-            <h3 class="mt-6 text-lg font-bold text-steel-950">Add-ons <span class="text-base font-normal text-steel-600">(optional)</span></h3>
-            <p class="mt-1 text-sm text-steel-600">Open a group and enter how many you need. Leave 0 for items you don’t want.</p>
+            <style>
+                .addon-group > summary { list-style: none; }
+                .addon-group > summary::-webkit-details-marker { display: none; }
+                .addon-chev { width: 1.25rem; height: 1.25rem; flex: none; transition: transform .15s ease; }
+                .addon-group[open] > summary .addon-chev { transform: rotate(180deg); }
+                @media (prefers-reduced-motion: reduce) { .addon-chev { transition: none; } }
+            </style>
+            <div class="mt-6 flex flex-wrap items-end justify-between gap-2">
+                <div>
+                    <h3 class="text-lg font-bold text-steel-950">Add-ons <span class="text-base font-normal text-steel-600">(optional)</span></h3>
+                    <p class="mt-1 text-sm text-steel-600">Tap a group to open or close it (▼ / ▲), then enter how many you need. Leave 0 for items you don’t want.</p>
+                </div>
+                <button type="button" data-addons-toggle hidden aria-expanded="false" class="inline-flex min-h-11 items-center gap-1.5 rounded-[var(--radius-control)] border border-steel-300 px-3 text-sm font-semibold text-steel-900 hover:border-steel-900">
+                    <svg aria-hidden="true" class="addon-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    <span data-addons-toggle-label>Open all</span>
+                </button>
+            </div>
             <div class="mt-3 divide-y divide-steel-200 rounded-[var(--radius-panel)] border border-steel-200">
                 @foreach ($addons as $group)
-                    <details data-addon-group class="group" @if (collect($group['products'])->contains(fn ($p) => (int) old('addon.'.$p->id, 0) > 0)) open @endif>
+                    <details data-addon-group class="addon-group" @if (collect($group['products'])->contains(fn ($p) => (int) old('addon.'.$p->id, 0) > 0)) open @endif>
                         <summary class="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 font-semibold text-steel-950 hover:bg-steel-50">
                             <span>{{ $group['category']->name }} <span class="text-sm font-normal text-steel-600">({{ count($group['products']) }} items)</span></span>
-                            <span class="text-sm font-semibold text-steel-700 tabular" data-group-total></span>
+                            <span class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-steel-700 tabular" data-group-total></span>
+                                <svg aria-hidden="true" class="addon-chev text-steel-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            </span>
                         </summary>
                         <div class="overflow-x-auto border-t border-steel-200 px-4">
                             <table class="w-full text-left text-[0.95rem]">
@@ -185,6 +203,20 @@
                     mountBox.querySelector('[data-mount-apply]').disabled = n < 1;
                 }
             };
+            const toggleAll = form.querySelector('[data-addons-toggle]');
+            if (toggleAll) {
+                const groups = [...form.querySelectorAll('[data-addon-group]')];
+                const sync = () => {
+                    const allOpen = groups.every((g) => g.open);
+                    toggleAll.setAttribute('aria-expanded', String(allOpen));
+                    toggleAll.querySelector('[data-addons-toggle-label]').textContent = allOpen ? 'Close all' : 'Open all';
+                    toggleAll.querySelector('.addon-chev').style.transform = allOpen ? 'rotate(180deg)' : '';
+                };
+                toggleAll.hidden = false;
+                toggleAll.addEventListener('click', () => { const open = !groups.every((g) => g.open); groups.forEach((g) => { g.open = open; }); sync(); });
+                groups.forEach((g) => g.addEventListener('toggle', sync));
+                sync();
+            }
             const mountBox = form.querySelector('[data-mount]');
             if (mountBox) {
                 const apply = mountBox.querySelector('[data-mount-apply]');
