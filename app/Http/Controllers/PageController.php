@@ -54,12 +54,15 @@ class PageController extends Controller
         ]);
     }
 
-    public function packages(Request $request): View
+    public function packages(Request $request): View|\Illuminate\Http\RedirectResponse
     {
         $type = $request->query('type');
-        $active = in_array($type, ['installed', 'equipment'], true) ? $type : 'all';
+        if ($type === 'installed') {
+            return redirect('/packages?type=complete', 301);   // old address of the "Complete Packages" filter
+        }
+        $active = in_array($type, ['complete', 'equipment'], true) ? $type : 'all';
         $shown = PublicContent::snapshot()['packages']->filter(fn ($p) => $active === 'all'
-            || ($active === 'installed' ? $p->package_type === 'installed_system' : $p->package_type === 'equipment_bundle'))->values();
+            || ($active === 'complete' ? $p->package_type === 'installed_system' : $p->package_type === 'equipment_bundle'))->values();
 
         return view('pages.packages', ['active' => $active, 'shown' => $shown]);
     }
