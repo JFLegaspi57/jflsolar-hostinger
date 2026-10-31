@@ -28,9 +28,10 @@ class BannerStatsTest extends TestCase
             ['id_hash' => str_repeat('a', 64), 'first_seen' => '2026-10-01', 'last_seen' => '2026-10-31', 'days' => 3],
             ['id_hash' => str_repeat('b', 64), 'first_seen' => '2026-10-31', 'last_seen' => '2026-10-31', 'days' => 1],
         ]);
+        $today = Visitors::today()->toDateString();
         DB::table('visitor_days')->insert([
             ['day' => '2026-10-01', 'id_hash' => str_repeat('a', 64)], ['day' => '2026-10-15', 'id_hash' => str_repeat('a', 64)],
-            ['day' => '2026-10-31', 'id_hash' => str_repeat('a', 64)], ['day' => '2026-10-31', 'id_hash' => str_repeat('b', 64)],
+            ['day' => $today, 'id_hash' => str_repeat('a', 64)], ['day' => $today, 'id_hash' => str_repeat('b', 64)],
         ]);
         $this->get('/login');   // creates the member tables
         \App\Support\Members::ensureTables();
@@ -38,12 +39,13 @@ class BannerStatsTest extends TestCase
         (new Member)->forceFill(['name' => 'B', 'email' => 'b@example.com', 'password' => 'x long password', 'status' => 'disabled'])->save();
         Cache::forget('public-visitor-stats');
 
-        $page = $this->get('/')->assertOk()->assertSee('First-time visitors')->assertSee('Returning visitors')->assertSee('Registered users')->assertSee('Total visits')->assertSee('id="live-stats"', false);
+        $page = $this->get('/')->assertOk()->assertSee('First-time visitors')->assertSee('Returning visitors')->assertSee('Registered users')->assertSee('Total visits')->assertSee('Today’s visitors', false)->assertSee('id="live-stats"', false);
+        $this->assertMatchesRegularExpression('/data-stat="today"[^>]*>2</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="first"[^>]*>2</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="returning"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="members"[^>]*>1</', $page->getContent());   // active accounts only
         $this->assertMatchesRegularExpression('/data-stat="visits"[^>]*>4</', $page->getContent());
 
-        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['first' => 2, 'returning' => 1, 'members' => 1, 'visits' => 4])->assertHeader('Cache-Control', 'no-store, private');
+        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['today' => 2, 'first' => 2, 'returning' => 1, 'members' => 1, 'visits' => 4])->assertHeader('Cache-Control', 'no-store, private');
     }
 }
