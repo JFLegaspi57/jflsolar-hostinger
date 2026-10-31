@@ -22,10 +22,14 @@ final class Site
 
     public const QUOTE_HREF = '/contact#quote';
 
-    /** Search engines may index the public pages: live mode and indexing not switched off. */
+    /**
+     * Search engines may index the public pages: live mode, and either indexing is on or the
+     * visitor is on jflsolar.ph itself. SEARCH_INDEXING=false keeps temporary addresses
+     * (e.g. Hostinger's *.hostingersite.com) out of search results; the real domain is indexed.
+     */
     public static function allowsIndexing(): bool
     {
-        return self::isProduction() && config('site.indexing');
+        return self::isProduction() && (config('site.indexing') || self::onOwnHost());
     }
 
     public static function isProduction(): bool
@@ -33,24 +37,30 @@ final class Site
         return config('site.env') === 'production';
     }
 
-    public static function url(string $path = ''): string
-    {
-        return config('site.url').$path;
-    }
-
-    /** The business's own web addresses (used when APP_URL still holds a temporary host). */
+    /** The business's own web addresses, and the main one used in links, sitemaps and canonical tags. */
     public const OWN_HOSTS = ['jflsolar.ph', 'www.jflsolar.ph'];
 
+    public const CANONICAL_URL = 'https://jflsolar.ph';
+
+    /** The visitor is on jflsolar.ph (only these exact hosts count, so a forged Host header cannot). */
+    public static function onOwnHost(): bool
+    {
+        return in_array(strtolower((string) request()->getHost()), self::OWN_HOSTS, true);
+    }
+
     /**
-     * Absolute address for links that leave the page (emails, printouts): the jflsolar.ph
-     * host the visitor is on, when they are on it; otherwise APP_URL. Only the business's own
-     * hosts are taken from the request, so a forged Host header cannot change the links.
+     * Absolute site address: https://jflsolar.ph when the visitor is on jflsolar.ph (even if
+     * APP_URL still holds a temporary address); otherwise APP_URL.
      */
+    public static function url(string $path = ''): string
+    {
+        return (self::onOwnHost() ? self::CANONICAL_URL : config('site.url')).$path;
+    }
+
+    /** Same as url(); kept for links that leave the page (emails, printouts). */
     public static function publicUrl(string $path = ''): string
     {
-        $host = strtolower((string) request()->getHost());
-
-        return (in_array($host, self::OWN_HOSTS, true) ? 'https://'.$host : config('site.url')).$path;
+        return self::url($path);
     }
 
     public static function telHref(string $e164): string
