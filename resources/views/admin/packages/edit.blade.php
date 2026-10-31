@@ -31,8 +31,8 @@
             <x-admin.text :form="$form" name="inverter_kw" label="Inverter capacity (kW)" inputmode="decimal" hint="How much power the inverter can deliver at once, e.g. 6." />
             <x-admin.text :form="$form" name="array_kwp" label="Solar array (kWp)" inputmode="decimal" hint="Total panel capacity: number of panels × panel watts ÷ 1000, e.g. 10 × 620 W = 6.2." />
             <x-admin.text :form="$form" name="battery_kwh" label="Battery (kWh)" inputmode="decimal" hint="How much energy the battery stores, e.g. 16.5. Leave blank if no battery." />
-            <x-admin.textarea :form="$form" name="components" label="Components" rows="4" mono class="sm:col-span-2"
-                :hint="new \Illuminate\Support\HtmlString('One per line: <code>Component | details | quantity</code> — e.g. <code>Hybrid inverter | GoodWe GW6000-ES-C10, 6 kW | 1 unit</code>')" />
+            <x-admin.textarea :form="$form" name="components" label="Components" mono class="sm:col-span-2"
+                :hint="new \Illuminate\Support\HtmlString('One per line: <code>Component | details | quantity</code> — e.g. <code>Hybrid inverter | GoodWe GW6000-ES-C10, 6 kW | 1 unit</code>. To let customers buy the parts separately (“Build your package” with Add to basket), add a 4th column with the product web address(es) after /products/, comma separated, the first is the default: <code>Battery | Dyness 16 kWh or ATE 16.5 kWh | 1 unit | dyness-314ah-powerbrick-max, alltopelec-16-5kwh-battery</code>. Only products with a fixed price that are available to order can be added.')" rows="5" />
             <x-admin.textarea :form="$form" name="inclusions" label="Included" rows="5" hint="One item per line." />
             <x-admin.textarea :form="$form" name="exclusions" label="Not included" rows="5" hint="One item per line." />
         </x-admin.fieldset>
