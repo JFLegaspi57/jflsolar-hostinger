@@ -131,12 +131,14 @@ final class PackageBuilder
             $preset['solar-panels'] = [$p->slug, (int) max(1, ceil($r['kwp'] * 1000 / $w - 0.001))];
         }
 
-        // Battery: none for grid-tied; else the lowest cost per kWh, enough units for the kWh.
+        // Battery: none for grid-tied; else the model that covers the kWh for the lowest total price.
+        $needKwh = (float) ($r['battery'] ?? 0);
+        $units = fn (float $kwh) => $needKwh > 0 ? (int) max(1, ceil($needKwh / $kwh - 0.05)) : 1;
         $batteries = $in_('batteries')->map(fn ($p) => [$p, self::rating($p, 'kWh')])->filter(fn ($x) => $x[1] > 0)
-            ->sortBy(fn ($x) => [(float) $x[0]->price_php / $x[1], (float) $x[0]->price_php])->values();
+            ->sortBy(fn ($x) => [$units($x[1]) * (float) $x[0]->price_php, -$x[1]])->values();
         if ($batteries->isNotEmpty()) {
             [$p, $kwh] = $batteries->first();
-            $preset['batteries'] = [$p->slug, ($r['battery'] ?? 0) > 0 ? (int) max(1, ceil($r['battery'] / $kwh - 0.05)) : 0];
+            $preset['batteries'] = [$p->slug, $needKwh > 0 ? $units($kwh) : 0];
         }
 
         return $preset;

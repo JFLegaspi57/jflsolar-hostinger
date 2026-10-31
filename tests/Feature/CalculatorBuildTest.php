@@ -41,7 +41,8 @@ class CalculatorBuildTest extends TestCase
     {
         $this->catalog();
         $hybrid = PackageBuilder::presetFromCalculator(['type' => 'hybrid', 'panel' => 620], ['inverter' => ['count' => 1, 'kw' => 8], 'kwp' => 7.44, 'battery' => 32]);
-        $this->assertSame(['inverters' => ['inv-8', 1], 'solar-panels' => ['pan-620', 12], 'batteries' => ['bat-165', 2]], $hybrid);   // lowest cost per kWh
+        $this->assertSame(['inverters' => ['inv-8', 1], 'solar-panels' => ['pan-620', 12], 'batteries' => ['bat-16', 2]], $hybrid);   // 2 × 16 kWh is the cheapest way to 32 kWh
+        $this->assertSame(['bat-165', 2], PackageBuilder::presetFromCalculator(['type' => 'hybrid', 'panel' => 620], ['inverter' => ['count' => 1, 'kw' => 8], 'kwp' => 7.44, 'battery' => 33])['batteries']);   // 2 × 16.5 beats 3 × 16
 
         $grid = PackageBuilder::presetFromCalculator(['type' => 'grid', 'panel' => 650], ['inverter' => ['count' => 1, 'kw' => 10], 'kwp' => 9.75, 'battery' => 0]);
         $this->assertSame(['inv-12', 1], $grid['inverters']);   // smallest that covers 10 kW; off-grid model not used
