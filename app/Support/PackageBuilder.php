@@ -39,6 +39,39 @@ final class PackageBuilder
         return $lines;
     }
 
+    /** Product categories offered as optional add-ons under "Build your package", in this order. */
+    public const ADDON_CATEGORIES = ['mounting-hardware', 'wire-and-cables', 'ac-safety-devices', 'dc-safety-devices', 'accessories'];
+
+    /**
+     * Optional add-ons: every sellable product in the add-on categories (not already a main part),
+     * grouped by category.
+     *
+     * @param  list<array>  $lines  from lines()
+     * @return list<array{category: \App\Models\ProductCategory, products: list<\App\Models\Product>}>
+     */
+    public static function addons(array $lines): array
+    {
+        if (! $lines) {
+            return [];
+        }
+        $taken = collect($lines)->flatMap(fn ($l) => collect($l['options'])->pluck('id'))->all();
+        $products = Shop::catalog()->reject(fn ($p) => in_array($p->id, $taken, true));
+        $categories = PublicContent::snapshot()['categories']->keyBy('slug');
+        $groups = [];
+        foreach (self::ADDON_CATEGORIES as $slug) {
+            $category = $categories->get($slug);
+            if (! $category) {
+                continue;
+            }
+            $items = $products->where('category_id', $category->id)->sortBy(fn ($p) => mb_strtolower($p->name), SORT_NATURAL)->values()->all();
+            if ($items) {
+                $groups[] = ['category' => $category, 'products' => $items];
+            }
+        }
+
+        return $groups;
+    }
+
     /** "10 pcs" → 10, "1 unit" → 1, empty → 1. */
     public static function defaultQuantity(?string $text): int
     {

@@ -98,4 +98,24 @@ class PackageBasketTest extends TestCase
         $pkg = new Package(['components' => [['label' => 'Battery', 'detail' => '16 kWh', 'quantity' => null, 'products' => ['dyness-a']], ['label' => 'Panels', 'detail' => '620 W', 'quantity' => '10 pcs']]]);
         $this->assertSame("Battery | 16 kWh |  | dyness-a\nPanels | 620 W | 10 pcs", Values::package($pkg)['components']);
     }
+
+    public function test_optional_add_ons_from_the_accessory_categories(): void
+    {
+        [$inv, $panel, $batA, $batB] = $this->setUpPackage();
+        $cat = fn (string $slug, string $name) => ProductCategory::query()->firstOrCreate(['slug' => $slug], ['name' => $name, 'status' => 'published', 'sort_order' => 90]);
+        $acc = $cat('accessories', 'Accessories');
+        $dc = $cat('dc-safety-devices', 'DC Safety Devices');
+        $mc4 = Product::query()->create(['slug' => 't-mc4', 'name' => 'Test MC4 Pair', 'brand' => 'Generic', 'model' => '', 'category_id' => $acc->id, 'summary' => '', 'description' => 'x', 'specs' => [],
+            'pricing_mode' => 'fixed', 'price_php' => 65, 'price_basis' => 'Pickup price per pair', 'price_is_sample' => false, 'availability' => 'available', 'status' => 'published', 'is_sample' => false]);
+        $spd = Product::query()->create(['slug' => 't-spd', 'name' => 'Test DC SPD', 'brand' => '', 'model' => '', 'category_id' => $dc->id, 'summary' => '', 'description' => 'x', 'specs' => [],
+            'pricing_mode' => 'quote', 'price_php' => null, 'price_basis' => '', 'price_is_sample' => false, 'availability' => 'available', 'status' => 'published', 'is_sample' => false]);
+        PublicContent::flush();
+
+        $this->get('/packages/t-trio')->assertOk()->assertSee('Add-ons')->assertSee('Test MC4 Pair')->assertSee('name="addon['.$mc4->id.']"', false)
+            ->assertDontSee('Test DC SPD');   // no fixed price: not offered
+
+        // Add-ons alone are enough; unknown or unsellable ids are ignored.
+        $this->post('/packages/t-trio/basket', ['quantity' => [0 => 0, 1 => 0, 2 => 0], 'addon' => [$mc4->id => 4, $spd->id => 2, $inv->id => 3, 'nope' => 1]])->assertSessionHas('pkg_added');
+        $this->assertSame([$mc4->id => 4], Shop::raw());
+    }
 }

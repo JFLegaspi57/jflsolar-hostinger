@@ -40,6 +40,16 @@ class PackageBasketController extends Controller
             $cart[$product->id] = Shop::clampQuantity(($cart[$product->id] ?? 0) + $qty);
             $added[] = $qty.' × '.$product->name;
         }
+        // Optional add-ons (mounting, cables, protection devices, accessories): addon[product id] = quantity.
+        $addonProducts = collect(PackageBuilder::addons($lines))->flatMap(fn ($g) => $g['products'])->keyBy('id');
+        foreach ((array) $request->input('addon', []) as $id => $qty) {
+            $product = $addonProducts->get((string) $id);
+            $qty = Shop::clampQuantity($qty);
+            if ($product && $qty > 0) {
+                $cart[$product->id] = Shop::clampQuantity(($cart[$product->id] ?? 0) + $qty);
+                $added[] = $qty.' × '.$product->name;
+            }
+        }
         if (! $added) {
             return $back->withInput()->with('pkg_error', 'Please set a quantity of at least 1 for one of the parts.');
         }
