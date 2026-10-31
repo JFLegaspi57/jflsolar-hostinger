@@ -31,4 +31,16 @@ class ProductsGroupedTest extends TestCase
         $one = $withProducts->first();
         $this->get('/products?category='.$one->slug)->assertOk()->assertDontSee('id="cat-'.$one->slug.'"', false);
     }
+
+    public function test_category_view_keeps_brand_logos_and_links_jump_to_the_list(): void
+    {
+        $this->seed();
+        \App\Support\PublicContent::flush();
+        $cat = \App\Models\ProductCategory::query()->where('status', 'published')->firstOrFail();
+        $this->get('/products')->assertOk()->assertSee('aria-label="Brands we carry"', false)
+            ->assertSee('href="/products?category='.$cat->slug.'#categories"', false);
+        $this->get('/products?category='.$cat->slug)->assertOk()
+            ->assertSee('aria-label="Brands we carry"', false)
+            ->assertSee('id="categories"', false);
+    }
 }

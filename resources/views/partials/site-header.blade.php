@@ -14,7 +14,7 @@
     $subMenus = [];
     if ($productCategories->isNotEmpty()) {
         $subMenus['/products'] = ['Product categories', null,
-            $productCategories->map(fn ($c) => ['/products?category='.$c->slug, $c->name, $currentCategory === $c->slug])->all()];
+            $productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all()];
     }
     $subMenus['/packages'] = ['Package types', null, [
         ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
