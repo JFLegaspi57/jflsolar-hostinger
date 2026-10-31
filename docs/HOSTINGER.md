@@ -293,7 +293,8 @@ website: products, prices, availability, packages, contact details and how order
 It appears only after you add an API key.
 
 1. Go to <https://console.anthropic.com>, create an account for the business, add a payment
-   method (usage is billed per message; a typical chat costs well under ₱1), and create an
+   method (usage is billed per message — see Anthropic's current pricing; set a monthly
+   spending limit in the console), and create an
    **API key**.
 2. In hPanel → **Files** → `.env`, set `ANTHROPIC_API_KEY=` to that key (keep `CHATBOT_ENABLED=true`).
 3. Open the website: the **Chat with us** button appears at the bottom right.
