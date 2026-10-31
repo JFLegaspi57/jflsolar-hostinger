@@ -83,6 +83,7 @@ Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middle
 Route::get('/privacy', [PageController::class, 'privacy']);
 Route::get('/terms', [PageController::class, 'terms']);
 Route::get('/robots.txt', [PageController::class, 'robots']);
+Route::get('/stats/visitors', fn () => response()->json(\App\Support\Visitors::publicStats() ?? (object) [])->header('Cache-Control', 'no-store'))->middleware('throttle:stats');
 Route::get('/sitemap.xml', [PageController::class, 'sitemap']);
 Route::get('/media/{path}', [MediaController::class, 'public'])->where('path', '.*');
 
