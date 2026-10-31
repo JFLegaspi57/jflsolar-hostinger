@@ -13,7 +13,7 @@
     // Drop-down sub-menus under a main menu item: [aria label, "all" link or null, items].
     $subMenus = [];
     if ($productCategories->isNotEmpty()) {
-        $subMenus['/products'] = ['Product categories', ['/products', 'All products'],
+        $subMenus['/products'] = ['Product categories', null,
             $productCategories->map(fn ($c) => ['/products?category='.$c->slug, $c->name, $currentCategory === $c->slug])->all()];
     }
     $subMenus['/packages'] = ['Package types', null, [

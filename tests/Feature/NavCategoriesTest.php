@@ -18,6 +18,7 @@ class NavCategoriesTest extends TestCase
         $published = ProductCategory::query()->where('status', 'published')->get();
         $this->assertNotEmpty($published);
         $html = $this->get('/')->assertOk()->assertSee('aria-label="Product categories"', false)->getContent();
+        $this->assertStringNotContainsString('nav-dd-link font-semibold">All products<', $html);   // the Products link itself opens the full list
         foreach ($published as $c) {
             $this->assertStringContainsString('href="/products?category='.$c->slug.'"', $html);
         }
