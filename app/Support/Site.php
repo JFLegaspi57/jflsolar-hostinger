@@ -16,7 +16,6 @@ final class Site
         ['href' => '/packages', 'label' => 'Packages'],
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
-        ['href' => '/forum', 'label' => 'Forum'],
         ['href' => '/about', 'label' => 'About'],
         ['href' => '/contact', 'label' => 'Contact'],
     ];

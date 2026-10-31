@@ -303,8 +303,27 @@ class MembersTest extends TestCase
         $this->post('/login', ['email' => ['a'], 'password' => ['p']])->assertRedirect();
         $this->post('/forgot-password', ['email' => ['a']])->assertRedirect();
         $this->from('/')->post('/newsletter', ['email' => ['a'], 'consent' => '1'])->assertRedirect();
-        $this->get('/forum?q[]=x&category[]=y')->assertOk();
         $this->member();
         $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => "/account\n"])->assertRedirect('/account');
+    }
+
+    public function test_header_log_in_button_opens_a_pop_up_that_returns_to_the_same_page(): void
+    {
+        $page = $this->get('/products?category=batteries')->assertOk();
+        $page->assertSee('data-auth-open="login"', false)->assertSee('id="auth-dialog"', false)
+            ->assertSee('action="/login"', false)->assertSee('action="/signup"', false)
+            ->assertSee('name="next" value="/products?category=batteries"', false);
+        $this->get('/login')->assertDontSee('name="next" value="/login"', false);
+
+        $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => '/products?category=batteries'])->assertRedirect('/products?category=batteries');
+        $this->get('/products')->assertSee('Your account')->assertDontSee('id="auth-dialog"', false);
+    }
+
+    public function test_the_forum_is_gone(): void
+    {
+        $this->get('/forum')->assertNotFound();
+        $this->get('/')->assertDontSee('href="/forum"', false);
+        $this->get('/terms')->assertDontSee('Forum rules');
     }
 }

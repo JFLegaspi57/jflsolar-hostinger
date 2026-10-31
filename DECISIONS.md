@@ -96,13 +96,13 @@ Owner request: customers can buy priced products online. Choices:
   Only those exact hosts are trusted from the request. Shop rate limits are named per
   feature (a shared `throttle:N,1` counter caused 429s at checkout).
 
-- **Member accounts, newsletter, forum (2026-10-31, owner request):** customers sign up on a
+- **Member accounts and newsletter (2026-10-31, owner request):** customers sign up on a
   separate `member` auth guard (never the staff `web` guard; nothing calls `shouldUse`).
   Sessions are tied to a password stamp, so a reset or change ends other sessions. No email
   verification yet (site email is not configured): reset links need working mail. Guest
   checkout stays. Newsletter: footer form needs a consent tick and never re-subscribes someone
   who left; staff export a CSV with personal unsubscribe links (no sending from the site).
-  Forum: plain text, links nofollow/ugc (max 3), first post of each member is held for
-  approval (then trusted), staff post as "JFL Solar team", names shown as "First L.".
-  Tables are created on first use (`Members`/`Newsletter`/`Forum::ensureTables`).
+  A forum was built and then removed the same day at the owner's request (its empty
+  tables, if created, are left in the database; nothing reads them).
+  Tables are created on first use (`Members`/`Newsletter::ensureTables`).
 

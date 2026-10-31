@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-/** Admin → Members (customer / forum accounts) and Admin → Subscribers (newsletter list). */
+/** Admin → Members (customer accounts) and Admin → Subscribers (newsletter list). */
 class MemberController extends Controller
 {
     public function index(Request $request): View
