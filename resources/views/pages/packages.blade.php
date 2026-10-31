@@ -6,13 +6,15 @@
         'materials' => 'Includes three main components, the inverter, battery and solar panels only. A highly customizable bundle ideal for professional DIYers and professional installers. We’re offering technical assistance from installation, commissioning up to even troubleshooting of the system.',
         // Matches what the Complete packages list as included; no promises beyond that.
         'complete' => 'Everything done for you: the inverter, battery and solar panels plus mounting, cables and safety devices, with site assessment, system design, installation and commissioning by our team. We’ll also show you how your system works and how to monitor it on the mobile app. The final price is confirmed after the site ocular inspection.',
-        default => new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.'),
+        default => new \Illuminate\Support\HtmlString('Three ways to go solar with us. <a href="/packages?type=materials" class="font-semibold text-white underline">Materials Only</a>: the inverter, battery and solar panels, for DIYers and installers. <a href="/packages/build-your-own" class="font-semibold text-white underline">Build Your Own</a>: pick every part and see your total as you go. <a href="/packages?type=complete" class="font-semibold text-white underline">Complete packages</a>: supply, installation and commissioning, done for you.'),
     };
 @endphp
-<x-site-layout title="Solar Packages" path="/packages" :reviews-above-footer="false" description="Installed solar systems and equipment-only bundles with inverter kW, array kWp and battery kWh, inclusions, exclusions and pricing basis. Compare packages and ask JFL Solar.">
+<x-site-layout title="Solar Packages" path="/packages" :reviews-above-footer="false" description="JFL Solar packages: Materials Only bundles (inverter, battery and solar panels), Build Your Own with a price for every part, and Complete packages with installation. Compare inverter kW, array kWp, battery kWh and prices.">
     <x-page-hero eyebrow="Packages" :title="match ($active) { 'materials' => 'Materials Only', 'complete' => 'Complete packages', default => 'Solar packages' }" :intro="$intro"
         image="/images/packages-vents-1280.jpg" srcset="/images/packages-vents-640.jpg 640w, /images/packages-vents-960.jpg 960w, /images/packages-vents-1280.jpg 1280w"
-        imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%" />
+        imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%">
+        <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
+    </x-page-hero>
 
     <x-container class="pt-10 pb-24">
         <nav aria-label="Package type" class="-mx-1 flex flex-wrap gap-2">
