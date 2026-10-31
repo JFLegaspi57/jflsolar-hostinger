@@ -1,4 +1,4 @@
-<x-site-layout title="Terms of use" path="/terms" description="Terms for using the JFL Solar website.">
+<x-site-layout title="Terms of use" path="/terms" :reviews-above-footer="false" description="Terms for using the JFL Solar website.">
     <x-page-header eyebrow="Legal" title="Terms of use" />
     <x-container class="py-10 sm:py-14">
         <div class="max-w-3xl space-y-8 text-steel-800 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-steel-950">
