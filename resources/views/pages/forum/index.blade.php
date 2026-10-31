@@ -4,7 +4,7 @@
     $chip = 'inline-flex min-h-10 items-center rounded-full border border-steel-300 px-3.5 text-sm font-semibold text-steel-800 hover:border-steel-900 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white';
     $title = $category ? Forum::CATEGORIES[$category].' — Solar forum' : 'Solar forum';
 @endphp
-<x-site-layout :title="$title" :path="'/forum'.($category ? '?category='.$category : '')" :noindex="$q !== '' || ($topics && $topics->currentPage() > 1)" description="Ask questions about solar panels, inverters, batteries and installation. Answers from the community and the JFL Solar team.">
+<x-site-layout :title="$title" :path="'/forum'.($category ? '?category='.$category : '')" :noindex="$q !== '' || ($topics && $topics->currentPage() > 1)" description="Ask questions about solar panels, inverters, batteries and installation. Answers from the community and the JFL Solar team." :reviews-above-footer="false">
     <x-page-header eyebrow="Community" title="Solar forum" intro="Ask about solar panels, inverters, batteries, wiring and net metering. Other owners and the JFL Solar team answer." />
     <x-container class="py-10 sm:py-14">
         @if (session('forum_status'))<p role="status" class="mb-6 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-4 font-semibold text-ok-700">{{ session('forum_status') }}</p>@endif

@@ -6,7 +6,7 @@
     $back = $topic->path();
     $mod = fn ($action, $label, $url) => '<form method="post" action="'.$url.'" class="inline">'.csrf_field().'<input type="hidden" name="back" value="'.e($back).'"><button type="submit" name="action" value="'.$action.'" class="'.Ui::button('secondary', 'sm').'">'.e($label).'</button></form>';
 @endphp
-<x-site-layout :title="$topic->title.' — Solar forum'" :path="$topic->path()" :noindex="$topic->status !== 'published'" :description="\Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', (string) $opening?->body), 155)">
+<x-site-layout :title="$topic->title.' — Solar forum'" :path="$topic->path()" :noindex="$topic->status !== 'published'" :description="\Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', (string) $opening?->body), 155)" :reviews-above-footer="false">
     <x-container class="py-10 sm:py-14">
         <p><a href="/forum?category={{ $topic->category }}" class="font-semibold text-steel-800 underline">← {{ Forum::CATEGORIES[$topic->category] ?? 'Forum' }}</a></p>
         <h1 class="mt-3 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $topic->title }}</h1>
