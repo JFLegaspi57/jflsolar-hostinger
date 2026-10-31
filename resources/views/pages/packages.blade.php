@@ -2,7 +2,9 @@
     // Button order: All packages, Materials Only, Build Your Own (its own page), Complete Packages.
     $filters = ['all' => 'All packages', 'materials' => 'Materials Only', 'build' => 'Build Your Own', 'complete' => 'Complete Packages'];
     $btn = 'inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-control)] bg-steel-900 px-4 text-sm font-semibold text-white hover:bg-steel-800 disabled:cursor-not-allowed disabled:opacity-50';
-    $intro = new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.');
+    $intro = $active === 'materials'
+        ? 'Includes three main components, the inverter, battery and solar panels only. A highly customizable bundle ideal for professional DIYers and professional installers. We’re offering technical assistance from installation, commissioning up to even troubleshooting of the system.'
+        : new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.');
 @endphp
 <x-site-layout title="Solar Packages" path="/packages" :reviews-above-footer="false" description="Installed solar systems and equipment-only bundles with inverter kW, array kWp and battery kWh, inclusions, exclusions and pricing basis. Compare packages and ask JFL Solar.">
     <x-page-hero eyebrow="Packages" :title="$active === 'materials' ? 'Materials Only' : 'Solar packages'" :intro="$intro"
