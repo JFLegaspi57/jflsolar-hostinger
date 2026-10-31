@@ -591,4 +591,24 @@ class ShopTest extends TestCase
         $this->app->instance('request', \Illuminate\Http\Request::create('https://evil.example/checkout'));
         $this->assertSame('https://temp-host.hostingersite.com/x', \App\Support\Site::publicUrl('/x'));
     }
+
+    public function test_browsing_and_cart_clicks_do_not_use_up_the_checkout_limit(): void
+    {
+        Http::fake();
+        $p = $this->product();
+        // A busy shopper: many cart clicks and order-page views in one minute.
+        for ($i = 0; $i < 12; $i++) {
+            $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1])->assertRedirect();
+        }
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']))->assertRedirect();
+        $this->assertSame(1, Order::query()->count());
+    }
+
+    public function test_too_many_checkout_attempts_show_a_friendly_page(): void
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $this->post('/checkout', []);
+        }
+        $this->post('/checkout', [])->assertStatus(429)->assertSee('Please wait a minute');
+    }
 }
