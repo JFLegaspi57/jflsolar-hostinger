@@ -580,4 +580,14 @@ class ShopTest extends TestCase
         PublicContent::flush();
         $this->get('/checkout')->assertDontSee('Card (credit or debit)');
     }
+
+    public function test_order_summary_links_use_jflsolar_ph_even_if_app_url_is_a_temporary_address(): void
+    {
+        config(['site.url' => 'https://temp-host.hostingersite.com']);
+        $this->app->instance('request', \Illuminate\Http\Request::create('https://jflsolar.ph/checkout'));
+        $this->assertSame('https://jflsolar.ph/x', \App\Support\Site::publicUrl('/x'));
+        // A forged host never makes it into links.
+        $this->app->instance('request', \Illuminate\Http\Request::create('https://evil.example/checkout'));
+        $this->assertSame('https://temp-host.hostingersite.com/x', \App\Support\Site::publicUrl('/x'));
+    }
 }
