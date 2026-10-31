@@ -1,6 +1,6 @@
 @php $tab = 'inline-flex min-h-11 items-center gap-1.5 rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white'; @endphp
 <x-admin.layout title="Subscribers">
-    <x-admin.page-title title="Subscribers" intro="People who asked for JFL Solar promos and news (footer form, account sign-up or account page). Download the list and send your emails from your usual email or newsletter tool. Include each person’s unsubscribe link (it is in the download)." />
+    <x-admin.page-title title="Subscribers" intro="People who asked for JFL Solar promos and news (ticked at account sign-up or on their account page). Download the list and send your emails from your usual email or newsletter tool. Include each person’s unsubscribe link (it is in the download)." />
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">
             <a href="/admin/subscribers" @if ($show === 'active') aria-current="page" @endif class="{{ $tab }}">Subscribed <span class="tabular">({{ $counts['active'] }})</span></a>
