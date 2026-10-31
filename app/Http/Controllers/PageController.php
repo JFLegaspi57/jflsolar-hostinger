@@ -141,7 +141,7 @@ class PageController extends Controller
     public function robots(): Response
     {
         $body = Site::allowsIndexing()
-            ? "User-agent: *\nAllow: /\nDisallow: /admin\n\nSitemap: ".Site::url('/sitemap.xml')."\n"
+            ? "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /cart\nDisallow: /checkout\nDisallow: /orders/\n\nSitemap: ".Site::url('/sitemap.xml')."\n"
             : "User-agent: *\nDisallow: /\n";
 
         return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);

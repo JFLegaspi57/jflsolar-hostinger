@@ -201,3 +201,56 @@ Follow section 2, but: skip the zip (steps 6–7); create `jflsolar-data/` with
 `.env` (from `.env.example`) and `storage/app/media`, `storage/framework/cache/data`,
 `storage/framework/sessions`, `storage/framework/views`, `storage/logs`; put the
 recovery file in `jflsolar-data/storage/app/`; then connect the repository as above.
+
+## 11. Online shop (cart + PayMongo payments)
+
+Customers can add **fixed-price, “Available to order”** products to a cart and pay online
+through PayMongo (QR Ph, GCash, Maya, cards). Orders are **pickup only**, at the
+warehouse address in Contact & settings (or the office if no warehouse is listed).
+Products on “Request price”, sample listings and items not “Available to order” keep
+the normal quote button. Products whose price note says “per meter” are sold in metres.
+
+The shop is **off** until it is switched on in `.env`, so updating the website changes
+nothing by itself. The order tables are created automatically on first use (no
+phpMyAdmin step).
+
+**Before going live, write your refund / cancellation and pickup rules** (for example
+on the Terms page through Page text or a content block). PayMongo also asks for them
+during account activation.
+
+### Switching it on — test mode first
+
+1. Create a PayMongo account at paymongo.com. In the Dashboard → **Developers → API keys**,
+   copy the **secret key** (`sk_test_…`).
+2. Dashboard → **Developers → Webhooks → Create webhook**: URL
+   `https://<your domain>/webhooks/paymongo`, event **checkout_session.payment.paid**.
+   Copy its **signing secret** (`whsk_…`).
+3. In File Manager open `jflsolar-data/.env` (zip installs: `jflsolar-app/.env`) and add:
+
+   | Name | Value |
+   | --- | --- |
+   | `SHOP_ENABLED` | `true` |
+   | `PAYMONGO_SECRET_KEY` | the `sk_test_…` key |
+   | `PAYMONGO_WEBHOOK_SECRET` | the `whsk_…` secret |
+   | `PAYMONGO_METHODS` | optional, default `qrph,gcash,paymaya,card` |
+   | `ORDER_NOTIFY_EMAIL` | optional; default is `INQUIRY_NOTIFY_EMAIL` |
+
+4. Place a test order on the site (PayMongo's test page lets you simulate a payment).
+   It should appear in **Admin → Orders → To prepare** within seconds, and the
+   customer's order page should change to “paid”.
+5. When PayMongo activates the account, replace both values with the **live** key
+   (`sk_live_…`) and the secret of a **live** webhook, then place one small real order.
+
+To switch the shop off again, set `SHOP_ENABLED=false`. Existing orders stay in the admin.
+
+### How orders work
+
+- Prices are always taken from the product as published at checkout — a customer
+  cannot change them. Items that become unavailable drop out of carts.
+- An order is saved as **Not paid** when the customer opens PayMongo's page, and moves
+  to **To prepare** only when PayMongo's signed webhook confirms the full amount. Staff
+  cannot mark an order paid by hand. Never release items for a **Not paid** order.
+- Admin → Orders: **Mark ready for pickup**, then **Mark picked up**. **Cancel order**
+  does not refund anyone — refunds are made in the PayMongo dashboard.
+- The customer gets PayMongo's email receipt and a private order page (link in the
+  browser after paying) that shows the current status.

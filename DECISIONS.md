@@ -53,3 +53,18 @@ Editable rows carry `lock_version`; saves are conditional on it, so simultaneous
 edits are refused instead of overwritten. Public content is cached as plain rows
 (Laravel refuses to unserialize objects) and flushed on every admin save; date
 rules (promotions) are applied per request.
+
+## H7 — Online shop with PayMongo hosted checkout (2026-10-31)
+
+Owner request: customers can buy priced products online. Choices:
+- **PayMongo hosted checkout** (QR Ph, GCash, Maya, cards): the customer pays on
+  PayMongo's page, so no card or wallet data touches this server.
+- **Only fixed-price, published, non-sample products marked “Available to order”** can
+  be bought; quote-only items keep the quote flow. “Per meter” prices sell in metres.
+- **Pickup only** — prices on the site are pickup prices; delivery stays a quotation.
+- Cart in the session; **prices re-read from the catalog** on every view and at checkout.
+- An order is saved before payment (Not paid) and marked paid **only by the signed
+  webhook** (HMAC of `t.body`, te/li by key mode, 10-minute replay window), matching the
+  order's checkout session and the full amount. Idempotent for PayMongo retries.
+- Off by default (`SHOP_ENABLED` + both PayMongo values), so deploying changes nothing.
+- Order tables self-create like the visitor tables (no phpMyAdmin step).

@@ -4,6 +4,7 @@
     use App\Support\Site;
     $settings = PublicContent::settings();
     $menuContacts = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
+    $cartCount = \App\Support\Shop::enabled() ? \App\Support\Shop::count() : null;
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
@@ -25,6 +26,14 @@
                     @endforeach
                 </ul>
             </nav>
+            @if ($cartCount !== null)
+                <a href="/cart" @if (request()->is('cart', 'checkout')) aria-current="page" @endif
+                    class="relative inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
+                    <x-icon name="cart" class="size-6" />
+                    <span class="sr-only">Cart{{ $cartCount ? ', '.$cartCount.' '.($cartCount === 1 ? 'item' : 'items') : ', empty' }}</span>
+                    @if ($cartCount)<span aria-hidden="true" class="absolute top-0 rounded-full bg-steel-900 px-1 text-center text-xs leading-5 font-bold text-white tabular" style="right: 0; min-width: 1.25rem; transform: translate(20%, -20%)">{{ $cartCount }}</span>@endif
+                </a>
+            @endif
             <a href="{{ Site::QUOTE_HREF }}" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-gold-500 px-3.5 text-sm font-semibold whitespace-nowrap text-steel-950 hover:bg-gold-400 sm:px-4 sm:text-[0.95rem]">
                 <span class="sm:hidden">Get a quote</span>
                 <span class="hidden sm:inline">Request a Quote</span>

@@ -35,6 +35,14 @@
                 </ul>
             </section>
 
+            @if (\App\Support\Shop::enabled())
+            <section>
+                <h2>Online orders</h2>
+                <p>When you order online we keep your name, phone number, email address, any notes you add, the items you ordered and the amount paid, so we can prepare your order, arrange pickup and keep a record of the sale. Only signed-in JFL Solar staff can view orders, and a copy may be emailed to our business inbox.</p>
+                <p>Payments are handled by PayMongo on its own secure page. We do not receive your card, GCash, Maya or bank details; PayMongo tells us only whether the payment succeeded, the amount and the payment method. PayMongo processes your payment and sends your receipt under its own privacy policy. Your cart is kept in the website's session cookie until you check out.</p>
+            </section>
+
+            @endif
             <section>
                 <h2>Cookies and tracking</h2>
                 <p>The website sets a session cookie needed for the inquiry form's security check, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>

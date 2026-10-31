@@ -7,6 +7,8 @@
     $cover = $images->firstWhere('is_cover', true) ?? $images->first();
     $rest = $images->reject(fn ($m) => $cover && $m->id === $cover->id)->values();
     $quoteHref = '/contact?product='.rawurlencode($product->slug).'#quote';
+    $buyable = ! $admin && \App\Support\Shop::enabled() && \App\Support\Shop::sellable($product);
+    $perMetre = $buyable && \App\Support\Shop::perMetre($product);
     $glyph = match ($product->category?->slug) { 'inverters' => 'inverter', 'batteries' => 'battery', 'solar-panels' => 'panel', default => 'hardware' };
     $crumbs = [['href' => '/', 'label' => 'Home'], ['href' => '/products', 'label' => 'Products']];
     if ($product->category) {
@@ -38,11 +40,38 @@
                         <x-price-block :price="$product->price()" size="lg" />
                     @endif
                     <p class="mt-3"><x-badge :tone="$product->availability === 'unavailable' ? 'ended' : 'neutral'">{{ Labels::AVAILABILITY[$product->availability] }}</x-badge></p>
-                    <p class="mt-2 text-xs text-steel-600">Availability is confirmed when we quote. We do not show live stock levels.</p>
+                    <p class="mt-2 text-xs text-steel-600">{{ $buyable ? 'We do not show live stock levels. After you pay, we contact you to confirm your pickup.' : 'Availability is confirmed when we quote. We do not show live stock levels.' }}</p>
+                    @if ($buyable)
+                        @if (session('cart_added'))
+                            <div role="status" class="mt-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-3 text-ok-700">
+                                <p class="flex items-center gap-2 font-semibold"><x-icon name="check" class="size-5" /> Added to your cart — {{ session('cart_added') }} in total.</p>
+                                <p class="mt-1 text-sm"><a href="/cart" class="font-semibold underline">View cart and check out</a></p>
+                            </div>
+                        @endif
+                        @if (session('cart_error'))
+                            <p role="alert" class="mt-4 rounded-[var(--radius-control)] border border-[#f3c3be] bg-danger-50 p-3 font-semibold text-danger-700">{{ session('cart_error') }}</p>
+                        @endif
+                        <form method="post" action="/cart/add" class="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end">
+                            @csrf
+                            <input type="hidden" name="product" value="{{ $product->id }}">
+                            <div>
+                                <label for="buy-qty" class="mb-1.5 block text-sm font-semibold text-steel-950">Quantity{{ $perMetre ? ' (metres)' : '' }}</label>
+                                <input id="buy-qty" name="quantity" type="number" inputmode="numeric" min="1" max="{{ config('shop.max_quantity') }}" step="1" value="1" required
+                                    style="width: 8rem" class="min-h-12 rounded-[var(--radius-control)] border border-steel-500 bg-white px-3.5 text-base text-steel-950 tabular focus:border-steel-900">
+                            </div>
+                            <button type="submit" class="{{ Ui::button('primary', 'lg', 'flex-1') }}"><x-icon name="cart" class="size-5" /> Add to cart</button>
+                        </form>
+                        <div class="mt-2 flex flex-col gap-2 sm:flex-row">
+                            <a href="{{ $quoteHref }}" class="{{ Ui::button('secondary', 'lg', 'flex-1') }}">Request a quote</a>
+                            <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call</a>
+                        </div>
+                        <p class="mt-3 text-sm text-steel-600">Pay online with {{ \App\Support\Shop::methodsText() }}, then pick up at {{ \App\Support\Shop::pickupAddress($settings) }}.</p>
+                    @else
                     <div class="mt-5 flex flex-col gap-2 sm:flex-row">
                         <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'lg', 'flex-1') }}">Request a Product Quote</a>
                         <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call</a>
                     </div>
+                    @endif
                 </div>
 
                 @if ($product->datasheet)

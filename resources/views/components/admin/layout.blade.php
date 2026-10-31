@@ -5,6 +5,7 @@
         ['/admin', 'Overview', false],
         ['/admin/visitors', 'Visitors', false],
         ['/admin/inquiries', 'Inquiries', false],
+        ['/admin/orders', 'Orders', false],
         ['/admin/packages', 'Packages', false],
         ['/admin/products', 'Products', false],
         ['/admin/categories', 'Categories', false],
@@ -17,6 +18,16 @@
     ];
     $active = fn ($href) => $href === '/admin' ? request()->is('admin') : request()->is(ltrim($href, '/'), ltrim($href, '/').'/*');
     $newInquiries = \App\Models\Inquiry::query()->where('status', 'new')->count();
+    // Online shop: the Orders page appears once the shop is switched on (or has had orders).
+    $shopOn = \App\Support\Shop::enabled() || \Illuminate\Support\Facades\Schema::hasTable('orders');
+    if (! $shopOn) {
+        $items = array_values(array_filter($items, fn ($i) => $i[0] !== '/admin/orders'));
+    }
+    $paidOrders = 0;
+    if ($shopOn) {
+        \App\Support\Shop::ensureTables();
+        $paidOrders = \App\Models\Order::query()->where('status', 'paid')->count();
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="en-PH">
@@ -51,6 +62,9 @@
                                 <a href="{{ $href }}" @if ($active($href)) aria-current="page" @endif
                                     class="flex min-h-11 items-center gap-2 rounded-[var(--radius-control)] px-3 text-[0.95rem] font-semibold whitespace-nowrap text-steel-200 hover:bg-white/10 hover:text-white aria-[current=page]:bg-gold-500 aria-[current=page]:text-steel-950">
                                     {{ $label }}
+                                    @if ($href === '/admin/orders' && $paidOrders)
+                                        <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $paidOrders }}<span class="sr-only"> to prepare</span></span>
+                                    @endif
                                     @if ($href === '/admin/inquiries' && $newInquiries)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $newInquiries }}<span class="sr-only"> new</span></span>
                                     @endif

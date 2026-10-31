@@ -25,3 +25,12 @@
 - [ ] Hostinger (JFL account): move .env + storage to jflsolar-data, empty public_html, connect the GitHub repo (auto-deploy), import upgrade-2026-10-28.sql, check the site (incl. that /vendor, /.git, /composer.json are not reachable)
 - [x] Ported the Vercel changes of 2026-10-19/20 (see ../jflsolar/PORT-TO-HOSTINGER.md; Codex H3 PASS)
 - [ ] Update the admin guide (sign-in now email + password; Inquiries page; Page text menu)
+
+## Online shop (2026-10-31)
+
+- [x] Cart, checkout, PayMongo hosted checkout + signed webhook, Admin → Orders, paid-order email alert, privacy/terms sections (shown only while the shop is on), docs (HOSTINGER.md §11, H7)
+- [x] Tests: ShopTest (13) — eligibility, catalog pricing, per-metre, validation, PayMongo failure, webhook signature/replay/session/amount checks, idempotency, private order page, staff status rules
+- [ ] Owner: write refund / cancellation and pickup rules before going live
+- [ ] Owner: PayMongo account → test keys + webhook in .env → test order → live keys
+- [ ] Codex review of the shop (security + checkout journey) before switching on live payments
+- [ ] Browser e2e: add a cart → checkout journey (PayMongo page is external; stop at the redirect)
