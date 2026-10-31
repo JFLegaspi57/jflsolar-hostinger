@@ -174,7 +174,7 @@ final class PackageBuilder
     }
 
     /** Product categories offered as optional add-ons under "Build your package", in this order. */
-    public const ADDON_CATEGORIES = ['mounting-hardware', 'wire-and-cables', 'ac-safety-devices', 'dc-safety-devices', 'accessories'];
+    public const ADDON_CATEGORIES = ['mounting-hardware', 'wire-and-cables', 'dc-safety-devices', 'ac-safety-devices', 'accessories'];
 
     /**
      * Optional add-ons: every sellable product in the add-on categories (not already a main part),
