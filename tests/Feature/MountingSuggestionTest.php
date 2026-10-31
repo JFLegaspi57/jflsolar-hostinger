@@ -48,6 +48,14 @@ class MountingSuggestionTest extends TestCase
         $this->assertMatchesRegularExpression('#data-id="'.$rail->id.'"[^>]*>.*?data-mount-qty>10<#s', $html);
         $this->assertStringContainsString('value="0" data-addon', $html);   // nothing added until the customer asks
 
+        $this->assertMatchesRegularExpression('#<details data-mount[^>]*\sopen\s*>#', $html);   // open while the customer builds
+
+        // After Add to Basket the suggestion is shown closed.
+        $this->post('/packages/build-your-own/basket', ['quantity' => [0 => 1, 1 => 10, 2 => 1], 'addon' => [$rail->id => 10]])->assertSessionHas('pkg_added');
+        $after = $this->get('/packages/build-your-own')->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<details data-mount[^>]*>#', $after);
+        $this->assertDoesNotMatchRegularExpression('#<details data-mount[^>]*\sopen\s*>#', $after);
+
         // The calculator result shows the same rule.
         $this->get('/pv-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=50')->assertOk()
             ->assertSee('Mounting (suggested)')->assertSee('10 railings · 30 l-feet')->assertSee('20 mid clamps · 4 end clamps');

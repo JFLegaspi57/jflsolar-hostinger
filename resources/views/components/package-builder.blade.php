@@ -71,9 +71,17 @@
 
         @if ($mount)
             @php $mountTotal = collect($mount)->sum(fn ($m) => (float) $m['product']->price_php * ($m['per'] * $panelQty + $m['fixed'])); @endphp
-            <div data-mount data-panel-line="{{ $panelIdx }}" class="mt-5 rounded-[var(--radius-panel)] border border-gold-500 bg-gold-50 p-4">
-                <h3 class="text-lg font-bold text-steel-950">Recommended mounting for <span data-mount-n>{{ $panelQty }}</span> <span data-mount-word>{{ $panelQty === 1 ? 'panel' : 'panels' }}</span></h3>
-                <p class="mt-1 text-sm text-steel-700">A suggestion for a standard roof mount — not in your total until you add it. Your installer may adjust it for your roof.</p>
+            {{-- Collapsible: closes itself once the mounting is added, and after Add to Basket. --}}
+            <details data-mount data-panel-line="{{ $panelIdx }}" class="addon-group mt-5 rounded-[var(--radius-panel)] border border-gold-500 bg-gold-50" @unless (session('pkg_added')) open @endunless>
+                <summary class="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-2">
+                    <h3 class="text-lg font-bold text-steel-950">Recommended mounting for <span data-mount-n>{{ $panelQty }}</span> <span data-mount-word>{{ $panelQty === 1 ? 'panel' : 'panels' }}</span></h3>
+                    <span class="flex items-center gap-2">
+                        <span data-mount-badge hidden class="rounded-full bg-ok-50 px-2.5 py-0.5 text-sm font-semibold text-ok-700">✓ Added</span>
+                        <svg aria-hidden="true" class="addon-chev text-steel-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </span>
+                </summary>
+                <div class="px-4 pb-4">
+                <p class="text-sm text-steel-700">A suggestion for a standard roof mount — not in your total until you add it. Your installer may adjust it for your roof.</p>
                 <div class="mt-3 overflow-x-auto">
                     <table class="w-full text-left text-[0.95rem]">
                         <caption class="sr-only">Recommended mounting parts</caption>
@@ -91,8 +99,9 @@
                     </table>
                 </div>
                 <button type="button" data-mount-apply hidden class="{{ Ui::button('dark', 'md', 'mt-3 w-full sm:w-auto') }}">Add recommended mounting</button>
-                <p class="mt-2 text-sm text-steel-700" data-mount-done hidden role="status">Added to the Mounting hardware add-ons below — change the quantities there if you need to.</p>
-            </div>
+                </div>
+            </details>
+            <p class="mt-2 text-sm text-steel-700" data-mount-done hidden role="status">Recommended mounting added to the Mounting hardware add-ons below — change the quantities there if you need to.</p>
         @endif
 
         @if ($addons)
@@ -201,6 +210,11 @@
                     });
                     mountBox.querySelector('[data-mount-total]').textContent = peso(mt);
                     mountBox.querySelector('[data-mount-apply]').disabled = n < 1;
+                    if (mountBox.dataset.applied && mountBox.dataset.applied !== String(n)) {
+                        mountBox.querySelector('[data-mount-badge]').hidden = true;
+                        form.querySelector('[data-mount-done]').hidden = true;
+                        delete mountBox.dataset.applied;
+                    }
                 }
             };
             const toggleAll = form.querySelector('[data-addons-toggle]');
@@ -226,7 +240,10 @@
                         const input = form.querySelector('#ba-' + row.dataset.id);
                         if (input) { input.value = row.querySelector('[data-mount-qty]').textContent; input.closest('details')?.setAttribute('open', ''); }
                     });
-                    mountBox.querySelector('[data-mount-done]').hidden = false;
+                    form.querySelector('[data-mount-done]').hidden = false;
+                    mountBox.querySelector('[data-mount-badge]').hidden = false;
+                    mountBox.dataset.applied = mountBox.querySelector('[data-mount-n]').textContent;
+                    mountBox.open = false;   // added: close the suggestion
                     update();
                 });
             }
