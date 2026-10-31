@@ -57,12 +57,12 @@
                     <legend class="text-xl font-bold text-steel-950">Pickup {{ count($locations) === 1 ? 'only at' : 'at' }}</legend>
                     @if (count($locations) === 1)
                         <input type="hidden" name="pickup" value="{{ array_key_first($locations) }}">
-                        <p><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[array_key_first($locations)]) }}</span><span class="block text-steel-700">{{ reset($locations) }}</span></p>
+                        <p><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[array_key_first($locations)]) }}</span><span class="block text-steel-700">{{ reset($locations) }}</span>@include('partials.shop-directions')</p>
                     @else
                         @foreach ($locations as $key => $address)
                             <label class="{{ $choice }}">
                                 <input type="radio" name="pickup" value="{{ $key }}" @checked($placeDefault === $key) class="{{ $radio }}">
-                                <span><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[$key]) }}</span><span class="block text-steel-700">{{ $address }}</span></span>
+                                <span><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[$key]) }}</span><span class="block text-steel-700">{{ $address }}</span>@include('partials.shop-directions')</span>
                             </label>
                         @endforeach
                     @endif

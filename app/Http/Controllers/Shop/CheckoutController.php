@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Mail\NewOrder;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Support\OrderPayments;
 use App\Support\PayMongo;
 use App\Support\PublicContent;
@@ -36,7 +37,7 @@ class CheckoutController extends Controller
 
         return view('pages.checkout', [
             'summary' => $summary, 'settings' => $settings, 'fingerprint' => Shop::fingerprint($summary),
-            'choices' => Shop::paymentChoices(), 'locations' => Shop::pickupLocations($settings),
+            'choices' => Shop::paymentChoices($settings), 'locations' => Shop::pickupLocations($settings),
         ]);
     }
 
@@ -65,8 +66,9 @@ class CheckoutController extends Controller
             'payment' => (string) $request->input('payment', ''),
             'pickup' => (string) $request->input('pickup', ''),
         ];
-        $choices = Shop::paymentChoices();
-        $locations = Shop::pickupLocations(PublicContent::settings());
+        $settings = PublicContent::settings();
+        $choices = Shop::paymentChoices($settings);
+        $locations = Shop::pickupLocations($settings);
         if (count($choices) === 1) {
             $values['payment'] = $choices[0];
         }
@@ -79,6 +81,8 @@ class CheckoutController extends Controller
         }
         if (! array_key_exists($values['pickup'], $locations)) {
             $errors['pickup'] = 'Please choose where you will pick up your order.';
+        } elseif (($only = Shop::choiceOnlyAt($values['payment'])) && $values['pickup'] !== $only) {
+            $errors['payment'] = 'Card payment is available only at our '.strtolower(Shop::LOCATION_NAMES[$only]).'. Choose '.strtolower(Shop::LOCATION_NAMES[$only]).' pickup or another way to pay.';
         }
         if (mb_strlen($values['name']) < 2 || mb_strlen($values['name']) > 100) {
             $errors['name'] = 'Please enter your full name.';
@@ -112,14 +116,21 @@ class CheckoutController extends Controller
                 ->with('checkout_error', 'A price or item in your cart changed while you were checking out. Please review the new total, then continue to payment.');
         }
 
+        $inPerson = $values['payment'] !== 'online';
+        [$orderData, $itemsData] = $this->orderData($values, $summary, $inPerson);
+
         if (Shop::previewing()) {
-            return redirect('/checkout')->withInput($values)
-                ->with('checkout_preview', 'Staff preview: the form is filled in correctly. '.($values['payment'] === 'online'
-                    ? 'Customers would now go to PayMongo’s payment page.'
-                    : 'Customers would now see their order confirmation and pay when they pick up.').' No order was saved — the shop is not switched on for customers yet.');
+            if (! $inPerson) {
+                return redirect('/checkout')->withInput($values)
+                    ->with('checkout_preview', 'Staff preview: the form is filled in correctly. Customers would now go to PayMongo’s payment page. No order was saved — the shop is not switched on for customers yet.');
+            }
+            // Show staff exactly what the customer would see, and send the staff email copy.
+            $request->session()->put('shop_preview_order', ['order' => $orderData + ['reference' => 'JFL-PREVIEW', 'created_at' => now()->toIso8601String()], 'items' => $itemsData]);
+            $this->alert($this->previewOrder(), true);
+
+            return redirect('/checkout/preview');
         }
 
-        $inPerson = $values['payment'] !== 'online';
         // Reservations cost nothing to place, so one visitor may place only a few per day.
         $limitKey = 'shop-reserve:'.hash_hmac('sha256', (string) $request->ip(), (string) config('app.key'));
         if ($inPerson && RateLimiter::tooManyAttempts($limitKey, max(1, (int) config('shop.reservations_per_day')))) {
@@ -128,33 +139,10 @@ class CheckoutController extends Controller
         }
 
         Shop::ensureTables();
-        $order = DB::transaction(function () use ($values, $summary, $inPerson) {
-            $order = Order::query()->create([
-                'reference' => $this->uniqueReference(),
-                'access_token' => Shop::newToken(),
-                'status' => $inPerson ? 'reserved' : 'pending_payment',
-                'payment_mode' => $inPerson ? 'in_person' : 'online',
-                'payment_preference' => $inPerson ? $values['payment'] : null,
-                'pickup_location' => $values['pickup'],
-                'customer_name' => $values['name'],
-                'customer_phone' => $values['phone'],
-                'customer_email' => $values['email'],
-                'customer_notes' => $values['notes'] ?: null,
-                'fulfilment' => 'pickup',
-                'total_php' => $summary['total'],
-            ]);
-            foreach ($summary['lines'] as $line) {
-                $p = $line['product'];
-                $order->items()->create([
-                    'product_id' => $p->id,
-                    'name' => $p->name,
-                    'brand' => $p->brand,
-                    'model' => $p->model,
-                    'unit' => Shop::perMetre($p) ? 'm' : 'pc',
-                    'unit_price_php' => $line['unit_price'],
-                    'quantity' => $line['qty'],
-                    'line_total_php' => $line['line_total'],
-                ]);
+        $order = DB::transaction(function () use ($orderData, $itemsData) {
+            $order = Order::query()->create($orderData + ['reference' => $this->uniqueReference(), 'access_token' => Shop::newToken()]);
+            foreach ($itemsData as $item) {
+                $order->items()->create($item);
             }
 
             return $order;
@@ -180,6 +168,72 @@ class CheckoutController extends Controller
         $order->forceFill(['paymongo_checkout_id' => $checkout['id']])->save();
 
         return redirect()->away($checkout['url']);
+    }
+
+    /** @return array{0: array<string, mixed>, 1: list<array<string, mixed>>} the order's fields and its items */
+    private function orderData(array $values, array $summary, bool $inPerson): array
+    {
+        $order = [
+            'status' => $inPerson ? 'reserved' : 'pending_payment',
+            'payment_mode' => $inPerson ? 'in_person' : 'online',
+            'payment_preference' => $inPerson ? $values['payment'] : null,
+            'pickup_location' => $values['pickup'],
+            'customer_name' => $values['name'],
+            'customer_phone' => $values['phone'],
+            'customer_email' => $values['email'],
+            'customer_notes' => $values['notes'] ?: null,
+            'fulfilment' => 'pickup',
+            'total_php' => $summary['total'],
+        ];
+        $items = array_map(fn ($line) => [
+            'product_id' => $line['product']->id,
+            'name' => $line['product']->name,
+            'brand' => $line['product']->brand,
+            'model' => $line['product']->model,
+            'unit' => Shop::perMetre($line['product']) ? 'm' : 'pc',
+            'unit_price_php' => $line['unit_price'],
+            'quantity' => $line['qty'],
+            'line_total_php' => $line['line_total'],
+        ], $summary['lines']);
+
+        return [$order, $items];
+    }
+
+    /** Staff preview: the order the last test checkout would have created (never saved). */
+    private function previewOrder(): ?Order
+    {
+        $data = session('shop_preview_order');
+        if (! is_array($data) || ! Shop::previewing()) {
+            return null;
+        }
+        $order = (new Order)->forceFill($data['order']);
+        $order->setRelation('items', collect($data['items'])->map(fn ($i) => (new OrderItem)->forceFill($i)));
+
+        return $order;
+    }
+
+    /** Staff preview of the confirmation page a customer sees after placing an order. */
+    public function preview(): View
+    {
+        $order = $this->previewOrder() ?? abort(404);
+
+        return view('pages.order', ['order' => $order, 'settings' => PublicContent::settings(), 'checks' => 0, 'preview' => true, 'printUrl' => '/checkout/preview/print']);
+    }
+
+    /** Printable order summary: the customer's copy (opens in its own window). */
+    public function print(Request $request, string $reference): View
+    {
+        abort_unless(Shop::ordersVisible(), 404);
+        $order = $this->find($reference, (string) $request->query('t')) ?? abort(404);
+
+        return view('pages.order-print', ['order' => $order->load('items'), 'settings' => PublicContent::settings(), 'backUrl' => $order->publicPath(), 'preview' => false]);
+    }
+
+    public function previewPrint(): View
+    {
+        $order = $this->previewOrder() ?? abort(404);
+
+        return view('pages.order-print', ['order' => $order, 'settings' => PublicContent::settings(), 'backUrl' => '/checkout', 'preview' => true]);
     }
 
     /** Where PayMongo sends the customer after paying. The webhook decides whether it is paid. */
@@ -210,7 +264,7 @@ class CheckoutController extends Controller
         }
         $checks = max(0, min(30, (int) $request->query('r', 0)));
 
-        return view('pages.order', ['order' => $order->load('items'), 'settings' => PublicContent::settings(), 'checks' => $checks]);
+        return view('pages.order', ['order' => $order->load('items'), 'settings' => PublicContent::settings(), 'checks' => $checks, 'preview' => false, 'printUrl' => $order->printPath()]);
     }
 
     private function find(string $reference, string $token): ?Order
@@ -223,16 +277,18 @@ class CheckoutController extends Controller
         return $order && hash_equals($order->access_token, $token) ? $order : null;
     }
 
-    /** Email alert to the business inbox for a new pay-at-pickup order. A failure never loses the order. */
-    private function alert(Order $order): void
+    /** Email the order summary to the staff inbox (new pay-at-pickup order, or a staff preview). A failure never loses the order. */
+    private function alert(?Order $order, bool $preview = false): void
     {
         $to = array_values(array_filter(array_map('trim', explode(',', (string) config('shop.notify')))));
-        if (! $to || config('mail.default') === 'log') {
+        if (! $order || ! $to || config('mail.default') === 'log') {
             return;
         }
         try {
-            Mail::to($to)->send(new NewOrder($order->load('items')));
-            $order->forceFill(['emailed_at' => now()])->save();
+            Mail::to($to)->send(new NewOrder($preview ? $order : $order->load('items'), $preview));
+            if (! $preview) {
+                $order->forceFill(['emailed_at' => now()])->save();
+            }
         } catch (\Throwable $e) {
             Log::error('[shop] order email alert failed', ['order' => $order->reference, 'error' => $e::class]);
         }

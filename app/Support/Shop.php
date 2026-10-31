@@ -41,23 +41,37 @@ final class Shop
         'gcash' => ['label' => 'GCash', 'hint' => 'Pay by GCash before or at pickup. We send our GCash number when we confirm your order.'],
         'bank_transfer' => ['label' => 'Bank transfer', 'hint' => 'Transfer before pickup. We send our bank details when we confirm your order.'],
         'check' => ['label' => 'Check', 'hint' => 'Pay by check when you pick up.'],
+        // 'only': the one pickup place where this way to pay is possible (the card terminal is there).
+        'card' => ['label' => 'Card (credit or debit)', 'hint' => 'Pay by credit or debit card when you pick up — available at our warehouse only.', 'only' => 'warehouse'],
     ];
 
     /** @return list<string> pay-at-pickup choices offered at checkout */
-    public static function inPersonChoices(): array
+    public static function inPersonChoices(?\App\Models\SiteSetting $settings = null): array
     {
         if (! self::inPersonPayment()) {
             return [];
         }
         $list = array_values(array_intersect((array) config('shop.in_person_methods'), array_keys(self::IN_PERSON_CHOICES)));
+        $list = $list ?: array_keys(self::IN_PERSON_CHOICES);
+        if ($settings) {
+            // Drop ways to pay tied to a pickup place that is not offered (e.g. card without the warehouse).
+            $places = self::pickupLocations($settings);
+            $list = array_values(array_filter($list, fn ($c) => ! isset(self::IN_PERSON_CHOICES[$c]['only']) || isset($places[self::IN_PERSON_CHOICES[$c]['only']])));
+        }
 
-        return $list ?: array_keys(self::IN_PERSON_CHOICES);
+        return $list;
+    }
+
+    /** The pickup place a way to pay is limited to, if any (card → warehouse). */
+    public static function choiceOnlyAt(string $choice): ?string
+    {
+        return self::IN_PERSON_CHOICES[$choice]['only'] ?? null;
     }
 
     /** @return list<string> every choice on the checkout form: pay-at-pickup methods, then "online" */
-    public static function paymentChoices(): array
+    public static function paymentChoices(?\App\Models\SiteSetting $settings = null): array
     {
-        return array_merge(self::inPersonChoices(), self::onlinePayment() ? ['online'] : []);
+        return array_merge(self::inPersonChoices($settings), self::onlinePayment() ? ['online'] : []);
     }
 
     public static function choiceLabel(?string $choice): string
@@ -113,6 +127,17 @@ final class Shop
     }
 
     public const LOCATION_NAMES = ['warehouse' => 'Warehouse', 'office' => 'Office'];
+
+    /** Name customers search on Google Maps or Waze for directions to the pickup place. */
+    public const MAPS_NAME = 'JFL Solar & Renewables';
+
+    /** @return array{google: string, waze: string} map links that search MAPS_NAME */
+    public static function directionLinks(): array
+    {
+        $q = rawurlencode(self::MAPS_NAME);
+
+        return ['google' => 'https://www.google.com/maps/search/?api=1&query='.$q, 'waze' => 'https://waze.com/ul?q='.$q.'&navigate=yes'];
+    }
 
     /**
      * Staff preview: the shop is off, but the visitor is signed in to the admin, so they
@@ -272,7 +297,8 @@ final class Shop
         $where = self::pickupWhere($settings);
         $modes = self::paymentModes();
 
-        $offline = array_map(fn ($c) => ['cash' => 'cash', 'gcash' => 'GCash', 'bank_transfer' => 'bank transfer', 'check' => 'check'][$c], self::inPersonChoices());
+        $multi = count(self::pickupLocations($settings)) > 1;
+        $offline = array_map(fn ($c) => ['cash' => 'cash', 'gcash' => 'GCash', 'bank_transfer' => 'bank transfer', 'check' => 'check', 'card' => $multi ? 'card (warehouse only)' : 'card'][$c], self::inPersonChoices($settings));
         $offlineText = count($offline) > 1 ? implode(', ', array_slice($offline, 0, -1)).' or '.end($offline) : ($offline[0] ?? '');
 
         return match (true) {

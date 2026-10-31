@@ -29,6 +29,12 @@ class Order extends Model
         return $this->hasMany(OrderItem::class)->orderBy('id');
     }
 
+    /** Printable order summary (customer's copy). */
+    public function printPath(): string
+    {
+        return '/orders/'.$this->reference.'/print?t='.$this->access_token;
+    }
+
     public function statusLabel(): string
     {
         return Shop::STATUSES[$this->status] ?? $this->status;

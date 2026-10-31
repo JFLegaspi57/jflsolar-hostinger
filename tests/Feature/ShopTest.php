@@ -412,7 +412,7 @@ class ShopTest extends TestCase
     {
         config(['shop.paymongo.secret_key' => '', 'shop.paymongo.webhook_secret' => '']);
         $p = $this->product();
-        $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay by cash, GCash, bank transfer or check');
+        $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay by cash, GCash, bank transfer, check or card');
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->get('/checkout')->assertSee('Bank transfer')->assertDontSee('Pay online now');
         // "online" cannot be forced when PayMongo is not set up.
@@ -497,7 +497,7 @@ class ShopTest extends TestCase
             ->assertSee('Pickup only at')
             ->assertSee($settings->warehouse_address)
             ->assertDontSee('name="pickup" value="office"', false)
-            ->assertSee('Please call our Sales team before pickup');
+            ->assertSee('Please call our Sales team before pickup')->assertSee('For directions, search')->assertSee('waze.com/ul?q=', false);
 
         // A forged choice of the office still books the warehouse.
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash', 'pickup' => 'office']));
@@ -507,5 +507,77 @@ class ShopTest extends TestCase
         // Owner can offer both places again from the .env.
         config(['shop.pickup_locations' => ['warehouse', 'office']]);
         $this->get('/checkout')->assertSee('name="pickup" value="office"', false);
+    }
+
+    public function test_customer_gets_a_printable_summary_and_staff_get_the_same_summary_by_email(): void
+    {
+        Mail::fake();
+        Http::fake();
+        $p = $this->product(['brand' => 'Leikeking', 'model' => 'DC-2P-25A']);
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash', 'notes' => 'Saturday morning please']));
+        $order = Order::query()->latest('id')->firstOrFail();
+
+        // The confirmation page shows everything they filled in, and a print button opening a new window.
+        $this->get($order->publicPath())->assertSee('Your details')->assertSee('Juan Dela Cruz')->assertSee('juan@example.com')
+            ->assertSee('Saturday morning please')->assertSee('Print order summary')->assertSee($order->printPath(), false)->assertSee('target="_blank"', false);
+
+        // The printable summary: all details, items and total; private to the order link.
+        $this->get($order->printPath())->assertOk()->assertSee('Order summary')->assertSee($order->reference)->assertSee('0917 123 4567')
+            ->assertSee('juan@example.com')->assertSee('Saturday morning please')->assertSee('Pay at pickup by Cash')->assertSee('Our warehouse')
+            ->assertSee('Leikeking DC-2P-25A')->assertSee('₱960')->assertSee('window.print()', false)
+            ->assertSee('JFL Solar &amp; Renewables', false)->assertSee('google.com/maps/search/?api=1&amp;query=JFL%20Solar%20%26%20Renewables', false)->assertSee('waze.com/ul?q=', false)->assertSee('not an official receipt');
+        $this->get('/orders/'.$order->reference.'/print?t='.str_repeat('a', 40))->assertNotFound();
+
+        // Staff email: the same summary as HTML, plus the printable and admin links.
+        Mail::assertSent(NewOrder::class, function (NewOrder $m) use ($order) {
+            $html = $m->render();
+
+            return str_contains($html, 'Order summary') && str_contains($html, 'Saturday morning please') && str_contains($html, '0917 123 4567')
+                && str_contains($html, 'Leikeking DC-2P-25A') && str_contains($html, '/admin/orders/'.$order->id) && str_contains($html, '/print?t=');
+        });
+    }
+
+    public function test_staff_preview_shows_the_confirmation_and_printable_summary_and_emails_a_marked_copy(): void
+    {
+        Mail::fake();
+        Http::fake();
+        config(['shop.enabled' => false]);
+        $p = $this->product();
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($staff)->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->actingAs($staff)->post('/checkout', $this->checkoutForm(['payment' => 'gcash']))->assertRedirect('/checkout/preview');
+        $this->assertSame(0, Order::query()->count());
+
+        $this->actingAs($staff)->get('/checkout/preview')->assertOk()->assertSee('Staff preview')->assertSee('Thank you — your order is placed')->assertSee('/checkout/preview/print');
+        $this->actingAs($staff)->get('/checkout/preview/print')->assertOk()->assertSee('Order summary')->assertSee('Juan Dela Cruz')->assertSee('Pay at pickup by GCash');
+        Mail::assertSent(NewOrder::class, fn (NewOrder $m) => str_starts_with($m->envelope()->subject, '[Staff preview') && str_contains($m->render(), 'not a real order'));
+
+        // Customers can't see a preview.
+        auth()->logout();
+        $this->get('/checkout/preview')->assertNotFound();
+    }
+
+    public function test_card_payment_is_offered_only_for_warehouse_pickup(): void
+    {
+        Http::fake();
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->get('/checkout')->assertSee('Card (credit or debit)')->assertSee('available at our warehouse only');
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'card']));
+        $order = Order::query()->latest('id')->firstOrFail();
+        $this->assertSame('card', $order->payment_preference);
+        $this->assertSame('warehouse', $order->pickup_location);
+
+        // With both places offered, card + office is refused.
+        config(['shop.pickup_locations' => ['warehouse', 'office']]);
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'card', 'pickup' => 'office']))->assertSessionHasErrors('payment');
+        $this->assertSame(1, Order::query()->count());
+
+        // Without a warehouse address, card is not offered at all.
+        \App\Models\SiteSetting::query()->update(['warehouse_address' => null]);
+        PublicContent::flush();
+        $this->get('/checkout')->assertDontSee('Card (credit or debit)');
     }
 }
