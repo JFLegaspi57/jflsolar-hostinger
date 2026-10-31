@@ -24,11 +24,12 @@
                 <h1 id="hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ PageText::get('home.hero.title') }}</h1>
                 <p class="mt-6 text-lg text-steel-100">{{ PageText::get('home.hero.intro') }}</p>
                 @if ($stats = \App\Support\Visitors::publicStats())
-                    <dl id="live-stats" aria-label="Website visitors so far, updated live" class="mt-6 grid max-w-md grid-cols-2 gap-2 sm:grid-cols-4">
-                        @foreach (['first' => 'First-time visitors', 'returning' => 'Returning visitors', 'members' => 'Registered users', 'visits' => 'Total visits'] as $key => $label)
-                            <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-2.5 py-1.5">
-                                <dt class="leading-tight text-steel-300" style="font-size: .7rem">{{ $label }}</dt>
-                                <dd data-stat="{{ $key }}" class="font-display text-lg font-extrabold text-white tabular">{{ number_format($stats[$key]) }}</dd>
+                    <style>#live-stats { max-width: 32rem; } @media (min-width: 640px) { #live-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } }</style>
+                    <dl id="live-stats" aria-label="Website visitors so far, updated live" class="mt-6 grid grid-cols-3 gap-1.5">
+                        @foreach (['today' => 'Today’s visitors', 'first' => 'First-time visitors', 'returning' => 'Returning visitors', 'members' => 'Registered users', 'visits' => 'Total visits'] as $key => $label)
+                            <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-2 py-1">
+                                <dt class="leading-tight text-steel-300" style="font-size: .65rem">{{ $label }}</dt>
+                                <dd data-stat="{{ $key }}" class="font-display text-base font-extrabold text-white tabular">{{ number_format($stats[$key]) }}</dd>
                             </div>
                         @endforeach
                     </dl>
