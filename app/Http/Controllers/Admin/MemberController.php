@@ -28,7 +28,49 @@ class MemberController extends Controller
                 ->latest('id')->paginate(40)->withQueryString()
             : null;
 
-        return view('admin.members.index', ['members' => $members, 'q' => $q]);
+        return view('admin.members.index', ['members' => $members, 'q' => $q, 'logins' => $members ? Members::lastLogins($members->pluck('id')->all()) : []]);
+    }
+
+    /** One member: details, orders, sign-ins (time and place) and pages viewed while signed in. */
+    public function show(int $member): View
+    {
+        Members::ensureTables();
+        $m = Member::query()->findOrFail($member);
+        $hasActivity = Schema::hasTable('member_activity');
+        $orders = Shop::hasTables() && Schema::hasColumn('orders', 'member_id')
+            ? \App\Models\Order::query()->where('member_id', $m->id)->latest('id')->limit(50)->get()
+            : collect();
+
+        return view('admin.members.show', [
+            'm' => $m,
+            'orders' => $orders,
+            'logins' => $hasActivity ? DB::table('member_activity')->where('member_id', $m->id)->where('kind', 'login')->orderByDesc('id')->limit(50)->get() : collect(),
+            'pages' => $hasActivity ? DB::table('member_activity')->where('member_id', $m->id)->where('kind', 'page')->orderByDesc('id')->limit(300)->get() : collect(),
+            'subscribed' => Newsletter::isSubscribed($m->email),
+        ]);
+    }
+
+    /** CSV of all members with their last sign-in time and place. */
+    public function exportMembers(): StreamedResponse
+    {
+        return response()->streamDownload(function () {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['name', 'email', 'phone', 'joined', 'last_sign_in', 'last_sign_in_place', 'status', 'promos']);
+            if (Members::hasTables()) {
+                $safe = fn ($v) => preg_match('/^[=+\-@\t\r]/', (string) $v) ? "'".$v : (string) $v;
+                Member::query()->orderBy('id')->chunk(200, function ($rows) use ($out, $safe) {
+                    $logins = Members::lastLogins($rows->pluck('id')->all());
+                    foreach ($rows as $m) {
+                        $l = $logins[$m->id] ?? null;
+                        fputcsv($out, [$safe($m->name), $safe($m->email), $safe($m->phone), $m->created_at?->timezone('Asia/Manila')->format('Y-m-d H:i'),
+                            $l ? \Illuminate\Support\Carbon::parse($l->created_at)->timezone('Asia/Manila')->format('Y-m-d H:i') : $m->last_login_at?->timezone('Asia/Manila')->format('Y-m-d H:i'),
+                            $safe($l->place ?? ''), $m->status, Newsletter::isSubscribed($m->email) ? 'yes' : 'no']);
+                    }
+                });
+            }
+            fclose($out);
+        }, 'jflsolar-members-'.now('Asia/Manila')->format('Y-m-d').'.csv', ['Content-Type' => 'text/csv; charset=UTF-8']);
     }
 
     public function update(Request $request, int $member): RedirectResponse

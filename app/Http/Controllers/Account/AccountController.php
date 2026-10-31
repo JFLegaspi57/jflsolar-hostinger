@@ -22,6 +22,7 @@ class AccountController extends Controller
     public function show(): View|RedirectResponse
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        Members::ensureTables();   // adds the profile columns on sites created before they existed
         $orders = Shop::hasTables() && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')
             ? Order::query()->where('member_id', $member->id)->withCount('items')->latest('id')->limit(50)->get()
             : collect();
@@ -77,6 +78,61 @@ class AccountController extends Controller
         return redirect('/account#password')->with('account_status', 'Your password has been changed.');
     }
 
+    /** Profile photo and social links (only the member and staff see them). */
+    public function profile(Request $request): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        Members::ensureTables();
+        $back = redirect('/account#profile');
+        $links = [];
+        $errors = [];
+        foreach (Members::SOCIALS as $field => [$label]) {
+            $value = Members::socialUrl($field, Input::str($request, $field));
+            if ($value === null) {
+                $errors[$field] = 'Please paste a link to your '.$label.' page, e.g. '.sprintf(Members::SOCIALS[$field][2], 'yourname').'';
+            } else {
+                $links[$field] = $value ?: null;
+            }
+        }
+        if ($errors) {
+            return $back->withInput($request->only(array_keys(Members::SOCIALS)))->withErrors($errors);
+        }
+
+        $photo = $member->photo;
+        if ($request->hasFile('photo')) {
+            $name = \Illuminate\Support\Str::random(24).'.webp';
+            $result = \App\Support\ImageProcessor::avatar($request->file('photo'), Members::photoDir($member).'/'.$name);
+            if (isset($result['error'])) {
+                return $back->withInput($request->only(array_keys(Members::SOCIALS)))->withErrors(['photo' => $result['error']]);
+            }
+            $old = $photo;
+            $photo = $name;
+        } elseif ($request->input('remove_photo') === '1') {
+            $old = $photo;
+            $photo = null;
+        }
+        $member->forceFill($links + ['photo' => $photo])->save();
+        if (! empty($old) && $old !== $photo) {
+            @unlink(Members::photoDir($member).'/'.basename($old));
+        }
+
+        return $back->with('account_status', 'Your profile was saved.');
+    }
+
+    /** The profile photo: shown to the member themselves and to staff only. */
+    public function photo(int $member, string $file): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        $me = Members::current();
+        $staff = auth('web')->user();
+        abort_unless(($me && $me->id === $member) || ($staff && $staff->active), 404);
+        $m = $me && $me->id === $member ? $me : \App\Models\Member::query()->find($member);
+        abort_unless($m && $m->photo === $file, 404);
+        $path = Members::photoDir($m).'/'.basename($file);
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path, ['Content-Type' => 'image/webp', 'Cache-Control' => 'private, max-age=86400', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
     /**
      * Deletes the account. Orders stay (sales records) but are no longer linked to it;
      * the email leaves the promo list.
@@ -94,6 +150,7 @@ class AccountController extends Controller
             \Illuminate\Support\Facades\DB::table('member_password_resets')->where('email', $member->email)->delete();
             $member->delete();
         });
+        Members::deletePhotos($member);
         Newsletter::unsubscribeEmail($member->email);
         Auth::guard('member')->logout();
         $request->session()->forget('member_pw');

@@ -61,6 +61,8 @@ Route::get('/account', [Account\AccountController::class, 'show']);
 Route::post('/account', [Account\AccountController::class, 'update']);
 Route::post('/account/password', [Account\AccountController::class, 'password'])->middleware('throttle:account');
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
+Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
+Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}\.webp');
 
 // Newsletter (promos and news)
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'showUnsubscribe'])->where('token', '[A-Za-z0-9]{40}');
@@ -140,6 +142,8 @@ Route::prefix('admin')->group(function () {
         Route::post('settings', [Admin\SettingsController::class, 'update']);
 
         Route::get('members', [Admin\MemberController::class, 'index']);
+        Route::get('members/export', [Admin\MemberController::class, 'exportMembers']);
+        Route::get('members/{member}', [Admin\MemberController::class, 'show'])->whereNumber('member');
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);

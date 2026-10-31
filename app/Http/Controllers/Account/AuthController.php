@@ -89,6 +89,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         Members::stampSession($member);
         $member->forceFill(['last_login_at' => now()])->save();
+        Members::logActivity($member, 'login', null, $request->ip());
 
         return redirect($this->next($request) ?? '/account')->with('account_status', 'Welcome, '.$member->name.'! Your account is ready.');
     }
@@ -112,6 +113,9 @@ class AuthController extends Controller
 
             return $back("Too many attempts. Wait {$minutes} minute(s) and try again, or reset your password.");
         }
+        if (Members::hasTables()) {
+            Members::ensureTables();   // adds newer columns/tables (profile, activity) on first sign-in after an update
+        }
         $member = Members::hasTables() ? Member::query()->where('email', $email)->first() : null;
         // Same message whether or not the email exists; disabled accounts cannot sign in.
         if (! $member || ! $member->isActive() || ! Hash::check(Input::str($request, 'password'), $member->password)) {
@@ -124,6 +128,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
         Members::stampSession($member);
         $member->forceFill(['last_login_at' => now()])->save();
+        Members::logActivity($member, 'login', null, $request->ip());
 
         return redirect($this->next($request) ?? '/account');
     }
