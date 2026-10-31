@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\MediaAsset;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Support\PublicContent;
@@ -29,5 +30,18 @@ class PricedProductButtonsTest extends TestCase
         $this->assertStringNotContainsString('> Call</a>', $box);
 
         $this->get('/products/quote-item')->assertOk()->assertSee('Request a Product Quote')->assertSee('Call')->assertDontSee('Add to cart');
+    }
+
+    public function test_image_caption_shows_on_product_page_only_not_on_category_cards(): void
+    {
+        $this->seed();
+        $category = ProductCategory::query()->where('status', 'published')->firstOrFail();
+        $p = Product::query()->create(['brand' => 'B', 'model' => 'M', 'category_id' => $category->id, 'summary' => '', 'description' => 'x', 'specs' => [], 'price_is_sample' => false, 'status' => 'published', 'is_sample' => false,
+            'slug' => 'temp-pic-item', 'name' => 'Temp pic item', 'pricing_mode' => 'fixed', 'price_php' => 150, 'price_basis' => 'Pickup price per piece', 'availability' => 'available']);
+        MediaAsset::query()->create(['kind' => 'image', 'storage_key' => 'products/'.$p->id.'/00000000-0000-4000-8000-00000000abce', 'product_id' => $p->id, 'alt' => 'Clamp', 'caption' => 'Temporary picture — may differ from actual product appearance', 'widths' => [640], 'is_cover' => true]);
+        PublicContent::flush();
+
+        $this->get('/products/temp-pic-item')->assertOk()->assertSee('Temporary picture — may differ from actual product appearance');
+        $this->get('/products')->assertOk()->assertSee('Temp pic item')->assertDontSee('Temporary picture');
     }
 }
