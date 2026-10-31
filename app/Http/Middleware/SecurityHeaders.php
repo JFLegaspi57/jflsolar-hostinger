@@ -17,7 +17,10 @@ class SecurityHeaders
         $h->set('X-Content-Type-Options', 'nosniff');
         $h->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $h->set('X-Frame-Options', 'DENY');
-        $h->set('Content-Security-Policy', "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'");
+        // The checkout form is answered with a redirect to PayMongo's payment page; browsers apply
+        // form-action to that redirect too, so PayMongo's checkout host is allowed there.
+        $formAction = "'self'".(\App\Support\Shop::enabled() ? ' https://checkout.paymongo.com' : '');
+        $h->set('Content-Security-Policy', "frame-ancestors 'none'; base-uri 'self'; form-action {$formAction}; object-src 'none'");
         $h->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), interest-cohort=()');
         $h->remove('X-Powered-By');
 

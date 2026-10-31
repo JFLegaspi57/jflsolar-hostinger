@@ -19,6 +19,12 @@
                 <h2>Brands and trademarks</h2>
                 <p>Product and brand names belong to their respective owners. Their appearance on this website does not mean JFL Solar is an authorised distributor or that the manufacturer endorses JFL Solar, unless expressly stated.</p>
             </section>
+            @if (\App\Support\Shop::enabled())
+            <section>
+                <h2>Online orders</h2>
+                <p>Items marked “Add to cart” can be ordered and paid for online through PayMongo. Prices are pickup prices in Philippine pesos at the time you check out. An order is confirmed only when PayMongo confirms your payment; we then contact you to arrange pickup at the address shown at checkout. Delivery is not included in online orders.</p>
+            </section>
+            @endif
             <section>
                 <h2>Contacting us</h2>
                 <p>Sending an inquiry does not create a contract. We will reply to discuss your requirements.</p>

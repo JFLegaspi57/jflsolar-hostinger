@@ -5,6 +5,7 @@ use App\Http\Controllers\ContactController;
 use App\Http\Middleware\EnsureStaff;
 use App\Http\Controllers\MediaController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -43,6 +44,16 @@ Route::post('/pv', function (Request $r) {
 })->middleware('throttle:120,1');
 Route::get('/contact', [ContactController::class, 'show']);
 Route::post('/contact', [ContactController::class, 'submit']);
+// Online shop (off unless SHOP_ENABLED=true and PayMongo keys are set — see config/shop.php).
+Route::get('/cart', [Shop\CartController::class, 'show']);
+Route::post('/cart', [Shop\CartController::class, 'update']);
+Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:60,1');
+Route::get('/checkout', [Shop\CheckoutController::class, 'show']);
+Route::post('/checkout', [Shop\CheckoutController::class, 'submit'])->middleware('throttle:6,1');
+Route::get('/checkout/done', [Shop\CheckoutController::class, 'done']);
+Route::get('/orders/{reference}', [Shop\CheckoutController::class, 'status'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:30,1');
+// PayMongo → site, verified by signature instead of a CSRF token (bootstrap/app.php).
+Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middleware('throttle:120,1');
 Route::get('/privacy', [PageController::class, 'privacy']);
 Route::get('/terms', [PageController::class, 'terms']);
 Route::get('/robots.txt', [PageController::class, 'robots']);
@@ -103,6 +114,10 @@ Route::prefix('admin')->group(function () {
 
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);
+
+        Route::get('orders', [Admin\OrderController::class, 'index']);
+        Route::get('orders/{order}', [Admin\OrderController::class, 'show'])->whereNumber('order');
+        Route::post('orders/{order}', [Admin\OrderController::class, 'update'])->whereNumber('order');
 
         Route::get('inquiries', [Admin\InquiryController::class, 'index']);
         Route::get('inquiries/{inquiry}', [Admin\InquiryController::class, 'show'])->whereNumber('inquiry');
