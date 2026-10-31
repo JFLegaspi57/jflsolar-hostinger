@@ -304,3 +304,28 @@ saves a **callback request** in **Admin → Inquiries** (also emailed if `INQUIR
 set). Limits (`CHATBOT_PER_VISITOR_HOURLY`, `CHATBOT_DAILY_CAP`) cap the monthly cost; set
 `CHATBOT_ENABLED=false` to hide the chat at any time. Product and price changes reach the
 assistant within 5 minutes.
+
+## 13. Google Search Console, Google Analytics and the Meta Pixel
+
+All three are optional and off until you add their codes to `.env` (hPanel → File Manager,
+next to the site's other settings). They only work on the live site (`SITE_ENV=production`).
+
+1. **Search Console** (search.google.com/search-console): add the property `jflsolar.ph`.
+   - Easiest: choose **Domain** and add the TXT record it shows in hPanel → Domains → DNS. No code needed.
+   - Or choose **URL prefix** → **HTML tag**, copy only the `content="..."` value into
+     `GOOGLE_SITE_VERIFICATION=`, save, then press Verify.
+   - Then submit the sitemap: `https://jflsolar.ph/sitemap.xml`.
+2. **Google Analytics 4** (analytics.google.com): create a property and a Web data stream for
+   `https://jflsolar.ph`; copy the Measurement ID (`G-…`) into `GA4_MEASUREMENT_ID=`.
+3. **Meta Pixel** (Meta Business Suite → Events Manager → Connect data → Web → Pixel): copy the
+   Pixel ID (digits only) into `META_PIXEL_ID=`.
+
+Visitors see a small "Help us improve this website?" notice and the services load only after
+"Allow". Do Not Track / Global Privacy Control browsers never load them. The privacy notice
+switches to describe them automatically. A sent inquiry is reported as a lead (`generate_lead`
+in Analytics, `Lead` for the Pixel).
+
+Also on the site (no setup): `/faq` (answers editable in Admin → Page text → FAQ; `{order}` and
+`{phone}` fill in automatically), `/net-metering` guide, Google Map on the Contact page, and
+LocalBusiness search data with opening hours read from Contact & settings → Business hours when
+written like "8AM to 5PM Monday to Saturday".

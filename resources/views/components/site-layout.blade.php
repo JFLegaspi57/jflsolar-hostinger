@@ -17,6 +17,7 @@
     <meta name="description" content="{{ $description }}">
     <meta name="robots" content="{{ $robots }}">
     <link rel="canonical" href="{{ $canonical }}">
+    @if (config('site.google_verification') !== '')<meta name="google-site-verification" content="{{ config('site.google_verification') }}">@endif
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ $canonical }}">
     <meta property="og:title" content="{{ $fullTitle }}">
@@ -79,5 +80,6 @@
     @if ($reviewsAboveFooter) @include('partials.reviews') @endif
     @include('partials.site-footer')
     @if (\App\Support\Chatbot::available()) @include('partials.chatbot') @endif
+    @if (Site::tracking()) @include('partials.tracking') @endif
 </body>
 </html>

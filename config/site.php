@@ -12,6 +12,15 @@ return [
     // Canonical site address, no trailing slash (e.g. https://jflsolar.ph).
     'url' => rtrim((string) env('APP_URL', 'http://localhost:8000'), '/'),
 
+    // Google Search Console "HTML tag" verification code (only the content="..." value).
+    'google_verification' => trim((string) env('GOOGLE_SITE_VERIFICATION', '')),
+
+    // Visitor measurement, live site only, after the visitor allows it in the cookie notice.
+    // Google Analytics 4 measurement ID (G-XXXXXXX) and Meta (Facebook) Pixel ID (digits).
+    // Leave empty to keep them off.
+    'ga4_id' => preg_match('/^G-[A-Z0-9]{4,20}$/', $ga = strtoupper(trim((string) env('GA4_MEASUREMENT_ID', '')))) ? $ga : '',
+    'meta_pixel_id' => preg_match('/^[0-9]{6,20}$/', $px = trim((string) env('META_PIXEL_ID', ''))) ? $px : '',
+
     'inquiry' => [
         // Where new-inquiry alerts are emailed (comma-separate several). Leave
         // empty to keep inquiries in the admin only.

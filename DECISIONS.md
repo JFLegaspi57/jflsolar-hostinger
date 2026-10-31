@@ -124,3 +124,13 @@ Owner request: customers can buy priced products online. Choices:
   `request_callback` tool saves an Inquiry (topic, summary, last messages) and emails staff like
   the contact form. Cost guards: 15/min and 40/hour per visitor, 1,500 messages/day site-wide.
   The privacy notice names Anthropic as the AI provider.
+
+## 2026-10-31 — FAQ, net metering guide, local SEO, optional analytics
+
+- FAQ wording lives in Page text (`faq.*`) so staff can edit it; `{order}` reuses `Shop::howToBuy`
+  so payment/pickup answers never drift from checkout.
+- Net metering guide states only facts checked against the DOE primer (100 kW cap, blended
+  generation cost credit) and points to the utility for current requirements.
+- Structured data is now `LocalBusiness` (a subtype of Organization) with parsed opening hours.
+- GA4 / Meta Pixel are env-configured, live-only, consent-gated (localStorage choice) and skipped
+  for DNT/GPC, matching the existing first-party visitor counter's opt-out.
