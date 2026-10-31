@@ -1,5 +1,5 @@
 @php
-    $filters = ['all' => 'All packages', 'installed' => 'Installed systems', 'equipment' => 'Equipment only'];
+    $filters = ['all' => 'All packages', 'complete' => 'Complete Packages', 'equipment' => 'Equipment only'];
     $btn = 'inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-control)] bg-steel-900 px-4 text-sm font-semibold text-white hover:bg-steel-800 disabled:cursor-not-allowed disabled:opacity-50';
     $intro = new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.');
 @endphp

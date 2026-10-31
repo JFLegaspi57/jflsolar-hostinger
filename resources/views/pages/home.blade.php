@@ -69,7 +69,7 @@
             <h2 id="paths-title" class="sr-only">Choose your path</h2>
             <div class="grid gap-4 md:grid-cols-2 md:gap-6">
                 @foreach ([
-                    ['accent' => false, 'eyebrow' => PageText::get('home.path1.eyebrow'), 'title' => PageText::get('home.path1.title'), 'points' => PageText::lines(PageText::get('home.path1.points')), 'primary' => ['/services', PageText::get('home.path1.button')], 'secondary' => ['/packages?type=installed', PageText::get('home.path1.link')]],
+                    ['accent' => false, 'eyebrow' => PageText::get('home.path1.eyebrow'), 'title' => PageText::get('home.path1.title'), 'points' => PageText::lines(PageText::get('home.path1.points')), 'primary' => ['/services', PageText::get('home.path1.button')], 'secondary' => ['/packages?type=complete', PageText::get('home.path1.link')]],
                     ['accent' => true, 'eyebrow' => PageText::get('home.path2.eyebrow'), 'title' => PageText::get('home.path2.title'), 'points' => PageText::lines(PageText::get('home.path2.points')), 'primary' => ['/products', PageText::get('home.path2.button')], 'secondary' => ['/packages?type=equipment', PageText::get('home.path2.link')]],
                 ] as $panel)
                     <div class="flex flex-col rounded-[var(--radius-panel)] border p-6 sm:p-8 {{ $panel['accent'] ? 'border-gold-200 bg-gold-50' : 'border-steel-200 bg-steel-50' }}">
