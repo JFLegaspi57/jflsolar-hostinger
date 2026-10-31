@@ -53,7 +53,7 @@ class PackageBasketTest extends TestCase
     {
         [$inv, $panel, $batA, $batB] = $this->setUpPackage();
         $this->get('/packages/t-trio')->assertOk()
-            ->assertSee('Build your package')->assertSee('Customize &amp; Add to Basket', false)
+            ->assertSee('Build your package')->assertSee('Add to Basket and Customize')->assertDontSee('Ask About This Package')->assertDontSee('<x-icon name="phone"', false)->assertDontSee('> Call ', false)
             ->assertSee('₱40,000')->assertSee('₱59,000')->assertSee('₱205,000')
             ->assertSee('Test Battery A')->assertSee('Test Battery B')->assertDontSee('Test Battery C')
             ->assertSee('name="quantity[1]"', false)->assertDontSee('name="quantity[3]"', false);
