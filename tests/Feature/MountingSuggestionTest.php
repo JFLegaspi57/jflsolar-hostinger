@@ -24,7 +24,8 @@ class MountingSuggestionTest extends TestCase
     public function test_rule_for_n_panels(): void
     {
         $q = collect(PackageBuilder::mountingFor(10))->pluck('quantity', 'slug')->all();
-        $this->assertSame(['railing' => 10, 'splice-connector' => 8, 'l-foot' => 30, 'mid-clamp' => 20, 'end-clamp' => 4], $q);
+        $this->assertSame(['railing' => 10, 'splice-connector' => 8, 'l-foot' => 30, 'mid-clamp' => 20, 'end-clamp' => 4, 'ground-lug' => 6], $q);
+        $this->assertSame(9, collect(PackageBuilder::mountingFor(14))->firstWhere('slug', 'ground-lug')['quantity']);   // 8.4 → 9
         $this->assertSame(12, collect(PackageBuilder::mountingFor(14))->firstWhere('slug', 'splice-connector')['quantity']);   // 11.2 → 12
         $this->assertSame(16, collect(PackageBuilder::mountingFor(20))->firstWhere('slug', 'splice-connector')['quantity']);
         $this->assertSame([], PackageBuilder::mountingFor(0));
@@ -43,10 +44,11 @@ class MountingSuggestionTest extends TestCase
         $this->product('mounting-hardware', 'mid-clamp', 'Mid-clamp', 50);
         $this->product('mounting-hardware', 'end-clamp', 'End Clamp', 55);
         $this->product('mounting-hardware', 'splice-connector', 'Splice Connector', 75);
+        $this->product('mounting-hardware', 'ground-lug', 'Ground Lugs', 55);
         PublicContent::flush();
 
-        // 10 panels: 10 × 550 + 8 × 75 + 30 × 75 + 20 × 50 + 4 × 55 = 9,570. Suggestion only: the total stays 205,000.
-        $html = $this->get('/packages/build-your-own')->assertOk()->assertSee('Recommended mounting for')->assertSee('₱9,570')->assertSee('8 per 10 railings')->assertSee('₱205,000')
+        // 10 panels: 10 × 550 + 8 × 75 + 30 × 75 + 20 × 50 + 4 × 55 + 6 × 55 = 9,900. Suggestion only: the total stays 205,000.
+        $html = $this->get('/packages/build-your-own')->assertOk()->assertSee('Recommended mounting for')->assertSee('₱9,900')->assertSee('6 per 10 panels')->assertSee('8 per 10 railings')->assertSee('₱205,000')
             ->assertSee('3 per railing')->assertSee('data-mount-apply', false)->getContent();
         $this->assertMatchesRegularExpression('#data-id="'.$rail->id.'"[^>]*>.*?data-mount-qty>10<#s', $html);
         $this->assertStringContainsString('value="0" data-addon', $html);   // nothing added until the customer asks
@@ -61,6 +63,6 @@ class MountingSuggestionTest extends TestCase
 
         // The calculator result shows the same rule.
         $this->get('/pv-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=50')->assertOk()
-            ->assertSee('Mounting (suggested)')->assertSee('10 railings · 8 splice connectors · 30 l-feet')->assertSee('20 mid clamps · 4 end clamps');
+            ->assertSee('Mounting (suggested)')->assertSee('10 railings · 8 splice connectors · 30 l-feet')->assertSee('20 mid clamps · 4 end clamps · 6 ground lugs');
     }
 }

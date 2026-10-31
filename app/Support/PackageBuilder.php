@@ -216,6 +216,7 @@ final class PackageBuilder
         'l-foot' => ['L-feet', 3, 0, '3 per railing'],
         'mid-clamp' => ['Mid clamps', 2, 0, '2 per panel'],
         'end-clamp' => ['End clamps', 0, 4, '4 per system'],
+        'ground-lug' => ['Ground lugs', 0.6, 0, '6 per 10 panels'],
     ];
 
     /** Quantity for N panels: per-panel rate (rounded up) + fixed. */
