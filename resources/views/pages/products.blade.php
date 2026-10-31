@@ -10,8 +10,6 @@
         imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
         <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
     </x-page-hero>
-    {{-- Hidden while a category is selected, so the products come into view sooner. --}}
-    @if ($filters['category'] === '')
     {{-- Brand strip (logos from the owner's brand sheet). Each logo is a link to that brand's products:
          the link shows its own slice of the same image, so it lines up exactly and can lift on hover. --}}
     @php
@@ -51,7 +49,6 @@
         .brand-strip .brand-logo[aria-current="page"] { box-shadow: 0 0 0 2px #f5b400; }
         @media (prefers-reduced-motion: reduce) { .brand-strip .brand-logo { transition: box-shadow 0.25s ease; } .brand-strip .brand-logo:hover, .brand-strip .brand-logo:focus-visible { transform: none; } }
     </style>
-    @endif
     <x-container class="py-10">
         <form action="/products" method="get" role="search" aria-label="Search products" class="grid gap-3 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_auto] lg:items-end">
             <div>
@@ -78,10 +75,11 @@
             </div>
         </form>
 
-        <nav aria-label="Categories" class="mt-6 flex flex-wrap gap-2">
+        {{-- Category links jump here (#categories), so the chosen category's products show without scrolling past the banner and brand logos. --}}
+        <nav id="categories" aria-label="Categories" class="mt-6 flex flex-wrap gap-2" style="scroll-margin-top: 6rem">
             <a href="/products" @if ($filters['category'] === '') aria-current="page" @endif class="{{ $chip }}">All</a>
             @foreach ($categories as $c)
-                <a href="/products?category={{ $c->slug }}" @if ($filters['category'] === $c->slug) aria-current="page" @endif class="{{ $chip }}">{{ $c->name }}</a>
+                <a href="/products?category={{ $c->slug }}#categories" @if ($filters['category'] === $c->slug) aria-current="page" @endif class="{{ $chip }}">{{ $c->name }}</a>
             @endforeach
         </nav>
 
