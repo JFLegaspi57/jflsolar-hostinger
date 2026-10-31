@@ -90,6 +90,7 @@ class AuthController extends Controller
         Members::stampSession($member);
         $member->forceFill(['last_login_at' => now()])->save();
         Members::logActivity($member, 'login', null, $request->ip());
+        \App\Support\Shop::mergeIntoAccount($member);
 
         return redirect($this->next($request) ?? '/account')->with('account_status', 'Welcome, '.$member->name.'! Your account is ready.');
     }
@@ -129,6 +130,7 @@ class AuthController extends Controller
         Members::stampSession($member);
         $member->forceFill(['last_login_at' => now()])->save();
         Members::logActivity($member, 'login', null, $request->ip());
+        \App\Support\Shop::mergeIntoAccount($member);
 
         return redirect($this->next($request) ?? '/account');
     }
@@ -136,7 +138,7 @@ class AuthController extends Controller
     public function logout(Request $request): RedirectResponse
     {
         Auth::guard('member')->logout();
-        $request->session()->forget('member_pw');
+        $request->session()->forget(['member_pw', \App\Support\Shop::SESSION_KEY]);   // the basket stays saved on the account, not on this browser
         // Keep a signed-in staff session (same browser) working; only refresh the form token.
         $request->session()->regenerate();
         $request->session()->regenerateToken();

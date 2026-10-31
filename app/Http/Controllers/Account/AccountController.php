@@ -154,7 +154,7 @@ class AccountController extends Controller
         Members::deletePhotos($member);
         Newsletter::unsubscribeEmail($member->email);
         Auth::guard('member')->logout();
-        $request->session()->forget('member_pw');
+        $request->session()->forget(['member_pw', Shop::SESSION_KEY]);
         $request->session()->regenerate();
 
         return redirect('/')->with('account_status', 'Your account has been deleted.');
