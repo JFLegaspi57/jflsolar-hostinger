@@ -64,10 +64,6 @@
                             </div>
                             <button type="submit" class="{{ Ui::button('primary', 'lg', 'flex-1') }}"><x-icon name="cart" class="size-5" /> Add to cart</button>
                         </form>
-                        <div class="mt-2 flex flex-col gap-2 sm:flex-row">
-                            <a href="{{ $quoteHref }}" class="{{ Ui::button('secondary', 'lg', 'flex-1') }}">Request a quote</a>
-                            <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call</a>
-                        </div>
                         <p class="mt-3 text-sm text-steel-600">{{ \App\Support\Shop::howToBuy($settings) }}</p>
                     @else
                     <div class="mt-5 flex flex-col gap-2 sm:flex-row">
