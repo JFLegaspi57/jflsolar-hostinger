@@ -34,7 +34,7 @@
 - [x] Pickup at the warehouse only, with a "call Sales before pickup" note (ShopTest: 27)
 - [x] Printable order summary for the customer + same summary emailed to staff; card payment at the warehouse; Google Maps / Waze directions (ShopTest: 30)
 - [x] Shop launched to the public (2026-10-31): SHOP_ENABLED defaults to true
-- [x] Member accounts (sign up / sign in / account page with orders), newsletter list with Admin → Subscribers export (MembersTest); forum built then removed at owner request
+- [x] Member accounts (sign up / sign in / account page with orders), newsletter list with Admin → Subscribers export (MembersTest); forum built, removed, then restored at owner request (ForumTest)
 - [x] Header "Log in" button opens a log in / create account pop-up
 - [x] Member profile photo + social links; Admin → Members record with sign-ins, places and pages viewed; members CSV
 - [ ] Owner: write refund / cancellation and pickup rules before going live

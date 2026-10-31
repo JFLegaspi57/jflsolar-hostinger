@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
-/** Customer (member) accounts: tables and the signed-in member. */
+/** Customer / forum member accounts: tables and the signed-in member. */
 final class Members
 {
-    private const TABLES_KEY = 'member-tables-v4';
+    private const TABLES_KEY = 'member-tables-v5';
 
     private static ?bool $hasTables = null;
 
@@ -72,7 +72,7 @@ final class Members
         try {
             self::createTables();
         } catch (\Throwable $e) {
-            if (! Schema::hasTable('members') || ! Schema::hasTable('member_password_resets') || ! Schema::hasColumn('members', 'tiktok_url') || ! Schema::hasTable('member_activity') || ! Schema::hasColumn('members', 'cart')) {
+            if (! Schema::hasTable('members') || ! Schema::hasTable('member_password_resets') || ! Schema::hasColumn('members', 'tiktok_url') || ! Schema::hasTable('member_activity') || ! Schema::hasColumn('members', 'cart') || ! Schema::hasColumn('members', 'forum_trusted')) {
                 throw $e;   // not the "someone else created them at the same moment" case
             }
         }
@@ -116,6 +116,12 @@ final class Members
                 $t->timestamp('created_at')->useCurrent();
                 $t->index(['member_id', 'kind', 'id']);
                 $t->index('created_at');
+            });
+        }
+        // v5: forum (a member is trusted after staff approve one of their posts).
+        if (! Schema::hasColumn('members', 'forum_trusted')) {
+            Schema::table('members', function (Blueprint $t) {
+                $t->boolean('forum_trusted')->default(false);
             });
         }
         // v4: the member's basket, so it follows them to every device they sign in on.

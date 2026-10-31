@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
         // Separate request limits per feature. Plain "throttle:N,1" shares ONE counter per
         // visitor across every route that uses it, so page-view beacons and cart clicks used
         // up the checkout allowance and checkout answered "429 Too Many Requests".
-        foreach (['beacon' => 120, 'cart' => 60, 'checkout' => 10, 'orders' => 30, 'webhook' => 120, 'account' => 20, 'stats' => 30] as $name => $perMinute) {
+        foreach (['beacon' => 120, 'cart' => 60, 'checkout' => 10, 'orders' => 30, 'webhook' => 120, 'account' => 20, 'stats' => 30, 'forum' => 20] as $name => $perMinute) {
             RateLimiter::for($name, fn (Request $r) => Limit::perMinute($perMinute)->by($name.'|'.$r->ip()));
         }
     }

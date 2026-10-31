@@ -41,7 +41,7 @@
     </div>
 
     <div id="auth-panel-signup" role="tabpanel" aria-labelledby="auth-tab-signup" hidden class="p-5 sm:p-6">
-        <p class="mb-4 text-steel-700">See your orders, check out faster and get our promos if you like.</p>
+        <p class="mb-4 text-steel-700">See your orders, check out faster and join the forum.</p>
         <form method="post" action="/signup" class="space-y-4">
             @csrf
             @if ($next)<input type="hidden" name="next" value="{{ $next }}">@endif
