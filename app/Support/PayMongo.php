@@ -86,16 +86,26 @@ final class PayMongo
      * Reads a webhook event. Accepts both payload shapes PayMongo documents
      * (data.attributes.type / data.attributes.data, and data.type / data.data).
      *
-     * @return array{type: string, livemode: bool, session_id: string, reference: string, payments: list<array{id: string, status: string, amount: float, method: string}>}
+     * @return array{type: string, session_id: string, reference: string, payments: list<array{id: string, status: string, amount: float, method: string}>}
      */
     public static function parseEvent(array $payload): array
     {
         $event = $payload['data'] ?? [];
         $attr = $event['attributes'] ?? $event;
-        $session = $attr['data'] ?? [];
+
+        return ['type' => (string) ($attr['type'] ?? '')] + self::parseSession((array) ($attr['data'] ?? []));
+    }
+
+    /**
+     * Reads a checkout session resource ({id, attributes: {reference_number, payments}}).
+     *
+     * @return array{session_id: string, reference: string, payments: list<array{id: string, status: string, amount: float, method: string}>}
+     */
+    public static function parseSession(array $session): array
+    {
         $sAttr = $session['attributes'] ?? [];
         $payments = [];
-        foreach (($sAttr['payments'] ?? []) as $p) {
+        foreach ((array) ($sAttr['payments'] ?? []) as $p) {
             $pa = $p['attributes'] ?? [];
             $payments[] = [
                 'id' => (string) ($p['id'] ?? ''),
@@ -106,11 +116,33 @@ final class PayMongo
         }
 
         return [
-            'type' => (string) ($attr['type'] ?? ''),
-            'livemode' => (bool) ($attr['livemode'] ?? false),
             'session_id' => (string) ($session['id'] ?? ''),
             'reference' => (string) ($sAttr['reference_number'] ?? ''),
             'payments' => $payments,
         ];
+    }
+
+    /**
+     * Asks PayMongo for the checkout session directly — the backup when a webhook delivery
+     * was missed. Returns null when PayMongo can't be reached or answers unexpectedly.
+     */
+    public static function fetchSession(string $sessionId): ?array
+    {
+        if (! preg_match('/^cs_[A-Za-z0-9_]{1,60}$/', $sessionId) || (string) config('shop.paymongo.secret_key') === '') {
+            return null;
+        }
+        try {
+            $response = Http::withBasicAuth((string) config('shop.paymongo.secret_key'), '')
+                ->acceptJson()->timeout(10)
+                ->get(rtrim((string) config('shop.paymongo.checkout_endpoint'), '/').'/'.$sessionId);
+        } catch (\Throwable) {
+            return null;
+        }
+        if (! $response->successful() || ! is_array($response->json('data'))) {
+            return null;
+        }
+        $parsed = self::parseSession($response->json('data'));
+
+        return $parsed['session_id'] === $sessionId ? $parsed : null;
     }
 }

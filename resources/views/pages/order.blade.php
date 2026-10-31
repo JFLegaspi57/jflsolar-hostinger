@@ -4,16 +4,23 @@
     use App\Support\Site;
     $o = $order;
     $waiting = $o->status === 'pending_payment';
+    // Re-check every 6 seconds for about 2 minutes, then stop (no endless automatic refresh).
+    $autoRefresh = $waiting && $checks < 20;
+    $refreshUrl = $o->publicPath().'&r='.($checks + 1);
 @endphp
 <x-site-layout :title="'Order '.$o->reference" path="/orders" :noindex="true" :reviews-above-footer="false">
-    @if ($waiting)
-        <x-slot:head><meta http-equiv="refresh" content="6"></x-slot:head>
+    @if ($autoRefresh)
+        <x-slot:head><meta http-equiv="refresh" content="6;url={{ $refreshUrl }}"></x-slot:head>
     @endif
     <x-container class="py-10 sm:py-14">
         <p class="text-sm font-semibold tracking-wide text-steel-600 uppercase">Order <span class="font-mono">{{ $o->reference }}</span></p>
         @if ($waiting)
-            <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">Confirming your payment…</h1>
-            <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">This usually takes a few seconds. This page refreshes on its own. If you closed the payment page without paying, nothing was charged — <a href="/cart" class="underline">go back to your cart</a>.</p>
+            <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $autoRefresh ? 'Confirming your payment…' : 'We haven’t received your payment yet' }}</h1>
+            @if ($autoRefresh)
+                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">This usually takes a few seconds. This page checks again on its own for about two minutes. If you closed the payment page without paying, nothing was charged — <a href="/cart" class="underline">go back to your cart</a>.</p>
+            @else
+                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">If you paid, it can take a little longer to reach us — <a href="{{ $o->publicPath() }}" class="font-semibold underline">check again</a>, or call us with order number <span class="font-mono">{{ $o->reference }}</span>. If you did not finish paying, nothing was charged — <a href="/cart" class="underline">go back to your cart</a>.</p>
+            @endif
         @elseif ($o->status === 'cancelled')
             <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">This order was cancelled</h1>
             <p class="mt-3 max-w-2xl text-lg text-steel-700">Please contact us if you have questions about it.</p>

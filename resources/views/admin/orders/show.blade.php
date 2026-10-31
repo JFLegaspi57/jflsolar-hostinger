@@ -14,6 +14,9 @@
 <x-admin.layout :title="'Order '.$o->reference">
     <x-admin.page-title :title="'Order '.$o->reference" back="/admin/orders" back-label="All orders" :intro="'Placed '.$o->created_at->timezone('Asia/Manila')->format('j F Y, g:i A').' · '.$o->statusLabel()" />
 
+    @if ($o->status === 'cancelled' && $o->paid_at)
+        <p class="mb-4 rounded-[var(--radius-panel)] border border-[#f3c3be] bg-danger-50 p-4 font-semibold text-danger-700">Paid after it was cancelled. Refund the customer in the PayMongo dashboard, or contact them to reinstate the order. See staff notes.</p>
+    @endif
     @if ($o->status === 'pending_payment')
         <p class="mb-4 rounded-[var(--radius-panel)] border border-[#f0d39a] bg-warn-50 p-4 font-semibold text-warn-800">Not paid. PayMongo has not confirmed a payment for this order — do not release the items.</p>
     @endif

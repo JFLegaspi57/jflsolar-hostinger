@@ -24,6 +24,8 @@
         @else
             <form method="post" action="/cart" class="mt-8">
                 @csrf
+                {{-- Pressing Enter in a quantity box uses the form's first button: make that "Update", not "Remove". --}}
+                <button type="submit" tabindex="-1" aria-hidden="true" class="sr-only">Update quantities</button>
                 <ul class="divide-y divide-steel-200 rounded-[var(--radius-panel)] border border-steel-200 bg-white">
                     @foreach ($lines as $line)
                         @php $p = $line['product']; $qid = 'qty-'.$loop->index; @endphp

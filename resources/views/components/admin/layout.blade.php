@@ -19,15 +19,11 @@
     $active = fn ($href) => $href === '/admin' ? request()->is('admin') : request()->is(ltrim($href, '/'), ltrim($href, '/').'/*');
     $newInquiries = \App\Models\Inquiry::query()->where('status', 'new')->count();
     // Online shop: the Orders page appears once the shop is switched on (or has had orders).
-    $shopOn = \App\Support\Shop::enabled() || \Illuminate\Support\Facades\Schema::hasTable('orders');
+    $shopOn = \App\Support\Shop::ordersVisible();
     if (! $shopOn) {
         $items = array_values(array_filter($items, fn ($i) => $i[0] !== '/admin/orders'));
     }
-    $paidOrders = 0;
-    if ($shopOn) {
-        \App\Support\Shop::ensureTables();
-        $paidOrders = \App\Models\Order::query()->where('status', 'paid')->count();
-    }
+    $paidOrders = $shopOn && \App\Support\Shop::hasTables() ? \App\Models\Order::query()->where('status', 'paid')->count() : 0;
 @endphp
 <!DOCTYPE html>
 <html lang="en-PH">

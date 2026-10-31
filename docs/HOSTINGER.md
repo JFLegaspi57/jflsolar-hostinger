@@ -234,6 +234,7 @@ during account activation.
    | `PAYMONGO_WEBHOOK_SECRET` | the `whsk_…` secret |
    | `PAYMONGO_METHODS` | optional, default `qrph,gcash,paymaya,card` |
    | `ORDER_NOTIFY_EMAIL` | optional; default is `INQUIRY_NOTIFY_EMAIL` |
+   | `SHOP_MAX_TOTAL` | optional; largest order paid online, default `300000` (₱) |
 
 4. Place a test order on the site (PayMongo's test page lets you simulate a payment).
    It should appear in **Admin → Orders → To prepare** within seconds, and the
@@ -251,6 +252,10 @@ To switch the shop off again, set `SHOP_ENABLED=false`. Existing orders stay in 
   to **To prepare** only when PayMongo's signed webhook confirms the full amount. Staff
   cannot mark an order paid by hand. Never release items for a **Not paid** order.
 - Admin → Orders: **Mark ready for pickup**, then **Mark picked up**. **Cancel order**
-  does not refund anyone — refunds are made in the PayMongo dashboard.
+  does not refund anyone — refunds are made in the PayMongo dashboard. If a customer
+  pays on a payment page that was still open after you cancelled, the order shows a red
+  “Paid after it was cancelled” notice and you get an email: refund or reinstate it.
+- If PayMongo's message to the site is ever missed, the customer's order page checks with
+  PayMongo itself, so paid orders still appear.
 - The customer gets PayMongo's email receipt and a private order page (link in the
   browser after paying) that shows the current status.

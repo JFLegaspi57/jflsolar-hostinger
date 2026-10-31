@@ -29,8 +29,9 @@
 ## Online shop (2026-10-31)
 
 - [x] Cart, checkout, PayMongo hosted checkout + signed webhook, Admin → Orders, paid-order email alert, privacy/terms sections (shown only while the shop is on), docs (HOSTINGER.md §11, H7)
-- [x] Tests: ShopTest (13) — eligibility, catalog pricing, per-metre, validation, PayMongo failure, webhook signature/replay/session/amount checks, idempotency, private order page, staff status rules
+- [x] Tests: ShopTest (14, now 21 after the review) — eligibility, catalog pricing, per-metre, validation, PayMongo failure, webhook signature/replay/session/amount checks, idempotency, private order page, staff status rules
 - [ ] Owner: write refund / cancellation and pickup rules before going live
 - [ ] Owner: PayMongo account → test keys + webhook in .env → test order → live keys
+- [x] Independent security review (Claude subagent, 2026-10-31): no BLOCKER; 5 MAJOR + 8 MINOR fixed (inert when off, payment after cancel, payment/staff race, missed-webhook backup check, Enter key in cart, price-change fingerprint, max total, refresh limit, privacy wording, duplicate notes, table-creation race). ShopTest now 21 tests.
 - [ ] Codex review of the shop (security + checkout journey) before switching on live payments
 - [ ] Browser e2e: add a cart → checkout journey (PayMongo page is external; stop at the redirect)

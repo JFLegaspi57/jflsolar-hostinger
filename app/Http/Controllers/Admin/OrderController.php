@@ -23,7 +23,7 @@ class OrderController extends Controller
 
     public function index(Request $request): View
     {
-        Shop::ensureTables();
+        $this->guard();
         $view = array_key_exists((string) $request->query('view'), self::VIEWS) ? (string) $request->query('view') : 'paid';
         $orders = Order::query()->whereIn('status', self::VIEWS[$view])->withCount('items')->latest('id')->paginate(30)->withQueryString();
         $counts = Order::query()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
@@ -33,14 +33,14 @@ class OrderController extends Controller
 
     public function show(int $order): View
     {
-        Shop::ensureTables();
+        $this->guard();
 
         return view('admin.orders.show', ['order' => Order::query()->with('items')->findOrFail($order)]);
     }
 
     public function update(Request $request, int $order): RedirectResponse
     {
-        Shop::ensureTables();
+        $this->guard();
         $o = Order::query()->findOrFail($order);
         $back = redirect('/admin/orders/'.$o->id);
         if ((int) $request->input('lock_version', -1) !== $o->lock_version) {
@@ -67,12 +67,23 @@ class OrderController extends Controller
         if (! $data) {
             return $back;
         }
-        $saved = Order::query()->whereKey($o->id)->where('lock_version', $o->lock_version)
+        // Also conditional on the status staff saw: a payment arriving meanwhile bumps the version.
+        $saved = Order::query()->whereKey($o->id)->where('lock_version', $o->lock_version)->where('status', $o->status)
             ->update($data + ['lock_version' => $o->lock_version + 1, 'updated_at' => now()]);
         if (! $saved) {
             return $back->with('status_error', 'Someone else changed this order while you had it open. Check it and try again.');
         }
 
         return $back->with('status', isset($data['status']) ? 'Order marked “'.Shop::STATUSES[$data['status']].'”.' : 'Notes saved.');
+    }
+
+    /** Orders exist only once the shop has been switched on; until then this page does not either. */
+    private function guard(): void
+    {
+        abort_unless(Shop::ordersVisible(), 404);
+        if (Shop::enabled()) {
+            Shop::ensureTables();
+        }
+        abort_unless(Shop::hasTables(), 404);
     }
 }

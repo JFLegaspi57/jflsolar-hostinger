@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Shop;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Support\OrderPayments;
 use App\Support\PayMongo;
 use App\Support\PublicContent;
 use App\Support\Shop;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
@@ -27,7 +29,7 @@ class CheckoutController extends Controller
             return redirect('/cart');
         }
 
-        return view('pages.checkout', ['summary' => $summary, 'settings' => PublicContent::settings()]);
+        return view('pages.checkout', ['summary' => $summary, 'settings' => PublicContent::settings(), 'fingerprint' => Shop::fingerprint($summary)]);
     }
 
     public function submit(Request $request): RedirectResponse
@@ -73,8 +75,17 @@ class CheckoutController extends Controller
         if ($summary['total'] < self::MIN_TOTAL) {
             $errors['total'] = 'Online orders must be at least ₱'.self::MIN_TOTAL.'.';
         }
+        if ($summary['total'] > (float) config('shop.max_total')) {
+            $errors['total'] = 'Orders over ₱'.number_format((float) config('shop.max_total')).' can’t be paid online. Please request a quote and we’ll arrange payment with you.';
+        }
         if ($errors) {
             return redirect('/checkout')->withInput($values)->withErrors($errors);
+        }
+        // The customer pays exactly what the checkout page showed: if a price or item changed
+        // since then, show the page again with the new amounts.
+        if (! hash_equals(Shop::fingerprint($summary), (string) $request->input('fingerprint'))) {
+            return redirect('/checkout')->withInput($values)
+                ->with('checkout_error', 'A price or item in your cart changed while you were checking out. Please review the new total, then continue to payment.');
         }
 
         Shop::ensureTables();
@@ -124,6 +135,7 @@ class CheckoutController extends Controller
     /** Where PayMongo sends the customer after paying. The webhook decides whether it is paid. */
     public function done(Request $request): RedirectResponse
     {
+        abort_unless(Shop::ordersVisible(), 404);
         $order = $this->find((string) $request->query('order'), (string) $request->query('t'));
         if ($order) {
             Shop::put([]);   // the cart has become an order
@@ -135,17 +147,27 @@ class CheckoutController extends Controller
     /** Private order status page (link in the success redirect; unguessable token). */
     public function status(Request $request, string $reference): View
     {
+        abort_unless(Shop::ordersVisible(), 404);
         $order = $this->find($reference, (string) $request->query('t')) ?? abort(404);
 
-        return view('pages.order', ['order' => $order->load('items'), 'settings' => PublicContent::settings()]);
+        // Backup for a missed webhook: while the order still waits for payment, ask PayMongo
+        // directly (at most every 20 seconds per order). The same checks apply as for the webhook.
+        if ($order->status === 'pending_payment' && $order->paymongo_checkout_id
+            && Cache::add('paymongo-check:'.$order->id, 1, 20)
+            && ($session = PayMongo::fetchSession($order->paymongo_checkout_id))) {
+            OrderPayments::record($order->reference, $session['session_id'], $session['payments']);
+            $order->refresh();
+        }
+        $checks = max(0, min(30, (int) $request->query('r', 0)));
+
+        return view('pages.order', ['order' => $order->load('items'), 'settings' => PublicContent::settings(), 'checks' => $checks]);
     }
 
     private function find(string $reference, string $token): ?Order
     {
-        if (! preg_match('/^JFL-\d{6}-[A-Z0-9]{4}$/', $reference) || strlen($token) !== 40) {
+        if (! preg_match('/^JFL-\d{6}-[A-Z0-9]{4}$/', $reference) || strlen($token) !== 40 || ! Shop::hasTables()) {
             return null;
         }
-        Shop::ensureTables();
         $order = Order::query()->where('reference', $reference)->first();
 
         return $order && hash_equals($order->access_token, $token) ? $order : null;

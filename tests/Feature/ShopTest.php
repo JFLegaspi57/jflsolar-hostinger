@@ -9,6 +9,8 @@ use App\Models\ProductCategory;
 use App\Models\User;
 use App\Support\PayMongo;
 use App\Support\PublicContent;
+use App\Support\Shop;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -55,7 +57,9 @@ class ShopTest extends TestCase
 
     private function checkoutForm(array $changes = []): array
     {
-        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1'], $changes);
+        preg_match('/name="fingerprint" value="([a-f0-9]{64})"/', $this->get('/checkout')->getContent(), $m);
+
+        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1', 'fingerprint' => $m[1] ?? ''], $changes);
     }
 
     /** Places an order for 2 × ₱480 and returns it (status pending_payment). */
@@ -165,6 +169,9 @@ class ShopTest extends TestCase
         $this->assertCount(1, $order->items);
 
         Http::assertSent(function ($request) use ($order) {
+            if ($request->method() !== 'POST' || ! str_contains($request->url(), 'api.paymongo.com')) {
+                return false;
+            }
             $a = $request['data']['attributes'];
 
             return $request->hasHeader('Authorization', 'Basic '.base64_encode('sk_test_abc:'))
@@ -238,11 +245,116 @@ class ShopTest extends TestCase
 
         $this->webhook($this->paidEvent($order, 96000));
         $this->actingAs($staff)->get('/admin/orders')->assertOk()->assertSee($order->reference);
-        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'ready', 'lock_version' => 0])->assertSessionHas('status');
+        $this->assertSame(1, $order->refresh()->lock_version);   // recording the payment bumps the version
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'ready', 'lock_version' => 1])->assertSessionHas('status');
         $this->assertSame('ready', $order->refresh()->status);
         // A stale form (old version) is refused instead of overwriting.
-        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'completed', 'lock_version' => 0])->assertSessionHas('status_error');
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'completed', 'lock_version' => 1])->assertSessionHas('status_error');
         $this->assertSame('ready', $order->refresh()->status);
+    }
+
+    public function test_payment_after_staff_cancelled_is_recorded_and_flagged(): void
+    {
+        Mail::fake();
+        $order = $this->placeOrder();
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'cancelled', 'lock_version' => 0]);
+        $this->assertSame('cancelled', $order->refresh()->status);
+
+        $this->webhook($this->paidEvent($order, 96000))->assertOk();
+        $order->refresh();
+        $this->assertSame('cancelled', $order->status);
+        $this->assertNotNull($order->paid_at);
+        $this->assertStringContainsString('AFTER this order was cancelled', $order->staff_notes);
+        Mail::assertSent(NewOrder::class, 1);
+        $this->actingAs($staff)->get('/admin/orders/'.$order->id)->assertSee('Paid after it was cancelled');
+    }
+
+    public function test_staff_cannot_cancel_an_order_that_was_paid_while_their_page_was_open(): void
+    {
+        $order = $this->placeOrder();
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+        $this->webhook($this->paidEvent($order, 96000));   // arrives while staff look at the unpaid order (version 0)
+        $this->actingAs($staff)->post('/admin/orders/'.$order->id, ['status' => 'cancelled', 'lock_version' => 0])->assertSessionHas('status_error');
+        $this->assertSame('paid', $order->refresh()->status);
+    }
+
+    public function test_underpayment_note_is_not_repeated_on_retries(): void
+    {
+        $order = $this->placeOrder();
+        $this->webhook($this->paidEvent($order, 50000));
+        $this->webhook($this->paidEvent($order, 50000));
+        $this->assertSame(1, substr_count($order->refresh()->staff_notes, 'less than the order total'));
+    }
+
+    public function test_checkout_refuses_a_total_that_changed_after_the_page_was_shown(): void
+    {
+        $p = $this->product();
+        $this->fakePayMongo();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $form = $this->checkoutForm();
+        $p->update(['price_php' => 999]);
+        PublicContent::flush();
+        $this->post('/checkout', $form)->assertRedirect('/checkout')->assertSessionHas('checkout_error');
+        $this->assertSame(0, Order::query()->count());
+    }
+
+    public function test_orders_above_the_online_limit_are_sent_to_a_quote(): void
+    {
+        config(['shop.max_total' => 1000]);
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 3]);
+        $this->post('/checkout', $this->checkoutForm())->assertSessionHasErrors('total');
+    }
+
+    public function test_order_page_asks_paymongo_when_the_webhook_was_missed_and_stops_refreshing(): void
+    {
+        $paid = false;
+        $ref = null;
+        Http::fake(function ($request) use (&$paid, &$ref) {
+            if ($request->method() === 'POST') {
+                $ref = $request['data']['attributes']['reference_number'];
+
+                return Http::response(['data' => ['id' => 'cs_test_123', 'attributes' => ['checkout_url' => 'https://checkout.paymongo.com/cs_test_123']]], 200);
+            }
+
+            return Http::response(['data' => ['id' => 'cs_test_123', 'attributes' => [
+                'reference_number' => $ref,
+                'payments' => $paid ? [['id' => 'pay_9', 'attributes' => ['amount' => 96000, 'status' => 'paid', 'source' => ['type' => 'card']]]] : [],
+            ]]], 200);
+        });
+        $p = $this->product();
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/checkout', $this->checkoutForm())->assertRedirect('https://checkout.paymongo.com/cs_test_123');
+        $order = Order::query()->latest('id')->firstOrFail();
+
+        // Not paid yet: after about two minutes of checks the page stops refreshing itself.
+        $this->get($order->publicPath().'&r=20')->assertSee('received your payment yet')->assertDontSee('http-equiv="refresh"', false);
+
+        // Paid, but the webhook never arrived: the order page's own check with PayMongo records it.
+        $paid = true;
+        \Illuminate\Support\Facades\Cache::flush();
+        $this->get($order->publicPath())->assertSee('your order is paid');
+        $this->assertSame('paid', $order->refresh()->status);
+        $this->assertSame('card', $order->payment_method);
+        Http::assertSent(fn ($r) => $r->method() === 'GET' && str_ends_with($r->url(), '/checkout_sessions/cs_test_123'));
+    }
+
+    public function test_a_site_that_never_switched_the_shop_on_creates_and_shows_nothing(): void
+    {
+        Schema::dropIfExists('order_items');
+        Schema::dropIfExists('orders');
+        \Illuminate\Support\Facades\Cache::flush();
+        Shop::flushState();
+        config(['shop.enabled' => false]);
+        $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+
+        $this->get('/checkout/done?order=JFL-000000-AAAA&t='.str_repeat('a', 40))->assertNotFound();
+        $this->get('/orders/JFL-000000-AAAA?t='.str_repeat('a', 40))->assertNotFound();
+        $this->actingAs($staff)->get('/admin/orders')->assertNotFound();
+        $this->actingAs($staff)->get('/admin')->assertOk()->assertDontSee('/admin/orders', false);
+        Shop::flushState();
+        $this->assertFalse(Schema::hasTable('orders'));
     }
 
     public function test_privacy_and_terms_explain_online_orders_only_while_the_shop_is_on(): void

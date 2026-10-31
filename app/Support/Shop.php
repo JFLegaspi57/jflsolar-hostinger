@@ -36,6 +36,29 @@ final class Shop
             && config('shop.paymongo.webhook_secret') !== '';
     }
 
+    private static ?bool $hasTables = null;
+
+    /** Forget the per-request "tables exist" answer (tests, after dropping tables). */
+    public static function flushState(): void
+    {
+        self::$hasTables = null;
+    }
+
+    /** Whether the order tables exist (never creates them). */
+    public static function hasTables(): bool
+    {
+        return self::$hasTables ??= Schema::hasTable('orders');
+    }
+
+    /**
+     * Order pages and Admin → Orders work while the shop is on, and afterwards for orders
+     * already taken. A site that never switched the shop on shows and creates nothing.
+     */
+    public static function ordersVisible(): bool
+    {
+        return self::enabled() || self::hasTables();
+    }
+
     /** Fixed-price, published, real (not sample) products that are available to order. */
     public static function sellable(?Product $p): bool
     {
@@ -143,6 +166,14 @@ final class Shop
         return (string) ($settings->warehouse_address ?: $settings->office_address);
     }
 
+    /** Fingerprint of what the customer saw at checkout (items, quantities, prices). */
+    public static function fingerprint(array $summary): string
+    {
+        $parts = array_map(fn ($l) => $l['product']->id.':'.$l['qty'].':'.number_format($l['unit_price'], 2, '.', ''), $summary['lines']);
+
+        return hash_hmac('sha256', implode('|', $parts), (string) config('app.key'));
+    }
+
     /** Number of different items in the cart, for the header link (no catalog lookup). */
     public static function count(): int
     {
@@ -172,6 +203,20 @@ final class Shop
         if (Cache::get('shop-tables-v1')) {
             return;
         }
+        try {
+            self::createTables();
+        } catch (\Throwable $e) {
+            // Two first requests at the same moment: the other one created the tables.
+            if (! Schema::hasTable('orders') || ! Schema::hasTable('order_items')) {
+                throw $e;
+            }
+        }
+        self::$hasTables = true;
+        Cache::forever('shop-tables-v1', true);
+    }
+
+    private static function createTables(): void
+    {
         if (! Schema::hasTable('orders')) {
             Schema::create('orders', function (Blueprint $t) {
                 $t->id();
@@ -209,6 +254,5 @@ final class Shop
                 $t->decimal('line_total_php', 12, 2);
             });
         }
-        Cache::forever('shop-tables-v1', true);
     }
 }

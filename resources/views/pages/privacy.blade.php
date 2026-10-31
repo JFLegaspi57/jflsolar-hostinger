@@ -38,14 +38,15 @@
             @if (\App\Support\Shop::enabled())
             <section>
                 <h2>Online orders</h2>
-                <p>When you order online we keep your name, phone number, email address, any notes you add, the items you ordered and the amount paid, so we can prepare your order, arrange pickup and keep a record of the sale. Only signed-in JFL Solar staff can view orders, and a copy may be emailed to our business inbox.</p>
-                <p>Payments are handled by PayMongo on its own secure page. We do not receive your card, GCash, Maya or bank details; PayMongo tells us only whether the payment succeeded, the amount and the payment method. PayMongo processes your payment and sends your receipt under its own privacy policy. Your cart is kept in the website's session cookie until you check out.</p>
+                <p>When you order online we keep your name, phone number, email address, any notes you add, the items you ordered, the amount paid, the payment method and PayMongo's payment reference, so we can prepare your order, arrange pickup and keep a record of the sale. Only signed-in JFL Solar staff can view orders, and a copy may be emailed to our business inbox. We keep order records for as long as the law requires us to keep sales records, then delete them.</p>
+                <p>Payments are handled by PayMongo on its own secure page. To set up the payment we send PayMongo your name, email address, phone number, order number and the items and amounts in your order. You enter your card, GCash, Maya or bank details on PayMongo's page, not ours, and we do not store them. PayMongo processes your payment and sends your receipt under its own privacy policy.</p>
+                <p>Before you check out, the items in your cart are kept on our server and linked to your browser by the website's session cookie.</p>
             </section>
 
             @endif
             <section>
                 <h2>Cookies and tracking</h2>
-                <p>The website sets a session cookie needed for the inquiry form's security check, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>
+                <p>The website sets a session cookie needed for the inquiry form's security check{{ \App\Support\Shop::enabled() ? ' and to keep your shopping cart' : '' }}, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>
                 <p>To count how many people visit, the website also gives your browser a random visitor number in a cookie (kept for up to about 13 months). We store only a scrambled form of that number, the dates and times it visited, which pages of this website it opened and for how long, and the approximate country and city of each visit — no name, IP address, exact location or activity on other websites — and use it only to see how many new and returning visitors the website has, which pages are useful and roughly where visitors are. A small script on each page measures how long the page is on screen and sends that number to our own server when you leave. The country and city are worked out on our own server from your internet address, using a downloaded location database (IP geolocation by DB-IP); your address is not sent to anyone and is not kept. It is not shared with anyone and no advertising or third-party analytics services are used. If your browser sends a “Do Not Track” or “Global Privacy Control” signal, you are not counted. You can also delete or block cookies in your browser settings.</p>
             </section>
 

@@ -67,4 +67,13 @@ Owner request: customers can buy priced products online. Choices:
   webhook** (HMAC of `t.body`, te/li by key mode, 10-minute replay window), matching the
   order's checkout session and the full amount. Idempotent for PayMongo retries.
 - Off by default (`SHOP_ENABLED` + both PayMongo values), so deploying changes nothing.
-- Order tables self-create like the visitor tables (no phpMyAdmin step).
+- Order tables self-create like the visitor tables (no phpMyAdmin step) — but only once
+  the shop is switched on; a site that never turns it on gets no tables and no Orders menu.
+  They are deliberately not in `database/schema/jflsolar.sql` (same as the visitor tables).
+- Backup for a missed webhook: the customer's order page asks PayMongo for the checkout
+  session (at most every 20 s per order) and records the payment with the same checks.
+- A payment that arrives after staff cancelled the order is recorded and flagged (staff
+  note + email alert) instead of being ignored. Payments bump `lock_version`, and staff
+  status changes are conditional on the status they saw.
+- The customer pays exactly the total shown on the checkout page (fingerprint check);
+  orders above `SHOP_MAX_TOTAL` (default ₱300,000) go to the quotation form.

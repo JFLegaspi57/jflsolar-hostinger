@@ -8,6 +8,10 @@ return [
     // Largest quantity of one product in one order (pieces, or metres for per-metre items).
     'max_quantity' => (int) env('SHOP_MAX_QUANTITY', 500),
 
+    // Largest total accepted online (₱). Bigger orders are sent to the quotation form,
+    // because e-wallets and some cards cap single payments.
+    'max_total' => (float) env('SHOP_MAX_TOTAL', 300000),
+
     // Where new-order alerts are emailed (comma-separate several). Empty = same as inquiries.
     'notify' => env('ORDER_NOTIFY_EMAIL', env('INQUIRY_NOTIFY_EMAIL', '')),
 

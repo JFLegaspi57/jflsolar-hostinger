@@ -14,6 +14,7 @@
         <div class="mt-8 grid gap-10 lg:grid-cols-[1fr_22rem]">
             <form method="post" action="/checkout" novalidate class="space-y-6">
                 @csrf
+                <input type="hidden" name="fingerprint" value="{{ $fingerprint }}">
                 <div aria-hidden="true" class="absolute -left-[9999px] h-px w-px overflow-hidden">
                     <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" value=""></label>
                 </div>
