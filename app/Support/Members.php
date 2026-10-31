@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
 
-/** Member accounts (customers and forum members): tables and the signed-in member. */
+/** Customer (member) accounts: tables and the signed-in member. */
 final class Members
 {
     private const TABLES_KEY = 'member-tables-v1';
@@ -91,7 +91,6 @@ final class Members
                 $t->string('password');
                 $t->rememberToken();
                 $t->string('status', 10)->default('active');   // active | disabled
-                $t->boolean('forum_trusted')->default(false);
                 $t->timestamp('last_login_at')->nullable();
                 $t->timestamps();
             });

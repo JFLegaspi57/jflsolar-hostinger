@@ -44,7 +44,7 @@ return [
             'provider' => 'users',
         ],
 
-        // Customer / forum member accounts. Separate from staff: a member can never
+        // Customer (member) accounts. Separate from staff: a member can never
         // reach the admin, and staff and member sign-ins do not affect each other.
         'member' => [
             'driver' => 'session',

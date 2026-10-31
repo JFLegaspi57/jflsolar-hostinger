@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
-/** Sign up, sign in, sign out and password reset for member (customer / forum) accounts. */
+/** Sign up, sign in, sign out and password reset for member (customer) accounts. */
 class AuthController extends Controller
 {
     public function showSignup(Request $request): View|RedirectResponse

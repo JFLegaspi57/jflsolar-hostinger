@@ -6,7 +6,7 @@
     <x-container class="py-10 sm:py-14">
         <div class="mx-auto max-w-xl">
             <h1 class="text-3xl font-extrabold text-steel-950 sm:text-4xl">Sign in</h1>
-            <p class="mt-3 text-lg text-steel-700">Sign in to see your orders, check out faster and post in the forum.</p>
+            <p class="mt-3 text-lg text-steel-700">Sign in to see your orders and check out faster.</p>
             <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
 
             <form method="post" action="/login" class="mt-6 space-y-5 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-6 sm:p-8">

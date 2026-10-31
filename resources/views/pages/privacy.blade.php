@@ -52,11 +52,6 @@
             </section>
 
             <section>
-                <h2>Forum</h2>
-                <p>Forum posts are public. They show your first name and the initial of your last name (for example “Maria S.”), never your email or phone number. Staff can see which account wrote a post so they can moderate. Ask us if you would like a post of yours removed.</p>
-            </section>
-
-            <section>
                 <h2>Promos and news emails</h2>
                 <p>If you ask for our promos and news (website footer, account sign-up or account page), we keep your email address, your name if you gave it, and when and where you signed up, and use them only to send JFL Solar emails. Every email has an unsubscribe link, and you can also unsubscribe on your account page or by contacting us. We do not sell or share the list.</p>
             </section>

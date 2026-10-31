@@ -10,11 +10,14 @@
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
     <div class="mx-auto flex h-[4.5rem] max-w-[76rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-20 lg:px-8">
-        <x-logo priority />
+        <x-logo priority class="site-logo" />
         <div class="hdr-actions ml-auto flex items-center gap-1 lg:gap-4">
             <nav aria-label="Main" class="site-nav hidden lg:block">
                 <style>@media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
-                    @media (min-width: 1024px) and (max-width: 1219.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } .quote-long { display: none !important; } .quote-short { display: inline !important; } }</style>
+                    @media (min-width: 1024px) and (max-width: 1279.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
+                    @media (min-width: 1024px) and (max-width: 1219.98px) { .quote-long { display: none !important; } .quote-short { display: inline !important; } }
+                    @media (max-width: 639.98px) { .auth-label { display: none; } [data-auth-open] { border-color: transparent !important; padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
+                    @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
                         @php $active = $isActive($item['href']); @endphp
@@ -28,11 +31,19 @@
                     @endforeach
                 </ul>
             </nav>
-            <a href="{{ $member ? '/account' : '/login' }}" @if (request()->is('account', 'login', 'signup')) aria-current="page" @endif
-                class="inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
-                <x-icon name="user" class="size-6" />
-                <span class="sr-only">{{ $member ? 'Your account' : 'Sign in or create an account' }}</span>
-            </a>
+            @if ($member)
+                <a href="/account" aria-label="Your account" @if (request()->is('account')) aria-current="page" @endif
+                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-control)] px-2 font-semibold whitespace-nowrap text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
+                    <x-icon name="user" class="size-6" />
+                    <span class="auth-label">Account</span>
+                </a>
+            @else
+                <a href="/login" data-auth-open="login" aria-haspopup="dialog" aria-label="Log in or create an account" @if (request()->is('login', 'signup')) aria-current="page" @endif
+                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-control)] border border-steel-300 px-2.5 font-semibold whitespace-nowrap text-steel-900 hover:border-steel-900 hover:bg-steel-50 aria-[current=page]:bg-gold-50">
+                    <x-icon name="user" class="size-5" />
+                    <span class="auth-label">Log in</span>
+                </a>
+            @endif
             @if ($cartCount !== null)
                 <a href="/cart" @if (request()->is('cart', 'checkout')) aria-current="page" @endif
                     class="relative inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
@@ -75,7 +86,7 @@
                         </ul>
                     </nav>
                     <div class="mt-auto space-y-3 border-t border-steel-200 p-4">
-                        <a href="{{ $member ? '/account' : '/login' }}" data-close-dialog class="flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-steel-300 font-semibold text-steel-950 hover:bg-steel-50"><x-icon name="user" class="size-5" /> {{ $member ? 'Your account' : 'Sign in / Create account' }}</a>
+                        <a href="{{ $member ? '/account' : '/login' }}" @unless ($member) data-auth-open="login" @endunless data-close-dialog class="flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-steel-300 font-semibold text-steel-950 hover:bg-steel-50"><x-icon name="user" class="size-5" /> {{ $member ? 'Your account' : 'Log in / Create account' }}</a>
                         <a href="{{ Site::QUOTE_HREF }}" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">Request a Quote</a>
                         <ul class="space-y-1">
                             @foreach ($menuContacts as $c)
@@ -96,3 +107,6 @@
         </div>
     </div>
 </header>
+@unless ($member)
+    @include('partials.auth-dialog')
+@endunless

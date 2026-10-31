@@ -79,7 +79,7 @@ class AccountController extends Controller
 
     /**
      * Deletes the account. Orders stay (sales records) but are no longer linked to it;
-     * forum posts stay readable as "Former member"; the email leaves the promo list.
+     * the email leaves the promo list.
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -90,10 +90,6 @@ class AccountController extends Controller
         \Illuminate\Support\Facades\DB::transaction(function () use ($member) {
             if (Shop::hasTables() && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')) {
                 Order::query()->where('member_id', $member->id)->update(['member_id' => null]);
-            }
-            if (\App\Support\Forum::hasTables()) {
-                \App\Models\ForumTopic::query()->where('member_id', $member->id)->update(['member_id' => null, 'author_name' => 'Former member']);
-                \App\Models\ForumPost::query()->where('member_id', $member->id)->update(['member_id' => null, 'author_name' => 'Former member']);
             }
             \Illuminate\Support\Facades\DB::table('member_password_resets')->where('email', $member->email)->delete();
             $member->delete();

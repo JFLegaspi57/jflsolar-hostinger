@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Support\Facades\Mail;
 
 /**
- * A customer / forum member account (sign up on the public site). Separate from staff
+ * A customer account (sign up on the public site). Separate from staff
  * (App\Models\User): members never reach the admin.
  */
 class Member extends Authenticatable
@@ -22,7 +22,6 @@ class Member extends Authenticatable
     {
         return [
             'password' => 'hashed',
-            'forum_trusted' => 'boolean',
             'last_login_at' => 'datetime',
         ];
     }

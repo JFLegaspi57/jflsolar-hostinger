@@ -1,6 +1,6 @@
 @php $input = 'min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 bg-white px-3 text-base text-steel-950'; @endphp
 <x-admin.layout title="Members">
-    <x-admin.page-title title="Members" intro="Customer accounts created on the website (Sign up). Members see their orders, check out faster and can post in the forum. Disabling an account signs the person out and stops them signing in." />
+    <x-admin.page-title title="Members" intro="Customer accounts created on the website (Sign up). Members see their orders and check out faster. Disabling an account signs the person out and stops them signing in." />
     <form method="get" action="/admin/members" class="mb-4 flex max-w-xl gap-2">
         <label for="m-q" class="sr-only">Search members</label>
         <input id="m-q" name="q" type="search" value="{{ $q }}" placeholder="Search name, email or phone" class="{{ $input }}">
