@@ -134,7 +134,7 @@
                 @endif
                 <div>
                     <h2 class="text-xl font-bold text-steel-950">Warranty</h2>
-                    <p class="mt-2 text-steel-700">{{ $product->warranty_terms ?: ($settings->general_warranty ?: 'Warranty terms to be confirmed.') }}</p>
+                    <x-paragraphs :text="$product->warranty_terms ?: ($settings->general_warranty ?: 'Warranty terms to be confirmed.')" class="mt-2 space-y-2 text-steel-700" />
                 </div>
             </section>
         </div>

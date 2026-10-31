@@ -121,7 +121,7 @@
                 </div>
                 <div class="sm:col-span-2">
                     <dt class="text-sm font-bold tracking-wide text-steel-950 uppercase">Warranty</dt>
-                    <dd class="mt-1 text-steel-700">{{ $warranty }}</dd>
+                    <dd class="mt-1 text-steel-700"><x-paragraphs :text="$warranty" class="space-y-2" /></dd>
                 </div>
             </dl>
         </div>
