@@ -12,8 +12,8 @@ return [
     // Customers may reserve online and pay in person when they pick up (see pickup_locations). This works without PayMongo; with PayMongo set up, customers choose.
     'pay_in_person' => filter_var(env('SHOP_PAY_IN_PERSON', true), FILTER_VALIDATE_BOOL),
 
-    // Ways to pay at pickup offered at checkout (any of: cash, gcash, bank_transfer, check).
-    'in_person_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('SHOP_IN_PERSON_METHODS', 'cash,gcash,bank_transfer,check'))))),
+    // Ways to pay at pickup offered at checkout (any of: cash, gcash, bank_transfer, check, card — card at the warehouse only).
+    'in_person_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('SHOP_IN_PERSON_METHODS', 'cash,gcash,bank_transfer,check,card'))))),
 
     // Where customers pick up online orders (any of: warehouse, office). Only places with an
     // address in Contact & settings are offered. Default: warehouse only.

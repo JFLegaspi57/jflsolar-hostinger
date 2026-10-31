@@ -209,7 +209,13 @@ Customers can add **fixed-price, “Available to order”** products to a cart a
 up, **pay online** (QR Ph, GCash, Maya, cards). Orders are **pickup only, at the warehouse**
 (address from Contact & settings; `SHOP_PICKUP_LOCATIONS=warehouse,office` offers both).
 Checkout, the order page and product pages ask customers to **call Sales first** (the
-main phone number in Contact & settings) before they come.
+main phone number in Contact & settings) before they come, and to search
+“JFL Solar & Renewables” on Google Maps or Waze for directions.
+Right after ordering, the customer sees their full order summary with a **Print order
+summary** button (opens a printable copy in a new window; print or save as PDF). The same
+summary is emailed to the staff inbox (`ORDER_NOTIFY_EMAIL`). In staff preview, a test
+order shows the same pages and sends a copy marked “Staff preview — not a real order”.
+Pay-at-pickup choices: cash, GCash, bank transfer, check and **card (warehouse only)**.
 Products on “Request price”, sample listings and items not “Available to order” keep
 the normal quote button. Products whose price note says “per meter” are sold in metres.
 
