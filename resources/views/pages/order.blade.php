@@ -25,9 +25,12 @@
             <h1 class="mt-2 flex items-center gap-3 text-3xl font-extrabold text-steel-950 sm:text-4xl"><x-icon name="check" class="size-9 text-ok-700" /> {{ session('order_placed') ? 'Thank you — your order is placed' : 'Your order' }}</h1>
             <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">
                 Status: <span class="font-semibold text-steel-950">{{ $o->statusLabel() }}</span>.
-                Nothing has been charged — you pay <span class="font-semibold text-steel-950">{{ Pricing::formatPhp($o->total_php) }}</span> at our {{ strtolower(Shop::LOCATION_NAMES[$o->pickup_location] ?? 'office') }} when you collect your items.
-                We will call or message you on {{ $o->customer_phone }} when your order is ready.
+                Nothing has been charged. Total to pay: <span class="font-semibold text-steel-950">{{ Pricing::formatPhp($o->total_php) }}</span>@if ($o->payment_preference) by <span class="font-semibold text-steel-950">{{ Shop::choiceLabel($o->payment_preference) }}</span>@endif.
+                We will call or message you on {{ $o->customer_phone }} to confirm your order and when it is ready to collect at our {{ strtolower(Shop::LOCATION_NAMES[$o->pickup_location] ?? 'office') }}.
             </p>
+            @if (isset(Shop::IN_PERSON_CHOICES[$o->payment_preference]))
+                <p class="mt-2 max-w-2xl text-steel-700">{{ Shop::IN_PERSON_CHOICES[$o->payment_preference]['hint'] }}</p>
+            @endif
             <p class="mt-2 text-steel-700">Please bring your order number <span class="font-mono font-semibold">{{ $o->reference }}</span>. Keep this page’s address to check your order later.</p>
         @elseif ($o->status === 'cancelled')
             <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">This order was cancelled</h1>

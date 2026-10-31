@@ -226,6 +226,10 @@ during account activation.
 
 In File Manager open `jflsolar-data/.env` (zip installs: `jflsolar-app/.env`), add
 `SHOP_ENABLED=true` and save. That's all: customers can now order and pay at the counter.
+At checkout they say how they will pay: **cash, GCash, bank transfer or check**
+(`SHOP_IN_PERSON_METHODS` limits the list). Your GCash number and bank details are not
+shown on the site: send them to the customer when you confirm a GCash or bank-transfer
+order (the order email and Admin → Orders remind you).
 Pay-at-pickup orders arrive in **Admin → Orders → To prepare** as “Reserved — pay at
 pickup”, with an email alert if `ORDER_NOTIFY_EMAIL` / `INQUIRY_NOTIFY_EMAIL` is set.
 When the customer collects, choose how they paid (cash, GCash, Maya, card, bank transfer,

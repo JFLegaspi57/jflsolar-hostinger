@@ -12,6 +12,7 @@ return new class extends Migration
     {
         Cache::forget('shop-tables-v1');
         Cache::forget('shop-tables-v2');
+        Cache::forget('shop-tables-v3');
         Shop::ensureTables();
     }
 
@@ -21,5 +22,6 @@ return new class extends Migration
         Schema::dropIfExists('orders');
         Cache::forget('shop-tables-v1');
         Cache::forget('shop-tables-v2');
+        Cache::forget('shop-tables-v3');
     }
 };

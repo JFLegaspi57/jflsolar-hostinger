@@ -37,7 +37,8 @@
                             Paid {{ Pricing::formatPhp($o->amount_paid_php ?? $o->total_php) }}{{ $o->payment_method ? ' by '.\App\Support\Shop::methodName($o->payment_method) : '' }} on {{ $o->paid_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}
                             @if ($o->paymongo_payment_id)<br><span class="font-mono text-sm text-steel-600">PayMongo {{ $o->paymongo_payment_id }}</span>@endif
                         @elseif ($o->payment_mode === 'in_person')
-                            Pays {{ Pricing::formatPhp($o->total_php) }} in person at pickup — not paid yet
+                            Pays {{ Pricing::formatPhp($o->total_php) }}{{ $o->payment_preference ? ' by '.\App\Support\Shop::choiceLabel($o->payment_preference) : '' }} — not paid yet
+                            @if (in_array($o->payment_preference, ['gcash', 'bank_transfer'], true))<br><span class="text-sm text-steel-600">Send the customer your {{ $o->payment_preference === 'gcash' ? 'GCash number' : 'bank details' }} when you confirm the order.</span>@endif
                         @else
                             Not paid
                         @endif
@@ -87,7 +88,7 @@
                         <label for="counter-method" class="block font-semibold text-steel-950">Customer paid {{ Pricing::formatPhp($o->total_php) }} by</label>
                         <select id="counter-method" name="counter_method" required class="min-h-11 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3">
                             <option value="">Choose…</option>
-                            @foreach (\App\Support\Shop::COUNTER_METHODS as $key => $label)<option value="{{ $key }}">{{ $label }}</option>@endforeach
+                            @foreach (\App\Support\Shop::COUNTER_METHODS as $key => $label)<option value="{{ $key }}" @selected($o->payment_preference === $key)>{{ $label }}</option>@endforeach
                         </select>
                         <div class="flex flex-wrap gap-2">
                             <button type="submit" name="status" value="completed" class="{{ $btn }} bg-steel-900 text-white hover:bg-steel-800">Paid &amp; picked up</button>

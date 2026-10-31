@@ -38,11 +38,12 @@ class NewOrder extends Mailable
                 'Total' => Pricing::formatPhp($o->total_php),
                 'Payment' => $o->paid_at
                     ? 'Paid '.Pricing::formatPhp($o->amount_paid_php ?? $o->total_php).($o->payment_method ? ' ('.\App\Support\Shop::methodName($o->payment_method).')' : '')
-                    : 'Pays in person at pickup — not paid yet',
+                    : 'Pays at pickup'.($o->payment_preference ? ' by '.\App\Support\Shop::choiceLabel($o->payment_preference) : '').' — not paid yet',
                 'Pickup at' => \App\Support\Shop::LOCATION_NAMES[$o->pickup_location] ?? 'Office',
             ],
             'lines' => $lines,
             'notes' => $o->customer_notes,
+            'sendDetails' => ! $o->paid_at ? ['gcash' => 'GCash number', 'bank_transfer' => 'bank details'][$o->payment_preference] ?? null : null,
             'site' => Site::NAME,
             'adminUrl' => Site::url('/admin/orders/'.$o->id),
         ]);

@@ -36,7 +36,7 @@ class CheckoutController extends Controller
 
         return view('pages.checkout', [
             'summary' => $summary, 'settings' => $settings, 'fingerprint' => Shop::fingerprint($summary),
-            'modes' => Shop::paymentModes(), 'locations' => Shop::pickupLocations($settings),
+            'choices' => Shop::paymentChoices(), 'locations' => Shop::pickupLocations($settings),
         ]);
     }
 
@@ -65,16 +65,16 @@ class CheckoutController extends Controller
             'payment' => (string) $request->input('payment', ''),
             'pickup' => (string) $request->input('pickup', ''),
         ];
-        $modes = Shop::paymentModes();
+        $choices = Shop::paymentChoices();
         $locations = Shop::pickupLocations(PublicContent::settings());
-        if (count($modes) === 1) {
-            $values['payment'] = $modes[0];
+        if (count($choices) === 1) {
+            $values['payment'] = $choices[0];
         }
         if (count($locations) === 1) {
             $values['pickup'] = array_key_first($locations);
         }
         $errors = [];
-        if (! in_array($values['payment'], $modes, true)) {
+        if (! in_array($values['payment'], $choices, true)) {
             $errors['payment'] = 'Please choose how you will pay.';
         }
         if (! array_key_exists($values['pickup'], $locations)) {
@@ -119,7 +119,7 @@ class CheckoutController extends Controller
                     : 'Customers would now see their order confirmation and pay when they pick up.').' No order was saved — the shop is not switched on for customers yet.');
         }
 
-        $inPerson = $values['payment'] === 'in_person';
+        $inPerson = $values['payment'] !== 'online';
         // Reservations cost nothing to place, so one visitor may place only a few per day.
         $limitKey = 'shop-reserve:'.hash_hmac('sha256', (string) $request->ip(), (string) config('app.key'));
         if ($inPerson && RateLimiter::tooManyAttempts($limitKey, max(1, (int) config('shop.reservations_per_day')))) {
@@ -133,7 +133,8 @@ class CheckoutController extends Controller
                 'reference' => $this->uniqueReference(),
                 'access_token' => Shop::newToken(),
                 'status' => $inPerson ? 'reserved' : 'pending_payment',
-                'payment_mode' => $values['payment'],
+                'payment_mode' => $inPerson ? 'in_person' : 'online',
+                'payment_preference' => $inPerson ? $values['payment'] : null,
                 'pickup_location' => $values['pickup'],
                 'customer_name' => $values['name'],
                 'customer_phone' => $values['phone'],

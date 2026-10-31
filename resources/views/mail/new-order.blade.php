@@ -13,6 +13,10 @@ Customer notes:
 {!! $notes !!}
 @endif
 
+@if ($sendDetails)
+Remember to send the customer your {!! $sendDetails !!} when you confirm the order.
+
+@endif
 Open in the website admin: {!! $adminUrl !!}
 
 — Sent from the {!! $site !!} online shop
