@@ -23,6 +23,37 @@
                 </p>
                 <h1 id="hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ PageText::get('home.hero.title') }}</h1>
                 <p class="mt-6 text-lg text-steel-100">{{ PageText::get('home.hero.intro') }}</p>
+                @if ($stats = \App\Support\Visitors::publicStats())
+                    <dl id="live-stats" aria-label="Website visitors so far, updated live" class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                        @foreach (['first' => 'First-time visitors', 'returning' => 'Returning visitors', 'members' => 'Registered users', 'visits' => 'Total visits'] as $key => $label)
+                            <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-3 py-2.5">
+                                <dt class="text-xs leading-tight text-steel-300">{{ $label }}</dt>
+                                <dd data-stat="{{ $key }}" class="font-display text-2xl font-extrabold text-white tabular">{{ number_format($stats[$key]) }}</dd>
+                            </div>
+                        @endforeach
+                    </dl>
+                    <p class="mt-2 flex items-center gap-2 text-xs text-steel-300"><span aria-hidden="true" style="width: .5rem; height: .5rem; border-radius: 9999px; background: #34d399; display: inline-block"></span> Live</p>
+                    <script>
+                    (() => {
+                        const box = document.getElementById('live-stats');
+                        const fmt = new Intl.NumberFormat('en-PH');
+                        const refresh = async () => {
+                            if (document.hidden) return;
+                            try {
+                                const r = await fetch('/stats/visitors', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+                                if (!r.ok) return;
+                                const d = await r.json();
+                                for (const el of box.querySelectorAll('[data-stat]')) {
+                                    const v = d[el.dataset.stat];
+                                    if (Number.isFinite(v)) el.textContent = fmt.format(v);
+                                }
+                            } catch (e) {}
+                        };
+                        setInterval(refresh, 20000);
+                        document.addEventListener('visibilitychange', () => { if (!document.hidden) refresh(); });
+                    })();
+                    </script>
+                @endif
             </div>
         </x-container>
     </section>

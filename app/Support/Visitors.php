@@ -66,6 +66,33 @@ final class Visitors
         Cache::forever('visitor-tables-v3', true);
     }
 
+    /**
+     * All-time numbers for the homepage banner (live: recalculated at most every 15 seconds):
+     * first-time visitors (each browser once), returning visitors (came back on another day),
+     * registered users (active accounts) and total visits (one per visitor per day).
+     *
+     * @return array{first:int, returning:int, members:int, visits:int}|null
+     */
+    public static function publicStats(): ?array
+    {
+        try {
+            return Cache::remember('public-visitor-stats', 15, function () {
+                self::ensureTables();
+
+                return [
+                    'first' => (int) DB::table('visitor_ids')->count(),
+                    'returning' => (int) DB::table('visitor_ids')->where('days', '>', 1)->count(),
+                    'members' => \App\Support\Members::hasTables() ? (int) \App\Models\Member::query()->where('status', 'active')->count() : 0,
+                    'visits' => (int) DB::table('visitor_days')->count(),
+                ];
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Visitor stats unavailable: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
     /** Longest time counted for one page: a tab left open overnight should not count as hours of reading. */
     public const MAX_PAGE_SECONDS = 1800;
 
