@@ -208,13 +208,28 @@ final class FormParser
         $lines = array_values(array_filter(array_map('trim', explode("\n", $this->raw($name))), fn ($l) => $l !== ''));
         foreach ($lines as $i => $line) {
             $parts = array_map('trim', explode('|', $line));
-            [$label, $detail, $qty] = array_pad($parts, 3, '');
+            [$label, $detail, $qty, $products] = array_pad($parts, 4, '');
             if ($label === '' || $detail === '') {
-                $this->errors[$name] = 'Line '.($i + 1).': use "Component | details | quantity".';
+                $this->errors[$name] = 'Line '.($i + 1).': use "Component | details | quantity", optionally followed by "| product-address, other-product-address".';
 
                 continue;
             }
-            $out[] = ['label' => mb_substr($label, 0, 80), 'detail' => mb_substr($detail, 0, 200), 'quantity' => $qty !== '' ? mb_substr($qty, 0, 40) : null];
+            // Optional 4th column: the products customers can buy for this component (web addresses
+            // after /products/, comma separated, the first is the default). Turns on "Build your package".
+            $slugs = array_values(array_unique(array_filter(array_map(fn ($x) => strtolower(trim(preg_replace('#^.*/products/#', '', trim($x)), " /\t")), explode(',', $products)))));
+            foreach ($slugs as $slug) {
+                if (! preg_match('/^[a-z0-9][a-z0-9-]{0,159}$/', $slug)) {
+                    $this->errors[$name] = 'Line '.($i + 1).': "'.mb_substr($slug, 0, 60).'" is not a product web address (e.g. goodwe-gw6000-es-c10-hybrid-inverter).';
+                }
+            }
+            if (count($slugs) > 8) {
+                $this->errors[$name] = 'Line '.($i + 1).': at most 8 product choices per component.';
+            }
+            $row = ['label' => mb_substr($label, 0, 80), 'detail' => mb_substr($detail, 0, 200), 'quantity' => $qty !== '' ? mb_substr($qty, 0, 40) : null];
+            if ($slugs) {
+                $row['products'] = array_slice($slugs, 0, 8);
+            }
+            $out[] = $row;
         }
         if (count($out) > 20) {
             $this->errors[$name] = 'At most 20 components.';

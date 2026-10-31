@@ -78,6 +78,7 @@ Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'un
 Route::get('/cart', [Shop\CartController::class, 'show']);
 Route::post('/cart', [Shop\CartController::class, 'update']);
 Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');
+Route::post('/packages/{slug}/basket', [Shop\PackageBasketController::class, 'add'])->where('slug', '[a-z0-9-]+')->middleware('throttle:cart');
 Route::get('/checkout', [Shop\CheckoutController::class, 'show']);
 Route::post('/checkout', [Shop\CheckoutController::class, 'submit'])->middleware('throttle:checkout');
 Route::get('/checkout/done', [Shop\CheckoutController::class, 'done']);

@@ -39,7 +39,7 @@ final class Values
             'name' => $p->name, 'slug' => $p->slug, 'sku' => self::s($p->sku), 'summary' => $p->summary, 'description' => $p->description,
             'package_type' => $p->package_type, 'system_type' => self::s($p->system_type),
             'inverter_kw' => self::s($p->inverter_kw), 'array_kwp' => self::s($p->array_kwp), 'battery_kwh' => self::s($p->battery_kwh),
-            'components' => collect($p->components ?? [])->map(fn ($c) => implode(' | ', array_filter([$c['label'] ?? '', $c['detail'] ?? '', $c['quantity'] ?? null])))->implode("\n"),
+            'components' => collect($p->components ?? [])->map(fn ($c) => rtrim(implode(' | ', [$c['label'] ?? '', $c['detail'] ?? '', $c['quantity'] ?? '', implode(', ', $c['products'] ?? [])]), ' |'))->implode("\n"),
             'inclusions' => implode("\n", $p->inclusions ?? []), 'exclusions' => implode("\n", $p->exclusions ?? []),
             'pricing_mode' => $p->pricing_mode, 'price_php' => self::s($p->price_php), 'price_basis' => self::s($p->price_basis), 'price_is_sample' => self::b($p->price_is_sample),
             'installation_terms' => self::s($p->installation_terms), 'fulfillment' => $p->fulfillment, 'fulfillment_notes' => self::s($p->fulfillment_notes),
