@@ -127,6 +127,7 @@ class CheckoutController extends Controller
             // Show staff exactly what the customer would see, and send the staff email copy.
             $request->session()->put('shop_preview_order', ['order' => $orderData + ['reference' => 'JFL-PREVIEW', 'created_at' => now()->toIso8601String()], 'items' => $itemsData]);
             $this->alert($this->previewOrder(), true);
+            Shop::put([]);   // like a real order: the basket is emptied once checked out
 
             return redirect('/checkout/preview');
         }
