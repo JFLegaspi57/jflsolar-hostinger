@@ -9,12 +9,15 @@ return [
     // "Staff preview"; no order is saved and nothing is charged). Customers see nothing.
     'staff_preview' => filter_var(env('SHOP_STAFF_PREVIEW', true), FILTER_VALIDATE_BOOL),
 
-    // Customers may reserve online and pay in person when they pick up at the office or
-    // warehouse. This works without PayMongo; with PayMongo set up, customers choose.
+    // Customers may reserve online and pay in person when they pick up (see pickup_locations). This works without PayMongo; with PayMongo set up, customers choose.
     'pay_in_person' => filter_var(env('SHOP_PAY_IN_PERSON', true), FILTER_VALIDATE_BOOL),
 
     // Ways to pay at pickup offered at checkout (any of: cash, gcash, bank_transfer, check).
     'in_person_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('SHOP_IN_PERSON_METHODS', 'cash,gcash,bank_transfer,check'))))),
+
+    // Where customers pick up online orders (any of: warehouse, office). Only places with an
+    // address in Contact & settings are offered. Default: warehouse only.
+    'pickup_locations' => array_values(array_filter(array_map('trim', explode(',', (string) env('SHOP_PICKUP_LOCATIONS', 'warehouse'))))),
 
     // Reservations (pay at pickup) one visitor may place per day — limits no-show spam.
     'reservations_per_day' => (int) env('SHOP_RESERVATIONS_PER_DAY', 3),

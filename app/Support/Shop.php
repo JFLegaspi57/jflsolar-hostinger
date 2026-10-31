@@ -91,10 +91,25 @@ final class Shop
         return (bool) config('shop.enabled') && self::paymentModes() !== [];
     }
 
-    /** @return array<string, string> pickup places customers can choose: key => address */
+    /**
+     * @return array<string, string> pickup places customers can choose: key => address.
+     * Only the places switched on in config (default: warehouse); if none of those has an
+     * address yet, any place with an address, so checkout never breaks.
+     */
     public static function pickupLocations(\App\Models\SiteSetting $settings): array
     {
-        return array_filter(['warehouse' => (string) $settings->warehouse_address, 'office' => (string) $settings->office_address], fn ($a) => trim($a) !== '');
+        $all = array_filter(['warehouse' => (string) $settings->warehouse_address, 'office' => (string) $settings->office_address], fn ($a) => trim($a) !== '');
+        $chosen = array_intersect_key($all, array_flip((array) config('shop.pickup_locations', ['warehouse'])));
+
+        return $chosen ?: $all;
+    }
+
+    /** "our warehouse", "our office" or "our office or warehouse". */
+    public static function pickupWhere(\App\Models\SiteSetting $settings): string
+    {
+        $places = self::pickupLocations($settings);
+
+        return count($places) > 1 ? 'our office or warehouse' : 'our '.strtolower(self::LOCATION_NAMES[array_key_first($places) ?? 'office']);
     }
 
     public const LOCATION_NAMES = ['warehouse' => 'Warehouse', 'office' => 'Office'];
@@ -254,8 +269,7 @@ final class Shop
     /** One line for product pages: how customers pay and collect. */
     public static function howToBuy(\App\Models\SiteSetting $settings): string
     {
-        $places = self::pickupLocations($settings);
-        $where = count($places) > 1 ? 'our office or warehouse' : 'our '.strtolower(self::LOCATION_NAMES[array_key_first($places) ?? 'office']);
+        $where = self::pickupWhere($settings);
         $modes = self::paymentModes();
 
         $offline = array_map(fn ($c) => ['cash' => 'cash', 'gcash' => 'GCash', 'bank_transfer' => 'bank transfer', 'check' => 'check'][$c], self::inPersonChoices());
@@ -265,7 +279,7 @@ final class Shop
             $modes === ['in_person'] => "Order online, then pay by {$offlineText} and pick up at {$where}.",
             $modes === ['online'] => 'Pay online with '.self::methodsText().", then pick up at {$where}.",
             default => "Order online and pay by {$offlineText}, or online with ".self::methodsText().", then pick up at {$where}.",
-        };
+        }.' Please call our Sales team before you come.';
     }
 
     /** Fingerprint of what the customer saw at checkout (items, quantities, prices). */

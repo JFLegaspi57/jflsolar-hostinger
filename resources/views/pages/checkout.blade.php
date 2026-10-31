@@ -54,14 +54,20 @@
                 </fieldset>
 
                 <fieldset class="space-y-3" @if ($err('pickup')) aria-describedby="c-pickup-error" @endif>
-                    <legend class="text-xl font-bold text-steel-950">Pickup at</legend>
-                    @foreach ($locations as $key => $address)
-                        <label class="{{ $choice }}">
-                            <input type="radio" name="pickup" value="{{ $key }}" @checked($placeDefault === $key) class="{{ $radio }}">
-                            <span><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[$key]) }}</span><span class="block text-steel-700">{{ $address }}</span></span>
-                        </label>
-                    @endforeach
+                    <legend class="text-xl font-bold text-steel-950">Pickup {{ count($locations) === 1 ? 'only at' : 'at' }}</legend>
+                    @if (count($locations) === 1)
+                        <input type="hidden" name="pickup" value="{{ array_key_first($locations) }}">
+                        <p><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[array_key_first($locations)]) }}</span><span class="block text-steel-700">{{ reset($locations) }}</span></p>
+                    @else
+                        @foreach ($locations as $key => $address)
+                            <label class="{{ $choice }}">
+                                <input type="radio" name="pickup" value="{{ $key }}" @checked($placeDefault === $key) class="{{ $radio }}">
+                                <span><span class="block font-semibold text-steel-950">Our {{ strtolower(Shop::LOCATION_NAMES[$key]) }}</span><span class="block text-steel-700">{{ $address }}</span></span>
+                            </label>
+                        @endforeach
+                    @endif
                     @if ($err('pickup'))<p id="c-pickup-error" class="text-sm font-semibold text-danger-700">{{ $err('pickup') }}</p>@endif
+                    @include('partials.shop-call-sales')
                     <p class="text-sm text-steel-700">We call or message you when your order is ready to collect. Need delivery? <a href="/contact#quote" class="underline">Ask us for a quote</a> instead.</p>
                 </fieldset>
 

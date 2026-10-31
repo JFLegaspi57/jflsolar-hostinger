@@ -59,7 +59,7 @@ class ShopTest extends TestCase
     {
         preg_match('/name="fingerprint" value="([a-f0-9]{64})"/', $this->get('/checkout')->getContent(), $m);
 
-        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1', 'payment' => 'online', 'pickup' => 'office', 'fingerprint' => $m[1] ?? ''], $changes);
+        return array_merge(['name' => 'Juan Dela Cruz', 'phone' => '0917 123 4567', 'email' => 'juan@example.com', 'notes' => '', 'agree' => '1', 'payment' => 'online', 'pickup' => 'warehouse', 'fingerprint' => $m[1] ?? ''], $changes);
     }
 
     /** Places an order for 2 × ₱480 and returns it (status pending_payment). */
@@ -392,20 +392,20 @@ class ShopTest extends TestCase
         $p = $this->product();
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->get('/checkout')->assertSee('Cash')->assertSee('GCash')->assertSee('Bank transfer')->assertSee('Check')->assertSee('Pay online now');
-        $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'gcash', 'pickup' => 'office']));
+        $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'gcash']));
 
         $order = Order::query()->latest('id')->firstOrFail();
         $response->assertRedirect($order->publicPath());
         $this->assertSame('reserved', $order->status);
         $this->assertSame('in_person', $order->payment_mode);
         $this->assertSame('gcash', $order->payment_preference);
-        $this->assertSame('office', $order->pickup_location);
+        $this->assertSame('warehouse', $order->pickup_location);
         $this->assertNull($order->paid_at);
         $this->assertNull($order->paymongo_checkout_id);
         $this->assertSame([], session('cart'));
         Http::assertNotSent(fn ($r) => str_contains($r->url(), 'paymongo'));
         Mail::assertSent(NewOrder::class, fn ($m) => str_contains($m->envelope()->subject, 'pay at pickup'));
-        $this->get($order->publicPath())->assertSee('Nothing has been charged')->assertSee('by GCash')->assertSee('We send our GCash number')->assertSee('at our office')->assertSee('₱960');
+        $this->get($order->publicPath())->assertSee('Nothing has been charged')->assertSee('by GCash')->assertSee('We send our GCash number')->assertSee('at our warehouse')->assertSee('Please call our Sales team before pickup')->assertSee('₱960');
     }
 
     public function test_shop_runs_without_paymongo_when_paying_at_pickup(): void
@@ -483,5 +483,29 @@ class ShopTest extends TestCase
         $sig = hash_hmac('sha256', $t.'.'.$raw, self::SECRET);
         $this->assertTrue(PayMongo::signatureValid($raw, "t={$t},te=,li={$sig}"));
         $this->assertFalse(PayMongo::signatureValid($raw, "t={$t},te={$sig},li="));
+    }
+
+    public function test_pickup_is_only_at_the_warehouse_and_customers_are_told_to_call_sales_first(): void
+    {
+        Mail::fake();
+        Http::fake();
+        $settings = PublicContent::settings();
+        $p = $this->product();
+        $this->get('/products/'.$p->slug)->assertSee('pick up at our warehouse')->assertSee('call our Sales team before you come');
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->get('/checkout')
+            ->assertSee('Pickup only at')
+            ->assertSee($settings->warehouse_address)
+            ->assertDontSee('name="pickup" value="office"', false)
+            ->assertSee('Please call our Sales team before pickup');
+
+        // A forged choice of the office still books the warehouse.
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash', 'pickup' => 'office']));
+        $this->assertSame('warehouse', Order::query()->latest('id')->firstOrFail()->pickup_location);
+        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+
+        // Owner can offer both places again from the .env.
+        config(['shop.pickup_locations' => ['warehouse', 'office']]);
+        $this->get('/checkout')->assertSee('name="pickup" value="office"', false);
     }
 }

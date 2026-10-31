@@ -134,7 +134,7 @@ class PageController extends Controller
 
     public function terms(): View
     {
-        return view('pages.terms');
+        return view('pages.terms', ['settings' => PublicContent::settings()]);
     }
 
     /** Preview sites (and live sites with indexing off) block all crawlers; otherwise everything except the admin is allowed. */

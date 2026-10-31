@@ -206,8 +206,10 @@ recovery file in `jflsolar-data/storage/app/`; then connect the repository as ab
 
 Customers can add **fixed-price, “Available to order”** products to a cart and either
 **pay in person when they pick up** (no payment account needed) or, once PayMongo is set
-up, **pay online** (QR Ph, GCash, Maya, cards). Orders are **pickup only**; the customer
-chooses the **office or warehouse** (addresses from Contact & settings).
+up, **pay online** (QR Ph, GCash, Maya, cards). Orders are **pickup only, at the warehouse**
+(address from Contact & settings; `SHOP_PICKUP_LOCATIONS=warehouse,office` offers both).
+Checkout, the order page and product pages ask customers to **call Sales first** (the
+main phone number in Contact & settings) before they come.
 Products on “Request price”, sample listings and items not “Available to order” keep
 the normal quote button. Products whose price note says “per meter” are sold in metres.
 
