@@ -1,9 +1,9 @@
 <?php
 
 return [
-    // Online shop (cart + PayMongo checkout). Off until SHOP_ENABLED=true AND the PayMongo
-    // keys are set, so deploying this code changes nothing on the live site by itself.
-    'enabled' => filter_var(env('SHOP_ENABLED', false), FILTER_VALIDATE_BOOL),
+    // Online shop (cart + checkout). ON since 2026-10-31 (owner launched it to the public).
+    // Set SHOP_ENABLED=false in .env to switch it off; existing orders stay in the admin.
+    'enabled' => filter_var(env('SHOP_ENABLED', true), FILTER_VALIDATE_BOOL),
 
     // While the shop is off, signed-in staff still see the cart and checkout pages (marked
     // "Staff preview"; no order is saved and nothing is charged). Customers see nothing.
