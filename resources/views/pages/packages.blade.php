@@ -1,5 +1,6 @@
 @php
-    $filters = ['all' => 'All packages', 'complete' => 'Complete Packages', 'materials' => 'Materials Only'];
+    // Button order: All packages, Materials Only, Build Your Own (its own page), Complete Packages.
+    $filters = ['all' => 'All packages', 'materials' => 'Materials Only', 'build' => 'Build Your Own', 'complete' => 'Complete Packages'];
     $btn = 'inline-flex min-h-11 shrink-0 items-center rounded-[var(--radius-control)] bg-steel-900 px-4 text-sm font-semibold text-white hover:bg-steel-800 disabled:cursor-not-allowed disabled:opacity-50';
     $intro = new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.');
 @endphp
@@ -11,10 +12,13 @@
     <x-container class="pt-10 pb-24">
         <nav aria-label="Package type" class="-mx-1 flex flex-wrap gap-2">
             @foreach ($filters as $key => $label)
-                <a href="{{ $key === 'all' ? '/packages' : '/packages?type='.$key }}" @if ($active === $key) aria-current="page" @endif
-                    class="inline-flex min-h-11 items-center rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 hover:border-steel-900 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white">{{ $label }}</a>
+                @if ($key === 'build')
+                    <a href="/packages/build-your-own" class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gold-500 bg-gold-50 px-4 text-sm font-semibold text-steel-900 hover:border-steel-900"><x-icon name="tools" class="size-4" /> {{ $label }}</a>
+                @else
+                    <a href="{{ $key === 'all' ? '/packages' : '/packages?type='.$key }}" @if ($active === $key) aria-current="page" @endif
+                        class="inline-flex min-h-11 items-center rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 hover:border-steel-900 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white">{{ $label }}</a>
+                @endif
             @endforeach
-            <a href="/packages/build-your-own" class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gold-500 bg-gold-50 px-4 text-sm font-semibold text-steel-900 hover:border-steel-900"><x-icon name="tools" class="size-4" /> Build Your Own</a>
         </nav>
         <p class="mt-4 text-sm text-steel-600" role="status">{{ $shown->count() }} {{ $shown->count() === 1 ? 'package' : 'packages' }}</p>
 

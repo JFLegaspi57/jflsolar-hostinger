@@ -17,9 +17,9 @@
             $productCategories->map(fn ($c) => ['/products?category='.$c->slug, $c->name, $currentCategory === $c->slug])->all()];
     }
     $subMenus['/packages'] = ['Package types', null, [
-        ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
         ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
         ['/packages/build-your-own', 'Build Your Own', request()->is('packages/build-your-own')],
+        ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
     ]];
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
