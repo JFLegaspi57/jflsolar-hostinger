@@ -25,7 +25,7 @@ class PackageFilterTest extends TestCase
         $page = $this->get('/packages?type=materials')->assertOk()->assertDontSee($installed->name)->assertSee('Materials Only</h1>', false)->assertSee('A highly customizable bundle ideal for professional DIYers and professional installers.');
         $this->get('/packages')->assertSee('Solar packages</h1>', false);
         $this->get('/packages?type=complete')->assertSee('Complete packages</h1>', false)->assertSee('Everything done for you')->assertDontSee('Equipment-only bundles');
-        $this->get('/packages')->assertSee('Three ways to go solar with us.')->assertSee('Sagot ka namin!')->assertDontSee('Equipment-only bundles')->assertDontSee('Installed systems</strong>', false);
+        $this->get('/packages')->assertSee('Three ways to go solar with us.')->assertSee('class="pkg-intro-link"', false)->assertDontSee('text-white underline', false)->assertSee('Sagot ka namin!')->assertDontSee('Equipment-only bundles')->assertDontSee('Installed systems</strong>', false);
         if ($bundle) {
             $page->assertSee($bundle->name);
         }
