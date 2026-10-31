@@ -78,5 +78,6 @@
     </main>
     @if ($reviewsAboveFooter) @include('partials.reviews') @endif
     @include('partials.site-footer')
+    @if (\App\Support\Chatbot::available()) @include('partials.chatbot') @endif
 </body>
 </html>
