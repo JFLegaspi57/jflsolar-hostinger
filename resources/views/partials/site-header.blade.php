@@ -6,6 +6,8 @@
     $menuContacts = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
     $cartCount = \App\Support\Shop::visible() ? \App\Support\Shop::count() : null;
     $member = \App\Support\Members::current();
+    $productCategories = PublicContent::snapshot()['categories'];
+    $currentCategory = request()->is('products') ? (string) request()->query('category', '') : '';
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
@@ -13,20 +15,37 @@
         <x-logo priority class="site-logo" />
         <div class="hdr-actions ml-auto flex items-center gap-1 lg:gap-4">
             <nav aria-label="Main" class="site-nav hidden lg:block">
-                <style>@media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
-                    @media (min-width: 1024px) and (max-width: 1279.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
+                <style>
+                    .nav-dd-menu { position: absolute; left: 0; top: 100%; z-index: 50; min-width: 15rem; padding-top: .35rem; display: none; }
+                    .nav-dd:hover .nav-dd-menu, .nav-dd:focus-within .nav-dd-menu { display: block; }
+                    .nav-dd-link { display: block; padding: .55rem .75rem; border-radius: var(--radius-control); color: var(--color-steel-800); white-space: nowrap; font-size: .95rem; }
+                    .nav-dd-link:hover, .nav-dd-link:focus-visible { background: var(--color-steel-50); color: var(--color-steel-950); }
+                    .nav-dd-link[aria-current=page] { background: var(--color-gold-50); color: var(--color-steel-950); font-weight: 600; }
+                    @media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
+                    @media (min-width: 1024px) and (max-width: 1359.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
                     @media (min-width: 1024px) and (max-width: 1219.98px) { .quote-long { display: none !important; } .quote-short { display: inline !important; } }
                     @media (max-width: 639.98px) { .auth-label { display: none; } header [data-auth-open], header a[href="/account"] { padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
                     @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
-                        @php $active = $isActive($item['href']); @endphp
-                        <li>
+                        @php $active = $isActive($item['href']); $dropdown = $item['href'] === '/products' && $productCategories->isNotEmpty(); @endphp
+                        <li @if ($dropdown) class="nav-dd relative" @endif>
                             <a href="{{ $item['href'] }}" @if ($active) aria-current="page" @endif
                                 class="relative inline-flex min-h-11 items-center px-3 text-[0.95rem] font-semibold whitespace-nowrap transition-colors {{ $active ? 'text-steel-950' : 'text-steel-700 hover:text-steel-950' }}">
                                 {{ $item['label'] }}
+                                @if ($dropdown)<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: .85rem; height: .85rem; margin-left: .2rem"><path d="M6 9l6 6 6-6"/></svg>@endif
                                 @if ($active)<span aria-hidden="true" class="absolute inset-x-3 bottom-1 h-[3px] rounded bg-gold-500"></span>@endif
                             </a>
+                            @if ($dropdown)
+                                <div class="nav-dd-menu">
+                                    <ul aria-label="Product categories" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
+                                        <li><a href="/products" class="nav-dd-link font-semibold">All products</a></li>
+                                        @foreach ($productCategories as $c)
+                                            <li><a href="/products?category={{ $c->slug }}" @if ($currentCategory === $c->slug) aria-current="page" @endif class="nav-dd-link">{{ $c->name }}</a></li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </li>
                     @endforeach
                 </ul>
@@ -85,6 +104,14 @@
                                         {{ $item['label'] }}
                                         <x-icon name="arrow" class="size-4 text-steel-400" />
                                     </a>
+                                    @if ($item['href'] === '/products' && $productCategories->isNotEmpty())
+                                        <ul aria-label="Product categories" class="mb-1 border-l border-steel-200" style="margin-left: .75rem; padding-left: .5rem">
+                                            @foreach ($productCategories as $c)
+                                                <li><a href="/products?category={{ $c->slug }}" data-close-dialog @if ($currentCategory === $c->slug) aria-current="page" @endif
+                                                    class="flex min-h-11 items-center rounded-[var(--radius-control)] px-3 text-steel-800 hover:bg-steel-50 aria-[current=page]:bg-gold-50">{{ $c->name }}</a></li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
                                 </li>
                             @endforeach
                         </ul>
