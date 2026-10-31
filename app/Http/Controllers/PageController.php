@@ -57,10 +57,11 @@ class PageController extends Controller
     public function packages(Request $request): View|\Illuminate\Http\RedirectResponse
     {
         $type = $request->query('type');
-        if ($type === 'installed') {
-            return redirect('/packages?type=complete', 301);   // old address of the "Complete Packages" filter
+        // Old addresses of the "Complete Packages" and "Materials Only" filters.
+        if (in_array($type, ['installed', 'equipment'], true)) {
+            return redirect('/packages?type='.($type === 'installed' ? 'complete' : 'materials'), 301);
         }
-        $active = in_array($type, ['complete', 'equipment'], true) ? $type : 'all';
+        $active = in_array($type, ['complete', 'materials'], true) ? $type : 'all';
         $shown = PublicContent::snapshot()['packages']->filter(fn ($p) => $active === 'all'
             || ($active === 'complete' ? $p->package_type === 'installed_system' : $p->package_type === 'equipment_bundle'))->values();
 
