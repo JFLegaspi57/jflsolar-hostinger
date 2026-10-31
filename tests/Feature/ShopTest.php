@@ -548,6 +548,7 @@ class ShopTest extends TestCase
         $this->actingAs($staff)->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->actingAs($staff)->post('/checkout', $this->checkoutForm(['payment' => 'gcash']))->assertRedirect('/checkout/preview');
         $this->assertSame(0, Order::query()->count());
+        $this->assertSame([], session('cart'));   // basket emptied, as for a real order
 
         $this->actingAs($staff)->get('/checkout/preview')->assertOk()->assertSee('Staff preview')->assertSee('Thank you — your order is placed')->assertSee('/checkout/preview/print');
         $this->actingAs($staff)->get('/checkout/preview/print')->assertOk()->assertSee('Order summary')->assertSee('Juan Dela Cruz')->assertSee('Pay at pickup by GCash');
