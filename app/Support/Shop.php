@@ -148,7 +148,7 @@ final class Shop
         if (self::enabled() || ! config('shop.staff_preview')) {
             return false;
         }
-        $user = auth()->user();
+        $user = auth('web')->user();
 
         return $user !== null && $user->active && ! $user->must_change_password;
     }
@@ -342,19 +342,24 @@ final class Shop
     /** Create the order tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
     {
-        if (Cache::get('shop-tables-v3')) {
+        if (Cache::get('shop-tables-v4')) {
             return;
         }
         try {
             self::createTables();
         } catch (\Throwable $e) {
             // Two first requests at the same moment: the other one created the tables.
+            // Anything else (e.g. a column that could not be added) is reported, not remembered.
             if (! Schema::hasTable('orders') || ! Schema::hasTable('order_items')) {
                 throw $e;
             }
         }
         self::$hasTables = true;
-        Cache::forever('shop-tables-v3', true);
+        // Remember "done" only when the newest column exists; otherwise try again next time
+        // (checkout keeps working without it: orders are just not linked to accounts).
+        if (Schema::hasColumn('orders', 'member_id')) {
+            Cache::forever('shop-tables-v4', true);
+        }
     }
 
     private static function createTables(): void
@@ -408,6 +413,16 @@ final class Shop
             Schema::table('orders', function (Blueprint $t) {
                 $t->string('payment_preference', 20)->nullable();
             });
+        }
+        // v4: the member account that placed the order (null for guest checkout).
+        if (! Schema::hasColumn('orders', 'member_id')) {
+            try {
+                Schema::table('orders', function (Blueprint $t) {
+                    $t->unsignedBigInteger('member_id')->nullable()->index();
+                });
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[shop] could not add orders.member_id yet', ['error' => $e->getMessage()]);
+            }
         }
     }
 }

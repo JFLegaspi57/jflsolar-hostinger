@@ -6,6 +6,9 @@
         ['/admin/visitors', 'Visitors', false],
         ['/admin/inquiries', 'Inquiries', false],
         ['/admin/orders', 'Orders', false],
+        ['/admin/forum', 'Forum', false],
+        ['/admin/members', 'Members', false],
+        ['/admin/subscribers', 'Subscribers', false],
         ['/admin/packages', 'Packages', false],
         ['/admin/products', 'Products', false],
         ['/admin/categories', 'Categories', false],
@@ -18,6 +21,7 @@
     ];
     $active = fn ($href) => $href === '/admin' ? request()->is('admin') : request()->is(ltrim($href, '/'), ltrim($href, '/').'/*');
     $newInquiries = \App\Models\Inquiry::query()->where('status', 'new')->count();
+    $forumPending = \App\Support\Forum::pendingCount();
     // Online shop: the Orders page appears once the shop is switched on (or has had orders).
     $shopOn = \App\Support\Shop::ordersVisible();
     if (! $shopOn) {
@@ -60,6 +64,9 @@
                                     {{ $label }}
                                     @if ($href === '/admin/orders' && $paidOrders)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $paidOrders }}<span class="sr-only"> to prepare</span></span>
+                                    @endif
+                                    @if ($href === '/admin/forum' && $forumPending)
+                                        <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $forumPending }}<span class="sr-only"> waiting for approval</span></span>
                                     @endif
                                     @if ($href === '/admin/inquiries' && $newInquiries)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $newInquiries }}<span class="sr-only"> new</span></span>

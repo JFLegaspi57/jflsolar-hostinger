@@ -47,8 +47,23 @@
 
             @endif
             <section>
+                <h2>Accounts</h2>
+                <p>If you create an account we keep your name, email address, optional phone number and a scrambled (hashed) form of your password — never the password itself — plus when you last signed in. Orders you place while signed in are linked to your account so you can see them. Only signed-in JFL Solar staff can see account details. You can change your details, or delete your account, on your account page. Orders stay in our sales records after an account is deleted.</p>
+            </section>
+
+            <section>
+                <h2>Forum</h2>
+                <p>Forum posts are public. They show your first name and the initial of your last name (for example “Maria S.”), never your email or phone number. Staff can see which account wrote a post so they can moderate. Ask us if you would like a post of yours removed.</p>
+            </section>
+
+            <section>
+                <h2>Promos and news emails</h2>
+                <p>If you ask for our promos and news (website footer, account sign-up or account page), we keep your email address, your name if you gave it, and when and where you signed up, and use them only to send JFL Solar emails. Every email has an unsubscribe link, and you can also unsubscribe on your account page or by contacting us. We do not sell or share the list.</p>
+            </section>
+
+            <section>
                 <h2>Cookies and tracking</h2>
-                <p>The website sets a session cookie needed for the inquiry form's security check{{ \App\Support\Shop::enabled() ? ' and to keep your shopping cart' : '' }}, and staff who sign in to manage the website receive a sign-in cookie. Both are strictly necessary.</p>
+                <p>The website sets a session cookie needed for the inquiry form's security check{{ \App\Support\Shop::enabled() ? ' and to keep your shopping cart' : '' }}, and people who sign in (customers, or staff managing the website) receive a sign-in cookie; if you tick “Keep me signed in”, that cookie lasts until you sign out. These are strictly necessary.</p>
                 <p>To count how many people visit, the website also gives your browser a random visitor number in a cookie (kept for up to about 13 months). We store only a scrambled form of that number, the dates and times it visited, which pages of this website it opened and for how long, and the approximate country and city of each visit — no name, IP address, exact location or activity on other websites — and use it only to see how many new and returning visitors the website has, which pages are useful and roughly where visitors are. A small script on each page measures how long the page is on screen and sends that number to our own server when you leave. The country and city are worked out on our own server from your internet address, using a downloaded location database (IP geolocation by DB-IP); your address is not sent to anyone and is not kept. It is not shared with anyone and no advertising or third-party analytics services are used. If your browser sends a “Do Not Track” or “Global Privacy Control” signal, you are not counted. You can also delete or block cookies in your browser settings.</p>
             </section>
 

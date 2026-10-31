@@ -38,6 +38,7 @@ class CheckoutController extends Controller
         return view('pages.checkout', [
             'summary' => $summary, 'settings' => $settings, 'fingerprint' => Shop::fingerprint($summary),
             'choices' => Shop::paymentChoices($settings), 'locations' => Shop::pickupLocations($settings),
+            'member' => \App\Support\Members::current(),
         ]);
     }
 
@@ -186,6 +187,9 @@ class CheckoutController extends Controller
             'fulfilment' => 'pickup',
             'total_php' => $summary['total'],
         ];
+        if (($member = \App\Support\Members::current()) && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')) {
+            $order['member_id'] = $member->id;   // only when signed in, so guest checkout never needs the column
+        }
         $items = array_map(fn ($line) => [
             'product_id' => $line['product']->id,
             'name' => $line['product']->name,
