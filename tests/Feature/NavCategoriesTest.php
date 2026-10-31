@@ -25,4 +25,16 @@ class NavCategoriesTest extends TestCase
             $this->assertStringNotContainsString('href="/products?category='.$c->slug.'"', $html);
         }
     }
+
+    public function test_packages_menu_lists_complete_packages_and_materials_only(): void
+    {
+        $this->seed();
+        $html = $this->get('/')->assertOk()->assertSee('aria-label="Package types"', false)->getContent();
+        $this->assertStringContainsString('href="/packages?type=complete"', $html);
+        $this->assertStringContainsString('>Complete Packages<', $html);
+        $this->assertStringContainsString('href="/packages?type=materials"', $html);
+        $this->assertStringContainsString('>Materials Only<', $html);
+        // The open filter is marked in the menu.
+        $this->assertMatchesRegularExpression('#href="/packages\\?type=materials"\\s+aria-current="page"\\s+class="nav-dd-link"#', $this->get('/packages?type=materials')->getContent());
+    }
 }

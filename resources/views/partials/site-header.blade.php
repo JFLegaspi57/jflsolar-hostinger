@@ -9,6 +9,17 @@
     $productCategories = PublicContent::snapshot()['categories'];
     $currentCategory = request()->is('products') ? (string) request()->query('category', '') : '';
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
+    $currentPackageType = request()->is('packages') ? (string) request()->query('type', '') : '';
+    // Drop-down sub-menus under a main menu item: [aria label, "all" link, items].
+    $subMenus = [];
+    if ($productCategories->isNotEmpty()) {
+        $subMenus['/products'] = ['Product categories', ['/products', 'All products'],
+            $productCategories->map(fn ($c) => ['/products?category='.$c->slug, $c->name, $currentCategory === $c->slug])->all()];
+    }
+    $subMenus['/packages'] = ['Package types', ['/packages', 'All packages'], [
+        ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
+        ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
+    ]];
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
     <div class="mx-auto flex h-[4.5rem] max-w-[76rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-20 lg:px-8">
@@ -28,7 +39,7 @@
                     @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
-                        @php $active = $isActive($item['href']); $dropdown = $item['href'] === '/products' && $productCategories->isNotEmpty(); @endphp
+                        @php $active = $isActive($item['href']); $sub = $subMenus[$item['href']] ?? null; $dropdown = (bool) $sub; @endphp
                         <li @if ($dropdown) class="nav-dd relative" @endif>
                             <a href="{{ $item['href'] }}" @if ($active) aria-current="page" @endif
                                 class="relative inline-flex min-h-11 items-center px-3 text-[0.95rem] font-semibold whitespace-nowrap transition-colors {{ $active ? 'text-steel-950' : 'text-steel-700 hover:text-steel-950' }}">
@@ -38,10 +49,10 @@
                             </a>
                             @if ($dropdown)
                                 <div class="nav-dd-menu">
-                                    <ul aria-label="Product categories" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
-                                        <li><a href="/products" class="nav-dd-link font-semibold">All products</a></li>
-                                        @foreach ($productCategories as $c)
-                                            <li><a href="/products?category={{ $c->slug }}" @if ($currentCategory === $c->slug) aria-current="page" @endif class="nav-dd-link">{{ $c->name }}</a></li>
+                                    <ul aria-label="{{ $sub[0] }}" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
+                                        <li><a href="{{ $sub[1][0] }}" class="nav-dd-link font-semibold">{{ $sub[1][1] }}</a></li>
+                                        @foreach ($sub[2] as [$subHref, $subLabel, $subCurrent])
+                                            <li><a href="{{ $subHref }}" @if ($subCurrent) aria-current="page" @endif class="nav-dd-link">{{ $subLabel }}</a></li>
                                         @endforeach
                                     </ul>
                                 </div>
@@ -104,11 +115,11 @@
                                         {{ $item['label'] }}
                                         <x-icon name="arrow" class="size-4 text-steel-400" />
                                     </a>
-                                    @if ($item['href'] === '/products' && $productCategories->isNotEmpty())
-                                        <ul aria-label="Product categories" class="mb-1 border-l border-steel-200" style="margin-left: .75rem; padding-left: .5rem">
-                                            @foreach ($productCategories as $c)
-                                                <li><a href="/products?category={{ $c->slug }}" data-close-dialog @if ($currentCategory === $c->slug) aria-current="page" @endif
-                                                    class="flex min-h-11 items-center rounded-[var(--radius-control)] px-3 text-steel-800 hover:bg-steel-50 aria-[current=page]:bg-gold-50">{{ $c->name }}</a></li>
+                                    @if ($sub = $subMenus[$item['href']] ?? null)
+                                        <ul aria-label="{{ $sub[0] }}" class="mb-1 border-l border-steel-200" style="margin-left: .75rem; padding-left: .5rem">
+                                            @foreach ($sub[2] as [$subHref, $subLabel, $subCurrent])
+                                                <li><a href="{{ $subHref }}" data-close-dialog @if ($subCurrent) aria-current="page" @endif
+                                                    class="flex min-h-11 items-center rounded-[var(--radius-control)] px-3 text-steel-800 hover:bg-steel-50 aria-[current=page]:bg-gold-50">{{ $subLabel }}</a></li>
                                             @endforeach
                                         </ul>
                                     @endif
