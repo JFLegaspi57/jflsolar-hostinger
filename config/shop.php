@@ -9,6 +9,13 @@ return [
     // "Staff preview"; no order is saved and nothing is charged). Customers see nothing.
     'staff_preview' => filter_var(env('SHOP_STAFF_PREVIEW', true), FILTER_VALIDATE_BOOL),
 
+    // Customers may reserve online and pay in person when they pick up at the office or
+    // warehouse. This works without PayMongo; with PayMongo set up, customers choose.
+    'pay_in_person' => filter_var(env('SHOP_PAY_IN_PERSON', true), FILTER_VALIDATE_BOOL),
+
+    // Reservations (pay at pickup) one visitor may place per day — limits no-show spam.
+    'reservations_per_day' => (int) env('SHOP_RESERVATIONS_PER_DAY', 3),
+
     // Largest quantity of one product in one order (pieces, or metres for per-metre items).
     'max_quantity' => (int) env('SHOP_MAX_QUANTITY', 500),
 

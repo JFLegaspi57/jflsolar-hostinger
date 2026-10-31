@@ -11,6 +11,7 @@ return new class extends Migration
     public function up(): void
     {
         Cache::forget('shop-tables-v1');
+        Cache::forget('shop-tables-v2');
         Shop::ensureTables();
     }
 
@@ -19,5 +20,6 @@ return new class extends Migration
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
         Cache::forget('shop-tables-v1');
+        Cache::forget('shop-tables-v2');
     }
 };

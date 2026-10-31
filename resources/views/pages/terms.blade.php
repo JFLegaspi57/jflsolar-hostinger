@@ -22,7 +22,13 @@
             @if (\App\Support\Shop::enabled())
             <section>
                 <h2>Online orders</h2>
-                <p>Items marked “Add to cart” can be ordered and paid for online through PayMongo. Prices are pickup prices in Philippine pesos at the time you check out. An order is confirmed only when PayMongo confirms your payment; we then contact you to arrange pickup at the address shown at checkout. Delivery is not included in online orders.</p>
+                <p>Items marked “Add to cart” can be ordered on this website for pickup at our office or warehouse. Prices are pickup prices in Philippine pesos at the time you place the order. Delivery is not included in online orders.</p>
+                @if (\App\Support\Shop::inPersonPayment())
+                <p>If you choose to pay at pickup, your order is reserved and you pay the order total in person when you collect it. We contact you when it is ready.</p>
+                @endif
+                @if (\App\Support\Shop::onlinePayment())
+                <p>If you choose to pay online, you pay through PayMongo. That order is confirmed only when PayMongo confirms your payment; we then contact you to arrange pickup.</p>
+                @endif
             </section>
             @endif
             <section>

@@ -23,7 +23,7 @@
     if (! $shopOn) {
         $items = array_values(array_filter($items, fn ($i) => $i[0] !== '/admin/orders'));
     }
-    $paidOrders = $shopOn && \App\Support\Shop::hasTables() ? \App\Models\Order::query()->where('status', 'paid')->count() : 0;
+    $paidOrders = $shopOn && \App\Support\Shop::hasTables() ? \App\Models\Order::query()->whereIn('status', ['reserved', 'paid'])->count() : 0;
 @endphp
 <!DOCTYPE html>
 <html lang="en-PH">

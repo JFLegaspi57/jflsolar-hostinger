@@ -40,7 +40,7 @@
                         <x-price-block :price="$product->price()" size="lg" />
                     @endif
                     <p class="mt-3"><x-badge :tone="$product->availability === 'unavailable' ? 'ended' : 'neutral'">{{ Labels::AVAILABILITY[$product->availability] }}</x-badge></p>
-                    <p class="mt-2 text-xs text-steel-600">{{ $buyable ? 'We do not show live stock levels. After you pay, we contact you to confirm your pickup.' : 'Availability is confirmed when we quote. We do not show live stock levels.' }}</p>
+                    <p class="mt-2 text-xs text-steel-600">{{ $buyable ? 'We do not show live stock levels. After you order, we contact you to confirm your pickup.' : 'Availability is confirmed when we quote. We do not show live stock levels.' }}</p>
                     @if ($buyable)
                         @if (\App\Support\Shop::previewing())
                             <p class="mt-4"><x-badge tone="pending">Staff preview — customers don’t see this yet</x-badge></p>
@@ -68,7 +68,7 @@
                             <a href="{{ $quoteHref }}" class="{{ Ui::button('secondary', 'lg', 'flex-1') }}">Request a quote</a>
                             <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call</a>
                         </div>
-                        <p class="mt-3 text-sm text-steel-600">Pay online with {{ \App\Support\Shop::methodsText() }}, then pick up at {{ \App\Support\Shop::pickupAddress($settings) }}.</p>
+                        <p class="mt-3 text-sm text-steel-600">{{ \App\Support\Shop::howToBuy($settings) }}</p>
                     @else
                     <div class="mt-5 flex flex-col gap-2 sm:flex-row">
                         <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'lg', 'flex-1') }}">Request a Product Quote</a>
