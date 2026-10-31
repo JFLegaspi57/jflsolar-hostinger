@@ -132,7 +132,7 @@ final class PageTextData
         'faq.q4.q' => 'Can I buy equipment only, without installation?',
         'faq.q4.a' => 'Yes. Choose a Materials Only bundle (inverter, battery and solar panels), build your own set with the parts you pick, or buy individual products. This suits DIY buyers and professional installers.',
         'faq.q5.q' => 'How do I order online and pay?',
-        'faq.q5.a' => 'Add products or a package to your cart and check out. {order}',
+        'faq.q5.a' => '{order}',
         'faq.q6.q' => 'Do you deliver?',
         'faq.q6.a' => 'Online orders are picked up at our warehouse in Dasmariñas, Cavite. For installation projects and larger orders, delivery and any delivery charges are confirmed in your quotation.',
         'faq.q7.q' => 'Do you serve my area?',
