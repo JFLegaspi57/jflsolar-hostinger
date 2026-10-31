@@ -24,7 +24,7 @@
                         <a href="/admin/orders/{{ $o->id }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline"><span class="font-mono">{{ $o->reference }}</span> · {{ $o->customer_name }}</a>
                         <span class="text-sm text-steel-600 tabular">{{ $o->created_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}</span>
                     </div>
-                    <p class="text-sm text-steel-700">{{ $o->items_count }} {{ $o->items_count === 1 ? 'item' : 'items' }} · <span class="font-semibold tabular">{{ Pricing::formatPhp($o->total_php) }}</span> · {{ $o->statusLabel() }} · {{ $o->paid_at ? 'Paid' : ($o->payment_mode === 'in_person' ? 'Pays at pickup' : 'Not paid') }} · {{ \App\Support\Shop::LOCATION_NAMES[$o->pickup_location] ?? 'Office' }}</p>
+                    <p class="text-sm text-steel-700">{{ $o->items_count }} {{ $o->items_count === 1 ? 'item' : 'items' }} · <span class="font-semibold tabular">{{ Pricing::formatPhp($o->total_php) }}</span> · {{ $o->statusLabel() }} · {{ $o->paid_at ? 'Paid' : ($o->payment_mode === 'in_person' ? 'Pays at pickup'.($o->payment_preference ? ' ('.\App\Support\Shop::choiceLabel($o->payment_preference).')' : '') : 'Not paid') }} · {{ \App\Support\Shop::LOCATION_NAMES[$o->pickup_location] ?? 'Office' }}</p>
                 </li>
             @endforeach
         </ul>

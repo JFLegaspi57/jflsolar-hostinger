@@ -32,6 +32,39 @@ final class Shop
     /** Ways to pay, in the order offered: in person at pickup, online through PayMongo. */
     public const PAYMENT_MODES = ['in_person' => 'Pay in person when you pick up', 'online' => 'Pay online now'];
 
+    /**
+     * Ways to pay without PayMongo that the customer picks at checkout, with what they are told.
+     * GCash and bank details are sent by staff when they confirm the order (not shown on the site).
+     */
+    public const IN_PERSON_CHOICES = [
+        'cash' => ['label' => 'Cash', 'hint' => 'Pay in cash when you pick up.'],
+        'gcash' => ['label' => 'GCash', 'hint' => 'Pay by GCash before or at pickup. We send our GCash number when we confirm your order.'],
+        'bank_transfer' => ['label' => 'Bank transfer', 'hint' => 'Transfer before pickup. We send our bank details when we confirm your order.'],
+        'check' => ['label' => 'Check', 'hint' => 'Pay by check when you pick up.'],
+    ];
+
+    /** @return list<string> pay-at-pickup choices offered at checkout */
+    public static function inPersonChoices(): array
+    {
+        if (! self::inPersonPayment()) {
+            return [];
+        }
+        $list = array_values(array_intersect((array) config('shop.in_person_methods'), array_keys(self::IN_PERSON_CHOICES)));
+
+        return $list ?: array_keys(self::IN_PERSON_CHOICES);
+    }
+
+    /** @return list<string> every choice on the checkout form: pay-at-pickup methods, then "online" */
+    public static function paymentChoices(): array
+    {
+        return array_merge(self::inPersonChoices(), self::onlinePayment() ? ['online'] : []);
+    }
+
+    public static function choiceLabel(?string $choice): string
+    {
+        return $choice === 'online' ? 'Online (PayMongo)' : (self::IN_PERSON_CHOICES[$choice]['label'] ?? self::methodName($choice));
+    }
+
     /** How staff record a payment taken at the counter. */
     public const COUNTER_METHODS = ['cash' => 'Cash', 'gcash' => 'GCash', 'maya' => 'Maya', 'card' => 'Card', 'bank_transfer' => 'Bank transfer', 'check' => 'Check'];
 
@@ -225,10 +258,13 @@ final class Shop
         $where = count($places) > 1 ? 'our office or warehouse' : 'our '.strtolower(self::LOCATION_NAMES[array_key_first($places) ?? 'office']);
         $modes = self::paymentModes();
 
+        $offline = array_map(fn ($c) => ['cash' => 'cash', 'gcash' => 'GCash', 'bank_transfer' => 'bank transfer', 'check' => 'check'][$c], self::inPersonChoices());
+        $offlineText = count($offline) > 1 ? implode(', ', array_slice($offline, 0, -1)).' or '.end($offline) : ($offline[0] ?? '');
+
         return match (true) {
-            $modes === ['in_person'] => "Order online, then pay and pick up at {$where}.",
+            $modes === ['in_person'] => "Order online, then pay by {$offlineText} and pick up at {$where}.",
             $modes === ['online'] => 'Pay online with '.self::methodsText().", then pick up at {$where}.",
-            default => "Order online and pay when you pick up at {$where}, or pay online now with ".self::methodsText().'.',
+            default => "Order online and pay by {$offlineText}, or online with ".self::methodsText().", then pick up at {$where}.",
         };
     }
 
@@ -266,7 +302,7 @@ final class Shop
     /** Create the order tables the first time they are needed (no phpMyAdmin step). */
     public static function ensureTables(): void
     {
-        if (Cache::get('shop-tables-v2')) {
+        if (Cache::get('shop-tables-v3')) {
             return;
         }
         try {
@@ -278,7 +314,7 @@ final class Shop
             }
         }
         self::$hasTables = true;
-        Cache::forever('shop-tables-v2', true);
+        Cache::forever('shop-tables-v3', true);
     }
 
     private static function createTables(): void
@@ -325,6 +361,12 @@ final class Shop
             Schema::table('orders', function (Blueprint $t) {
                 $t->string('payment_mode', 10)->default('online');
                 $t->string('pickup_location', 10)->default('warehouse');
+            });
+        }
+        // v3: how the customer said they will pay at pickup (cash, GCash, bank transfer, check).
+        if (! Schema::hasColumn('orders', 'payment_preference')) {
+            Schema::table('orders', function (Blueprint $t) {
+                $t->string('payment_preference', 20)->nullable();
             });
         }
     }

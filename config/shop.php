@@ -13,6 +13,9 @@ return [
     // warehouse. This works without PayMongo; with PayMongo set up, customers choose.
     'pay_in_person' => filter_var(env('SHOP_PAY_IN_PERSON', true), FILTER_VALIDATE_BOOL),
 
+    // Ways to pay at pickup offered at checkout (any of: cash, gcash, bank_transfer, check).
+    'in_person_methods' => array_values(array_filter(array_map('trim', explode(',', (string) env('SHOP_IN_PERSON_METHODS', 'cash,gcash,bank_transfer,check'))))),
+
     // Reservations (pay at pickup) one visitor may place per day — limits no-show spam.
     'reservations_per_day' => (int) env('SHOP_RESERVATIONS_PER_DAY', 3),
 

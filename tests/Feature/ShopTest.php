@@ -391,32 +391,38 @@ class ShopTest extends TestCase
         Http::fake();
         $p = $this->product();
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
-        $this->get('/checkout')->assertSee('Pay in person when you pick up')->assertSee('Pay online now');
-        $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person', 'pickup' => 'office']));
+        $this->get('/checkout')->assertSee('Cash')->assertSee('GCash')->assertSee('Bank transfer')->assertSee('Check')->assertSee('Pay online now');
+        $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'gcash', 'pickup' => 'office']));
 
         $order = Order::query()->latest('id')->firstOrFail();
         $response->assertRedirect($order->publicPath());
         $this->assertSame('reserved', $order->status);
         $this->assertSame('in_person', $order->payment_mode);
+        $this->assertSame('gcash', $order->payment_preference);
         $this->assertSame('office', $order->pickup_location);
         $this->assertNull($order->paid_at);
         $this->assertNull($order->paymongo_checkout_id);
         $this->assertSame([], session('cart'));
         Http::assertNotSent(fn ($r) => str_contains($r->url(), 'paymongo'));
         Mail::assertSent(NewOrder::class, fn ($m) => str_contains($m->envelope()->subject, 'pay at pickup'));
-        $this->get($order->publicPath())->assertSee('Nothing has been charged')->assertSee('at our office')->assertSee('₱960');
+        $this->get($order->publicPath())->assertSee('Nothing has been charged')->assertSee('by GCash')->assertSee('We send our GCash number')->assertSee('at our office')->assertSee('₱960');
     }
 
     public function test_shop_runs_without_paymongo_when_paying_at_pickup(): void
     {
         config(['shop.paymongo.secret_key' => '', 'shop.paymongo.webhook_secret' => '']);
         $p = $this->product();
-        $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay and pick up');
+        $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay by cash, GCash, bank transfer or check');
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
-        $this->get('/checkout')->assertSee('Pay in person when you pick up')->assertDontSee('Pay online now');
-        // With one way to pay, the form needs no choice; "online" cannot be forced.
-        $this->post('/checkout', $this->checkoutForm(['payment' => 'online']));
-        $this->assertSame('in_person', Order::query()->latest('id')->value('payment_mode'));
+        $this->get('/checkout')->assertSee('Bank transfer')->assertDontSee('Pay online now');
+        // "online" cannot be forced when PayMongo is not set up.
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'online']))->assertSessionHasErrors('payment');
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'check']));
+        $this->assertSame('check', Order::query()->latest('id')->value('payment_preference'));
+
+        // Only the methods the owner offers.
+        config(['shop.in_person_methods' => ['cash']]);
+        $this->get('/checkout')->assertDontSee('Bank transfer');
         $this->assertStringNotContainsString('paymongo', (string) $this->get('/checkout')->headers->get('Content-Security-Policy'));
 
         config(['shop.pay_in_person' => false]);
@@ -427,7 +433,7 @@ class ShopTest extends TestCase
     {
         $p = $this->product();
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
-        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']));
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']));
         $order = Order::query()->latest('id')->firstOrFail();
         $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
 
@@ -451,9 +457,9 @@ class ShopTest extends TestCase
         config(['shop.reservations_per_day' => 1]);
         $p = $this->product();
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
-        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']));
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']));
         $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
-        $this->post('/checkout', $this->checkoutForm(['payment' => 'in_person']))->assertSessionHas('checkout_error');
+        $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']))->assertSessionHas('checkout_error');
         $this->assertSame(1, Order::query()->count());
     }
 

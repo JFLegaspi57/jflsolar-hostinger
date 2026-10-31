@@ -4,7 +4,7 @@
     use App\Support\Ui;
     $input = 'min-h-12 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3.5 text-base text-steel-950 placeholder:text-steel-600 focus:border-steel-900 aria-[invalid=true]:border-danger-700 aria-[invalid=true]:bg-danger-50/40';
     $err = fn ($k) => $errors->first($k) ?: null;
-    $payDefault = old('payment', $modes[0] ?? 'in_person');
+    $payDefault = old('payment', $choices[0] ?? 'cash');
     $placeDefault = old('pickup', array_key_first($locations));
     $radio = 'mt-1 size-5 shrink-0 border-steel-500';
     $choice = 'flex cursor-pointer items-start gap-3 rounded-[var(--radius-control)] border border-steel-300 p-4 hover:border-steel-900';
@@ -66,13 +66,16 @@
                 </fieldset>
 
                 <fieldset class="space-y-3" @if ($err('payment')) aria-describedby="c-payment-error" @endif>
-                    <legend class="text-xl font-bold text-steel-950">Payment</legend>
-                    @foreach ($modes as $mode)
+                    <legend class="text-xl font-bold text-steel-950">How will you pay?</legend>
+                    @if (array_diff($choices, ['online']))
+                        <p class="text-sm text-steel-700">Nothing is charged now. Your order is reserved and you pay the total{{ in_array('online', $choices, true) ? ', unless you choose to pay online' : '' }}.</p>
+                    @endif
+                    @foreach ($choices as $c)
                         <label class="{{ $choice }}">
-                            <input type="radio" name="payment" value="{{ $mode }}" @checked($payDefault === $mode) class="{{ $radio }}">
+                            <input type="radio" name="payment" value="{{ $c }}" @checked($payDefault === $c) class="{{ $radio }}">
                             <span>
-                                <span class="block font-semibold text-steel-950">{{ Shop::PAYMENT_MODES[$mode] }}</span>
-                                <span class="block text-steel-700">{{ $mode === 'in_person' ? 'Your order is reserved. Pay at the counter when you collect it.' : 'Pay now on PayMongo’s secure page with '.Shop::methodsText().'. We never see your card or wallet details.' }}</span>
+                                <span class="block font-semibold text-steel-950">{{ $c === 'online' ? 'Pay online now' : Shop::IN_PERSON_CHOICES[$c]['label'] }}</span>
+                                <span class="block text-steel-700">{{ $c === 'online' ? 'Pay now on PayMongo’s secure page with '.Shop::methodsText().'. We never see your card or wallet details.' : Shop::IN_PERSON_CHOICES[$c]['hint'] }}</span>
                             </span>
                         </label>
                     @endforeach
@@ -91,7 +94,7 @@
 
                 <div>
                     <button type="submit" class="{{ Ui::button('primary', 'lg', 'w-full sm:w-auto') }}">Place order · {{ Pricing::formatPhp($summary['total']) }}</button>
-                    @if (in_array('online', $modes, true))<p class="mt-2 text-sm text-steel-600">If you chose to pay online, you go to PayMongo’s payment page next.</p>@endif
+                    @if (in_array('online', $choices, true))<p class="mt-2 text-sm text-steel-600">If you chose to pay online, you go to PayMongo’s payment page next.</p>@endif
                 </div>
             </form>
 

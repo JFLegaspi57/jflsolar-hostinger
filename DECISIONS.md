@@ -80,5 +80,7 @@ Owner request: customers can buy priced products online. Choices:
   configured the customer chooses. Reservations alert the owner at once and are limited
   per visitor per day (no payment = no-show risk). Only staff mark them paid, recording
   the counter method; online orders are still marked paid only by PayMongo.
+  The customer picks cash, GCash, bank transfer or check at checkout (owner request);
+  GCash numbers and bank details are sent by staff, not published on the site.
 - The customer pays exactly the total shown on the checkout page (fingerprint check);
   orders above `SHOP_MAX_TOTAL` (default ₱300,000) go to the quotation form.
