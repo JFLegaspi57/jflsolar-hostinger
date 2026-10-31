@@ -22,6 +22,7 @@ class Member extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'forum_trusted' => 'boolean',
             'last_login_at' => 'datetime',
         ];
     }

@@ -1,6 +1,6 @@
 @php $input = 'min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 bg-white px-3 text-base text-steel-950'; @endphp
 <x-admin.layout title="Members">
-    <x-admin.page-title title="Members" intro="Customer accounts created on the website. Open a name to see their orders, sign-ins (time and approximate place) and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
+    <x-admin.page-title title="Members" intro="Customer accounts created on the website (they can also post in the forum). Open a name to see their orders, sign-ins (time and approximate place) and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="/admin/members" class="flex w-full max-w-xl gap-2">
         <label for="m-q" class="sr-only">Search members</label>

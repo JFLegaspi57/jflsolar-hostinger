@@ -311,13 +311,6 @@ class MembersTest extends TestCase
         $this->get('/products')->assertSee('Your account')->assertDontSee('id="auth-dialog"', false);
     }
 
-    public function test_the_forum_is_gone(): void
-    {
-        $this->get('/forum')->assertNotFound();
-        $this->get('/')->assertDontSee('href="/forum"', false);
-        $this->get('/terms')->assertDontSee('Forum rules');
-    }
-
     public function test_profile_social_links_are_checked_and_cleaned_up(): void
     {
         $m = $this->member();

@@ -144,7 +144,7 @@
 
                 <section id="delete" aria-labelledby="delete-h" class="{{ $card }}">
                     <h2 id="delete-h" class="text-xl font-bold text-steel-950">Delete account</h2>
-                    <p class="mt-2 text-sm text-steel-700">Your account and details are deleted and you leave our promo list. Orders stay in our sales records. This can’t be undone.</p>
+                    <p class="mt-2 text-sm text-steel-700">Your account and details are deleted and you leave our promo list. Orders stay in our sales records; forum posts stay, shown as “Former member”. This can’t be undone.</p>
                     <form method="post" action="/account/delete" class="mt-4 space-y-4">
                         @csrf
                         <x-form-field id="a-del" label="Your password" :error="$err('delete_password')">

@@ -64,6 +64,13 @@ Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->m
 Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}\.webp');
 
+// Forum: everyone can read; registered users post (first post reviewed by staff)
+Route::get('/forum', [\App\Http\Controllers\ForumController::class, 'index']);
+Route::get('/forum/new', [\App\Http\Controllers\ForumController::class, 'create']);
+Route::post('/forum', [\App\Http\Controllers\ForumController::class, 'store'])->middleware('throttle:forum');
+Route::get('/forum/{slug}', [\App\Http\Controllers\ForumController::class, 'show'])->where('slug', '[a-z0-9-]{1,120}');
+Route::post('/forum/{slug}/reply', [\App\Http\Controllers\ForumController::class, 'reply'])->where('slug', '[a-z0-9-]{1,120}')->middleware('throttle:forum');
+
 // Newsletter (promos and news)
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'showUnsubscribe'])->where('token', '[A-Za-z0-9]{40}');
 Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:account');
@@ -142,6 +149,9 @@ Route::prefix('admin')->group(function () {
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);
 
+        Route::get('forum', [Admin\ForumController::class, 'index']);
+        Route::post('forum/posts/{post}', [Admin\ForumController::class, 'post'])->whereNumber('post');
+        Route::post('forum/topics/{topic}', [Admin\ForumController::class, 'topic'])->whereNumber('topic');
         Route::get('members', [Admin\MemberController::class, 'index']);
         Route::get('members/export', [Admin\MemberController::class, 'exportMembers']);
         Route::get('members/{member}', [Admin\MemberController::class, 'show'])->whereNumber('member');

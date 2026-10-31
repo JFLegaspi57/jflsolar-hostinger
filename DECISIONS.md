@@ -102,8 +102,9 @@ Owner request: customers can buy priced products online. Choices:
   verification yet (site email is not configured): reset links need working mail. Guest
   checkout stays. Newsletter: footer form needs a consent tick and never re-subscribes someone
   who left; staff export a CSV with personal unsubscribe links (no sending from the site).
-  A forum was built and then removed the same day at the owner's request (its empty
-  tables, if created, are left in the database; nothing reads them).
+  Forum: removed and then restored the same day at the owner's request. Everyone can read;
+  registered users post; each member's first post waits for staff approval (then trusted);
+  staff post as "JFL Solar team"; plain text, nofollow/ugc links (max 3); names shown as "First L.".
   Tables are created on first use (`Members`/`Newsletter::ensureTables`).
 
 - **Member profiles and activity (2026-10-31, owner request):** members may add a profile photo

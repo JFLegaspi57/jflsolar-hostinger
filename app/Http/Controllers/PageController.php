@@ -141,7 +141,7 @@ class PageController extends Controller
     public function robots(): Response
     {
         $body = Site::allowsIndexing()
-            ? "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /cart\nDisallow: /checkout\nDisallow: /orders/\nDisallow: /account\nDisallow: /login\nDisallow: /signup\nDisallow: /forgot-password\nDisallow: /reset-password/\nDisallow: /newsletter/\nDisallow: /stats/\n\nSitemap: ".Site::url('/sitemap.xml')."\n"
+            ? "User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /cart\nDisallow: /checkout\nDisallow: /orders/\nDisallow: /account\nDisallow: /login\nDisallow: /signup\nDisallow: /forgot-password\nDisallow: /reset-password/\nDisallow: /newsletter/\nDisallow: /stats/\nDisallow: /forum/new\n\nSitemap: ".Site::url('/sitemap.xml')."\n"
             : "User-agent: *\nDisallow: /\n";
 
         return response($body, 200, ['Content-Type' => 'text/plain; charset=UTF-8']);
@@ -155,6 +155,13 @@ class PageController extends Controller
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
+            }
+        }
+
+        $urls->push(['loc' => Site::url('/forum'), 'lastmod' => null]);
+        if (\App\Support\Forum::hasTables()) {
+            foreach (\App\Models\ForumTopic::query()->where('status', 'published')->latest('last_post_at')->limit(1000)->get(['slug', 'last_post_at']) as $t) {
+                $urls->push(['loc' => Site::url('/forum/'.$t->slug), 'lastmod' => $t->last_post_at?->toAtomString()]);
             }
         }
 
