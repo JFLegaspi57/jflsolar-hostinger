@@ -23,3 +23,12 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Speed: build files have a content hash in their name (app-AbC12345.css, *-E0tuGl4L.woff2), so a
+# changed file always gets a new name and the old one can be cached for a year. (Product photos
+# are sent by the app with their own one-year cache; see MediaController.)
+<IfModule mod_headers.c>
+    <FilesMatch "-[A-Za-z0-9_-]{8}\.(css|js|woff2)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
