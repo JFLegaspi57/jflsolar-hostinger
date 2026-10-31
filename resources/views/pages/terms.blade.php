@@ -2,7 +2,7 @@
     <x-page-header eyebrow="Legal" title="Terms of use" />
     <x-container class="py-10 sm:py-14">
         <div class="max-w-3xl space-y-8 text-steel-800 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-steel-950">
-            <p role="note" class="rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 px-4 py-3 text-warn-800">Draft terms pending review by the business owner and a legal adviser.</p>
+            <p class="text-sm text-steel-600">Last updated October 31, 2026.</p>
             <section>
                 <h2>Information on this website</h2>
                 <p>Package, product and price information is provided for general guidance. A price, specification or availability shown on this website is not an offer. The scope, price, delivery charges, schedule and warranty for any purchase or installation are confirmed in a written quotation from JFL Solar.</p>
