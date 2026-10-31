@@ -63,7 +63,6 @@ Route::post('/account/password', [Account\AccountController::class, 'password'])
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
 
 // Newsletter (promos and news)
-Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->middleware('throttle:account');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'showUnsubscribe'])->where('token', '[A-Za-z0-9]{40}');
 Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:account');
 

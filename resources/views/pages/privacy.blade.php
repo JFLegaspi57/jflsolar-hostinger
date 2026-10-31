@@ -53,7 +53,7 @@
 
             <section>
                 <h2>Promos and news emails</h2>
-                <p>If you ask for our promos and news (website footer, account sign-up or account page), we keep your email address, your name if you gave it, and when and where you signed up, and use them only to send JFL Solar emails. Every email has an unsubscribe link, and you can also unsubscribe on your account page or by contacting us. We do not sell or share the list.</p>
+                <p>If you ask for our promos and news (when creating an account or on your account page), we keep your email address, your name if you gave it, and when and where you signed up, and use them only to send JFL Solar emails. Every email has an unsubscribe link, and you can also unsubscribe on your account page or by contacting us. We do not sell or share the list.</p>
             </section>
 
             <section>

@@ -197,24 +197,19 @@ class MembersTest extends TestCase
         $this->post('/login', ['email' => 'maria@example.com', 'password' => 'brand new passphrase'])->assertRedirect('/account');
     }
 
-    public function test_footer_newsletter_needs_consent_and_unsubscribe_is_a_button_not_the_link(): void
+    public function test_no_footer_sign_up_and_unsubscribe_is_a_button_not_the_link(): void
     {
-        $this->get('/')->assertSee('Get our promos and solar news')->assertSee('action="/newsletter"', false);
-        $this->from('/products')->post('/newsletter', ['email' => 'juan@example.com'])->assertSessionHas('newsletter_error');
+        $this->get('/')->assertDontSee('Get our promos and solar news')->assertDontSee('action="/newsletter"', false);
+        $this->post('/newsletter', ['email' => 'juan@example.com', 'consent' => '1'])->assertNotFound();
         $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
-        $this->from('/products')->post('/newsletter', ['email' => 'Juan@Example.com', 'consent' => '1'])->assertRedirect('/products#newsletter')->assertSessionHas('newsletter_status');
-        $this->assertTrue(Newsletter::isSubscribed('juan@example.com'));
 
+        Newsletter::subscribe('juan@example.com', 'Juan', 'signup');
         $token = DB::table('newsletter_subscribers')->where('email', 'juan@example.com')->value('token');
         $this->get('/newsletter/unsubscribe/'.$token)->assertOk()->assertSee('Unsubscribe from our emails?');
         $this->assertTrue(Newsletter::isSubscribed('juan@example.com'));   // opening the link alone does nothing
         $this->post('/newsletter/unsubscribe/'.$token)->assertSee('You’re unsubscribed', false);
         $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
         $this->post('/newsletter/unsubscribe/'.str_repeat('a', 40))->assertSee('Link not recognised');
-
-        // The open footer form does not put them back on the list (someone else could type their email).
-        $this->from('/')->post('/newsletter', ['email' => 'juan@example.com', 'consent' => '1']);
-        $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
     }
 
     public function test_staff_manage_members_and_download_subscribers(): void
@@ -273,13 +268,10 @@ class MembersTest extends TestCase
         $this->get('/account')->assertOk();
     }
 
-    public function test_the_footer_form_never_resubscribes_someone_who_left(): void
+    public function test_someone_who_left_can_rejoin_from_their_account(): void
     {
-        Newsletter::subscribe('juan@example.com', null, 'footer');
+        Newsletter::subscribe('juan@example.com', null, 'signup');
         Newsletter::unsubscribeEmail('juan@example.com');
-        $this->from('/')->post('/newsletter', ['email' => 'juan@example.com', 'consent' => '1'])->assertSessionHas('newsletter_status');
-        $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
-        // They can rejoin themselves from their account.
         $m = $this->member(['email' => 'juan@example.com']);
         $this->actingAs($m, 'member')->post('/account', ['name' => 'Juan', 'phone' => '', 'newsletter' => '1']);
         $this->assertTrue(Newsletter::isSubscribed('juan@example.com'));
@@ -302,7 +294,6 @@ class MembersTest extends TestCase
         $this->post('/signup', ['name' => ['x'], 'email' => ['a'], 'password' => ['p'], 'password_confirmation' => ['p'], 'next' => ['/x']])->assertRedirect();
         $this->post('/login', ['email' => ['a'], 'password' => ['p']])->assertRedirect();
         $this->post('/forgot-password', ['email' => ['a']])->assertRedirect();
-        $this->from('/')->post('/newsletter', ['email' => ['a'], 'consent' => '1'])->assertRedirect();
         $this->member();
         $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => "/account\n"])->assertRedirect('/account');
     }
