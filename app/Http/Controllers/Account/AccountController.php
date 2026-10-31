@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Support\Input;
 use App\Support\Members;
 use App\Support\Newsletter;
 use App\Support\Passwords;
@@ -35,8 +36,8 @@ class AccountController extends Controller
     public function update(Request $request): RedirectResponse
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
-        $name = trim((string) $request->input('name', ''));
-        $phone = trim((string) $request->input('phone', ''));
+        $name = trim(Input::str($request, 'name'));
+        $phone = trim(Input::str($request, 'phone'));
         $errors = [];
         if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
             $errors['name'] = 'Please enter your name.';
@@ -61,17 +62,47 @@ class AccountController extends Controller
     public function password(Request $request): RedirectResponse
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
-        if (! Hash::check((string) $request->input('current_password'), $member->password)) {
+        if (! Hash::check(Input::str($request, 'current_password'), $member->password)) {
             return redirect('/account#password')->withErrors(['current_password' => 'Your current password is not correct.']);
         }
-        if ($problem = Passwords::problem($request->input('password'), $request->input('password_confirmation'), $member->email)) {
+        if ($problem = Passwords::problem(Input::str($request, 'password'), Input::str($request, 'password_confirmation'), $member->email)) {
             return redirect('/account#password')->withErrors(['password' => $problem]);
         }
-        $member->forceFill(['password' => (string) $request->input('password'), 'remember_token' => Str::random(60)])->save();
+        $member->forceFill(['password' => Input::str($request, 'password'), 'remember_token' => Str::random(60)])->save();
         // Signs out "remember me" on other devices; keeps this browser signed in.
         Auth::guard('member')->login($member);
         $request->session()->regenerate();
+        Members::stampSession($member);   // this browser stays signed in; other sessions end
 
         return redirect('/account#password')->with('account_status', 'Your password has been changed.');
+    }
+
+    /**
+     * Deletes the account. Orders stay (sales records) but are no longer linked to it;
+     * forum posts stay readable as "Former member"; the email leaves the promo list.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        if (! Hash::check(Input::str($request, 'password'), $member->password)) {
+            return redirect('/account#delete')->withErrors(['delete_password' => 'Your password is not correct.']);
+        }
+        \Illuminate\Support\Facades\DB::transaction(function () use ($member) {
+            if (Shop::hasTables() && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')) {
+                Order::query()->where('member_id', $member->id)->update(['member_id' => null]);
+            }
+            if (\App\Support\Forum::hasTables()) {
+                \App\Models\ForumTopic::query()->where('member_id', $member->id)->update(['member_id' => null, 'author_name' => 'Former member']);
+                \App\Models\ForumPost::query()->where('member_id', $member->id)->update(['member_id' => null, 'author_name' => 'Former member']);
+            }
+            \Illuminate\Support\Facades\DB::table('member_password_resets')->where('email', $member->email)->delete();
+            $member->delete();
+        });
+        Newsletter::unsubscribeEmail($member->email);
+        Auth::guard('member')->logout();
+        $request->session()->forget('member_pw');
+        $request->session()->regenerate();
+
+        return redirect('/')->with('account_status', 'Your account has been deleted.');
     }
 }

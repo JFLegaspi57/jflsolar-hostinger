@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Member;
+use App\Support\Input;
 use App\Support\Members;
 use App\Support\Newsletter;
 use App\Support\Shop;
@@ -19,7 +20,7 @@ class MemberController extends Controller
 {
     public function index(Request $request): View
     {
-        $q = mb_substr(trim((string) $request->query('q', '')), 0, 100);
+        $q = mb_substr(trim(Input::str($request, 'q')), 0, 100);
         $members = Members::hasTables()
             ? Member::query()
                 ->when($q !== '', fn ($w) => $w->where(fn ($x) => $x->where('name', 'like', '%'.addcslashes($q, '%_\\').'%')->orWhere('email', 'like', '%'.addcslashes($q, '%_\\').'%')->orWhere('phone', 'like', '%'.addcslashes($q, '%_\\').'%')))
@@ -33,7 +34,7 @@ class MemberController extends Controller
     public function update(Request $request, int $member): RedirectResponse
     {
         $m = Member::query()->findOrFail($member);
-        $action = (string) $request->input('action');
+        $action = Input::str($request, 'action');
         if ($action === 'disable') {
             $m->forceFill(['status' => 'disabled', 'remember_token' => null])->save();
             $message = $m->name.'’s account is disabled. They are signed out and cannot sign in.';
@@ -44,7 +45,7 @@ class MemberController extends Controller
             return back();
         }
 
-        return redirect('/admin/members'.($request->query('q') ? '?q='.rawurlencode((string) $request->query('q')) : ''))->with('status', $message);
+        return redirect('/admin/members'.($request->query('q') ? '?q='.rawurlencode(Input::str($request, 'q')) : ''))->with('status', $message);
     }
 
     public function subscribers(Request $request): View

@@ -349,12 +349,17 @@ final class Shop
             self::createTables();
         } catch (\Throwable $e) {
             // Two first requests at the same moment: the other one created the tables.
+            // Anything else (e.g. a column that could not be added) is reported, not remembered.
             if (! Schema::hasTable('orders') || ! Schema::hasTable('order_items')) {
                 throw $e;
             }
         }
         self::$hasTables = true;
-        Cache::forever('shop-tables-v4', true);
+        // Remember "done" only when the newest column exists; otherwise try again next time
+        // (checkout keeps working without it: orders are just not linked to accounts).
+        if (Schema::hasColumn('orders', 'member_id')) {
+            Cache::forever('shop-tables-v4', true);
+        }
     }
 
     private static function createTables(): void
@@ -411,9 +416,13 @@ final class Shop
         }
         // v4: the member account that placed the order (null for guest checkout).
         if (! Schema::hasColumn('orders', 'member_id')) {
-            Schema::table('orders', function (Blueprint $t) {
-                $t->unsignedBigInteger('member_id')->nullable()->index();
-            });
+            try {
+                Schema::table('orders', function (Blueprint $t) {
+                    $t->unsignedBigInteger('member_id')->nullable()->index();
+                });
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('[shop] could not add orders.member_id yet', ['error' => $e->getMessage()]);
+            }
         }
     }
 }

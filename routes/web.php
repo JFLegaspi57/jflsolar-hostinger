@@ -60,6 +60,14 @@ Route::post('/reset-password', [Account\AuthController::class, 'reset'])->middle
 Route::get('/account', [Account\AccountController::class, 'show']);
 Route::post('/account', [Account\AccountController::class, 'update']);
 Route::post('/account/password', [Account\AccountController::class, 'password'])->middleware('throttle:account');
+Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
+
+// Forum
+Route::get('/forum', [\App\Http\Controllers\ForumController::class, 'index']);
+Route::get('/forum/new', [\App\Http\Controllers\ForumController::class, 'create']);
+Route::post('/forum', [\App\Http\Controllers\ForumController::class, 'store'])->middleware('throttle:forum');
+Route::get('/forum/{slug}', [\App\Http\Controllers\ForumController::class, 'show'])->where('slug', '[a-z0-9-]{1,120}');
+Route::post('/forum/{slug}/reply', [\App\Http\Controllers\ForumController::class, 'reply'])->where('slug', '[a-z0-9-]{1,120}')->middleware('throttle:forum');
 
 // Newsletter (promos and news)
 Route::post('/newsletter', [NewsletterController::class, 'subscribe'])->middleware('throttle:account');
@@ -139,6 +147,9 @@ Route::prefix('admin')->group(function () {
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);
 
+        Route::get('forum', [Admin\ForumController::class, 'index']);
+        Route::post('forum/posts/{post}', [Admin\ForumController::class, 'post'])->whereNumber('post');
+        Route::post('forum/topics/{topic}', [Admin\ForumController::class, 'topic'])->whereNumber('topic');
         Route::get('members', [Admin\MemberController::class, 'index']);
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);

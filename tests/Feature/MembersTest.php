@@ -212,9 +212,9 @@ class MembersTest extends TestCase
         $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
         $this->post('/newsletter/unsubscribe/'.str_repeat('a', 40))->assertSee('Link not recognised');
 
-        // Signing up again later works.
+        // The open footer form does not put them back on the list (someone else could type their email).
         $this->from('/')->post('/newsletter', ['email' => 'juan@example.com', 'consent' => '1']);
-        $this->assertTrue(Newsletter::isSubscribed('juan@example.com'));
+        $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
     }
 
     public function test_staff_manage_members_and_download_subscribers(): void
@@ -224,15 +224,15 @@ class MembersTest extends TestCase
         Newsletter::subscribe('juan@example.com', 'Juan', 'footer');
         $staff = $this->staff();
 
-        $this->actingAs($staff)->get('/admin/members')->assertOk()->assertSee('maria@example.com');
-        $this->actingAs($staff)->get('/admin/members?q=nobody')->assertSee('No members match');
-        $this->actingAs($staff)->post('/admin/members/'.$m->id, ['action' => 'disable'])->assertRedirect('/admin/members');
+        $this->actingAs($staff, 'web')->get('/admin/members')->assertOk()->assertSee('maria@example.com');
+        $this->actingAs($staff, 'web')->get('/admin/members?q=nobody')->assertSee('No members match');
+        $this->actingAs($staff, 'web')->post('/admin/members/'.$m->id, ['action' => 'disable'])->assertRedirect('/admin/members');
         $this->assertSame('disabled', $m->fresh()->status);
-        $this->actingAs($staff)->post('/admin/members/'.$m->id, ['action' => 'enable']);
+        $this->actingAs($staff, 'web')->post('/admin/members/'.$m->id, ['action' => 'enable']);
         $this->assertSame('active', $m->fresh()->status);
 
-        $this->actingAs($staff)->get('/admin/subscribers')->assertOk()->assertSee('juan@example.com');
-        $csv = $this->actingAs($staff)->get('/admin/subscribers/export')->assertOk()->streamedContent();
+        $this->actingAs($staff, 'web')->get('/admin/subscribers')->assertOk()->assertSee('juan@example.com');
+        $csv = $this->actingAs($staff, 'web')->get('/admin/subscribers/export')->assertOk()->streamedContent();
         $this->assertStringContainsString('juan@example.com,Juan', $csv);
         $this->assertStringContainsString("'=hyperlink", $csv);   // formulas neutralised for Excel
         $this->assertStringContainsString('/newsletter/unsubscribe/', $csv);
@@ -250,5 +250,61 @@ class MembersTest extends TestCase
             $this->assertStringContainsString('Disallow: '.$path, $robots);
         }
         $this->get('/login')->assertSee('noindex', false);
+    }
+
+    public function test_a_password_change_elsewhere_signs_out_other_sessions(): void
+    {
+        $m = $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
+        $this->get('/account')->assertOk();
+        // The password is reset from another device (e.g. the real owner reclaims the account).
+        $m->forceFill(['password' => 'a completely new passphrase'])->save();
+        $this->app['auth']->forgetGuards();
+        $this->get('/account')->assertRedirect('/login?next=%2Faccount');
+        $this->assertGuest('member');
+    }
+
+    public function test_changing_your_own_password_keeps_this_browser_signed_in(): void
+    {
+        $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
+        $this->post('/account/password', ['current_password' => self::PASSWORD, 'password' => 'another long password', 'password_confirmation' => 'another long password']);
+        $this->app['auth']->forgetGuards();
+        $this->get('/account')->assertOk();
+    }
+
+    public function test_the_footer_form_never_resubscribes_someone_who_left(): void
+    {
+        Newsletter::subscribe('juan@example.com', null, 'footer');
+        Newsletter::unsubscribeEmail('juan@example.com');
+        $this->from('/')->post('/newsletter', ['email' => 'juan@example.com', 'consent' => '1'])->assertSessionHas('newsletter_status');
+        $this->assertFalse(Newsletter::isSubscribed('juan@example.com'));
+        // They can rejoin themselves from their account.
+        $m = $this->member(['email' => 'juan@example.com']);
+        $this->actingAs($m, 'member')->post('/account', ['name' => 'Juan', 'phone' => '', 'newsletter' => '1']);
+        $this->assertTrue(Newsletter::isSubscribed('juan@example.com'));
+    }
+
+    public function test_members_can_delete_their_account(): void
+    {
+        $m = $this->member();
+        Newsletter::subscribe($m->email, $m->name, 'signup');
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
+        $this->post('/account/delete', ['password' => 'wrong'])->assertSessionHasErrors('delete_password');
+        $this->post('/account/delete', ['password' => self::PASSWORD])->assertRedirect('/');
+        $this->assertSame(0, Member::query()->count());
+        $this->assertFalse(Newsletter::isSubscribed('maria@example.com'));
+        $this->assertGuest('member');
+    }
+
+    public function test_odd_form_values_are_handled_without_errors(): void
+    {
+        $this->post('/signup', ['name' => ['x'], 'email' => ['a'], 'password' => ['p'], 'password_confirmation' => ['p'], 'next' => ['/x']])->assertRedirect();
+        $this->post('/login', ['email' => ['a'], 'password' => ['p']])->assertRedirect();
+        $this->post('/forgot-password', ['email' => ['a']])->assertRedirect();
+        $this->from('/')->post('/newsletter', ['email' => ['a'], 'consent' => '1'])->assertRedirect();
+        $this->get('/forum?q[]=x&category[]=y')->assertOk();
+        $this->member();
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => "/account\n"])->assertRedirect('/account');
     }
 }

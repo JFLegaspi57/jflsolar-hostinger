@@ -23,13 +23,34 @@ final class Members
         }
         $guard = Auth::guard('member');
         $member = $guard->user();
-        if ($member && ! $member->isActive()) {
+        if (! $member) {
+            return null;
+        }
+        // Signed out when disabled, or when the password changed since this session signed in
+        // (a password reset or change ends every other session of the account).
+        $seen = session('member_pw');
+        if (! $member->isActive() || (is_string($seen) && ! hash_equals($seen, self::passwordStamp($member)))) {
             $guard->logout();
+            session()->forget('member_pw');
 
             return null;
         }
+        if (! is_string($seen)) {
+            self::stampSession($member);
+        }
 
         return $member;
+    }
+
+    private static function passwordStamp(Member $member): string
+    {
+        return hash_hmac('sha256', 'member-session|'.$member->id.'|'.$member->password, (string) config('app.key'));
+    }
+
+    /** Call after signing a member in or changing their password (in this browser). */
+    public static function stampSession(Member $member): void
+    {
+        session(['member_pw' => self::passwordStamp($member)]);
     }
 
     public static function hasTables(): bool

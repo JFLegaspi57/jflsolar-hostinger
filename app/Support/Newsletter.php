@@ -55,13 +55,17 @@ final class Newsletter
         Cache::forget(self::TABLES_KEY);
     }
 
-    /** Adds (or re-adds) an email. Returns false if it was already subscribed. */
-    public static function subscribe(string $email, ?string $name, string $source): bool
+    /**
+     * Adds an email. Someone who unsubscribed is only added back when they ask for it
+     * themselves while signed in ($rejoin), never from the open footer form.
+     * Returns false if nothing changed.
+     */
+    public static function subscribe(string $email, ?string $name, string $source, bool $rejoin = true): bool
     {
         self::ensureTables();
         $email = mb_strtolower(trim($email));
         $row = DB::table('newsletter_subscribers')->where('email', $email)->first();
-        if ($row && ! $row->unsubscribed_at) {
+        if ($row && (! $row->unsubscribed_at || ! $rejoin)) {
             return false;
         }
         $now = now();

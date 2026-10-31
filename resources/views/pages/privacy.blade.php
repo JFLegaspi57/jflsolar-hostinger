@@ -48,7 +48,12 @@
             @endif
             <section>
                 <h2>Accounts</h2>
-                <p>If you create an account we keep your name, email address, optional phone number and a scrambled (hashed) form of your password — never the password itself — plus when you last signed in. Orders you place while signed in are linked to your account so you can see them. Only signed-in JFL Solar staff can see account details. You can change your details on your account page, and ask us to delete your account at any time.</p>
+                <p>If you create an account we keep your name, email address, optional phone number and a scrambled (hashed) form of your password — never the password itself — plus when you last signed in. Orders you place while signed in are linked to your account so you can see them. Only signed-in JFL Solar staff can see account details. You can change your details, or delete your account, on your account page. Orders stay in our sales records after an account is deleted.</p>
+            </section>
+
+            <section>
+                <h2>Forum</h2>
+                <p>Forum posts are public. They show your first name and the initial of your last name (for example “Maria S.”), never your email or phone number. Staff can see which account wrote a post so they can moderate. Ask us if you would like a post of yours removed.</p>
             </section>
 
             <section>

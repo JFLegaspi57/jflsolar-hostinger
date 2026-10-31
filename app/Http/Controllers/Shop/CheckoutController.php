@@ -186,8 +186,10 @@ class CheckoutController extends Controller
             'customer_notes' => $values['notes'] ?: null,
             'fulfilment' => 'pickup',
             'total_php' => $summary['total'],
-            'member_id' => \App\Support\Members::current()?->id,
         ];
+        if (($member = \App\Support\Members::current()) && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')) {
+            $order['member_id'] = $member->id;   // only when signed in, so guest checkout never needs the column
+        }
         $items = array_map(fn ($line) => [
             'product_id' => $line['product']->id,
             'name' => $line['product']->name,
