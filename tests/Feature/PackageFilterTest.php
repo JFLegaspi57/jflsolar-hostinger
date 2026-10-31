@@ -22,7 +22,8 @@ class PackageFilterTest extends TestCase
 
         $bundle = Package::query()->where('status', 'published')->where('package_type', 'equipment_bundle')->first();
         $this->get('/packages')->assertSee('Materials Only')->assertSee('/packages?type=materials', false)->assertDontSee('Equipment only</a>', false);
-        $page = $this->get('/packages?type=materials')->assertOk()->assertDontSee($installed->name);
+        $page = $this->get('/packages?type=materials')->assertOk()->assertDontSee($installed->name)->assertSee('Materials Only</h1>', false);
+        $this->get('/packages')->assertSee('Solar packages</h1>', false);
         if ($bundle) {
             $page->assertSee($bundle->name);
         }
