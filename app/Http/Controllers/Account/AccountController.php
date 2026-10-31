@@ -32,6 +32,12 @@ class AccountController extends Controller
             'orders' => $orders,
             'subscribed' => Newsletter::isSubscribed($member->email),
             'basket' => Shop::visible() ? Shop::summary() : null,
+            'forumLatest' => \App\Support\Forum::hasTables()
+                ? \App\Models\ForumTopic::query()->where('status', 'published')->orderByDesc('last_post_at')->limit(5)->get()
+                : collect(),
+            'forumMine' => \App\Support\Forum::hasTables()
+                ? \App\Models\ForumPost::query()->with('topic')->where('member_id', $member->id)->latest('id')->limit(5)->get()
+                : collect(),
         ]);
     }
 
