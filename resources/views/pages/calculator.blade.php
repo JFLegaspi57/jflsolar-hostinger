@@ -170,8 +170,8 @@
                         @php
                             $rows = [
                                 ['Solar panels', $r['panels'].' × '.$r['panel'].' W', 'About '.$n($r['area'], 0).' m² of roof'],
-                                ['Mounting (suggested)', collect(\App\Support\PackageBuilder::mountingFor((int) $r['panels']))->take(2)->map(fn ($m) => $m['quantity'].' '.mb_strtolower($m['label']))->implode(' · '),
-                                    collect(\App\Support\PackageBuilder::mountingFor((int) $r['panels']))->skip(2)->map(fn ($m) => $m['quantity'].' '.mb_strtolower($m['label']))->implode(' · ').' — for a standard roof mount'],
+                                ['Mounting (suggested)', collect(\App\Support\PackageBuilder::mountingFor((int) $r['panels']))->take(3)->map(fn ($m) => $m['quantity'].' '.mb_strtolower($m['label']))->implode(' · '),
+                                    collect(\App\Support\PackageBuilder::mountingFor((int) $r['panels']))->skip(3)->map(fn ($m) => $m['quantity'].' '.mb_strtolower($m['label']))->implode(' · ').' — for a standard roof mount'],
                                 ['Inverter', $r['inverter']['label'], $in['type'] === 'grid' ? 'Grid-tied' : 'Hybrid, with backup output'],
                             ];
                             if ($r['battery'] > 0) {

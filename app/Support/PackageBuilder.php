@@ -212,10 +212,17 @@ final class PackageBuilder
      */
     public const MOUNTING = [
         'railing' => ['Railings', 1, 0, '1 per panel'],
+        'splice-connector' => ['Splice connectors', 0.8, 0, '8 per 10 railings'],
         'l-foot' => ['L-feet', 3, 0, '3 per railing'],
         'mid-clamp' => ['Mid clamps', 2, 0, '2 per panel'],
         'end-clamp' => ['End clamps', 0, 4, '4 per system'],
     ];
+
+    /** Quantity for N panels: per-panel rate (rounded up) + fixed. */
+    public static function mountingQty(float $per, int $fixed, int $panels): int
+    {
+        return $panels < 1 ? 0 : (int) ceil(round($per * $panels, 6)) + $fixed;
+    }
 
     /** @return list<array{slug: string, label: string, quantity: int, rule: string}> for N panels */
     public static function mountingFor(int $panels): array
@@ -224,7 +231,7 @@ final class PackageBuilder
             return [];
         }
 
-        return array_map(fn ($slug, $r) => ['slug' => $slug, 'label' => $r[0], 'quantity' => $r[1] * $panels + $r[2], 'rule' => $r[3]], array_keys(self::MOUNTING), self::MOUNTING);
+        return array_map(fn ($slug, $r) => ['slug' => $slug, 'label' => $r[0], 'quantity' => self::mountingQty($r[1], $r[2], $panels), 'rule' => $r[3]], array_keys(self::MOUNTING), self::MOUNTING);
     }
 
     /** Index of the builder line that holds the solar panels, if any. */
@@ -243,7 +250,7 @@ final class PackageBuilder
     /**
      * Mounting products on sale among the add-ons, with their per-panel rule.
      *
-     * @return list<array{product: \App\Models\Product, per: int, fixed: int, rule: string}>
+     * @return list<array{product: \App\Models\Product, per: float, fixed: int, rule: string}>
      */
     public static function mountingProducts(array $addons): array
     {

@@ -70,7 +70,7 @@
         </div>
 
         @if ($mount)
-            @php $mountTotal = collect($mount)->sum(fn ($m) => (float) $m['product']->price_php * ($m['per'] * $panelQty + $m['fixed'])); @endphp
+            @php $mountTotal = collect($mount)->sum(fn ($m) => (float) $m['product']->price_php * (\App\Support\PackageBuilder::mountingQty($m['per'], $m['fixed'], $panelQty))); @endphp
             {{-- Collapsible: closes itself once the mounting is added, and after Add to Basket. --}}
             <details data-mount data-panel-line="{{ $panelIdx }}" class="addon-group mt-5 rounded-[var(--radius-panel)] border border-gold-500 bg-gold-50" @unless (session('pkg_added')) open @endunless>
                 <summary class="flex min-h-12 cursor-pointer items-center justify-between gap-3 px-4 py-2">
@@ -90,8 +90,8 @@
                                 <tr data-mount-row data-id="{{ $m['product']->id }}" data-per="{{ $m['per'] }}" data-fixed="{{ $m['fixed'] }}" data-price="{{ (float) $m['product']->price_php }}">
                                     <td class="py-2 pr-4"><a href="/products/{{ $m['product']->slug }}" class="font-semibold text-steel-900 hover:underline">{{ $m['product']->name }}</a><span class="block text-sm text-steel-600">{{ $m['rule'] }}</span></td>
                                     <td class="py-2 pr-4 text-right whitespace-nowrap tabular">{{ Pricing::formatPhp($m['product']->price_php) }}</td>
-                                    <td class="py-2 pr-4 text-right font-semibold whitespace-nowrap tabular">× <span data-mount-qty>{{ $m['per'] * $panelQty + $m['fixed'] }}</span></td>
-                                    <td class="py-2 text-right font-semibold whitespace-nowrap tabular" data-mount-amount>{{ Pricing::formatPhp((float) $m['product']->price_php * ($m['per'] * $panelQty + $m['fixed'])) }}</td>
+                                    <td class="py-2 pr-4 text-right font-semibold whitespace-nowrap tabular">× <span data-mount-qty>{{ \App\Support\PackageBuilder::mountingQty($m['per'], $m['fixed'], $panelQty) }}</span></td>
+                                    <td class="py-2 text-right font-semibold whitespace-nowrap tabular" data-mount-amount>{{ Pricing::formatPhp((float) $m['product']->price_php * (\App\Support\PackageBuilder::mountingQty($m['per'], $m['fixed'], $panelQty))) }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -203,7 +203,7 @@
                     mountBox.querySelector('[data-mount-word]').textContent = n === 1 ? 'panel' : 'panels';
                     let mt = 0;
                     mountBox.querySelectorAll('[data-mount-row]').forEach((row) => {
-                        const q = n > 0 ? (+row.dataset.per) * n + (+row.dataset.fixed) : 0;
+                        const q = n > 0 ? Math.ceil(Math.round((+row.dataset.per) * n * 1e6) / 1e6) + (+row.dataset.fixed) : 0;
                         row.querySelector('[data-mount-qty]').textContent = q;
                         row.querySelector('[data-mount-amount]').textContent = peso(q * (+row.dataset.price));
                         mt += q * (+row.dataset.price);
