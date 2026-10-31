@@ -95,6 +95,10 @@
                         <x-placeholder-image label="Product photo pending" :icon="$glyph" />
                     @endif
                 </div>
+                @if ($cover && filled($cover->caption))
+                    {{-- e.g. "Temporary picture — may differ from actual product appearance"; shown here only, not on category cards --}}
+                    <p class="text-sm font-semibold" style="color: #b45309">{{ $cover->caption }}</p>
+                @endif
                 @if ($rest->isNotEmpty())
                     <ul class="grid grid-cols-4 gap-2" aria-label="More images">
                         @foreach ($rest as $img)
