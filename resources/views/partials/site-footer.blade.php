@@ -17,7 +17,7 @@
         <nav aria-label="Footer">
             <h2 class="mb-3 text-sm font-semibold tracking-wide text-white uppercase">Explore</h2>
             <ul class="{{ $compact ? 'flex flex-wrap gap-x-6 gap-y-1' : 'space-y-1' }} text-sm">
-                @foreach (Site::NAV as $item)
+                @foreach ([...Site::NAV, ...Site::HELP_LINKS] as $item)
                     <li><a href="{{ $item['href'] }}" class="inline-flex min-h-9 items-center hover:text-white hover:underline">{{ $item['label'] }}</a></li>
                 @endforeach
             </ul>

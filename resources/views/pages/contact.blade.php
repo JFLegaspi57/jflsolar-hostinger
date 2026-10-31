@@ -132,6 +132,12 @@
             <div>
                 <h2 class="mb-4 text-xl font-bold text-steel-950">Office and warehouse</h2>
                 <x-addresses :settings="$settings" />
+                @php $maps = \App\Support\Shop::directionLinks(); @endphp
+                <div class="mt-4 overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-100" style="aspect-ratio: 4 / 3">
+                    <iframe src="https://www.google.com/maps?q={{ rawurlencode(\App\Support\Shop::MAPS_NAME.', Dasmariñas, Cavite') }}&amp;output=embed" title="Map: {{ \App\Support\Shop::MAPS_NAME }}, Dasmariñas, Cavite" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width: 100%; height: 100%; border: 0"></iframe>
+                </div>
+                <p class="mt-2 text-sm text-steel-600">Directions: <a href="{{ $maps['google'] }}" target="_blank" rel="noopener" class="font-semibold text-steel-900 underline">Google Maps</a> or <a href="{{ $maps['waze'] }}" target="_blank" rel="noopener" class="font-semibold text-steel-900 underline">Waze</a> <span class="sr-only">(open in a new tab)</span></p>
+                <p class="mt-6 text-sm text-steel-700">Have a quick question? See our <a href="/faq" class="font-semibold text-steel-900 underline">frequently asked questions</a>.</p>
             </div>
         </aside>
     </x-container>

@@ -142,6 +142,18 @@ class PageController extends Controller
         return view('pages.project', ['project' => $project]);
     }
 
+    public function faq(): View
+    {
+        $settings = PublicContent::settings();
+
+        return view('pages.faq', ['settings' => $settings, 'items' => \App\Support\Faq::items($settings)]);
+    }
+
+    public function netMetering(): View
+    {
+        return view('pages.net-metering', ['settings' => PublicContent::settings()]);
+    }
+
     public function privacy(): View
     {
         return view('pages.privacy', ['settings' => PublicContent::settings()]);
@@ -166,7 +178,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);

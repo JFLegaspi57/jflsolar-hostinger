@@ -21,6 +21,12 @@ final class Site
         ['href' => '/contact', 'label' => 'Contact'],
     ];
 
+    /** Help pages listed in the footer (not in the main menu). */
+    public const HELP_LINKS = [
+        ['href' => '/faq', 'label' => 'FAQ'],
+        ['href' => '/net-metering', 'label' => 'Net metering guide'],
+    ];
+
     public const QUOTE_HREF = '/contact#quote';
 
     /**
@@ -31,6 +37,12 @@ final class Site
     public static function allowsIndexing(): bool
     {
         return self::isProduction() && (config('site.indexing') || self::onOwnHost());
+    }
+
+    /** Google Analytics or the Meta Pixel is set up and this is the live site. */
+    public static function tracking(): bool
+    {
+        return self::isProduction() && (config('site.ga4_id') !== '' || config('site.meta_pixel_id') !== '');
     }
 
     public static function isProduction(): bool

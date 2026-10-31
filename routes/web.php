@@ -24,6 +24,8 @@ Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug'
 Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
+Route::get('/faq', [PageController::class, 'faq']);
+Route::get('/net-metering', [PageController::class, 'netMetering']);
 // Old address: keep shared links working (query string carried over).
 Route::get('/solar-calculator', fn (Request $r) => redirect()->to('/pv-calculator'.(($q = (string) $r->server('QUERY_STRING')) !== '' ? '?'.$q : ''), 301));
 // Time-on-page reports from the page's own timing script (admin → Visitors). Sent with
@@ -146,8 +148,8 @@ Route::prefix('admin')->group(function () {
         Route::post('content/{key}/delete', [Admin\ContentController::class, 'destroy'])->where('key', '[a-z0-9._-]+');
 
         Route::get('text', fn () => redirect('/admin/text/home'));
-        Route::get('text/{page}', [Admin\PageTextController::class, 'edit'])->where('page', 'home|services|about');
-        Route::post('text/{page}', [Admin\PageTextController::class, 'update'])->where('page', 'home|services|about');
+        Route::get('text/{page}', [Admin\PageTextController::class, 'edit'])->where('page', 'home|services|about|faq');
+        Route::post('text/{page}', [Admin\PageTextController::class, 'update'])->where('page', 'home|services|about|faq');
 
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);

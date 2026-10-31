@@ -53,6 +53,7 @@
             @endforeach
         </div>
         <p class="mt-6 max-w-3xl text-sm text-steel-600">{{ $t('services.types.note') }}</p>
+        <p class="mt-3 max-w-3xl text-sm text-steel-600">Want to send your extra solar power to the grid? Read our <a href="/net-metering" class="font-semibold text-steel-900 underline">net metering guide</a>, or see the <a href="/faq" class="font-semibold text-steel-900 underline">frequently asked questions</a>.</p>
     </x-section>
 
     <x-section tone="dark" labelledby="cta-title">
