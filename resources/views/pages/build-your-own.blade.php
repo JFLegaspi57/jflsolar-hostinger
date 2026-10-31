@@ -1,12 +1,14 @@
 @php
     use App\Support\Site;
     use App\Support\Ui;
-    $intro = 'Pick your own hybrid inverter, solar panels and battery, set the quantities, and add the mounting, cables, protection devices and accessories you need. Every part shows its own price and the total updates as you go.';
+    $intro = 'We offer free comprehensive and unparalleled technical support, from installation, commissioning, and to troubleshooting, for all clients who purchase their supplies from us.';
 @endphp
 <x-site-layout title="Build Your Own Solar Package" path="/packages/build-your-own" :reviews-above-footer="false" description="Build your own solar package: choose a hybrid inverter, solar panels and battery, add mounting, cables, safety devices and accessories, see the total and add everything to your basket. Pickup prices from JFL Solar.">
     <x-page-hero eyebrow="Packages" title="Build Your Own" :intro="$intro"
         image="/images/packages-vents-1280.jpg" srcset="/images/packages-vents-640.jpg 640w, /images/packages-vents-960.jpg 960w, /images/packages-vents-1280.jpg 1280w"
-        imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%" />
+        imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%">
+        <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
+    </x-page-hero>
 
     <x-container class="pt-10 pb-24">
         <div class="mx-auto max-w-5xl">
