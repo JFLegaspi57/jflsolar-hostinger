@@ -205,16 +205,69 @@ final class Shop
     }
 
     /** @return array<string, int> product id => quantity */
+    /**
+     * The basket: product id => quantity. A signed-in customer's basket is saved on their
+     * account (so it follows them to every device); otherwise it lives in this browser's session.
+     */
     public static function raw(): array
     {
-        $cart = session(self::SESSION_KEY, []);
+        $member = self::cartMember();
+        if ($member && $member->cart === null && self::cleanCart(session(self::SESSION_KEY, []))) {
+            self::mergeIntoAccount($member);   // nothing saved yet: keep what is in this browser
+        }
+        $cart = $member ? json_decode((string) $member->cart, true) : session(self::SESSION_KEY, []);
 
-        return is_array($cart) ? array_filter(array_map('intval', $cart), fn ($q) => $q > 0) : [];
+        return self::cleanCart($cart);
     }
 
     public static function put(array $cart): void
     {
-        session([self::SESSION_KEY => array_filter($cart, fn ($q) => $q > 0)]);
+        $cart = self::cleanCart($cart);
+        session([self::SESSION_KEY => $cart]);
+        if ($member = self::cartMember()) {
+            $member->forceFill(['cart' => $cart ? json_encode($cart) : null])->saveQuietly();
+        }
+    }
+
+    /** After signing in: combine this browser's basket with the one saved on the account (larger quantity wins). */
+    public static function mergeIntoAccount(\App\Models\Member $member): void
+    {
+        if (! array_key_exists('cart', $member->getAttributes())) {
+            $member->refresh();   // the column was just added
+        }
+        if (! array_key_exists('cart', $member->getAttributes())) {
+            return;
+        }
+        $saved = self::cleanCart(json_decode((string) $member->cart, true));
+        foreach (self::cleanCart(session(self::SESSION_KEY, [])) as $id => $qty) {
+            $saved[$id] = max($saved[$id] ?? 0, $qty);
+        }
+        $saved = array_map(fn ($q) => self::clampQuantity($q), $saved);
+        $member->forceFill(['cart' => $saved ? json_encode($saved) : null])->saveQuietly();
+        session([self::SESSION_KEY => $saved]);
+    }
+
+    /** Signed-in customer whose account can hold a basket (the column exists), or null. */
+    private static function cartMember(): ?\App\Models\Member
+    {
+        $m = \App\Support\Members::current();
+
+        return $m && array_key_exists('cart', $m->getAttributes()) ? $m : null;
+    }
+
+    private static function cleanCart(mixed $cart): array
+    {
+        if (! is_array($cart)) {
+            return [];
+        }
+        $out = [];
+        foreach ($cart as $id => $qty) {
+            if (is_string($id) && preg_match('/^[0-9a-f-]{36}$/', $id) && (int) $qty > 0) {
+                $out[$id] = (int) $qty;
+            }
+        }
+
+        return $out;
     }
 
     public static function clampQuantity(mixed $qty): int

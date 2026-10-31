@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Schema;
 /** Customer (member) accounts: tables and the signed-in member. */
 final class Members
 {
-    private const TABLES_KEY = 'member-tables-v3';
+    private const TABLES_KEY = 'member-tables-v4';
 
     private static ?bool $hasTables = null;
 
@@ -72,7 +72,7 @@ final class Members
         try {
             self::createTables();
         } catch (\Throwable $e) {
-            if (! Schema::hasTable('members') || ! Schema::hasTable('member_password_resets') || ! Schema::hasColumn('members', 'tiktok_url') || ! Schema::hasTable('member_activity')) {
+            if (! Schema::hasTable('members') || ! Schema::hasTable('member_password_resets') || ! Schema::hasColumn('members', 'tiktok_url') || ! Schema::hasTable('member_activity') || ! Schema::hasColumn('members', 'cart')) {
                 throw $e;   // not the "someone else created them at the same moment" case
             }
         }
@@ -116,6 +116,12 @@ final class Members
                 $t->timestamp('created_at')->useCurrent();
                 $t->index(['member_id', 'kind', 'id']);
                 $t->index('created_at');
+            });
+        }
+        // v4: the member's basket, so it follows them to every device they sign in on.
+        if (! Schema::hasColumn('members', 'cart')) {
+            Schema::table('members', function (Blueprint $t) {
+                $t->text('cart')->nullable();
             });
         }
         if (! Schema::hasTable('member_password_resets')) {
