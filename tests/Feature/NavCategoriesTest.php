@@ -34,6 +34,7 @@ class NavCategoriesTest extends TestCase
         $this->assertStringContainsString('>Complete Packages<', $html);
         $this->assertStringContainsString('href="/packages?type=materials"', $html);
         $this->assertStringContainsString('>Materials Only<', $html);
+        $this->assertStringNotContainsString('nav-dd-link font-semibold">All packages<', $html);   // the Packages link itself opens the full list
         // The open filter is marked in the menu.
         $this->assertMatchesRegularExpression('#href="/packages\\?type=materials"\\s+aria-current="page"\\s+class="nav-dd-link"#', $this->get('/packages?type=materials')->getContent());
     }

@@ -10,13 +10,13 @@
     $currentCategory = request()->is('products') ? (string) request()->query('category', '') : '';
     $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
     $currentPackageType = request()->is('packages') ? (string) request()->query('type', '') : '';
-    // Drop-down sub-menus under a main menu item: [aria label, "all" link, items].
+    // Drop-down sub-menus under a main menu item: [aria label, "all" link or null, items].
     $subMenus = [];
     if ($productCategories->isNotEmpty()) {
         $subMenus['/products'] = ['Product categories', ['/products', 'All products'],
             $productCategories->map(fn ($c) => ['/products?category='.$c->slug, $c->name, $currentCategory === $c->slug])->all()];
     }
-    $subMenus['/packages'] = ['Package types', ['/packages', 'All packages'], [
+    $subMenus['/packages'] = ['Package types', null, [
         ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
         ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
         ['/packages/build-your-own', 'Build Your Own', request()->is('packages/build-your-own')],
@@ -51,7 +51,7 @@
                             @if ($dropdown)
                                 <div class="nav-dd-menu">
                                     <ul aria-label="{{ $sub[0] }}" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
-                                        <li><a href="{{ $sub[1][0] }}" class="nav-dd-link font-semibold">{{ $sub[1][1] }}</a></li>
+                                        @if ($sub[1])<li><a href="{{ $sub[1][0] }}" class="nav-dd-link font-semibold">{{ $sub[1][1] }}</a></li>@endif
                                         @foreach ($sub[2] as [$subHref, $subLabel, $subCurrent])
                                             <li><a href="{{ $subHref }}" @if ($subCurrent) aria-current="page" @endif class="nav-dd-link">{{ $subLabel }}</a></li>
                                         @endforeach
