@@ -16,7 +16,7 @@
                 <style>@media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
                     @media (min-width: 1024px) and (max-width: 1279.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
                     @media (min-width: 1024px) and (max-width: 1219.98px) { .quote-long { display: none !important; } .quote-short { display: inline !important; } }
-                    @media (max-width: 639.98px) { .auth-label { display: none; } [data-auth-open] { border-color: transparent !important; padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
+                    @media (max-width: 639.98px) { .auth-label { display: none; } header [data-auth-open], header a[href="/account"] { padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
                     @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
@@ -33,14 +33,14 @@
             </nav>
             @if ($member)
                 <a href="/account" aria-label="Your account" @if (request()->is('account')) aria-current="page" @endif
-                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-control)] px-2 font-semibold whitespace-nowrap text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
-                    <x-icon name="user" class="size-6" />
+                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">
+                    <x-icon name="user" class="size-4" />
                     <span class="auth-label">Account</span>
                 </a>
             @else
                 <a href="/login" data-auth-open="login" aria-haspopup="dialog" aria-label="Log in or create an account" @if (request()->is('login', 'signup')) aria-current="page" @endif
-                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-control)] border border-steel-300 px-2.5 font-semibold whitespace-nowrap text-steel-900 hover:border-steel-900 hover:bg-steel-50 aria-[current=page]:bg-gold-50">
-                    <x-icon name="user" class="size-5" />
+                    style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">
+                    <x-icon name="user" class="size-4" />
                     <span class="auth-label">Log in</span>
                 </a>
             @endif
