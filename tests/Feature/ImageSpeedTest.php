@@ -43,6 +43,7 @@ class ImageSpeedTest extends TestCase
             $this->assertStringContainsString($part, $res->headers->get('Cache-Control'));
         }
         $this->assertSame('public, max-age=31536000, s-maxage=31536000, immutable', MediaController::PUBLIC_CACHE);
+        $this->assertSame([], $res->headers->getCookies(), 'Photos must not set cookies, or the CDN will not cache them');
 
         $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
         $admin = $this->actingAs($staff)->get('/admin/media/'.$m->storage_key.'/640.webp')->assertOk();

@@ -97,7 +97,17 @@ Route::get('/terms', [PageController::class, 'terms']);
 Route::get('/robots.txt', [PageController::class, 'robots']);
 Route::get('/stats/visitors', fn () => response()->json(\App\Support\Visitors::publicStats() ?? (object) [])->header('Cache-Control', 'no-store'))->middleware('throttle:stats');
 Route::get('/sitemap.xml', [PageController::class, 'sitemap']);
-Route::get('/media/{path}', [MediaController::class, 'public'])->where('path', '.*');
+// Public photos and datasheets: no session or cookies, so Hostinger's CDN can cache them
+// (a response that sets cookies is never cached by the CDN).
+Route::get('/media/{path}', [MediaController::class, 'public'])->where('path', '.*')
+    ->withoutMiddleware([
+        \Illuminate\Cookie\Middleware\EncryptCookies::class,
+        \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+        \Illuminate\Session\Middleware\StartSession::class,
+        \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+        \Illuminate\Foundation\Http\Middleware\PreventRequestForgery::class,
+        \App\Http\Middleware\CountVisitors::class,
+    ]);
 
 // Admin
 Route::prefix('admin')->group(function () {
