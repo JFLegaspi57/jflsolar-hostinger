@@ -14,6 +14,7 @@
                 <a href="{{ $key === 'all' ? '/packages' : '/packages?type='.$key }}" @if ($active === $key) aria-current="page" @endif
                     class="inline-flex min-h-11 items-center rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 hover:border-steel-900 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white">{{ $label }}</a>
             @endforeach
+            <a href="/packages/build-your-own" class="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-gold-500 bg-gold-50 px-4 text-sm font-semibold text-steel-900 hover:border-steel-900"><x-icon name="tools" class="size-4" /> Build Your Own</a>
         </nav>
         <p class="mt-4 text-sm text-steel-600" role="status">{{ $shown->count() }} {{ $shown->count() === 1 ? 'package' : 'packages' }}</p>
 
