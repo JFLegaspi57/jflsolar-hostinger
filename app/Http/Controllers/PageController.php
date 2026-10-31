@@ -51,6 +51,8 @@ class PageController extends Controller
             'result' => $result,
             'price' => $result ? SolarCalculator::priceRange($in, $result, PublicContent::snapshot()['packages']) : null,
             'submitted' => $submitted,
+            'buildUrl' => $result && ($preset = \App\Support\PackageBuilder::presetFromCalculator($in, $result))
+                ? \App\Support\PackageBuilder::presetUrl($preset, ['kwp' => round($result['kwp'], 2), 'type' => $in['type']]) : null,
         ]);
     }
 
@@ -91,9 +93,13 @@ class PageController extends Controller
         ]);
     }
 
-    public function buildYourOwn(): View
+    public function buildYourOwn(Request $request): View
     {
-        return view('pages.build-your-own', ['lines' => \App\Support\PackageBuilder::customLines(), 'settings' => PublicContent::settings()]);
+        $preset = \App\Support\PackageBuilder::presetFromQuery($request->query());
+        $fromCalc = $preset && is_string($request->query('kwp')) && is_numeric($request->query('kwp'))
+            ? ['kwp' => (float) $request->query('kwp'), 'type' => (string) $request->query('type', '')] : null;
+
+        return view('pages.build-your-own', ['lines' => \App\Support\PackageBuilder::customLines($preset), 'settings' => PublicContent::settings(), 'fromCalc' => $fromCalc]);
     }
 
     public function package(string $slug): View

@@ -212,7 +212,13 @@
                     </div>
 
                     <div class="calc-noprint mt-6 space-y-3">
-                        <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'md', 'w-full') }}">Talk to Us About This</a>
+                        @if ($buildUrl)
+                            <a href="{{ $buildUrl }}" class="{{ Ui::button('primary', 'md', 'w-full') }}"><x-icon name="cart" class="size-5" /> Build This System</a>
+                            <p class="text-sm text-steel-300">Opens <strong class="text-white">Build Your Own</strong> with matching products we sell and the quantities above, priced per part. Change anything, then add it to your basket.</p>
+                            <a href="{{ $quoteHref }}" class="{{ Ui::button('light', 'md', 'w-full') }}">Talk to Us About This</a>
+                        @else
+                            <a href="{{ $quoteHref }}" class="{{ Ui::button('primary', 'md', 'w-full') }}">Talk to Us About This</a>
+                        @endif
                         <button type="button" data-print hidden class="w-full text-center text-sm font-semibold text-white underline">Print this estimate</button>
                     </div>
                     <p class="mt-4 text-xs text-steel-300">A planning estimate, not an offer. Your quotation follows a site assessment.</p>
