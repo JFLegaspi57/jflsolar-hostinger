@@ -134,3 +134,15 @@ Owner request: customers can buy priced products online. Choices:
 - Structured data is now `LocalBusiness` (a subtype of Organization) with parsed opening hours.
 - GA4 / Meta Pixel are env-configured, live-only, consent-gated (localStorage choice) and skipped
   for DNT/GPC, matching the existing first-party visitor counter's opt-out.
+
+## 2026-11-01 — Faster images
+
+- Public media is sent with `public, max-age=31536000, s-maxage=31536000, immutable`: every upload
+  or replacement gets a new storage key, so a file never changes at its address, and Hostinger's
+  CDN can serve repeat requests without PHP. Trade-off: an image of an item that is later
+  unpublished stays in caches for people who already loaded it (it is no longer linked anywhere).
+  Staff media stays `private, no-store`.
+- Banner photos in public/images have WebP twins (quality 66, about half the size); pages use
+  `<picture>` with the JPEG as fallback. Ui::webpSrcset only switches when every WebP file exists.
+- Hashed build files (CSS, JS, fonts) get a one-year immutable cache; public/images and
+  public/brand get 30 days (their names do not change when replaced).

@@ -43,4 +43,24 @@ final class Ui
     {
         return array_values(array_filter(array_map('trim', preg_split('/\n\s*\n/', (string) $text)), fn ($p) => $p !== ''));
     }
+
+    /**
+     * WebP twin of a /images/… JPEG srcset ("/images/a-640.jpg 640w, …"), or null when any
+     * WebP file is missing (the page then just uses the JPEGs).
+     */
+    public static function webpSrcset(?string $srcset): ?string
+    {
+        if (! $srcset || ! str_contains($srcset, '.jpg')) {
+            return null;
+        }
+        $out = preg_replace('/\.jpg(\s|$)/', '.webp$1', $srcset);
+        foreach (preg_split('/\s*,\s*/', $out) as $part) {
+            $path = strtok(trim($part), ' ');
+            if (! str_starts_with($path, '/images/') || ! is_file(public_path($path))) {
+                return null;
+            }
+        }
+
+        return $out;
+    }
 }

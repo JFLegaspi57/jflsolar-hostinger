@@ -8,8 +8,12 @@
 @endif
 <section aria-labelledby="page-hero-title" class="on-dark relative isolate overflow-hidden bg-steel-950 text-white {{ $flip ? 'hero-flip' : '' }} {{ $tilt ? 'hero-tilt' : '' }}" @if ($tilt) data-hero-tilt @endif>
     <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">
-        <img src="{{ $image }}" @if ($srcset) srcset="{{ $srcset }}" sizes="(min-width: 1024px) 62vw, 100vw" @endif width="1280" height="577"
-            fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}" class="absolute inset-0 h-full w-full object-cover" />
+        @php $webpSrcset = \App\Support\Ui::webpSrcset($srcset ?: $image.' 1280w'); @endphp
+        <picture>
+            @if ($webpSrcset)<source type="image/webp" srcset="{{ $webpSrcset }}" sizes="(min-width: 1024px) 62vw, 100vw">@endif
+            <img src="{{ $image }}" @if ($srcset) srcset="{{ $srcset }}" sizes="(min-width: 1024px) 62vw, 100vw" @endif width="1280" height="577"
+                fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}" class="absolute inset-0 h-full w-full object-cover" />
+        </picture>
         @if ($tilt)<div aria-hidden="true" class="hero-glare absolute inset-0"></div>@endif
         <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-steel-950 to-transparent lg:hidden"></div>
         <div aria-hidden="true" class="hero-fade absolute inset-0 hidden bg-gradient-to-r from-transparent from-55% to-steel-950 lg:block"></div>

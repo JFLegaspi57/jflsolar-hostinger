@@ -8,14 +8,21 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class MediaController extends Controller
 {
-    /** Public media: only while the owning item is public. Short cache so unpublished files disappear quickly. */
+    /**
+     * Public media: only while the owning item is public. Every upload or replacement gets a new
+     * storage key (a new address), so a file never changes at its address: browsers and the
+     * Hostinger CDN may keep it for a year without asking again. A file whose item is later
+     * unpublished stays in caches only for people who already had it; it is no longer linked.
+     */
     public function public(string $path): BinaryFileResponse
     {
         [$asset, $file, $type] = $this->resolve($path);
         abort_unless(MediaStore::isPublic($asset), 404);
 
-        return $this->send($asset, $file, $type, 'public, max-age=60, s-maxage=300');
+        return $this->send($asset, $file, $type, self::PUBLIC_CACHE);
     }
+
+    public const PUBLIC_CACHE = 'public, max-age=31536000, s-maxage=31536000, immutable';
 
     /** Staff media (drafts included). Route is behind the admin middleware. */
     public function admin(string $path): BinaryFileResponse
