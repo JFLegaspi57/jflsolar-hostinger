@@ -7,7 +7,7 @@
         : new \Illuminate\Support\HtmlString('<strong class="font-semibold text-white">Installed systems</strong> include assessment, installation and commissioning. <strong class="font-semibold text-white">Equipment-only bundles</strong> are supply only — installation is not included.');
 @endphp
 <x-site-layout title="Solar Packages" path="/packages" :reviews-above-footer="false" description="Installed solar systems and equipment-only bundles with inverter kW, array kWp and battery kWh, inclusions, exclusions and pricing basis. Compare packages and ask JFL Solar.">
-    <x-page-hero eyebrow="Packages" :title="$active === 'materials' ? 'Materials Only' : 'Solar packages'" :intro="$intro"
+    <x-page-hero eyebrow="Packages" :title="match ($active) { 'materials' => 'Materials Only', 'complete' => 'Complete packages', default => 'Solar packages' }" :intro="$intro"
         image="/images/packages-vents-1280.jpg" srcset="/images/packages-vents-640.jpg 640w, /images/packages-vents-960.jpg 960w, /images/packages-vents-1280.jpg 1280w"
         imageAlt="Long rows of solar panels installed on a commercial metal roof with roof vents" focus="45% 55%" />
 
