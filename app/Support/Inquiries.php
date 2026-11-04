@@ -131,4 +131,17 @@ final class Inquiries
     {
         return 'inquiry:'.hash_hmac('sha256', 'ip|'.$ip, (string) config('app.key'));
     }
+
+    /** Bill ranges that mean a system below about 6 kW (the PV Calculator puts 6 kW at roughly ₱7,500 a month). */
+    public const SMALL_SYSTEM_BILLS = ['under-3k', '3k-5k'];
+
+    /**
+     * Inquiry that gets the "small system" auto-reply (DIY options): a monthly bill below ₱5,000,
+     * on an inquiry type where the bill question is asked.
+     */
+    public static function isSmallSystem(?string $inquiryType, ?string $billRange): bool
+    {
+        return in_array((string) $billRange, self::SMALL_SYSTEM_BILLS, true)
+            && in_array((string) $inquiryType, Labels::BILL_RELEVANT, true);
+    }
 }

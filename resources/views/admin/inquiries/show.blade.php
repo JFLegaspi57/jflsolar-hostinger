@@ -16,6 +16,7 @@
                 @if ($i->item_label)<dt class="font-semibold">Selected item</dt><dd>{{ $i->item_label }}</dd>@endif
                 <dt class="font-semibold">Location</dt><dd>{{ $i->location ?: '—' }}</dd>
                 @if ($i->bill_range)<dt class="font-semibold">Monthly bill</dt><dd>{{ Labels::BILL_RANGES[$i->bill_range] ?? $i->bill_range }}</dd>@endif
+                @if (\App\Support\Inquiries::isSmallSystem($i->inquiry_type, $i->bill_range))<dt class="font-semibold">Auto-reply</dt><dd>Small system (below 6 kW): shown the DIY options{{ $i->email ? ' and emailed them when email is set up' : '' }}</dd>@endif
                 <dt class="font-semibold">Email alert</dt><dd>{{ $i->emailed_at ? 'Sent '.$i->emailed_at->timezone('Asia/Manila')->format('j M Y, g:i A') : 'Not sent' }}</dd>
             </dl>
             <h2 class="mt-6 text-lg font-bold text-steel-950">Message</h2>

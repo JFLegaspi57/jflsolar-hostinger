@@ -128,6 +128,17 @@ class ContactController extends Controller
             }
         }
 
-        return redirect()->to('/contact#quote')->with('inquiry_sent', true);
+        // Small systems (bill below ₱5,000, under about 6 kW): automatic reply with the DIY options,
+        // on the thank-you message and by email when the customer gave one and email is set up.
+        $small = Inquiries::isSmallSystem($inquiry->inquiry_type, $inquiry->bill_range);
+        if ($small && $inquiry->email && config('mail.default') !== 'log') {
+            try {
+                Mail::to($inquiry->email, $inquiry->name)->send(new \App\Mail\SmallSystemReply($inquiry));
+            } catch (\Throwable $e) {
+                Log::error('[inquiry] small-system auto-reply failed', ['inquiry' => $inquiry->id, 'error' => $e::class]);
+            }
+        }
+
+        return redirect()->to('/contact#quote')->with('inquiry_sent', true)->with('inquiry_small', $small);
     }
 }
