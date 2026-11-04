@@ -1,6 +1,17 @@
 @php $input = 'min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 bg-white px-3 text-base text-steel-950'; @endphp
 <x-admin.layout title="Members">
     <x-admin.page-title title="Members" intro="Customer accounts created on the website (they can also post in the forum). Open a name to see their orders, sign-ins (time and approximate place) and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
+    <dl class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Member totals">
+        @foreach ([['Total members', $counts['total']], ['Active', $counts['active']], ['Disabled', $counts['total'] - $counts['active']], ['Joined in the last 30 days', $counts['new30']]] as $i => [$label, $value])
+            <div class="rounded-[var(--radius-panel)] border {{ $i === 0 ? 'border-gold-500 bg-gold-50' : 'border-steel-200 bg-white' }} p-4">
+                <dt class="text-sm font-semibold text-steel-700">{{ $label }}</dt>
+                <dd class="mt-1 text-3xl font-extrabold text-steel-950 tabular">{{ number_format($value) }}</dd>
+            </div>
+        @endforeach
+    </dl>
+    @if ($q !== '' && $members)
+        <p role="status" class="mb-3 text-sm text-steel-700">{{ number_format($members->total()) }} {{ $members->total() === 1 ? 'member matches' : 'members match' }} “{{ $q }}”.</p>
+    @endif
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
     <form method="get" action="/admin/members" class="flex w-full max-w-xl gap-2">
         <label for="m-q" class="sr-only">Search members</label>
