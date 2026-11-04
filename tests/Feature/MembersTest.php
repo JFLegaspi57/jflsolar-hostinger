@@ -230,7 +230,11 @@ class MembersTest extends TestCase
         $this->actingAs($staff, 'web')->post('/admin/members/'.$m->id, ['action' => 'enable']);
         $this->assertSame('active', $m->fresh()->status);
 
-        $this->actingAs($staff, 'web')->get('/admin/subscribers')->assertOk()->assertSee('juan@example.com');
+        $subs = $this->actingAs($staff, 'web')->get('/admin/subscribers')->assertOk()->assertSee('juan@example.com')->assertSee('Total subscribers')->getContent();
+        $active = \Illuminate\Support\Facades\DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count();
+        $this->assertGreaterThan(0, $active);
+        $this->assertMatchesRegularExpression('/Total subscribers<\/dt>\s*<dd[^>]*>'.$active.'<\/dd>/', $subs);
+        $this->assertMatchesRegularExpression('/Joined in the last 30 days<\/dt>\s*<dd[^>]*>'.$active.'<\/dd>/', $subs);
         $csv = $this->actingAs($staff, 'web')->get('/admin/subscribers/export')->assertOk()->streamedContent();
         $this->assertStringContainsString('juan@example.com,Juan', $csv);
         $this->assertStringContainsString("'=hyperlink", $csv);   // formulas neutralised for Excel

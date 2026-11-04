@@ -1,6 +1,14 @@
 @php $tab = 'inline-flex min-h-11 items-center gap-1.5 rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white'; @endphp
 <x-admin.layout title="Subscribers">
     <x-admin.page-title title="Subscribers" intro="People who asked for JFL Solar promos and news (ticked at account sign-up or on their account page). Download the list and send your emails from your usual email or newsletter tool. Include each person’s unsubscribe link (it is in the download)." />
+    <dl class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Subscriber totals">
+        @foreach ([['Total subscribers', $counts['active']], ['Unsubscribed', $counts['left']], ['All sign-ups', $counts['active'] + $counts['left']], ['Joined in the last 30 days', $counts['new30']]] as $i => [$label, $value])
+            <div class="rounded-[var(--radius-panel)] border {{ $i === 0 ? 'border-gold-500 bg-gold-50' : 'border-steel-200 bg-white' }} p-4">
+                <dt class="text-sm font-semibold text-steel-700">{{ $label }}</dt>
+                <dd class="mt-1 text-3xl font-extrabold text-steel-950 tabular">{{ number_format($value) }}</dd>
+            </div>
+        @endforeach
+    </dl>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">
             <a href="/admin/subscribers" @if ($show === 'active') aria-current="page" @endif class="{{ $tab }}">Subscribed <span class="tabular">({{ $counts['active'] }})</span></a>
