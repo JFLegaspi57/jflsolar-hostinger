@@ -146,3 +146,12 @@ Owner request: customers can buy priced products online. Choices:
   `<picture>` with the JPEG as fallback. Ui::webpSrcset only switches when every WebP file exists.
 - Hashed build files (CSS, JS, fonts) get a one-year immutable cache; public/images and
   public/brand get 30 days (their names do not change when replaced).
+
+## 2026-11-04 — Auto-reply for small systems
+
+- Inquiries whose monthly bill is below ₱5,000 ("Below ₱3,000" or "₱3,000 – ₱5,000", on inquiry
+  types where the bill is asked) are treated as below 6 kW (the PV Calculator puts 6 kW at about
+  ₱7,500 a month). They get an automatic reply pointing to Materials Only, Build Your Own and the
+  PV Calculator, with the free technical support line: on the thank-you message straight away,
+  and by email (SmallSystemReply) when the customer gave an email and MAIL_* is set up. The
+  ₱5,000 – ₱10,000 range straddles 6 kW, so it gets the normal reply (owner's choice).

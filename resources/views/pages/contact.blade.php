@@ -20,6 +20,18 @@
                 <div tabindex="-1" role="status" data-focus-on-load class="mt-6 rounded-[var(--radius-panel)] border border-[#b7e2c6] bg-ok-50 p-6 focus:outline-none">
                     <h3 class="flex items-center gap-2 text-xl font-bold text-ok-700"><x-icon name="check" class="size-6" /> Thank you — your inquiry was received.</h3>
                     <p class="mt-2 text-steel-800">We will reply using the contact details you gave. If it is urgent, call or message us.</p>
+                    @if (session('inquiry_small'))
+                        <div class="mt-5 rounded-[var(--radius-control)] border border-steel-200 bg-white p-4 text-steel-800" data-small-system>
+                            <p class="font-bold text-steel-950">Options for a smaller system</p>
+                            <p class="mt-1">With a monthly bill below ₱5,000, your home would typically need a system smaller than 6 kW. For that size, buying the equipment from us and having your own electrician or installer put it in is usually the most practical option:</p>
+                            <ul class="mt-3 space-y-2">
+                                <li><a href="/packages?type=materials" class="font-semibold text-steel-900 underline">Materials Only</a> — inverter, battery and solar panels in one bundle</li>
+                                <li><a href="/packages/build-your-own" class="font-semibold text-steel-900 underline">Build Your Own</a> — pick each part and see every price</li>
+                                <li><a href="/pv-calculator" class="font-semibold text-steel-900 underline">Free PV Calculator</a> — a first estimate of the system you need</li>
+                            </ul>
+                            <p class="mt-3">Clients who buy their supplies from us get free technical support, from installation and commissioning up to troubleshooting. <strong class="text-steel-950">Sagot ka namin!</strong></p>
+                        </div>
+                    @endif
                     <p class="mt-4"><a href="/contact" class="font-semibold text-steel-900 underline">Send another inquiry</a></p>
                 </div>
             @else
