@@ -223,6 +223,10 @@ class MembersTest extends TestCase
         $this->actingAs($staff, 'web')->get('/admin/members?q=nobody')->assertSee('No members match');
         $this->actingAs($staff, 'web')->post('/admin/members/'.$m->id, ['action' => 'disable'])->assertRedirect('/admin/members');
         $this->assertSame('disabled', $m->fresh()->status);
+        $totals = $this->actingAs($staff, 'web')->get('/admin/members')->assertOk()->assertSee('Total members')->getContent();
+        $this->assertMatchesRegularExpression('/Total members<\/dt>\s*<dd[^>]*>1<\/dd>/', $totals);
+        $this->assertMatchesRegularExpression('/Disabled<\/dt>\s*<dd[^>]*>1<\/dd>/', $totals);
+        $this->actingAs($staff, 'web')->get('/admin/members?q=maria')->assertSee('1 member matches');
         $this->actingAs($staff, 'web')->post('/admin/members/'.$m->id, ['action' => 'enable']);
         $this->assertSame('active', $m->fresh()->status);
 
