@@ -103,8 +103,12 @@ class MemberController extends Controller
             ? DB::table('newsletter_subscribers')->when($show === 'active', fn ($w) => $w->whereNull('unsubscribed_at'), fn ($w) => $w->whereNotNull('unsubscribed_at'))->latest('id')->paginate(50)->withQueryString()
             : null;
         $counts = Newsletter::hasTables()
-            ? ['active' => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count(), 'left' => DB::table('newsletter_subscribers')->whereNotNull('unsubscribed_at')->count()]
-            : ['active' => 0, 'left' => 0];
+            ? [
+                'active' => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count(),
+                'left' => DB::table('newsletter_subscribers')->whereNotNull('unsubscribed_at')->count(),
+                'new30' => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->where('subscribed_at', '>=', now()->subDays(30))->count(),
+            ]
+            : ['active' => 0, 'left' => 0, 'new30' => 0];
 
         return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts]);
     }
