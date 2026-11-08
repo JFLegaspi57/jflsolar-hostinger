@@ -43,7 +43,12 @@ class ForumTest extends TestCase
     public function test_reading_is_open_and_posting_needs_an_account(): void
     {
         $this->get('/forum')->assertOk()->assertSee('Solar forum')->assertSee('Be the first to ask')->assertSee('create a free account');
-        $this->get('/')->assertSee('href="/forum"', false);
+        $home = $this->get('/')->assertSee('href="/forum"', false)->getContent();   // footer link
+        preg_match_all('#<nav aria-label="Main".*?</nav>#s', $home, $menus);
+        $this->assertNotEmpty($menus[0]);
+        foreach ($menus[0] as $menu) {
+            $this->assertStringNotContainsString('href="/forum"', $menu, 'Forum is not in the main menu');
+        }
         $this->get('/forum/new')->assertRedirect('/login?next=%2Fforum%2Fnew');
         $this->ask()->assertRedirect('/login?next=%2Fforum%2Fnew');
         $this->assertFalse(Forum::hasTables() && ForumTopic::query()->exists());

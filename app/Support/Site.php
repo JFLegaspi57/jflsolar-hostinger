@@ -16,14 +16,14 @@ final class Site
         ['href' => '/packages', 'label' => 'Packages'],
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
-        ['href' => '/forum', 'label' => 'Forum'],
         ['href' => '/about', 'label' => 'About'],
         ['href' => '/contact', 'label' => 'Contact'],
     ];
 
-    /** Help pages listed in the footer (not in the main menu). */
+    /** Pages listed in the footer only (not in the main menu). The forum stays open at /forum. */
     public const HELP_LINKS = [
         ['href' => '/faq', 'label' => 'FAQ'],
+        ['href' => '/forum', 'label' => 'Forum'],
         ['href' => '/net-metering', 'label' => 'Net metering guide'],
     ];
 
