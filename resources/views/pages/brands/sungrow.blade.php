@@ -2,7 +2,6 @@
     // Key figures of the Sungrow MG RL hybrid inverters we carry (from their product pages / Sungrow datasheets).
     $models = [
         // [model, rated power, recommended max PV, max usable PV, MPPTs, battery current]
-        ['MG5RL', '5 kW', '10 kWp', '8 kWp', '2', '120 A'],
         ['MG6RL', '6 kW', '12 kWp', '9.6 kWp', '2', '135 A'],
         ['MG8RL', '8 kW', '16 kWp', '12.8 kWp', '3', '190 A'],
         ['MG10RL', '10 kW', '20 kWp', '16 kWp', '3', '220 A'],
@@ -12,7 +11,7 @@
 <x-brand-article :slug="$article['slug']" :brand="$article['brand']" :filter="$article['filter']" :products="$products" :settings="$settings"
     title="Sungrow inverters"
     intro="Who Sungrow is, why it is one of the most trusted inverter makers in the world, its support network in the Philippines, and the MG RL hybrid inverters we carry."
-    description="Everything about Sungrow: company background and rankings, inverter and battery storage products, Sungrow in the Philippines, the MG5RL to MG12RL single-phase hybrid inverters, features and sizing."
+    description="Everything about Sungrow: company background and rankings, inverter and battery storage products, Sungrow in the Philippines, the MG6RL to MG12RL single-phase hybrid inverters, features and sizing."
     :toc="[
         'who' => 'Who is Sungrow?', 'makes' => 'What Sungrow makes', 'philippines' => 'Sungrow in the Philippines',
         'mgrl' => 'The MG RL hybrid inverters', 'size' => 'Choosing a size', 'warranty' => 'Warranty and support',
