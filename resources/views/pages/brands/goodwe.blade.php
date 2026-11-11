@@ -20,7 +20,7 @@
             <section aria-labelledby="who">
                 <h2 id="who">Who is GoodWe?</h2>
                 <p>GoodWe Technologies is a Chinese manufacturer of solar inverters, batteries and energy-management products. It was founded in 2010 in Suzhou, China, by Daniel Huang, starting with fewer than ten people, and released its first solar inverter in 2011. Suzhou is still its headquarters.</p>
-                <p>The <strong>inverter</strong> is the brain of a solar system. Solar panels produce direct current (DC), but your appliances run on alternating current (AC). The inverter converts one into the other, and a <em>hybrid</em> inverter also decides, second by second, whether power goes to your loads, into the battery or out to the grid, and switches your home to backup during a brownout.</p>
+                <p>The <strong>inverter</strong> is the brain of a solar PV system. Solar panels produce direct current (DC), but your appliances run on alternating current (AC). The inverter converts one into the other, and a <em>hybrid</em> inverter also decides, second by second, whether power goes to your loads, into the battery or out to the grid, and switches your home to backup during a brownout.</p>
                 <dl class="ba-facts mt-6">
                     <div><dt>Founded</dt><dd>2010<small>Suzhou, China</small></dd></div>
                     <div><dt>Stock listing</dt><dd>Shanghai Stock Exchange<small>STAR Market since 2020, code 688390</small></dd></div>

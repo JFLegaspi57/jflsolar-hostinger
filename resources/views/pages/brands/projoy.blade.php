@@ -11,7 +11,7 @@
     title="Projoy rapid shutdown and protection"
     intro="Who Projoy Electric is, what a rapid shutdown device does for rooftop fire safety, and how the Projoy safety switches and surge protectors we carry work."
     description="Everything about Projoy Electric: company background, PEFS rapid shutdown (firefighter safety switch) devices, how rapid shutdown works and why it matters, AC surge protection, Projoy in the Philippines and warranty."
-    :cta="'Making your solar system safer?'"
+    :cta="'Making your solar PV system safer?'"
     :toc="[
         'who' => 'Who is Projoy?', 'why' => 'Why rapid shutdown matters', 'how' => 'How the Projoy switch works',
         'rsd' => 'The rapid shutdown devices we carry', 'spd' => 'AC surge protection', 'philippines' => 'Projoy in the Philippines', 'warranty' => 'Warranty',
@@ -112,7 +112,7 @@
         <a href="https://taiyangnews.info/technology/projoy-electric-dc-safety-snec-2025" target="_blank" rel="noopener" class="inline">Projoy DC safety products</a> (TaiyangNews, 2025);
         <a href="https://solar-distribution.baywa-re.pl/out/media/2_-_PROJOY_3-5_strings_EN_PROJOY_manual.pdf" target="_blank" rel="noopener" class="inline">PEFS-EL manual</a> (2022);
         <a href="https://iaeimagazine.org/electrical-fundamentals/nec-rapid-shutdown-requirements-and-ul-3741/" target="_blank" rel="noopener" class="inline">NEC rapid shutdown requirements</a> (IAEI, 2023);
-        <a href="https://mb.com.ph/2026/05/26/dti-eyes-stricter-safety-certification-for-solar-energy-systems" target="_blank" rel="noopener" class="inline">DTI eyes stricter safety certification for solar systems</a> (Manila Bulletin, 2026);
+        <a href="https://mb.com.ph/2026/05/26/dti-eyes-stricter-safety-certification-for-solar-energy-systems" target="_blank" rel="noopener" class="inline">DTI plans stricter safety certification for solar PV systems</a> (Manila Bulletin, 2026);
         Projoy news: <a href="https://www.projoy-electric.com/News_details/21.html" target="_blank" rel="noopener" class="inline">Solar &amp; Storage Live Philippines</a> and
         <a href="https://www.projoy-electric.com/News_details/59.html" target="_blank" rel="noopener" class="inline">Philippines roadshow</a> (2025).</x-slot:sources>
 </x-brand-article>

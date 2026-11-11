@@ -2,7 +2,7 @@
     use App\Support\Site;
     use App\Support\Ui;
 @endphp
-<x-site-layout title="Net Metering in the Philippines" path="/net-metering" :reviews-above-footer="false" description="How net metering works in the Philippines: who can apply, how bill credits are computed, the usual application steps, and how to size your solar system for the most savings.">
+<x-site-layout title="Net Metering in the Philippines" path="/net-metering" :reviews-above-footer="false" description="How net metering works in the Philippines: who can apply, how bill credits are computed, the usual application steps, and how to size your solar PV system for the most savings.">
     <x-slot:head>
         <style>
             .nm h2 { margin-bottom: .5rem; font-size: 1.5rem; font-weight: 800; color: var(--color-steel-950); }

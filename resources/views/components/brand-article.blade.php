@@ -83,7 +83,7 @@
             @endif
 
             <section class="ba-note">
-                <h2>{{ $cta ?? 'Planning a '.$brand.' system?' }}</h2>
+                <h2>{{ $cta ?? 'Planning a solar PV system with '.$brand.'?' }}</h2>
                 <p>Tell us your monthly bill and what you want on backup, and we’ll recommend the right inverter, panels, battery and protection.</p>
                 <div class="mt-5 flex flex-col gap-2 sm:flex-row">
                     <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
