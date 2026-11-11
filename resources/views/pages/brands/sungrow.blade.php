@@ -30,6 +30,7 @@
             <div><dt>Team and service</dt><dd>7,600+ in research and development<small>520 service outlets worldwide</small></dd></div>
         </dl>
         <p class="mt-6"><strong>What “bankable” means:</strong> banks and investors that finance large solar projects are surveyed on which brands they trust to last and to honor their warranties. Being ranked first tells you the company is expected to be around for the life of your inverter.</p>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">

@@ -19,6 +19,7 @@
             <div><dt>Markets</dt><dd>100+ countries<small>2026</small></dd></div>
         </dl>
         <p class="mt-6"><strong>What “Tier 1” means:</strong> BloombergNEF lists a manufacturer as Tier 1 when its own-brand, own-factory panels have been used in several large bank-financed solar projects. It is a sign that banks and big buyers trust the company, not a direct quality grade, but it is a useful filter.</p>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">

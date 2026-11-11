@@ -17,6 +17,7 @@
             <div><dt>Reliability testing</dt><dd>Kiwa PVEL Top Performer<small>six times, most recently 2025</small></dd></div>
             <div><dt>In the Philippines since</dt><dd>2016<small>hundreds of MW supplied to solar farms</small></dd></div>
         </dl>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">

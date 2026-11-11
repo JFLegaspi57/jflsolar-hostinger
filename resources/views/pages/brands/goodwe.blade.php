@@ -26,10 +26,11 @@
                     <div><dt>Stock listing</dt><dd>Shanghai Stock Exchange<small>STAR Market since 2020, code 688390</small></dd></div>
                     <div><dt>Installed worldwide</dt><dd>Over 100 GW<small>in more than 100 countries (2025)</small></dd></div>
                     <div><dt>People</dt><dd>About 6,000<small>over 1,000 of them in research and development (2025)</small></dd></div>
-                    <div><dt>Industry rating</dt><dd>BloombergNEF Tier 1<small>global inverter manufacturer, 2025</small></dd></div>
+                    <div><dt>Industry rating</dt><dd>BloombergNEF Tier 1<small>global inverter manufacturer, Q3 2026</small></dd></div>
                     <div><dt>Patents</dt><dd>Over 545<small>as reported in 2025</small></dd></div>
                 </dl>
                 <p class="mt-6">GoodWe began with grid-tie inverters and has grown into hybrid inverters, home and commercial batteries, all-in-one storage systems, solar roofing (BIPV) and energy-management software. Today it describes its aim as connecting generation, the grid, household loads, storage and smart controls into one system.</p>
+                <x-brand-tier :slug="$article['slug']" />
             </section>
 
             <section aria-labelledby="makes">
