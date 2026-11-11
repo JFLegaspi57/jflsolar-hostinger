@@ -25,7 +25,8 @@ final class BrandArticles
     /**
      * Tier classification of the inverter and solar panel brands (checked November 2026).
      * "Tier 1" here means listed by BloombergNEF and/or S&P Global; it measures bankability, not product quality.
-     * [tier label, is Tier 1, list of [listing, period], sources [label => url]]
+     * [tier label, is Tier 1, list of [listing, period], sources [label => url], badge (optional)]
+     * BloombergNEF publishes only a Tier 1 list; "Tier 2" and "Tier 3" are informal industry terms.
      */
     public const TIERS = [
         'goodwe' => ['Tier 1 inverter maker', true, [
@@ -40,19 +41,21 @@ final class BrandArticles
             ['S&P Global Energy Tier 1 PV inverter supplier', '2026'],
             ['No. 1 most bankable inverter brand, BloombergNEF bankability survey', '2025'],
         ], ['S&P Global 2026 Tier 1 list (pv Europe)' => 'https://www.pveurope.eu/markets/sps-2026-tier-1-list-marks-maturing-supplier-market', 'BloombergNEF bankability survey (Sungrow)' => 'https://www.sungrowpower.com/eu/en/sungrow-secures-top-rank-again-in-bloombergnef-bankability-survey']],
-        'luxpower' => ['Not on the Tier 1 lists', false, [
+        'luxpower' => ['Tier 2 inverter maker (unofficial)', false, [
             ['Not listed by BloombergNEF or S&P Global as a Tier 1 inverter maker', '2026'],
-        ], ['S&P Global 2026 Tier 1 list (pv Europe)' => 'https://www.pveurope.eu/markets/sps-2026-tier-1-list-marks-maturing-supplier-market']],
+            ['Established specialist inverter brand with over 350,000 systems installed in 100+ countries since 2017, which fits the industry’s informal “Tier 2” description', '2026'],
+        ], ['S&P Global 2026 Tier 1 list (pv Europe)' => 'https://www.pveurope.eu/markets/sps-2026-tier-1-list-marks-maturing-supplier-market', 'BloombergNEF tier methodology' => 'https://www.solarchoice.net.au/wp-content/uploads/BNEF-tier-ranking-explanation.pdf', 'Tier 1, 2 and 3 explained (Sunhub)' => 'https://www.sunhub.com/blog/what-tier-1-solar-panels-means'], 'Tier 2'],
         'jinko-solar' => ['Tier 1 panel maker', true, [
             ['BloombergNEF Tier 1 PV module manufacturer', 'Q3 2026'],
         ], ['BloombergNEF Tier 1 module list, Q3 2026 (Vico Export)' => 'https://www.vicoexport.com/en/68446/tier-1-list-of-solar-panel-manufacturers-q3-2026/']],
         'ae-solar' => ['Tier 1 panel maker', true, [
             ['BloombergNEF Tier 1 PV module manufacturer', 'Q3 2026'],
         ], ['BloombergNEF Tier 1 module list, Q3 2026 (Vico Export)' => 'https://www.vicoexport.com/en/68446/tier-1-list-of-solar-panel-manufacturers-q3-2026/', '19th BloombergNEF Tier 1 listing (TaiyangNews)' => 'https://taiyangnews.info/pressreleases/aesolar-marks-19th-inclusion-in-bloombergnef-tier-1-pv-manufacturer-ranking']],
-        'seraphim' => ['Not on the current Tier 1 list', false, [
-            ['Not on BloombergNEF’s Tier 1 PV module list for Q3 2026 (last listed Q1 2025)', '2026'],
+        'seraphim' => ['Tier 2 panel maker (unofficial; former Tier 1)', false, [
+            ['Not on BloombergNEF’s Tier 1 PV module list for Q3 2026; was Tier 1 until Q1 2025', '2026'],
+            ['Makes its own panels in China and abroad (about 13 GW a year), which fits the industry’s informal “Tier 2” description', '2024'],
             ['Kiwa PVEL Top Performer in independent reliability testing, sixth time', '2025'],
-        ], ['BloombergNEF Tier 1 module list, Q3 2026 (Vico Export)' => 'https://www.vicoexport.com/en/68446/tier-1-list-of-solar-panel-manufacturers-q3-2026/', 'Kiwa PVEL Top Performer 2025 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/seraphim-awarded-top-performer-in-kiwa-pvels-2025-pv-module-reliability-scorecard-for-sixth-time']],
+        ], ['BloombergNEF Tier 1 module list, Q3 2026 (Vico Export)' => 'https://www.vicoexport.com/en/68446/tier-1-list-of-solar-panel-manufacturers-q3-2026/', 'Kiwa PVEL Top Performer 2025 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/seraphim-awarded-top-performer-in-kiwa-pvels-2025-pv-module-reliability-scorecard-for-sixth-time', 'BloombergNEF tier methodology' => 'https://www.solarchoice.net.au/wp-content/uploads/BNEF-tier-ranking-explanation.pdf', 'Tier 1, 2 and 3 explained (Sunhub)' => 'https://www.sunhub.com/blog/what-tier-1-solar-panels-means'], 'Tier 2'],
     ];
 
     /** Articles that are written (a view exists), so unfinished ones never show up or get linked. */
