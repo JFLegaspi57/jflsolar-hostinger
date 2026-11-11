@@ -31,6 +31,7 @@
             <div><dt>Markets</dt><dd>100+ countries<small>2026</small></dd></div>
             <div><dt>Monitoring</dt><dd>LUX app<small>on the LuxCloud 2.0 platform</small></dd></div>
         </dl>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">

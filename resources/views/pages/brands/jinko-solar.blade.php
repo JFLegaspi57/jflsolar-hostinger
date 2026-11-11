@@ -28,6 +28,7 @@
             <div><dt>Independent testing</dt><dd>RETC “Overall Highest Achiever”<small>PV Module Index, seven years in a row (2026)</small></dd></div>
         </dl>
         <p class="mt-6">For scale: the 86.8 GW it shipped in 2025 is about 140 million panels of the 620 W size.</p>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">

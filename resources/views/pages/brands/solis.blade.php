@@ -18,6 +18,7 @@
             <div><dt>BloombergNEF</dt><dd>Tier 1 inverter maker<small>2025</small></dd></div>
             <div><dt>Markets</dt><dd>100+ countries<small>35+ offices and service centers (2024)</small></dd></div>
         </dl>
+        <x-brand-tier :slug="$article['slug']" />
     </section>
 
     <section aria-labelledby="makes">
