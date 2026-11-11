@@ -154,6 +154,14 @@ class PageController extends Controller
         return view('pages.net-metering', ['settings' => PublicContent::settings()]);
     }
 
+    /** Brand article: GoodWe (the GoodWe logo on /products links here). */
+    public function goodwe(): View
+    {
+        $products = PublicContent::snapshot()['products']->filter(fn ($p) => strcasecmp((string) $p->brand, 'GoodWe') === 0)->values();
+
+        return view('pages.brands.goodwe', ['settings' => PublicContent::settings(), 'products' => $products]);
+    }
+
     public function privacy(): View
     {
         return view('pages.privacy', ['settings' => PublicContent::settings()]);
@@ -178,7 +186,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/brands/goodwe', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
