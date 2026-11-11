@@ -56,6 +56,7 @@
         <h2 id="philippines">Sungrow in the Philippines</h2>
         <ul class="dots">
             <li>Sungrow has been active in the Philippine market since <strong>2013</strong>.</li>
+            <li>Sungrow inverters are distributed in the Philippines by <strong>Photonergy Philippines Inc.</strong></li>
             <li>It has distributors in <strong>Manila, Cebu and Davao</strong>, its own after-sales warehouse in <strong>Las Piñas</strong>, and spare units kept at each distributor hub, so a faulty unit can be swapped quickly.</li>
             <li>Sungrow calls the Philippines its largest battery storage market in Southeast Asia. In December 2024 it signed a 1.5 GWh battery storage deal with Citicore.</li>
             <li>In June 2026 it held the grand final of its <strong>Sungrow Master</strong> installer competition in Makati, after more than 2,000 installers across Southeast Asia took part.</li>
