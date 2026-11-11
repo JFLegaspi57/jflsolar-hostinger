@@ -63,14 +63,14 @@
     <section aria-labelledby="ours">
         <h2 id="ours">The Solis inverters we supply</h2>
         <div class="ba-family">
-            <h3>12 kW and 16 kW single-phase hybrid inverters</h3>
-            <p>For larger homes and small businesses with 48 V batteries. The Solis 12–18 kW single-phase hybrid in the Philippines has 3 MPPTs (up to 6 strings, useful when panels face different directions), up to 550 V solar input, 40–60 V lithium or lead-acid batteries, IP66 protection and up to 97.6% efficiency.</p>
+            <h3>12, 16 and 18 kW single-phase hybrid inverters</h3>
+            <p>For larger homes and small businesses with 48 V batteries. These Solis S6-EH1P(12-18)K03 “Solarator” hybrids have 3 MPPTs (up to 6 strings, useful when panels face different directions), up to 550 V solar input and 160% solar oversizing, 40–60 V lithium or lead-acid batteries, backup switching in under 10 ms, up to 6 units in parallel, IP66 protection and up to 97.6% efficiency.</p>
         </div>
         <div class="ba-family">
             <h3>50 kW three-phase grid-tie inverter</h3>
             <p>For commercial rooftops and small solar farms: a three-phase inverter with five MPPTs and up to 1,100 V solar input, designed to export daytime solar power directly to the building’s loads and the grid.</p>
         </div>
-        <p class="mt-4">Exact models, prices and availability change with each shipment, so we confirm them in your quotation.</p>
+        <p class="mt-4">Prices and availability change with each shipment, so we confirm them in your quotation.</p>
     </section>
 
     <section aria-labelledby="warranty">
