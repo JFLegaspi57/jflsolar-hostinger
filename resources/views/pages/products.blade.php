@@ -13,10 +13,10 @@
     {{-- Brand strip (logos from the owner's brand sheet). Each logo is a link to that brand's products:
          the link shows its own slice of the same image, so it lines up exactly and can lift on hover. --}}
     @php
-        // [label, brand filter value, x, y, width, height] in pixels of the 2400×520 image (logo box plus padding),
-        // plus an optional brand article the logo opens instead of the brand's product list.
+        // [label, brand filter value, x, y, width, height] in pixels of the 2400×520 image (logo box plus padding).
+        // A logo opens the brand's article (App\Support\BrandArticles) when it has one, otherwise its product list.
         $logos = [
-            ['GoodWe', 'GoodWe', 43, 80, 506, 158, '/brands/goodwe'], ['Jinko Solar', 'Jinko Solar', 589, 80, 348, 158], ['Solis', 'Solis', 978, 80, 328, 158],
+            ['GoodWe', 'GoodWe', 43, 80, 506, 158], ['Jinko Solar', 'Jinko Solar', 589, 80, 348, 158], ['Solis', 'Solis', 978, 80, 328, 158],
             ['Luxpower Tek', 'LuxPower', 1347, 80, 479, 158], ['Seraphim', 'Seraphim', 1868, 80, 486, 158],
             ['AESOLAR', 'AE Solar', 70, 287, 534, 145], ['Sungrow', 'Sungrow', 645, 287, 552, 145], ['Dyness', 'Dyness', 1238, 287, 437, 145],
             ['ATE', 'Alltopelec (ATE)', 1717, 287, 238, 145], ['Projoy Electric', 'Projoy', 1997, 287, 331, 145],
@@ -29,7 +29,7 @@
                     width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full" alt="">
                 <ul class="m-0 list-none p-0">
                     @foreach ($logos as $logo)
-                        @php [$label, $brand, $x, $y, $w, $h] = $logo; $article = $logo[6] ?? null; @endphp
+                        @php [$label, $brand, $x, $y, $w, $h] = $logo; $article = \App\Support\BrandArticles::urlForFilter($brand); @endphp
                         <li>
                             <a href="{{ $article ?? '/products?brand='.urlencode($brand).'#results' }}" class="brand-logo" title="{{ $article ? 'About '.$label : $label.' products' }}"
                                 @if ($filters['brand'] === $brand) aria-current="page" @endif

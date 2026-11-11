@@ -154,12 +154,16 @@ class PageController extends Controller
         return view('pages.net-metering', ['settings' => PublicContent::settings()]);
     }
 
-    /** Brand article: GoodWe (the GoodWe logo on /products links here). */
-    public function goodwe(): View
+    /** Brand articles (/brands/{slug}); the brand logos on /products link here. */
+    public function brand(string $slug): View
     {
-        $products = PublicContent::snapshot()['products']->filter(fn ($p) => strcasecmp((string) $p->brand, 'GoodWe') === 0)->values();
+        $a = \App\Support\BrandArticles::available()[$slug] ?? abort(404);
 
-        return view('pages.brands.goodwe', ['settings' => PublicContent::settings(), 'products' => $products]);
+        return view('pages.brands.'.$slug, [
+            'settings' => PublicContent::settings(),
+            'products' => \App\Support\BrandArticles::products(PublicContent::snapshot()['products'], $slug),
+            'article' => ['slug' => $slug] + $a,
+        ]);
     }
 
     public function privacy(): View
@@ -186,7 +190,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/brands/goodwe', '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
