@@ -40,11 +40,11 @@
     </style>
     <button type="button" id="jfl-chat-btn" aria-expanded="false" aria-controls="jfl-chat-panel">
         <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.4A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>
-        <span class="jc-label">Chat with us</span>
+        <span class="jc-label">Chat with Buckny</span>
     </button>
-    <section id="jfl-chat-panel" role="dialog" aria-label="JFL Solar chat assistant" hidden>
+    <section id="jfl-chat-panel" role="dialog" aria-label="Buckny, the JFL Solar chat assistant" hidden>
         <div class="jc-head">
-            <p>JFL Solar Assistant<small>Ask about prices, packages and ordering</small></p>
+            <p>Buckny<small>JFL Solar assistant · Ask about prices, packages and ordering</small></p>
             <div>
                 <button type="button" class="jc-icon" data-chat-reset title="Start a new chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="sr-only">Start a new chat</span></button>
                 <button type="button" class="jc-icon" data-chat-close title="Close chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr-only">Close chat</span></button>
@@ -66,7 +66,7 @@
             const btn = root.querySelector('#jfl-chat-btn'), panel = root.querySelector('#jfl-chat-panel'), log = root.querySelector('[data-chat-log]');
             const form = root.querySelector('[data-chat-form]'), input = root.querySelector('#jfl-chat-input'), send = root.querySelector('.jc-send');
             const KEY = 'jfl-chat-v1';
-            const greeting = 'Hi! I’m the JFL Solar assistant. Ask me about our solar panels, inverters, batteries, packages, prices, pickup and payment. Puwede rin sa Tagalog! 😊';
+            const greeting = 'Hi! I’m Buckny, the JFL Solar assistant. Ask me about our solar panels, inverters, batteries, packages, prices, pickup and payment. Puwede rin sa Tagalog! 😊';
             const starters = ['How much is the 6kW Trio Package?', 'Which battery should I choose?', 'How do I order and pick up?', 'Talk to a person'];
             let messages = [], busy = false;
             try { const saved = JSON.parse(sessionStorage.getItem(KEY) || '[]'); if (Array.isArray(saved)) messages = saved.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string').slice(-24); } catch (e) {}
