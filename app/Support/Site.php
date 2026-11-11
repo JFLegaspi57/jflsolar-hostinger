@@ -31,6 +31,7 @@ final class Site
         ['href' => '/forum', 'label' => 'Forum'],
         ['href' => '/net-metering', 'label' => 'Net metering guide'],
         ['href' => '/hybrid-pv-system-guide', 'label' => 'How hybrid PV systems work'],
+        ['href' => '/grid-tied-pv-system-guide', 'label' => 'How grid-tied PV systems work'],
     ];
 
     public const QUOTE_HREF = '/contact#quote';

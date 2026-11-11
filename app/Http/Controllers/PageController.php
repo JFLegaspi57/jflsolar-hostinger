@@ -160,6 +160,12 @@ class PageController extends Controller
         return view('pages.hybrid-pv-guide', ['settings' => PublicContent::settings()]);
     }
 
+    /** Technical guide: how a grid-tied solar PV system works. */
+    public function gridTiedGuide(): View
+    {
+        return view('pages.grid-tied-pv-guide', ['settings' => PublicContent::settings()]);
+    }
+
     /** Brand articles (/brands/{slug}); the brand logos on /products link here. */
     public function brand(string $slug): View
     {
@@ -196,7 +202,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/hybrid-pv-system-guide', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/hybrid-pv-system-guide', '/grid-tied-pv-system-guide', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
