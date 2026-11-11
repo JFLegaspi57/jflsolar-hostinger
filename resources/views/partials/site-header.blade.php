@@ -13,7 +13,7 @@
     // Drop-down sub-menus under a main menu item: [aria label, "all" link or null, items].
     $subMenus = [];
     if ($productCategories->isNotEmpty()) {
-        $subMenus['/products'] = ['Product categories', null,
+        $subMenus['/products'] = ['Product categories', ['/products', 'All Products', request()->is('products') && $currentCategory === ''],
             $productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all()];
     }
     $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'))], Site::ABOUT_MENU)];
@@ -52,7 +52,7 @@
                             @if ($dropdown)
                                 <div class="nav-dd-menu">
                                     <ul aria-label="{{ $sub[0] }}" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
-                                        @if ($sub[1])<li><a href="{{ $sub[1][0] }}" class="nav-dd-link font-semibold">{{ $sub[1][1] }}</a></li>@endif
+                                        @if ($sub[1])<li><a href="{{ $sub[1][0] }}" @if ($sub[1][2] ?? false) aria-current="page" @endif class="nav-dd-link font-semibold">{{ $sub[1][1] }}</a></li>@endif
                                         @foreach ($sub[2] as [$subHref, $subLabel, $subCurrent])
                                             <li><a href="{{ $subHref }}" @if ($subCurrent) aria-current="page" @endif class="nav-dd-link">{{ $subLabel }}</a></li>
                                         @endforeach
@@ -119,6 +119,10 @@
                                     </a>
                                     @if ($sub = $subMenus[$item['href']] ?? null)
                                         <ul aria-label="{{ $sub[0] }}" class="mb-1 border-l border-steel-200" style="margin-left: .75rem; padding-left: .5rem">
+                                            @if ($sub[1])
+                                                <li><a href="{{ $sub[1][0] }}" data-close-dialog @if ($sub[1][2] ?? false) aria-current="page" @endif
+                                                    class="flex min-h-11 items-center rounded-[var(--radius-control)] px-3 font-semibold text-steel-800 hover:bg-steel-50 aria-[current=page]:bg-gold-50">{{ $sub[1][1] }}</a></li>
+                                            @endif
                                             @foreach ($sub[2] as [$subHref, $subLabel, $subCurrent])
                                                 <li><a href="{{ $subHref }}" data-close-dialog @if ($subCurrent) aria-current="page" @endif
                                                     class="flex min-h-11 items-center rounded-[var(--radius-control)] px-3 text-steel-800 hover:bg-steel-50 aria-[current=page]:bg-gold-50">{{ $subLabel }}</a></li>

@@ -22,4 +22,13 @@ class ContactUnderAboutTest extends TestCase
         $contact = $this->get('/contact')->assertOk()->getContent();
         $this->assertMatchesRegularExpression('#<a href="/about"\s+aria-current="page"#', $contact);
     }
+
+    public function test_products_drop_down_starts_with_all_products(): void
+    {
+        $this->seed();
+        $html = $this->get('/')->assertOk()->getContent();
+        $menu = substr($html, strpos($html, 'aria-label="Product categories"'), 400);
+        $this->assertMatchesRegularExpression('#<a href="/products"\s+class="nav-dd-link font-semibold">All Products</a>#', $menu);
+        $this->assertStringContainsString('>All Products</a>', substr($html, strrpos($html, 'aria-label="Product categories"'), 700));
+    }
 }
