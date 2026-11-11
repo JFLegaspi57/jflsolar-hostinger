@@ -17,6 +17,11 @@ final class Site
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
         ['href' => '/about', 'label' => 'About'],
+    ];
+
+    /** Drop-down under "About" in the main menu (Contact lives here, not as a separate menu item). */
+    public const ABOUT_MENU = [
+        ['href' => '/about', 'label' => 'About Us'],
         ['href' => '/contact', 'label' => 'Contact'],
     ];
 

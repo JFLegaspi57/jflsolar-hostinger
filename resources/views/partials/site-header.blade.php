@@ -8,7 +8,7 @@
     $member = \App\Support\Members::current();
     $productCategories = PublicContent::snapshot()['categories'];
     $currentCategory = request()->is('products') ? (string) request()->query('category', '') : '';
-    $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*');
+    $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*') || ($href === '/about' && request()->is('contact'));
     $currentPackageType = request()->is('packages') ? (string) request()->query('type', '') : '';
     // Drop-down sub-menus under a main menu item: [aria label, "all" link or null, items].
     $subMenus = [];
@@ -16,6 +16,7 @@
         $subMenus['/products'] = ['Product categories', null,
             $productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all()];
     }
+    $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'))], Site::ABOUT_MENU)];
     $subMenus['/packages'] = ['Package types', null, [
         ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
         ['/packages/build-your-own', 'Build Your Own', request()->is('packages/build-your-own')],
