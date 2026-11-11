@@ -1,9 +1,9 @@
 @php
     // Key figures of the Jinko Tiger Neo panels we carry (from their product pages / JinkoSolar datasheets).
     $panels = [
-        // [model, power, efficiency, rear-side boost (BNPI), Voc, Isc]
-        ['JKM620N-66HL4M-BDV', '620 W', '22.95%', 'up to 685 W', '49.08 V', '16.08 A'],
-        ['JKM650N-66HL4M-BDV', '650 W', '24.06%', 'up to 717 W', '50.28 V', '16.44 A'],
+        // [model, power, efficiency, rear-side boost (BNPI), bifaciality, heat loss, Voc, Isc]
+        ['JKM620N-66HL4M-BDV', '620 W', '22.95%', 'up to 685 W', '80%', '−0.29%/°C', '49.08 V', '16.08 A'],
+        ['JKM650N-66QL6-BDV', '650 W', '24.06%', 'up to 724 W', '85%', '−0.26%/°C', '50.26 V', '15.98 A'],
     ];
 @endphp
 <x-brand-article :slug="$article['slug']" :brand="$article['brand']" :filter="$article['filter']" :products="$products" :settings="$settings"
@@ -51,8 +51,8 @@
         <ul class="dots">
             <li><strong>N-type TOPCon cells.</strong> The newer cell type that has replaced older P-type PERC panels. It turns more sunlight into electricity, loses less power as it ages, and handles heat and low light (morning, late afternoon, cloudy days) better.</li>
             <li><strong>Bifacial, glass on both sides.</strong> The back of the panel also makes power from light reflected off the roof or ground, adding up to about 10% on the 620 W panel (its rear-side boosted rating is 685 W). Two layers of 2 mm glass also protect the cells better against moisture than a plastic backsheet.</li>
-            <li><strong>Half-cut cells.</strong> 132 half cells instead of 66 full cells. Each half carries less current, so less power is lost as heat, and shade on one part of the panel costs less output.</li>
-            <li><strong>Heat tolerance.</strong> All panels lose some output when hot. The Tiger Neo loses 0.29% per °C above 25 °C, compared with about 0.35% for older PERC panels. On a hot Philippine roof, where panels often reach 60 °C or more, that difference adds up every afternoon.</li>
+            <li><strong>Cut cells.</strong> The 620 W panel uses 132 half cells and the newer 650 W Tiger Neo 3.0 uses 264 quarter cells, instead of 66 full cells. Smaller cells carry less current, so less power is lost as heat, and shade on one part of the panel costs less output.</li>
+            <li><strong>Heat tolerance.</strong> All panels lose some output when hot. The Tiger Neo loses only 0.29% per °C above 25 °C (0.26% on the 650 W Tiger Neo 3.0), compared with about 0.35% for older PERC panels. On a hot Philippine roof, where panels often reach 60 °C or more, that difference adds up every afternoon.</li>
             <li><strong>Strong frame.</strong> Certified for 5,400 Pa of load on the front and 2,400 Pa on the back, and resistant to PID (power loss caused by high system voltage).</li>
         </ul>
     </section>
@@ -69,11 +69,11 @@
 
     <section aria-labelledby="tiger-neo">
         <h2 id="tiger-neo">The Tiger Neo panels we carry</h2>
-        <p>Both are 132-half-cell N-type TOPCon bifacial dual-glass panels of the same size, so they fit the same mounting.</p>
+        <p>Both are N-type TOPCon bifacial dual-glass panels of the same size, so they fit the same mounting. The 650 W is the newer Tiger Neo 3.0, with higher efficiency, a stronger back side (85% bifaciality) and better heat tolerance.</p>
         <div class="ba-table-wrap mt-4">
             <table class="ba-table">
                 <caption class="sr-only">Key figures of the Jinko Tiger Neo panels we carry</caption>
-                <thead><tr><th scope="col">Model</th><th scope="col">Power</th><th scope="col">Efficiency</th><th scope="col">With rear-side gain</th><th scope="col">Voc</th><th scope="col">Isc</th></tr></thead>
+                <thead><tr><th scope="col">Model</th><th scope="col">Power</th><th scope="col">Efficiency</th><th scope="col">With rear-side gain</th><th scope="col">Bifaciality</th><th scope="col">Heat loss</th><th scope="col">Voc</th><th scope="col">Isc</th></tr></thead>
                 <tbody>
                     @foreach ($panels as $m)
                         <tr><th scope="row">{{ $m[0] }}</th>@foreach (array_slice($m, 1) as $v)<td>{{ $v }}</td>@endforeach</tr>
@@ -81,7 +81,7 @@
                 </tbody>
             </table>
         </div>
-        <p class="mt-2 text-sm text-steel-600">Both: 2382 × 1134 × 30 mm, 32.4 kg, IP68 junction box, 1,500 V maximum system voltage, −40 to +70 °C. Voc (open-circuit voltage) and Isc (short-circuit current) are what we use to match the panels to your inverter.</p>
+        <p class="mt-2 text-sm text-steel-600">Both: 2382 × 1134 × 30 mm, about 32.5 kg, IP68 junction box, 1,500 V maximum system voltage, −40 to +70 °C. Voc (open-circuit voltage) and Isc (short-circuit current) are what we use to match the panels to your inverter.</p>
     </section>
 
     <section aria-labelledby="size">
@@ -99,7 +99,7 @@
         <h2 id="warranty">Warranty</h2>
         <ul class="dots">
             <li><strong>12-year product warranty</strong> against defects in materials and workmanship.</li>
-            <li><strong>30-year linear power warranty.</strong> At most 1% loss in the first year, then at most 0.40% a year. After 30 years the panel should still give at least 87.4% of its rated power.</li>
+            <li><strong>30-year linear power warranty.</strong> At most 1% loss in the first year, then at most 0.40% a year on the 620 W (at least 87.4% of rated power after 30 years) and 0.35% a year on the 650 W (at least 88.85%).</li>
             <li>We coordinate any warranty claim for you. See <a href="/faq" class="inline">how warranty claims work</a>.</li>
         </ul>
     </section>
@@ -129,5 +129,5 @@
         <a href="https://www.pv-tech.org/industry-updates/jinkosolar-receives-retc-overall-highest-achiever-award-for-seventh-consecutive-year/" target="_blank" rel="noopener" class="inline">RETC Overall Highest Achiever, seventh year</a> (PV Tech, 2026);
         JinkoSolar news: <a href="https://www.jinkosolar.com/en/site/newsdetail/1714" target="_blank" rel="noopener" class="inline">Philippine Red Cross donation</a> (2022) and
         <a href="https://www.jinkosolar.com/en/site/newsdetail/2203" target="_blank" rel="noopener" class="inline">MECASOLAR partnership</a> (2024);
-        GoodWe, <a href="https://en.goodwe.com/goodwe-presents-tailored-solutions-in-the-philippines-at-pv-technical-roadshow-energizing-renewable-energy-advancements" target="_blank" rel="noopener" class="inline">Philippines PV Technical Roadshow</a> (2023); JinkoSolar datasheets for the JKM620N and JKM650N-66HL4M-BDV.</x-slot:sources>
+        GoodWe, <a href="https://en.goodwe.com/goodwe-presents-tailored-solutions-in-the-philippines-at-pv-technical-roadshow-energizing-renewable-energy-advancements" target="_blank" rel="noopener" class="inline">Philippines PV Technical Roadshow</a> (2023); JinkoSolar datasheets for the JKM620N-66HL4M-BDV and JKM650N-66QL6-BDV (2026).</x-slot:sources>
 </x-brand-article>
