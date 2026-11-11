@@ -88,7 +88,7 @@
             </div>
 
             <div class="space-y-3 lg:col-start-1 lg:row-start-1">
-                <div class="{{ $cover ? 'aspect-square' : 'aspect-[16/9] sm:aspect-[4/3] lg:aspect-square' }} overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-white">
+                <div class="{{ $cover ? 'aspect-square' : 'aspect-[16/9] sm:aspect-[4/3] lg:aspect-square' }} overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-white" @if ($rest->isNotEmpty()) data-gallery-main @endif>
                     @if ($cover)
                         <x-media-image :asset="$cover" :admin="$admin" sizes="(min-width: 1024px) 560px, 100vw" priority fit="contain" />
                     @else
@@ -97,14 +97,52 @@
                 </div>
                 @if ($cover && filled($cover->caption))
                     {{-- e.g. "Temporary picture — may differ from actual product appearance"; shown here only, not on category cards --}}
-                    <p class="text-sm font-semibold" style="color: #b45309">{{ $cover->caption }}</p>
+                    <p class="text-sm font-semibold" style="color: #b45309" data-gallery-caption>{{ $cover->caption }}</p>
+                @elseif ($rest->isNotEmpty())
+                    <p class="text-sm font-semibold" style="color: #b45309" data-gallery-caption hidden></p>
                 @endif
                 @if ($rest->isNotEmpty())
-                    <ul class="grid grid-cols-4 gap-2" aria-label="More images">
-                        @foreach ($rest as $img)
-                            <li class="aspect-square overflow-hidden rounded border border-steel-200 bg-white"><x-media-image :asset="$img" :admin="$admin" sizes="140px" fit="contain" /></li>
+                    {{-- Hovering (or tapping / focusing) a thumbnail shows that photo in the large view above. --}}
+                    <ul class="grid grid-cols-4 gap-2" aria-label="Product images">
+                        @foreach ($rest->prepend($cover) as $i => $img)
+                            <li class="aspect-square">
+                                <button type="button" data-gallery-thumb aria-pressed="{{ $i === 0 ? 'true' : 'false' }}" aria-label="Show image {{ $i + 1 }}{{ filled($img->alt) ? ': '.$img->alt : '' }}"
+                                    data-src="{{ $img->url($img->bestWidth(1280), $admin) }}" data-srcset="{{ $img->srcset($admin) }}" data-alt="{{ $img->alt }}" data-caption="{{ $img->caption }}"
+                                    class="gallery-thumb block h-full w-full overflow-hidden rounded border border-steel-200 bg-white">
+                                    <x-media-image :asset="$img" :admin="$admin" sizes="140px" fit="contain" />
+                                </button>
+                            </li>
                         @endforeach
                     </ul>
+                    @once
+                        <style>
+                            .gallery-thumb { cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+                            .gallery-thumb:hover, .gallery-thumb[aria-pressed="true"] { border-color: var(--color-steel-900); box-shadow: 0 0 0 1px var(--color-steel-900); }
+                            .gallery-thumb:focus-visible { outline: 3px solid #f5b400; outline-offset: 2px; }
+                        </style>
+                        <script>
+                            (function () {
+                                var main = document.querySelector('[data-gallery-main] img');
+                                var cap = document.querySelector('[data-gallery-caption]');
+                                var thumbs = document.querySelectorAll('[data-gallery-thumb]');
+                                if (!main || !thumbs.length) return;
+                                // Preload the large versions so switching on hover is instant.
+                                thumbs.forEach(function (t) { var i = new Image(); i.sizes = main.sizes; i.srcset = t.dataset.srcset; i.src = t.dataset.src; });
+                                function show(t) {
+                                    if (t.getAttribute('aria-pressed') === 'true') return;
+                                    main.removeAttribute('width'); main.removeAttribute('height');
+                                    main.srcset = t.dataset.srcset; main.src = t.dataset.src; main.alt = t.dataset.alt;
+                                    if (cap) { cap.textContent = t.dataset.caption; cap.hidden = !t.dataset.caption; }
+                                    thumbs.forEach(function (o) { o.setAttribute('aria-pressed', o === t ? 'true' : 'false'); });
+                                }
+                                thumbs.forEach(function (t) {
+                                    t.addEventListener('mouseenter', function () { show(t); });
+                                    t.addEventListener('focus', function () { show(t); });
+                                    t.addEventListener('click', function () { show(t); });
+                                });
+                            })();
+                        </script>
+                    @endonce
                 @endif
             </div>
         </div>
