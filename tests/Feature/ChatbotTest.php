@@ -33,7 +33,7 @@ class ChatbotTest extends TestCase
         $this->postJson('/chat', ['messages' => [['role' => 'user', 'content' => 'Hi']]])->assertNotFound();
 
         $this->on();
-        $this->get('/')->assertOk()->assertSee('id="jfl-chat"', false)->assertSee('Chat with us');
+        $this->get('/')->assertOk()->assertSee('id="jfl-chat"', false)->assertSee('Chat with Buckny');
         $this->get('/privacy')->assertSee('id="chat"', false)->assertSee('Claude by Anthropic');
     }
 
