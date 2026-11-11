@@ -1,6 +1,4 @@
 @php
-    use App\Support\Site;
-    use App\Support\Ui;
     // Key figures of the GoodWe models we carry (from their product pages / GoodWe datasheets).
     $esModels = [
         // [model, rated power, max solar, battery current, backup peak (10 s), weight]
@@ -10,58 +8,20 @@
         ['GW12K-ES-C10', '12 kW', '24 kW', '240 A', '24 kVA', '29 kg'],
     ];
 @endphp
-<x-site-layout title="GoodWe Inverters and Batteries" path="/brands/goodwe" :reviews-above-footer="false"
-    description="Everything about GoodWe: who they are, what they make, GoodWe in the Philippines, the ES-C10 hybrid inverters and Lynx batteries we carry, warranty and how to choose a size.">
-    <x-slot:head>
-        <style>
-            .gw-art h2 { margin-bottom: .5rem; font-size: 1.5rem; font-weight: 800; color: var(--color-steel-950); scroll-margin-top: 6rem; }
-            .gw-art h3 { margin-bottom: .25rem; font-size: 1.125rem; font-weight: 700; color: var(--color-steel-950); }
-            .gw-art p + p { margin-top: .75rem; }
-            .gw-art ul.dots li { margin-left: 1.25rem; list-style: disc; }
-            .gw-art ul.dots li + li { margin-top: .35rem; }
-            .gw-art a.inline { font-weight: 600; color: var(--color-steel-900); text-decoration: underline; }
-            .gw-art a.inline:hover { color: var(--color-gold-800); }
-            .gw-facts { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
-            .gw-facts div { border: 1px solid var(--color-steel-200); border-radius: var(--radius-panel); background: #fff; padding: .9rem 1rem; }
-            .gw-facts dt { font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--color-steel-600); }
-            .gw-facts dd { margin-top: .2rem; font-weight: 700; color: var(--color-steel-950); }
-            .gw-facts dd small { display: block; font-weight: 400; font-size: .85rem; color: var(--color-steel-700); }
-            .gw-family + .gw-family { margin-top: 1rem; }
-            .gw-family { border-left: 4px solid var(--color-gold-500); padding-left: 1rem; }
-            .gw-table-wrap { overflow-x: auto; border: 1px solid var(--color-steel-200); border-radius: var(--radius-panel); }
-            .gw-table { width: 100%; min-width: 34rem; border-collapse: collapse; font-size: .9rem; background: #fff; }
-            .gw-table th, .gw-table td { padding: .6rem .75rem; text-align: left; border-bottom: 1px solid var(--color-steel-200); white-space: nowrap; }
-            .gw-table thead th { background: var(--color-steel-50); font-size: .75rem; letter-spacing: .03em; text-transform: uppercase; color: var(--color-steel-700); }
-            .gw-table tbody tr:last-child td, .gw-table tbody tr:last-child th { border-bottom: 0; }
-            .gw-table tbody th { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; color: var(--color-steel-950); }
-            .gw-toc a { display: inline-flex; min-height: 2.75rem; align-items: center; font-weight: 600; color: var(--color-steel-900); text-decoration: underline; }
-            .gw-qa + .gw-qa { margin-top: 1.25rem; }
-        </style>
-    </x-slot:head>
-    <x-page-header eyebrow="Brand guide" title="GoodWe inverters and batteries"
-        intro="Who GoodWe is, what they make, and how to choose the GoodWe hybrid inverter and battery that fit your home or business." />
-    <x-container class="py-10 sm:py-14">
-        <div class="gw-art space-y-10 text-steel-800" style="max-width: 48rem">
-            <nav aria-label="On this page" class="gw-toc rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-5">
-                <p class="font-bold text-steel-950">On this page</p>
-                <ul class="mt-1 grid sm:grid-cols-2" style="column-gap: 1.5rem">
-                    <li><a href="#who">Who is GoodWe?</a></li>
-                    <li><a href="#makes">What GoodWe makes</a></li>
-                    <li><a href="#philippines">GoodWe in the Philippines</a></li>
-                    <li><a href="#es-c10">The GoodWe ES-C10 hybrid inverters</a></li>
-                    <li><a href="#lynx">The Lynx A G4 battery</a></li>
-                    <li><a href="#size">Choosing a size</a></li>
-                    <li><a href="#warranty">Warranty and support</a></li>
-                    <li><a href="#products">GoodWe products we sell</a></li>
-                    <li><a href="#questions">Common questions</a></li>
-                </ul>
-            </nav>
-
+<x-brand-article :slug="$article['slug']" :brand="$article['brand']" :filter="$article['filter']" :products="$products" :settings="$settings"
+    title="GoodWe inverters and batteries"
+    intro="Who GoodWe is, what they make, and how to choose the GoodWe hybrid inverter and battery that fit your home or business."
+    description="Everything about GoodWe: who they are, what they make, GoodWe in the Philippines, the ES-C10 hybrid inverters and Lynx batteries we carry, warranty and how to choose a size."
+    :toc="[
+        'who' => 'Who is GoodWe?', 'makes' => 'What GoodWe makes', 'philippines' => 'GoodWe in the Philippines',
+        'es-c10' => 'The GoodWe ES-C10 hybrid inverters', 'lynx' => 'The Lynx A G4 battery', 'size' => 'Choosing a size',
+        'warranty' => 'Warranty and support',
+    ]">
             <section aria-labelledby="who">
                 <h2 id="who">Who is GoodWe?</h2>
                 <p>GoodWe Technologies is a Chinese manufacturer of solar inverters, batteries and energy-management products. It was founded in 2010 in Suzhou, China, by Daniel Huang, starting with fewer than ten people, and released its first solar inverter in 2011. Suzhou is still its headquarters.</p>
                 <p>The <strong>inverter</strong> is the brain of a solar system. Solar panels produce direct current (DC), but your appliances run on alternating current (AC). The inverter converts one into the other, and a <em>hybrid</em> inverter also decides, second by second, whether power goes to your loads, into the battery or out to the grid, and switches your home to backup during a brownout.</p>
-                <dl class="gw-facts mt-6">
+                <dl class="ba-facts mt-6">
                     <div><dt>Founded</dt><dd>2010<small>Suzhou, China</small></dd></div>
                     <div><dt>Stock listing</dt><dd>Shanghai Stock Exchange<small>STAR Market since 2020, code 688390</small></dd></div>
                     <div><dt>Installed worldwide</dt><dd>Over 100 GW<small>in more than 100 countries (2025)</small></dd></div>
@@ -74,11 +34,11 @@
 
             <section aria-labelledby="makes">
                 <h2 id="makes">What GoodWe makes</h2>
-                <div class="gw-family">
+                <div class="ba-family">
                     <h3>Grid-tie (on-grid) inverters</h3>
                     <p>Inverters without a battery that feed solar power into your home and the grid. The range goes from small single-phase home units to three-phase commercial inverters and utility inverters of up to 250 kW.</p>
                 </div>
-                <div class="gw-family">
+                <div class="ba-family">
                     <h3>Hybrid inverters</h3>
                     <p>Solar plus battery in one unit, with backup power during brownouts. The main families are:</p>
                     <ul class="dots mt-2">
@@ -87,19 +47,19 @@
                         <li><strong>ET series</strong>: three-phase, for high-voltage batteries, for larger homes and commercial sites.</li>
                     </ul>
                 </div>
-                <div class="gw-family">
+                <div class="ba-family">
                     <h3>Off-grid inverters</h3>
                     <p>The <strong>EO series</strong> runs a home or small business with no grid connection at all, with a generator input and up to 10 units in parallel. GoodWe launched the EO G2 in the Philippines in September 2026 for islands and areas with a weak grid.</p>
                 </div>
-                <div class="gw-family">
+                <div class="ba-family">
                     <h3>Batteries</h3>
                     <p>The <strong>Lynx</strong> family of lithium iron phosphate (LiFePO4) batteries, in low-voltage versions for 48 V inverters such as the ES series, and high-voltage stackable versions for the EH and ET series.</p>
                 </div>
-                <div class="gw-family">
+                <div class="ba-family">
                     <h3>Monitoring</h3>
                     <p>GoodWe inverters connect by Wi-Fi, LAN or Bluetooth to GoodWe’s SEMS Portal app, so you can see on your phone how much your panels produce, how full the battery is and how much you draw from the grid.</p>
                 </div>
-                <div class="mt-5 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-5">
+                <div class="ba-note mt-5">
                     <h3>Low-voltage or high-voltage battery?</h3>
                     <p><strong>Low-voltage (48–51.2 V)</strong> batteries are the most common type for homes in the Philippines. They are easy to expand and many brands are available. <strong>High-voltage</strong> batteries stack modules in series for a few hundred volts, which means lower current and slightly higher efficiency, but the battery must match the inverter brand. The inverter decides which kind you can use.</p>
                 </div>
@@ -118,8 +78,8 @@
             <section aria-labelledby="es-c10">
                 <h2 id="es-c10">The GoodWe ES-C10 hybrid inverters</h2>
                 <p>The ES-C10 is GoodWe’s single-phase hybrid inverter for 48 V batteries, and it is the GoodWe inverter we stock and install. It comes in four sizes:</p>
-                <div class="gw-table-wrap mt-4">
-                    <table class="gw-table">
+                <div class="ba-table-wrap mt-4">
+                    <table class="ba-table">
                         <caption class="sr-only">Key figures of the GoodWe ES-C10 models</caption>
                         <thead>
                             <tr><th scope="col">Model</th><th scope="col">Rated power</th><th scope="col">Max. solar panels</th><th scope="col">Battery current</th><th scope="col">Backup peak (10 s)</th><th scope="col">Weight</th></tr>
@@ -180,61 +140,33 @@
                 </ul>
             </section>
 
-            <section aria-labelledby="products">
-                <h2 id="products">GoodWe products we sell</h2>
-                @if ($products->isNotEmpty())
-                    <p>Prices and availability are kept up to date in our shop.</p>
-                    <ul class="mt-4 grid gap-4 sm:grid-cols-2">
-                        @foreach ($products as $p)
-                            <li class="flex"><x-product-card :product="$p" /></li>
-                        @endforeach
-                    </ul>
-                @else
-                    <p>Our GoodWe stock changes often. Contact us for current models and prices.</p>
-                @endif
-                <a href="/products?brand=GoodWe#results" class="{{ Ui::button('secondary', 'md', 'mt-5') }}">See all GoodWe products</a>
-            </section>
-
-            <section aria-labelledby="questions">
-                <h2 id="questions">Common questions</h2>
-                <div class="gw-qa">
+    <x-slot:questions>
+                <div class="ba-qa">
                     <h3>Can I use a battery from another brand?</h3>
                     <p>Yes. The ES-C10 works with 48 V lithium and lead-acid batteries. A lithium battery should be on GoodWe’s compatibility list so that it can communicate with the inverter. Ask us which batteries we have matched with it.</p>
                 </div>
-                <div class="gw-qa">
+                <div class="ba-qa">
                     <h3>Will I have power during a brownout?</h3>
                     <p>Yes, with a battery. The loads connected to the inverter’s backup output switch to the battery in under 4 milliseconds and keep running, and during the day the panels keep charging the battery.</p>
                 </div>
-                <div class="gw-qa">
+                <div class="ba-qa">
                     <h3>Can I join net metering with a GoodWe hybrid inverter?</h3>
                     <p>Yes. The ES-C10 is grid-connected, so a system with it can apply for net metering. See our <a href="/net-metering" class="inline">net metering guide</a>.</p>
                 </div>
-                <div class="gw-qa">
+                <div class="ba-qa">
                     <h3>Can I start small and expand later?</h3>
                     <p>Yes. Choose the inverter for your future backup load, then add panels up to twice its rating and add batteries over time (up to 30 Lynx A G4 in parallel).</p>
                 </div>
-                <div class="gw-qa">
+                <div class="ba-qa">
                     <h3>Can I check my system from my phone?</h3>
                     <p>Yes. The ES-C10 has built-in Wi-Fi, LAN and Bluetooth and connects to GoodWe’s SEMS Portal app.</p>
                 </div>
-            </section>
+    </x-slot:questions>
 
-            <section class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-5">
-                <h2>Planning a GoodWe system?</h2>
-                <p>Tell us your monthly bill and what you want on backup, and we’ll recommend the right inverter, panels and battery.</p>
-                <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
-                    <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
-                </div>
-            </section>
-
-            <p class="border-t border-steel-200 pt-4 text-sm text-steel-600">Sources: GoodWe, <a href="https://en.goodwe.com/au/company-history" target="_blank" rel="noopener" class="inline">company history</a>,
+    <x-slot:sources>GoodWe, <a href="https://en.goodwe.com/au/company-history" target="_blank" rel="noopener" class="inline">company history</a>,
                 <a href="https://en.goodwe.com/goodwe-expands-eo-g2-off-grid-solution-to-the-philippines-supporting-energy-resilience-for-homes-and-businesses" target="_blank" rel="noopener" class="inline">EO G2 launch in the Philippines</a>,
                 <a href="https://en.goodwe.com/goodwe-presents-tailored-solutions-in-the-philippines-at-pv-technical-roadshow-energizing-renewable-energy-advancements" target="_blank" rel="noopener" class="inline">Philippines PV Technical Roadshow</a> and
                 <a href="https://en.goodwe.com/warranty" target="_blank" rel="noopener" class="inline">warranty</a>;
                 pv magazine, <a href="https://www.pv-magazine.com/2025/11/07/a-new-blueprint-for-the-power-system-from-goodwe" target="_blank" rel="noopener" class="inline">A new blueprint for the power system from GoodWe</a> (November 2025);
-                <a href="https://pes.eu.com/press-releases/goodwe-celebrates-15-years-with-international-summit-and-strategy-milestone" target="_blank" rel="noopener" class="inline">GoodWe celebrates 15 years</a> (PES, 2025); GoodWe datasheets for the ES-C10 and Lynx A G4.
-                Last checked November 2026. GoodWe is a trademark of GoodWe Technologies Co., Ltd.; JFL Solar is an independent seller.</p>
-        </div>
-    </x-container>
-</x-site-layout>
+                <a href="https://pes.eu.com/press-releases/goodwe-celebrates-15-years-with-international-summit-and-strategy-milestone" target="_blank" rel="noopener" class="inline">GoodWe celebrates 15 years</a> (PES, 2025); GoodWe datasheets for the ES-C10 and Lynx A G4.</x-slot:sources>
+</x-brand-article>
