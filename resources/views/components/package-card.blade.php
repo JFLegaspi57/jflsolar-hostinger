@@ -11,13 +11,21 @@
     class="{{ $showImage ? 'row-span-7' : 'row-span-6' }} grid grid-rows-subgrid gap-y-0 overflow-hidden rounded-[var(--radius-panel)] border bg-white p-5 sm:p-6 {{ $pkg->package_type === 'installed_system' ? 'border-steel-300' : 'border-gold-200' }}">
     @if ($showImage)
         {{-- Fixed frame: the photo is positioned inside it, so every card's image area is the same height. --}}
-        <div class="relative -mx-5 -mt-5 mb-5 aspect-[16/10] border-b border-steel-200 bg-white sm:-mx-6 sm:-mt-6">
+        {{-- The photo opens the package too (a duplicate of the title link, so it is hidden from screen readers and skipped by Tab). --}}
+        <a href="/packages/{{ $pkg->slug }}" tabindex="-1" aria-hidden="true" class="pkg-photo relative -mx-5 -mt-5 mb-5 block aspect-[16/10] overflow-hidden border-b border-steel-200 bg-white sm:-mx-6 sm:-mt-6">
             @if ($image)
                 <x-media-image :asset="$image" :admin="$admin" sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" fit="contain" class="absolute inset-0" />
             @else
                 <div class="absolute inset-0"><x-placeholder-image label="Package photo pending" /></div>
             @endif
-        </div>
+        </a>
+        @once
+            <style>
+                .pkg-photo img { transition: transform .25s ease; }
+                .pkg-photo:hover img { transform: scale(1.03); }
+                @media (prefers-reduced-motion: reduce) { .pkg-photo img { transition: none; } .pkg-photo:hover img { transform: none; } }
+            </style>
+        @endonce
     @endif
     <div class="flex flex-wrap items-center gap-2">
         <x-package-type-tag :type="$pkg->package_type" />
