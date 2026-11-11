@@ -94,7 +94,7 @@
             <nav aria-label="Other brands we carry" class="ba-brands">
                 <p class="font-bold text-steel-950">Other brands we carry</p>
                 <ul class="mt-2 flex flex-wrap gap-2">
-                    @foreach (\App\Support\BrandArticles::ARTICLES as $s => $a)
+                    @foreach (\App\Support\BrandArticles::available() as $s => $a)
                         @continue($s === $slug)
                         <li><a href="/brands/{{ $s }}">{{ $a['brand'] }}</a></li>
                     @endforeach

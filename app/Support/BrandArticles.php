@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\View;
 
 /** Brand articles at /brands/{slug}. The brand logos on /products open these pages. */
 final class BrandArticles
@@ -21,6 +22,12 @@ final class BrandArticles
         'projoy' => ['brand' => 'Projoy Electric', 'filter' => 'Projoy'],
     ];
 
+    /** Articles that are written (a view exists), so unfinished ones never show up or get linked. */
+    public static function available(): array
+    {
+        return array_filter(self::ARTICLES, fn ($slug) => View::exists('pages.brands.'.$slug), ARRAY_FILTER_USE_KEY);
+    }
+
     /** Route constraint for the slugs above. */
     public static function slugPattern(): string
     {
@@ -30,7 +37,7 @@ final class BrandArticles
     /** Article address for a /products brand filter value, or null when the brand has no article. */
     public static function urlForFilter(string $filter): ?string
     {
-        foreach (self::ARTICLES as $slug => $a) {
+        foreach (self::available() as $slug => $a) {
             if (strcasecmp($a['filter'], $filter) === 0) {
                 return '/brands/'.$slug;
             }
