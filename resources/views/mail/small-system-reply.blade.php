@@ -3,7 +3,7 @@ Hi {!! $name !!},
 
 Thank you for contacting {!! $site !!}. We received your inquiry, and our Sales team will get back to you.
 
-Based on your monthly electric bill (below ₱5,000), your home would typically need a solar system smaller than 6 kW. For a system this size, buying the equipment from us and having it installed by your own electrician or installer is usually the most practical option:
+Based on your monthly electric bill (below ₱5,000), your home would typically need a solar PV system smaller than 6 kW. For a system this size, buying the equipment from us and having it installed by your own electrician or installer is usually the most practical option:
 
 - Materials Only: inverter, battery and solar panels in one bundle
   {!! $materialsUrl !!}

@@ -5,7 +5,7 @@
     use App\Support\Ui;
     $channels = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
 @endphp
-<x-site-layout title="Frequently Asked Questions" path="/faq" :reviews-above-footer="false" description="Answers about solar systems, sizing, equipment-only orders, payment and pickup, delivery, warranty, technical support and net metering at JFL Solar.">
+<x-site-layout title="Frequently Asked Questions" path="/faq" :reviews-above-footer="false" description="Answers about solar PV systems, sizing, equipment-only orders, payment and pickup, delivery, warranty, technical support and net metering at JFL Solar.">
     <x-slot:head>
         <script type="application/ld+json">{!! \App\Support\Faq::jsonLd($items) !!}</script>
         <style>

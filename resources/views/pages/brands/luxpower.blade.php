@@ -43,7 +43,7 @@
         </div>
         <div class="ba-family">
             <h3>Three-phase and AC-coupled inverters</h3>
-            <p>Three-phase hybrids for high-voltage batteries, and an AC-coupled unit that adds a battery to an existing grid-tie solar system.</p>
+            <p>Three-phase hybrids for high-voltage batteries, and an AC-coupled unit that adds a battery to an existing grid-tie solar PV system.</p>
         </div>
     </section>
 

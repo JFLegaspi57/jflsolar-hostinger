@@ -20,7 +20,7 @@ class SmallSystemReply extends Mailable
         $s = PublicContent::settings();
 
         return new Envelope(
-            subject: 'Thank you for your inquiry — options for a smaller solar system',
+            subject: 'Thank you for your inquiry — options for a smaller solar PV system',
             replyTo: filled($s->public_email) ? [new Address($s->public_email, Site::NAME)] : [],
         );
     }
