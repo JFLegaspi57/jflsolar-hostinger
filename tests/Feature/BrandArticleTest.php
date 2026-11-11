@@ -65,4 +65,12 @@ class BrandArticleTest extends TestCase
             $res->assertSee('href="/products?brand=Sungrow#results" class="brand-logo"', false);
         }
     }
+
+    public function test_inverter_and_panel_brands_show_their_tier_classification(): void
+    {
+        $this->get('/brands/goodwe')->assertOk()->assertSee('Tier classification')->assertSee('BloombergNEF Tier 1 PV inverter manufacturer');
+        $this->get('/brands/jinko-solar')->assertOk()->assertSee('Tier 1 panel maker');
+        $this->get('/brands/luxpower')->assertOk()->assertSee('Not Tier 1');
+        $this->get('/brands/dyness')->assertOk()->assertDontSee('Tier classification');
+    }
 }
