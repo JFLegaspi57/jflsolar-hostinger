@@ -5,6 +5,8 @@
         ['GEN2-LB-EU-6K', 'Hybrid', '6 kW', '9.6 kW', '2', '140 A', '7 ms'],
         ['GEN-LB-EU-8K', 'Hybrid', '8 kW', '12 kW', '2', '167 A', '20 ms'],
         ['GEN-LB-EU-10K', 'Hybrid', '10 kW', '15 kW', '2', '208 A', '20 ms'],
+        ['GEN2-LB-EU-8K', 'Hybrid', '8 kW', '12 kW', '3', '167 A', '10 ms'],
+        ['GEN2-LB-EU-10K', 'Hybrid', '10 kW', '15 kW', '3', '210 A', '10 ms'],
         ['GEN2-LB-EU-12K', 'Hybrid', '12 kW', '18 kW', '3', '250 A', '10 ms'],
         ['GEN2-LB-EU-14K', 'Hybrid', '14 kW (12 kW backup)', '18 kW', '3', '250 A', '10 ms'],
         ['SNA PRO-EU 6.5K', 'Off-grid', '6.5 kW', '12 kW', '2', '140 A', 'under 10 ms'],
@@ -63,8 +65,7 @@
         <h2 id="philippines">Luxpower in the Philippines</h2>
         <ul class="dots">
             <li>In January 2026 Luxpower held a technical training in Manila for about 60 installers and distributors, covering troubleshooting, operating modes and the LuxCloud app.</li>
-            <li>In March 2026 it ran an installer training in Bacolor, Pampanga, with Power Ai Philippines, launching its SNA off-grid and Geta series.</li>
-            <li>Also in March 2026, at the Power Ai summit in San Juan, a nationwide technical service center network for Luxpower and SolaX was announced.</li>
+            <li>Luxpower inverters are distributed in the Philippines by <strong>Photonergy Philippines Inc.</strong></li>
         </ul>
     </section>
 
@@ -125,7 +126,5 @@
         <a href="https://luxpowertek.com/wp-content/uploads/2025/10/GEN-LB-EU-7-10K-Datasheet.pdf" target="_blank" rel="noopener" class="inline">GEN-LB-EU 7–10K</a>,
         <a href="https://luxpowertek.com/wp-content/uploads/2026/04/GEN2-LB-EU-7-14K-Datasheet20260325.pdf" target="_blank" rel="noopener" class="inline">GEN2-LB-EU 7–14K</a>,
         <a href="https://luxpowertek.com/wp-content/uploads/2026/04/SNA-PRO-EU-3-6.5K-Datasheet-260410.pdf" target="_blank" rel="noopener" class="inline">SNA PRO-EU</a>;
-        Philippines: <a href="https://luxpowertek.com/?p=17570" target="_blank" rel="noopener" class="inline">Manila training</a> (2026),
-        <a href="https://powerphilippines.com/pampangas-best-owners-solarpeak-ph-tapped-as-power-ai-distributor-in-pampanga/" target="_blank" rel="noopener" class="inline">Pampanga training</a> and
-        <a href="https://powerphilippines.com/solar-firms-highlight-hybrid-tech-nationwide-support-at-power-ai-summit/" target="_blank" rel="noopener" class="inline">Power Ai summit</a> (Power Philippines, 2026).</x-slot:sources>
+        Philippines: <a href="https://luxpowertek.com/?p=17570" target="_blank" rel="noopener" class="inline">Manila training</a> (2026).</x-slot:sources>
 </x-brand-article>
