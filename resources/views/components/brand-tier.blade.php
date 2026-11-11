@@ -1,5 +1,9 @@
 @props(['slug'])
-@php $tier = \App\Support\BrandArticles::TIERS[$slug] ?? null; @endphp
+@php
+    $tier = \App\Support\BrandArticles::TIERS[$slug] ?? null;
+    // Shown only for Tier 1 brands (owner's choice); other brands show no tier box.
+    if ($tier && ! $tier[1]) { $tier = null; }
+@endphp
 {{-- Tier classification of an inverter / solar panel brand, shown at the end of the article's "Who is" section. --}}
     @if ($tier)
         {{-- Tier classification (BloombergNEF / S&P Global), shown for the inverter and solar panel brands. --}}
