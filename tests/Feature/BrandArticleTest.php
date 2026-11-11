@@ -70,7 +70,8 @@ class BrandArticleTest extends TestCase
     {
         $this->get('/brands/goodwe')->assertOk()->assertSee('Tier classification')->assertSee('BloombergNEF Tier 1 PV inverter manufacturer');
         $this->get('/brands/jinko-solar')->assertOk()->assertSee('Tier 1 panel maker');
-        $this->get('/brands/luxpower')->assertOk()->assertSee('Not Tier 1');
+        $this->get('/brands/luxpower')->assertOk()->assertSee('Tier 2')->assertSee('not an official ranking');
+        $this->get('/brands/seraphim')->assertOk()->assertSee('former Tier 1');
         $this->get('/brands/dyness')->assertOk()->assertDontSee('Tier classification');
     }
 }
