@@ -64,15 +64,24 @@
             .ba-logo::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, transparent, var(--color-gold-500), transparent); }
             .ba-logo-card { position: relative; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-panel); background: #fff; padding: 1rem 1.5rem; box-shadow: 0 18px 40px -16px rgb(0 0 0 / .55), 0 0 0 1px rgb(255 255 255 / .1); }
             .ba-logo img { display: block; width: auto; height: 3.5rem; max-width: min(17rem, 72vw); object-fit: contain; }
+            .ba-logo-eyebrow { position: relative; margin: 0 0 1.1rem; display: flex; align-items: center; justify-content: center; gap: .75rem; font-size: .875rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--color-gold-400); }
+            .ba-logo-title { position: relative; margin: 1.5rem auto 0; max-width: 46rem; font-size: 1.9rem; line-height: 1.12; font-weight: 800; color: #fff; text-wrap: balance; }
+            .ba-logo-intro { position: relative; margin: .9rem auto 0; max-width: 42rem; font-size: 1.05rem; line-height: 1.6; color: var(--color-steel-100); text-wrap: pretty; }
+            @media (min-width: 40rem) { .ba-logo-title { font-size: 2.6rem; } .ba-logo-intro { font-size: 1.15rem; } }
             @media (min-width: 40rem) { .ba-logo { padding: 3rem 1rem; } .ba-logo-card { padding: 1.25rem 2.25rem; } .ba-logo img { height: 4.5rem; max-width: 21rem; } }
         </style>
     </x-slot:head>
-    @if (is_file(public_path('images/brand-logo-'.$slug.'.webp')))
+    @php $logo = is_file(public_path('images/brand-logo-'.$slug.'.webp')); @endphp
+    @if ($logo)
         <div class="ba-logo">
+            <p class="ba-logo-eyebrow"><span class="rule-gold" aria-hidden="true"></span>Brand guide<span class="rule-gold" aria-hidden="true"></span></p>
             <span class="ba-logo-card"><img src="/images/brand-logo-{{ $slug }}.webp" alt="{{ $brand }} logo" fetchpriority="high" decoding="async" /></span>
+            <h1 class="ba-logo-title">{{ $title }}</h1>
+            <p class="ba-logo-intro">{{ $intro }}</p>
         </div>
+    @else
+        <x-page-header eyebrow="Brand guide" :title="$title" :intro="$intro" />
     @endif
-    <x-page-header eyebrow="Brand guide" :title="$title" :intro="$intro" />
     <x-container class="py-10 sm:py-14">
         <div class="ba space-y-10 text-steel-800" style="max-width: 48rem">
             <nav aria-label="On this page" class="ba-toc ba-note">
