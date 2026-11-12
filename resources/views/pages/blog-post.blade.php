@@ -7,6 +7,8 @@
     $more = collect([$post->cover])->filter()->concat($post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id))->values();
     $viewer = $more->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
     $offset = 0;
+    // Banner framing: tall portraits keep the top (the face); wider photos are framed a little above the middle.
+    $heroFocus = $post->cover && $post->cover->height > $post->cover->width * 1.15 ? '50% 3%' : '50% 40%';
     $jsonLd = [
         '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
         'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(),
@@ -60,7 +62,7 @@
     </x-slot:head>
     @if ($post->cover)
         <x-page-hero eyebrow="Blog" :title="$post->title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
-            :image-alt="$post->cover->alt" focus="50% 15%" :flip="true" protect title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
+            :image-alt="$post->cover->alt" :focus="$heroFocus" :flip="true" protect title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
     @else
         <x-page-header eyebrow="Blog" :title="$post->title" />
     @endif
