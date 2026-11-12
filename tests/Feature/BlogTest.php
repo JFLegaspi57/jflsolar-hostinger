@@ -100,6 +100,15 @@ class BlogTest extends TestCase
             ->assertSessionHasErrors('published_on');
     }
 
+    public function test_post_can_show_another_author(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Who is JF Legaspi?', 'author' => 'Buckny', 'body' => 'JF Legaspi is a Filipino engineer.', 'intent' => 'publish']);
+        $post = BlogPost::query()->firstOrFail();
+        $this->get('/blog/'.$post->slug)->assertSee('By <span class="text-steel-900">Buckny</span>', false)->assertDontSee('By <a href="/about"', false);
+        $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertSee('value="Buckny"', false);
+    }
+
     public function test_post_needs_a_title_and_body(): void
     {
         $this->actingAs($this->staff(), 'web')->post('/admin/blog', ['title' => '', 'body' => 'short'])

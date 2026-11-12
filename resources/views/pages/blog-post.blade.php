@@ -11,7 +11,7 @@
     $jsonLd = [
         '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
         'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(),
-        'author' => ['@type' => 'Person', 'name' => Blog::AUTHOR], 'publisher' => ['@type' => 'Organization', 'name' => Site::NAME],
+        'author' => Blog::author($post) === Blog::AUTHOR ? ['@type' => 'Person', 'name' => Blog::AUTHOR] : ['@type' => 'Organization', 'name' => Site::NAME], 'publisher' => ['@type' => 'Organization', 'name' => Site::NAME],
         'mainEntityOfPage' => Site::url('/blog/'.$post->slug),
     ];
 @endphp
@@ -38,7 +38,7 @@
     <x-page-header eyebrow="Blog" :title="$post->title" />
     <x-container class="py-10 sm:py-14">
         <article class="max-w-3xl">
-            <p class="text-sm font-semibold text-steel-600">By <a href="/about" class="text-steel-900 underline">{{ Blog::AUTHOR }}</a> · <time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
+            <p class="text-sm font-semibold text-steel-600">By @if (Blog::author($post) === Blog::AUTHOR)<a href="/about" class="text-steel-900 underline">{{ Blog::AUTHOR }}</a>@else<span class="text-steel-900">{{ Blog::author($post) }}</span>@endif · <time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
             @if ($post->cover)
                 <figure class="mt-6">

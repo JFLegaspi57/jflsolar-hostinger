@@ -16,13 +16,13 @@ use Illuminate\Support\Facades\Schema;
  */
 final class Blog
 {
-    private const TABLES_KEY = 'blog-tables-v1';
+    private const TABLES_KEY = 'blog-tables-v2'; // v2: author column
 
     public const AUTHOR = 'JF Legaspi';
 
     public static function hasTables(): bool
     {
-        return Schema::hasTable('blog_posts') && Schema::hasColumn('media_assets', 'blog_post_id');
+        return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id');
     }
 
     public static function ensureTables(): void
@@ -46,6 +46,11 @@ final class Blog
                     $t->unsignedInteger('lock_version')->default(0);
                     $t->timestamps();
                     $t->index(['status', 'published_at']);
+                });
+            }
+            if (! Schema::hasColumn('blog_posts', 'author')) {
+                Schema::table('blog_posts', function (Blueprint $t) {
+                    $t->string('author', 80)->nullable(); // blank = JF Legaspi
                 });
             }
             if (! Schema::hasColumn('media_assets', 'blog_post_id')) {
@@ -92,6 +97,12 @@ final class Blog
         }
 
         return $posts;
+    }
+
+    /** Name shown in the post's byline (JF Legaspi unless another author is set). */
+    public static function author(BlogPost $p): string
+    {
+        return trim((string) $p->author) ?: self::AUTHOR;
     }
 
     /** Date shown on a post, e.g. "12 November 2026". */
