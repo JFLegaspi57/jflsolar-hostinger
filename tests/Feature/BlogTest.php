@@ -92,7 +92,8 @@ class BlogTest extends TestCase
         $this->get('/blog/'.$post->slug)->assertSee('object-position: 50% 25%', false)->assertSee('class="bp-gallery mt-10"', false)->assertDontSee('aspect-ratio: 3 / 4', false);
         $this->get('/blog')->assertSee('object-position: 50% 25%', false);
         // The banner photo links to its post.
-        $this->get('/blog')->assertSee('<a href="/blog/'.$post->slug.'" class="hero-photo-link">', false)->assertSee('Read: '.$post->title);
+        $this->get('/blog')->assertSee('<a href="/blog/'.$post->slug.'" class="hero-photo-link"', false)
+            ->assertSeeInOrder(['Notes, lessons and stories', '<a href="/blog/'.$post->slug.'" class="hero-read-link">Read: '.$post->title], false);
         // The small (600 px wide) photo is never picked for the blog page banner.
         $small = MediaAsset::query()->where('blog_post_id', $post->id)->where('is_cover', false)->firstOrFail();
         for ($n = 0; $n < 6; $n++) {

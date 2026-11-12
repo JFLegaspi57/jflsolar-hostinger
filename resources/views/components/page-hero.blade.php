@@ -5,7 +5,7 @@
      tilt = the photo leans in 3D toward the mouse (on by default; see partials/hero-tilt).
      titleClass = smaller title for long titles (blog posts); protect = no right-click saving or dragging of the photo.
      tall = a taller banner that shows more of the photo (blog).
-     imageHref / imageLabel = the photo links somewhere (e.g. the blog post it comes from), with a small label on the photo. --}}
+     imageHref / imageLabel = the photo links somewhere (e.g. the blog post it comes from); the label shows as a link just below the banner text. --}}
 @if ($imageHref)
     @once
         <style>
@@ -14,8 +14,8 @@
             .hero-linked .hero-text { pointer-events: auto; }
             .hero-photo-link { position: absolute; inset: 0; z-index: 1; }
             .hero-photo-link:focus-visible { outline: 3px solid var(--color-gold-400); outline-offset: -3px; }
-            .hero-photo-tag { position: absolute; right: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; background: rgb(15 20 28 / .78); padding: .45rem .85rem; font-size: .85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-            .hero-photo-link:hover .hero-photo-tag { background: var(--color-gold-500); color: var(--color-steel-950); }
+            .hero-read-link { margin-top: 1.25rem; display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; font-weight: 700; color: var(--color-gold-400); text-decoration: underline; text-underline-offset: .2em; }
+            .hero-read-link:hover { color: #fff; }
         </style>
     @endonce
 @endif
@@ -45,7 +45,8 @@
         <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-steel-950 to-transparent lg:hidden"></div>
         <div aria-hidden="true" class="hero-fade absolute inset-0 hidden bg-gradient-to-r from-transparent from-55% to-steel-950 lg:block"></div>
         @if ($imageHref)
-            <a href="{{ $imageHref }}" class="hero-photo-link"><span class="hero-photo-tag">{{ $imageLabel ?? 'Read more' }} <span aria-hidden="true">→</span></span></a>
+            {{-- The photo is clickable too; the "Read:" text link under the banner text is the one for keyboards and screen readers. --}}
+            <a href="{{ $imageHref }}" class="hero-photo-link" tabindex="-1" aria-hidden="true"></a>
         @endif
     </div>
     <x-container class="hero-content relative pt-4 pb-14 sm:pb-16 lg:py-28">
@@ -58,6 +59,9 @@
             <h1 id="page-hero-title" class="{{ $titleClass ?? 'text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]' }}">{{ $title }}</h1>
             @if ($intro)
                 <p class="mt-6 text-lg text-steel-100">{{ $intro }}</p>
+            @endif
+            @if ($imageHref)
+                <p><a href="{{ $imageHref }}" class="hero-read-link">{{ $imageLabel ?? 'Read more' }} <span aria-hidden="true">→</span></a></p>
             @endif
             {{ $slot }}
         </div>
