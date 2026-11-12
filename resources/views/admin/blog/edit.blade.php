@@ -16,7 +16,6 @@
         <x-admin.fieldset legend="Post">
             <x-admin.text :form="$form" name="title" label="Title" required maxlength="160" class="sm:col-span-2" />
             <x-admin.text :form="$form" name="slug" label="URL slug" maxlength="80" class="sm:col-span-2" hint="/blog/your-slug — leave blank to create from the title." />
-            <x-admin.text :form="$form" name="author" label="Author shown on the post" maxlength="80" hint="Leave blank for “JF Legaspi”." />
             <x-admin.text :form="$form" name="published_on" label="Date shown on the post" type="date" hint="Leave blank to use the day you first publish it. Set an earlier date for an older story." />
             <x-admin.textarea :form="$form" name="excerpt" label="Short summary" maxlength="300" rows="2" class="sm:col-span-2" hint="One or two sentences shown on the blog list and in search results." />
             <x-admin.textarea :form="$form" name="body" label="Post" required maxlength="20000" rows="16" class="sm:col-span-2"
