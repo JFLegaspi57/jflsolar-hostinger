@@ -7,11 +7,11 @@
     @if ($banner)
         <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
             :image="$banner->url($banner->bestWidth(1280))" :srcset="$banner->srcset()" :image-alt="$banner->alt"
-            :focus="Blog::focus($banner)" :flip="true" protect :zoom-out="Blog::zoomOut($banner)" />
+            :focus="Blog::focus($banner)" :flip="true" protect tall />
     @else
         <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
             image="/images/blog-summit-1280.jpg" srcset="/images/blog-summit-640.jpg 640w, /images/blog-summit-960.jpg 960w, /images/blog-summit-1280.jpg 1280w, /images/blog-summit-1600.jpg 1600w"
-            imageAlt="JF Legaspi on stage at the GoodWe Global Installer Summit 2026" focus="88% 45%" :flip="true" protect />
+            imageAlt="JF Legaspi on stage at the GoodWe Global Installer Summit 2026" focus="88% 45%" :flip="true" protect tall />
     @endif
     <x-container class="py-10 sm:py-14">
         @if ($posts->isNotEmpty())
