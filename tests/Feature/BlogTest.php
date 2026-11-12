@@ -43,7 +43,7 @@ class BlogTest extends TestCase
         $this->actingAs($staff, 'web')->post('/admin/blog', [
             'title' => 'Why we size solar PV systems around daytime use',
             'excerpt' => 'Solar you use yourself saves more than solar you export.',
-            'body' => "Most homes use the most power at night.\n- Run the washing machine at noon\nTip: check your bill first.",
+            'body' => "Most homes use the most power at night.\n## What you can do\n- Run the washing machine at noon\nTip: check your bill first.",
         ]);
         $post = BlogPost::query()->firstOrFail();
         $this->assertSame('draft', $post->status);
@@ -69,7 +69,7 @@ class BlogTest extends TestCase
             ->assertDontSee('The first post is on the way.');
         $this->get('/blog/'.$post->slug)->assertOk()
             ->assertSee('By <a href="/about"', false)->assertSee('JF Legaspi')
-            ->assertSee('Run the washing machine at noon')->assertSee('"@type":"BlogPosting"', false)
+            ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertSee('"@type":"BlogPosting"', false)
             ->assertSee('alt="Panels on a roof at noon"', false);
         $this->get($img->url($img->bestWidth(1280)))->assertOk();
         $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
