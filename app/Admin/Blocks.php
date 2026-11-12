@@ -20,7 +20,6 @@ final class Blocks
     public const SECTIONS = [
         'about' => 'About page',
         'why' => 'Why choose us (home page and About page)',
-        'brand' => 'Brand page banner (key brand.{brand}, e.g. brand.goodwe; the image is the banner)',
     ];
 
     public static function isStandard(string $key): bool
@@ -30,13 +29,6 @@ final class Blocks
 
     public static function placement(string $key, string $section): string
     {
-        if ($section === 'brand' && str_starts_with($key, 'brand.')) {
-            $slug = substr($key, 6);
-            $brand = \App\Support\BrandArticles::ARTICLES[$slug]['brand'] ?? null;
-
-            return $brand ? $brand.' brand page (/brands/'.$slug.') — banner poster' : 'Brand page banner — no brand page has the key '.$key;
-        }
-
         return self::STANDARD[$key] ?? (self::SECTIONS[$section] ?? $section).' — additional block';
     }
 
