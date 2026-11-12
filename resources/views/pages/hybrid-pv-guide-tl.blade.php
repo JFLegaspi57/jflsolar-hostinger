@@ -13,7 +13,7 @@
     description="Teknikal na gabay sa Tagalog kung paano gumagana ang hybrid solar PV system: solar array at MPPT, mga converter sa loob ng hybrid inverter, battery at BMS, priority ng power flow, operating mode, backup kapag brownout, proteksyon at mga loss.">
     <x-slot:head>
         @include('partials.guide-styles')
-        @include('partials.hybrid-guide-hreflang')
+        @include('partials.guide-hreflang', ['en' => '/hybrid-pv-system-guide'])
     </x-slot:head>
     <x-page-header eyebrow="Teknikal na gabay" title="Paano gumagana ang hybrid solar PV system"
         intro="Mula sa sikat ng araw hanggang sa saksakan: ano ang ginagawa ng bawat bahagi, ano ang nangyayari sa loob ng hybrid inverter, paano hinahati ang kuryente sa bahay mo, sa battery at sa grid, at paano nananatiling may ilaw kapag brownout." />
@@ -104,7 +104,7 @@
                             <tr><th scope="row">Battery + BMS</th><td>Iniipon ang sobrang solar para sa gabi at para sa brownout.</td><td>Karaniwang 48–51.2 V LiFePO4 para sa bahay; ipinapaalam ng BMS sa inverter ang state of charge at mga limit nito sa pamamagitan ng CAN o RS485.</td></tr>
                             <tr><th scope="row">Backup load panel</th><td>Mga circuit na hindi namamatay kapag brownout.</td><td>Pinapakain mula sa BACKUP (EPS/UPS) port ng inverter; dapat pasok ito sa backup rating ng inverter.</td></tr>
                             <tr><th scope="row">CT o smart meter</th><td>Sinusukat ang kuryenteng pumapasok mula sa grid o lumalabas papunta rito.</td><td>Dahil dito, nasusundan ng inverter ang load mo nang real time at naipapatupad ang export limit (kasama ang zero export).</td></tr>
-                            <tr><th scope="row">Bi-directional meter</th><td>Itinatala ang enerhiyang na-import at na-export.</td><td>Ikinakabit ng utility mo para sa <a href="/net-metering" class="inline">net metering</a>.</td></tr>
+                            <tr><th scope="row">Bi-directional meter</th><td>Itinatala ang enerhiyang na-import at na-export.</td><td>Ikinakabit ng utility mo para sa <a href="/net-metering/tagalog" class="inline">net metering</a>.</td></tr>
                             <tr><th scope="row">Mga protection device</th><td>Pinapanatiling ligtas ang tao at ang kagamitan.</td><td>DC isolator, PV at AC surge protector, breaker, battery fuse/MCCB, rapid shutdown device at earthing.</td></tr>
                         </tbody>
                     </table>
@@ -251,7 +251,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="mt-3">Basahin kung <a href="/grid-tied-pv-system-guide" class="inline">paano gumagana ang grid-tied solar PV system</a> (sa Ingles), at tingnan ang aming <a href="/services#system-types" class="inline">mga uri ng sistema</a>, ang <a href="/packages?type=complete" class="inline">complete hybrid packages</a> at ang mga brand ng inverter na dala namin, gaya ng <a href="/brands/goodwe" class="inline">GoodWe</a>, <a href="/brands/solis" class="inline">Solis</a> at <a href="/brands/sungrow" class="inline">Sungrow</a>.</p>
+                <p class="mt-3">Basahin kung <a href="/grid-tied-pv-system-guide/tagalog" class="inline">paano gumagana ang grid-tied solar PV system</a>, at tingnan ang aming <a href="/services#system-types" class="inline">mga uri ng sistema</a>, ang <a href="/packages?type=complete" class="inline">complete hybrid packages</a> at ang mga brand ng inverter na dala namin, gaya ng <a href="/brands/goodwe" class="inline">GoodWe</a>, <a href="/brands/solis" class="inline">Solis</a> at <a href="/brands/sungrow" class="inline">Sungrow</a>.</p>
             </section>
 
             <section class="hg-note">

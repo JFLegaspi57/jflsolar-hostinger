@@ -4,23 +4,14 @@
 @endphp
 <x-site-layout title="Net Metering in the Philippines" path="/net-metering" :reviews-above-footer="false" description="How net metering works in the Philippines: who can apply, how bill credits are computed, the usual application steps, and how to size your solar PV system for the most savings.">
     <x-slot:head>
-        <style>
-            .nm h2 { margin-bottom: .5rem; font-size: 1.5rem; font-weight: 800; color: var(--color-steel-950); }
-            .nm h3 { margin-bottom: .25rem; font-size: 1.125rem; font-weight: 700; color: var(--color-steel-950); }
-            .nm p + p { margin-top: .75rem; }
-            .nm ul.dots li { margin-left: 1.25rem; list-style: disc; }
-            .nm ul.dots li + li { margin-top: .35rem; }
-            .nm-steps { counter-reset: step; }
-            .nm-steps li { counter-increment: step; position: relative; padding-left: 3.25rem; min-height: 2.5rem; }
-            .nm-steps li + li { margin-top: 1.1rem; }
-            .nm-steps li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 2.25rem; height: 2.25rem; border-radius: 999px; background: var(--color-gold-500); color: var(--color-steel-950); font-weight: 800; display: grid; place-items: center; }
-            .nm a.inline { font-weight: 600; color: var(--color-steel-900); text-decoration: underline; }
-            .nm a.inline:hover { color: var(--color-gold-800); }
-        </style>
+        @include('partials.net-metering-styles')
+        @include('partials.guide-hreflang', ['en' => '/net-metering'])
     </x-slot:head>
     <x-page-header eyebrow="Guide" title="Net metering in the Philippines" intro="How to earn bill credits from the solar power you don’t use, and how to size your system to save the most." />
     <x-container class="py-10 sm:py-14">
         <div class="nm max-w-3xl space-y-10 text-steel-800">
+            <p class="text-sm"><a href="/net-metering/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
+
             <section>
                 <h2>What is net metering?</h2>
                 <p>Net metering lets a home or business with grid-connected solar panels send the electricity it doesn’t use to its electric utility (Meralco or your electric cooperative). The utility installs a two-way (bi-directional) meter that records the power you take from the grid and the power you send back.</p>
