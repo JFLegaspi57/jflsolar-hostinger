@@ -164,8 +164,8 @@ class PageController extends Controller
     public function blog(): View
     {
         $posts = \App\Support\Blog::published();
-        // Banner: a random photo from all published posts (a new one on each visit).
-        $photos = $posts->flatMap(fn ($p) => $p->photos);
+        // Banner: a random photo from all published posts (a new one on each visit); small photos would look blurry.
+        $photos = $posts->flatMap(fn ($p) => $p->photos)->filter(fn ($m) => (int) $m->width >= \App\Support\Blog::BANNER_MIN_WIDTH);
 
         return view('pages.blog', ['posts' => $posts, 'banner' => $photos->isNotEmpty() ? $photos->random() : null]);
     }

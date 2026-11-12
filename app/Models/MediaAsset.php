@@ -26,6 +26,7 @@ class MediaAsset extends Model
             'width' => 'integer',
             'height' => 'integer',
             'bytes' => 'integer',
+            'focus_y' => 'integer',
         ];
     }
 

@@ -7,8 +7,7 @@
     $more = collect([$post->cover])->filter()->concat($post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id))->values();
     $viewer = $more->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
     $offset = 0;
-    // Banner framing: tall portraits keep the top (the face); wider photos are framed a little above the middle.
-    $heroFocus = $post->cover && $post->cover->height > $post->cover->width * 1.15 ? '50% 3%' : '50% 40%';
+    $heroFocus = $post->cover ? Blog::focus($post->cover) : null;
     $jsonLd = [
         '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
         'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(),
@@ -56,6 +55,10 @@
             .bp-form textarea[aria-invalid="true"] { border-color: var(--color-danger-700); }
             .bp-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
             .bp-signin { margin-top: 1.25rem; border-top: 1px solid var(--color-steel-200); padding-top: 1rem; font-size: .95rem; color: var(--color-steel-700); }
+            /* Gallery: every photo shown whole (no cropping), in columns. */
+            .bp-gallery { columns: 2; column-gap: 1rem; }
+            @media (min-width: 640px) { .bp-gallery { columns: 3; } }
+            .bp-gallery li { break-inside: avoid; margin-bottom: 1rem; }
             .bp-caption { margin-top: .5rem; max-width: 40rem; padding: 0 1rem; text-align: center; font-size: .95rem; color: rgb(255 255 255 / .85); }
         </style>
         <script type="application/ld+json">{!! json_encode(array_filter($jsonLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
@@ -75,12 +78,12 @@
             <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
             @if ($more->isNotEmpty())
                 {{-- All photos (the banner photo first) as a gallery; each opens in the pop-up viewer. --}}
-                <ul class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3" aria-label="Photos">
+                <ul class="bp-gallery mt-10" aria-label="Photos">
                     @foreach ($more as $i => $img)
                         <li>
                             <figure>
-                                <button type="button" data-photo="{{ $i + $offset }}" class="bp-open bp-photo relative block w-full overflow-hidden rounded-[var(--radius-panel)] bg-steel-100" style="aspect-ratio: 3 / 4">
-                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" draggable="false" style="position: absolute; inset: 0; object-position: 50% 0%" />
+                                <button type="button" data-photo="{{ $i + $offset }}" class="bp-open bp-photo relative block w-full overflow-hidden rounded-[var(--radius-panel)] bg-steel-100">
+                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" draggable="false" style="display: block; width: 100%; height: auto" />
                                     <span class="bp-shield" aria-hidden="true"></span>
                                     <span class="sr-only">Enlarge photo: {{ $img->alt }}</span>
                                 </button>
