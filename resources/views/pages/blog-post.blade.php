@@ -31,13 +31,38 @@
             .bp-btn { display: inline-flex; align-items: center; justify-content: center; min-width: 2.9rem; min-height: 2.9rem; padding: 0 .9rem; border: 1px solid rgb(255 255 255 / .45); border-radius: 999px; background: rgb(255 255 255 / .08); color: #fff; font-weight: 700; cursor: pointer; }
             .bp-btn:hover, .bp-btn:focus-visible { background: rgb(255 255 255 / .2); }
             .bp-close { position: fixed; top: 1rem; right: 1rem; }
+            /* Post + comments side by side on wide screens; comments below the post on phones. */
+            .bp-layout { display: grid; gap: 2.5rem; }
+            @media (min-width: 1024px) {
+                .bp-layout { grid-template-columns: minmax(0, 1fr) 22rem; align-items: start; }
+                .bp-aside { position: sticky; top: 6rem; }
+                .bp-comment-list { max-height: 26rem; overflow-y: auto; padding-right: .25rem; }
+            }
+            .bp-panel { border: 1px solid var(--color-steel-200); border-radius: var(--radius-panel); background: #fff; padding: 1.25rem; }
+            .bp-reactions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .75rem; }
+            .bp-react { display: inline-flex; align-items: center; gap: .3rem; min-height: 2.75rem; padding: 0 .85rem; border: 1px solid var(--color-steel-300); border-radius: 999px; background: #fff; font-weight: 600; color: var(--color-steel-900); cursor: pointer; }
+            .bp-react:hover { border-color: var(--color-steel-900); }
+            .bp-react[aria-pressed="true"] { border-color: var(--color-gold-500); background: var(--color-gold-50, #fff8e6); box-shadow: inset 0 0 0 1px var(--color-gold-500); }
+            .bp-flash { margin-top: 1rem; border-radius: var(--radius-control); background: var(--color-ok-50); padding: .6rem .75rem; font-size: .9rem; font-weight: 600; color: var(--color-ok-700); }
+            .bp-comment-list { margin-top: 1rem; border-top: 1px solid var(--color-steel-200); padding-top: 1rem; display: grid; gap: 1rem; }
+            .bp-comment { display: flex; gap: .65rem; }
+            .bp-avatar { flex: none; display: grid; place-items: center; width: 2.25rem; height: 2.25rem; overflow: hidden; border-radius: 999px; background: var(--color-steel-900); color: var(--color-gold-400); font-weight: 800; }
+            .bp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+            .bp-body { margin-top: .15rem; white-space: pre-line; overflow-wrap: anywhere; color: var(--color-steel-800); }
+            .bp-waiting { margin-top: .2rem; display: inline-block; border-radius: 999px; background: var(--color-warn-50); padding: 0 .5rem; font-size: .75rem; font-weight: 600; color: var(--color-warn-800); }
+            .bp-form { margin-top: 1.25rem; border-top: 1px solid var(--color-steel-200); padding-top: 1rem; }
+            .bp-form textarea { margin-top: .4rem; width: 100%; min-height: 6rem; border: 1px solid var(--color-steel-500); border-radius: var(--radius-control); padding: .6rem .75rem; font-size: 1rem; color: var(--color-steel-950); }
+            .bp-form textarea[aria-invalid="true"] { border-color: var(--color-danger-700); }
+            .bp-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+            .bp-signin { margin-top: 1.25rem; border-top: 1px solid var(--color-steel-200); padding-top: 1rem; font-size: .95rem; color: var(--color-steel-700); }
             .bp-caption { margin-top: .5rem; max-width: 40rem; padding: 0 1rem; text-align: center; font-size: .95rem; color: rgb(255 255 255 / .85); }
         </style>
         <script type="application/ld+json">{!! json_encode(array_filter($jsonLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     </x-slot:head>
     <x-page-header eyebrow="Blog" :title="$post->title" />
     <x-container class="py-10 sm:py-14">
-        <article class="max-w-3xl">
+        <div class="bp-layout">
+        <article class="min-w-0 max-w-3xl">
             {{-- No author byline on posts (owner's choice); only the date is shown. --}}
             <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
@@ -76,6 +101,10 @@
                 <a href="/blog" class="{{ Ui::button('secondary', 'lg') }}"><span aria-hidden="true">←</span> All posts</a>
             </div>
         </article>
+        <aside id="comments" class="bp-aside" style="scroll-margin-top: 6rem">
+            @include('partials.blog-comments')
+        </aside>
+        </div>
     </x-container>
 
     @if ($viewer)

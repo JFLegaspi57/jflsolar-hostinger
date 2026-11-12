@@ -16,6 +16,8 @@ return new class extends Migration
 
     public function down(): void
     {
+        Schema::dropIfExists('blog_comments');
+        Schema::dropIfExists('blog_reactions');
         Schema::dropIfExists('blog_posts');
         if (Schema::hasColumn('media_assets', 'blog_post_id')) {
             Schema::table('media_assets', fn (Blueprint $t) => $t->dropColumn('blog_post_id'));

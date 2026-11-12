@@ -170,7 +170,13 @@ class PageController extends Controller
     {
         $post = \App\Support\Blog::find($slug) ?? abort(404);
 
-        return view('pages.blog-post', ['post' => $post, 'settings' => PublicContent::settings()]);
+        $member = \App\Support\Members::current();
+
+        return view('pages.blog-post', [
+            'post' => $post, 'settings' => PublicContent::settings(), 'member' => $member,
+            'reactions' => \App\Support\BlogComments::counts($post), 'myReaction' => \App\Support\BlogComments::memberReaction($post, $member),
+            'comments' => \App\Support\BlogComments::visible($post, $member),
+        ]);
     }
 
     /** Technical guide: how a hybrid solar PV system works. */
