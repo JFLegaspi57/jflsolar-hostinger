@@ -37,7 +37,9 @@ class BrandArticleTest extends TestCase
         $this->assertArrayHasKey('goodwe', $available);
         $this->assertArrayHasKey('jinko-solar', $available);
         foreach ($available as $slug => $a) {
-            $res = $this->get('/brands/'.$slug)->assertOk()->assertSee($a['brand'].' products we sell')->assertSee('Request a Quote')->assertSee('Sources:');
+            $this->assertFileExists(public_path('images/brand-logo-'.$slug.'.webp'));
+            $res = $this->get('/brands/'.$slug)->assertOk()->assertSeeInOrder(['class="ba-logo"', 'src="/images/brand-logo-'.$slug.'.webp" alt="'.$a['brand'].' logo"', '<h1'], false)
+                ->assertSee($a['brand'].' products we sell')->assertSee('Request a Quote')->assertSee('Sources:');
             foreach (array_keys($available) as $other) {
                 if ($other !== $slug) {
                     $res->assertSee('href="/brands/'.$other.'"', false);

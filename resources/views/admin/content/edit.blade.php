@@ -45,8 +45,8 @@
 
     @unless ($isNew)
         <div class="mb-28 space-y-8">
-            <x-admin.image-manager owner-type="block" :owner="$block" :images="$images" :title="$block->key === 'about.founder' ? 'Founder photo' : ($block->section === 'brand' ? 'Banner poster' : 'Image (optional)')"
-                :guidance="$block->key === 'about.founder' ? 'Use a recent portrait the founder has approved for publication.' : ($block->section === 'brand' ? 'The first image is the banner at the top of the brand page, shown whole at its own shape. Use the brand\'s official product poster (wide, at least 1600 px). The caption appears small on the banner, e.g. Poster: GoodWe.' : 'Optional image shown with this block. Only use images you have permission to publish.')" />
+            <x-admin.image-manager owner-type="block" :owner="$block" :images="$images" :title="$block->key === 'about.founder' ? 'Founder photo' : 'Image (optional)'"
+                :guidance="$block->key === 'about.founder' ? 'Use a recent portrait the founder has approved for publication.' : 'Optional image shown with this block. Only use images you have permission to publish.'" />
             <section aria-labelledby="danger-title" class="rounded-[var(--radius-panel)] border border-[#f3c3be] bg-white p-5">
                 <h2 id="danger-title" class="text-lg font-bold text-danger-700">Delete this block</h2>
                 <p class="mt-1 text-sm text-steel-700">Permanently removes the text and any image. To hide it for now, untick “Show on the website” above instead.@if (Blocks::isStandard($block->key)) This is a standard block: deleting it removes that part of the page.@endif</p>
