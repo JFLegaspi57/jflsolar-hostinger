@@ -78,6 +78,7 @@ class BlogTest extends TestCase
             ->assertSee('alt="Panels on a roof at noon"', false)
             ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false)
             ->assertSee('<dialog id="photo-viewer"', false)->assertSee('data-photo="0"', false)->assertSee('data-photo="1"', false)
+            ->assertSee('id="page-hero-title"', false)->assertSee('oncontextmenu="return false"', false)
             ->assertSee('draggable="false"', false)->assertDontSee('target="_blank" rel="noopener" class="relative block', false);
         $this->get($img->url($img->bestWidth(1280)))->assertOk();
         $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
