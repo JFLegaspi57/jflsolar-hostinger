@@ -36,8 +36,8 @@
                     @foreach ($more as $img)
                         <li>
                             <figure>
-                                <a href="{{ $img->url($img->bestWidth(2000)) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-[var(--radius-panel)] bg-steel-100" style="aspect-ratio: 3 / 4">
-                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" style="object-position: 50% 15%" />
+                                <a href="{{ $img->url($img->bestWidth(2000)) }}" target="_blank" rel="noopener" class="relative block overflow-hidden rounded-[var(--radius-panel)] bg-steel-100" style="aspect-ratio: 3 / 4">
+                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" style="position: absolute; inset: 0; object-position: 50% 15%" />
                                     <span class="sr-only">Open photo full size (opens in a new tab)</span>
                                 </a>
                                 @if ($img->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $img->caption }}</figcaption>@endif
