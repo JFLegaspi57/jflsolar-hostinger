@@ -1,0 +1,43 @@
+On November 12, 2026, I had the privilege of attending Sungrow's Global Energy Pioneer Summit (GEPS) 2026 in Hefei, China, the home city of Sungrow. To be in the room at the headquarters of one of the biggest names in inverters and energy storage, on the day they show the world what comes next, is something I don't take lightly.
+The theme of the summit said it all: "Pioneer as One, Success for All." Manufacturers, distributors and installers moving forward together, so that the people who use the technology benefit too.
+## Why this summit matters
+Sungrow is one of the world's leading makers of PV inverters and energy storage systems. It is listed as a Tier 1 PV inverter supplier by S&P Global and was ranked the most bankable inverter brand in BloombergNEF's 2025 survey. You can read more about the company in our [Sungrow guide](https://www.jflsolar.ph/brands/sungrow).
+GEPS is where Sungrow shows where the industry is heading. For an installer, that is valuable: what is launched on that stage today is what our clients will be asking about tomorrow.
+## Inside Sungrow's showroom and Global Digital Factory
+During the summit, we also toured the headquarters. In the commercial PV + energy storage area of the showroom, Sungrow shows complete solutions for factories, shopping centres, car parks and island microgrids, including PowerKeeper, its modular DC-coupled storage system for C&I sites, with a three-phase hybrid inverter and stackable battery modules.
+The most impressive moment for me was the Global Digital Factory wall, a live overview of Sungrow's manufacturing worldwide. The figures shown there speak for themselves:
+- Production capacity: 450 GW of power electronic equipment, 270 GW of PV inverters and 100 GWh of energy storage systems.
+- Factories: the headquarters factory in Hefei, plus factories in Poland, India and Thailand. Thailand is close to home, which is good news for supply to Southeast Asia.
+- Quality: a first-pass yield of 99.78%, meaning almost every unit passes every production test the first time, without rework.
+- Automation and AI: a 73% automation rate on benchmark production lines, and AI image inspection with an accuracy of more than 99.5%.
+- Sustainability: 79% of the electricity used in operations comes from renewable sources, with a goal of operational carbon neutrality by 2028.
+As an engineer, this is what I like to see. Automation and AI inspection are how a manufacturer makes the millionth inverter as good as the first one.
+## The big launch: PowerStack 3.0
+The highlight was the launch of PowerStack 3.0, Sungrow's next-generation energy storage system for commercial and industrial (C&I) sites. Sungrow calls it the move from "All-in-One" to "Scene-in-One": instead of one box for every job, the system is built around the job it has to do.
+A "multi-scenario dock" with four modules (PCS, Solar, Charging and Microgrid) lets the same platform work as:
+- Standalone storage: power modules can be combined for 2-hour or 4-hour systems.
+- Solar plus storage: DC-coupled, without an extra inverter.
+- Solar, storage and EV charging: all three DC-coupled in one system.
+- Microgrid: critical loads stay powered during an outage, with a 0 ms switchover and no separate static transfer switch (STS) cabinet.
+## The numbers that caught my eye
+- Compact: up to 256 kWh per square metre, up to 20 units in parallel, and a 43% smaller footprint for a 5 MWh plant compared with the previous generation.
+- Efficient: a silicon carbide (SiC) power converter with up to 99.2% conversion efficiency, and over 92% round-trip efficiency with 684 Ah stacked cells.
+- Tough: IP55 protection, C5-level corrosion protection, operation from -30°C to 50°C, and tolerance of up to 30% grid harmonics.
+- Safe: three-level fuse protection and a four-layer fire safety design.
+A few of these deserve a plain-language explanation. Round-trip efficiency tells you how much energy comes back out of the battery: of every 100 kWh stored, more than 92 kWh can be used again. C5 corrosion protection is the highest class for harsh environments, which matters for sites near the sea, and we have a lot of those in the Philippines. Tolerance for grid harmonics matters in factories, where motors, pumps and drives make the grid "noisy" and can trip less robust equipment.
+## AI that works alongside the installer
+PowerStack 3.0 comes with Bubbly, Sungrow's own AI assistant, which supports the whole life of a project:
+- Design: satellite imagery and 3D modelling produce a design proposal, with layout and financial calculation, in about 30 seconds.
+- Commissioning: automatic configuration and data checks in about 3 minutes.
+- Operation: smart scheduling across self-consumption, demand control, energy arbitrage and frequency regulation. Sungrow says this can bring returns more than 12% higher than plain self-consumption.
+- Maintenance: 24/7 monitoring that watches for more than 30 potential risks, and a fault report for a 10 MWh plant in about a minute.
+Having designed and managed C&I solar PV installations for years, I can tell you that design and commissioning are where projects lose the most time. Tools like this don't replace a good engineer, but they let a good engineer do more, faster and with fewer mistakes.
+## What this means for Filipino businesses
+Electricity is one of the biggest costs for many Philippine businesses, and many are billed not only for the energy they use but also for their highest power demand. Solar plus storage designed around the site, to cut those peaks, store midday solar for later and keep critical loads running during brownouts, is exactly where C&I energy is heading. PowerStack 3.0 shows that direction very clearly.
+## Pioneers from around the world
+GEPS brought together partners from many countries, and some of the best conversations happened between sessions and over dinner. Exchanging experiences with people who face the same challenges in different markets is one of the most valuable parts of events like this.
+## Grateful for the privilege
+Thank you, Sungrow, for this opportunity. I'm bringing home what I learned, and I will share it with our clients and with the installers and students at our Solar Training Center and in my seminars, so the whole industry here benefits.
+If you are planning a solar PV system with energy storage for your business, [message us](https://www.jflsolar.ph/contact) and let's talk about what fits your site.
+— JF, JFL Solar
+#JFLSolar #Sungrow #GEPS2026 #EnergyStorage #SolarPhilippines #RenewableEnergy
