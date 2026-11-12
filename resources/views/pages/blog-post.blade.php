@@ -7,6 +7,23 @@
     $more = collect([$post->cover])->filter()->concat($post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id))->values();
     $viewer = $more->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
     $offset = 0;
+    // Visitors who are not signed in: the first two paragraphs only, no photo gallery.
+    $fullAccess = $fullAccess ?? true;
+    $preview = null;
+    if (! $fullAccess) {
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', (string) $post->body)), fn ($l) => $l !== ''));
+        $kept = []; $paras = 0;
+        foreach ($lines as $l) {
+            $kept[] = $l;
+            if (! str_starts_with($l, '## ') && ++$paras >= 2) {
+                break;
+            }
+        }
+        $preview = implode("\n", $kept);
+        $more = collect();
+        $viewer = [];
+    }
+    $nextPath = rawurlencode('/blog/'.$post->slug);
     $heroFocus = $post->cover ? Blog::focus($post->cover) : null;
     $jsonLd = [
         '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
@@ -59,9 +76,17 @@
             .bp-gallery { columns: 2; column-gap: 1rem; }
             @media (min-width: 640px) { .bp-gallery { columns: 3; } }
             .bp-gallery li { break-inside: avoid; margin-bottom: 1rem; }
+            .bp-preview { position: relative; }
+            .bp-preview::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 6rem; background: linear-gradient(to bottom, rgb(255 255 255 / 0), #fff); pointer-events: none; }
+            .bp-gate { margin-top: 1.5rem; border: 1px solid var(--color-steel-200); border-top: 4px solid var(--color-gold-500); border-radius: var(--radius-panel); background: var(--color-steel-50); padding: 1.5rem; }
+            .bp-gate h2 { font-size: 1.35rem; font-weight: 800; color: var(--color-steel-950); }
+            .bp-gate ul { margin-top: .75rem; }
+            .bp-gate li { margin-left: 1.25rem; list-style: disc; color: var(--color-steel-800); }
+            .bp-gate li + li { margin-top: .25rem; }
+            .bp-gate-actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
             .bp-caption { margin-top: .5rem; max-width: 40rem; padding: 0 1rem; text-align: center; font-size: .95rem; color: rgb(255 255 255 / .85); }
         </style>
-        <script type="application/ld+json">{!! json_encode(array_filter($jsonLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
+        <script type="application/ld+json">{!! json_encode(array_filter($jsonLd) + ['isAccessibleForFree' => false], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     </x-slot:head>
     @if ($post->cover)
         <x-page-hero eyebrow="Blog" :title="$post->title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
@@ -75,7 +100,24 @@
             {{-- No author byline on posts (owner's choice); only the date is shown. --}}
             <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
-            <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
+            @if ($fullAccess)
+                <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
+            @else
+                <div class="bp-preview"><x-paragraphs :text="$preview" class="mt-8 text-lg leading-relaxed text-steel-800" /></div>
+                <section class="bp-gate" aria-labelledby="bp-gate-title">
+                    <h2 id="bp-gate-title">Read the full post: free for members</h2>
+                    <p class="mt-2 text-steel-800">Create a free JFL Solar account to read every blog post in full, with all the photos.</p>
+                    <ul>
+                        <li>Full articles and photo galleries</li>
+                        <li>React to and comment on posts</li>
+                        <li>Join the discussions in our forum</li>
+                    </ul>
+                    <div class="bp-gate-actions">
+                        <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
+                        <span class="text-steel-700">Already a member? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Sign in</a></span>
+                    </div>
+                </section>
+            @endif
             @if ($more->isNotEmpty())
                 {{-- All photos (the banner photo first) as a gallery; each opens in the pop-up viewer. --}}
                 <ul class="bp-gallery mt-10" aria-label="Photos">
