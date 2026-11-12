@@ -65,7 +65,7 @@
     </x-slot:head>
     @if ($post->cover)
         <x-page-hero eyebrow="Blog" :title="$post->title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
-            :image-alt="$post->cover->alt" :focus="$heroFocus" :flip="true" protect title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
+            :image-alt="$post->cover->alt" :focus="$heroFocus" :flip="true" protect :zoom-out="Blog::zoomOut($post->cover)" title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
     @else
         <x-page-header eyebrow="Blog" :title="$post->title" />
     @endif
