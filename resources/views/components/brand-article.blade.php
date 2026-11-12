@@ -52,7 +52,7 @@
             .ba-tier.is-tier1 .ba-tier-badge { background: var(--color-gold-500); color: var(--color-steel-950); }
             .ba-brands a { display: inline-flex; min-height: 2.75rem; align-items: center; padding: 0 .9rem; border: 1px solid var(--color-steel-300); border-radius: 999px; font-size: .875rem; font-weight: 600; color: var(--color-steel-800); }
             .ba-brands a:hover { border-color: var(--color-steel-900); }
-            /* Banner: the brand's logo on a white card, over the site's dark slate with a soft sun-gold glow and a faint solar-cell grid. */
+            /* Banner: the brand's cut-out logo (thin white lining around the letters), over the site's dark slate with a soft sun-gold glow and a faint solar-cell grid. */
             .ba-logo { position: relative; overflow: hidden; padding: 2rem 1rem; text-align: center;
                 background:
                     radial-gradient(ellipse 55% 90% at 85% 0%, rgb(255 176 4 / .28), transparent 70%),
@@ -62,13 +62,13 @@
                 background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px); background-size: 2.25rem 2.25rem;
                 mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, #000 35%, #000 65%, transparent); }
             .ba-logo::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: linear-gradient(90deg, transparent, var(--color-gold-500), transparent); }
-            .ba-logo-card { position: relative; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-panel); background: #fff; padding: 1rem 1.5rem; box-shadow: 0 18px 40px -16px rgb(0 0 0 / .55), 0 0 0 1px rgb(255 255 255 / .1); }
-            .ba-logo img { display: block; width: auto; height: 3.5rem; max-width: min(17rem, 72vw); object-fit: contain; }
+            .ba-logo-card { position: relative; display: inline-block; filter: drop-shadow(0 10px 18px rgb(0 0 0 / .45)); }
+            .ba-logo img { display: block; width: auto; height: 3.75rem; max-width: min(19rem, 80vw); object-fit: contain; }
             .ba-logo-eyebrow { position: relative; margin: 0 0 1.1rem; display: flex; align-items: center; justify-content: center; gap: .75rem; font-size: .875rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--color-gold-400); }
             .ba-logo-title { position: relative; margin: 1.5rem auto 0; max-width: 46rem; font-size: 1.9rem; line-height: 1.12; font-weight: 800; color: #fff; text-wrap: balance; }
             .ba-logo-intro { position: relative; margin: .9rem auto 0; max-width: 42rem; font-size: 1.05rem; line-height: 1.6; color: var(--color-steel-100); text-wrap: pretty; }
             @media (min-width: 40rem) { .ba-logo-title { font-size: 2.6rem; } .ba-logo-intro { font-size: 1.15rem; } }
-            @media (min-width: 40rem) { .ba-logo { padding: 3rem 1rem; } .ba-logo-card { padding: 1.25rem 2.25rem; } .ba-logo img { height: 4.5rem; max-width: 21rem; } }
+            @media (min-width: 40rem) { .ba-logo { padding: 3rem 1rem; } .ba-logo img { height: 5rem; max-width: 26rem; } }
         </style>
     </x-slot:head>
     @php $logo = is_file(public_path('images/brand-logo-'.$slug.'.webp')); @endphp
