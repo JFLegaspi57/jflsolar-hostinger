@@ -52,7 +52,8 @@ class BlogTest extends TestCase
 
         // Cover image upload, hidden while the post is a draft.
         $this->actingAs($staff, 'web')->post('/admin/media/upload/post/'.$post->id, ['alt' => 'Panels on a roof at noon', 'file' => UploadedFile::fake()->image('roof.jpg', 1600, 1000)]);
-        $img = MediaAsset::query()->where('blog_post_id', $post->id)->firstOrFail();
+        $this->actingAs($staff, 'web')->post('/admin/media/upload/post/'.$post->id, ['alt' => 'JF at the airport', 'file' => UploadedFile::fake()->image('airport.jpg', 600, 1000)]);
+        $img = MediaAsset::query()->where('blog_post_id', $post->id)->where('is_cover', true)->firstOrFail();
         $this->assertTrue($img->is_cover);
         $this->get($img->url($img->bestWidth(1280)))->assertNotFound();
 
@@ -70,7 +71,8 @@ class BlogTest extends TestCase
         $this->get('/blog/'.$post->slug)->assertOk()
             ->assertSee('By <a href="/about"', false)->assertSee('JF Legaspi')
             ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertSee('"@type":"BlogPosting"', false)
-            ->assertSee('alt="Panels on a roof at noon"', false);
+            ->assertSee('alt="Panels on a roof at noon"', false)
+            ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false);
         $this->get($img->url($img->bestWidth(1280)))->assertOk();
         $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
 

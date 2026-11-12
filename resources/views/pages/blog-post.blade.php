@@ -22,17 +22,30 @@
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
             @if ($post->cover)
                 <figure class="mt-6">
-                    <div class="overflow-hidden rounded-[var(--radius-panel)] bg-steel-100"><x-media-image :asset="$post->cover" sizes="(min-width: 768px) 768px, 100vw" priority fit="contain" class="h-auto" /></div>
+                    {{-- Tall (portrait) photos are capped in height so they don't fill the whole screen. --}}
+                    <div class="flex justify-center overflow-hidden rounded-[var(--radius-panel)] bg-steel-100">
+                        <x-media-image :asset="$post->cover" sizes="(min-width: 768px) 768px, 100vw" priority fit="contain" style="width: auto; height: auto; max-width: 100%; max-height: 36rem" />
+                    </div>
                     @if ($post->cover->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $post->cover->caption }}</figcaption>@endif
                 </figure>
             @endif
             <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
-            @foreach ($more as $img)
-                <figure class="mt-8">
-                    <div class="overflow-hidden rounded-[var(--radius-panel)] bg-steel-100"><x-media-image :asset="$img" sizes="(min-width: 768px) 768px, 100vw" fit="contain" class="h-auto" /></div>
-                    @if ($img->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $img->caption }}</figcaption>@endif
-                </figure>
-            @endforeach
+            @if ($more->isNotEmpty())
+                {{-- Other photos as a gallery; each opens full size. --}}
+                <ul class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3" aria-label="Photos">
+                    @foreach ($more as $img)
+                        <li>
+                            <figure>
+                                <a href="{{ $img->url($img->bestWidth(2000)) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-[var(--radius-panel)] bg-steel-100" style="aspect-ratio: 3 / 4">
+                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" style="object-position: 50% 15%" />
+                                    <span class="sr-only">Open photo full size (opens in a new tab)</span>
+                                </a>
+                                @if ($img->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $img->caption }}</figcaption>@endif
+                            </figure>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
             <div class="mt-12 flex flex-col gap-2 border-t border-steel-200 sm:flex-row" style="padding-top: 1.5rem">
                 <a href="/blog" class="{{ Ui::button('secondary', 'lg') }}"><span aria-hidden="true">←</span> All posts</a>
                 <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
