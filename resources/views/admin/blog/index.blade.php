@@ -6,7 +6,12 @@
 @endphp
 <x-admin.layout title="Blog">
     <x-admin.page-title title="Blog" intro="Posts for JF Legaspi’s blog at /blog, linked from the founder section of the About page. Newest published posts show first.">
-        <x-slot:action><x-admin.new-button href="/admin/blog/new">New post</x-admin.new-button></x-slot:action>
+        <x-slot:action>
+            <div class="flex flex-wrap gap-2">
+                <a href="/admin/blog/comments" class="{{ \App\Support\Ui::button('secondary') }}">Comments @if ($waiting = \App\Support\BlogComments::waitingCount())<span class="tabular">({{ $waiting }} waiting)</span>@endif</a>
+                <x-admin.new-button href="/admin/blog/new">New post</x-admin.new-button>
+            </div>
+        </x-slot:action>
     </x-admin.page-title>
     <x-admin.record-list entity="blog" :rows="$rows" :archived="$archived" :featurable="false" :can-reorder="false" empty-text="No posts yet. Write your first one with “New post”." />
 </x-admin.layout>

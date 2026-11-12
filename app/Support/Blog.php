@@ -16,13 +16,14 @@ use Illuminate\Support\Facades\Schema;
  */
 final class Blog
 {
-    private const TABLES_KEY = 'blog-tables-v2'; // v2: author column
+    private const TABLES_KEY = 'blog-tables-v3'; // v2: author column; v3: reactions and comments
 
     public const AUTHOR = 'JF Legaspi';
 
     public static function hasTables(): bool
     {
-        return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id');
+        return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id')
+            && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments');
     }
 
     public static function ensureTables(): void
@@ -51,6 +52,28 @@ final class Blog
             if (! Schema::hasColumn('blog_posts', 'author')) {
                 Schema::table('blog_posts', function (Blueprint $t) {
                     $t->string('author', 80)->nullable(); // blank = JF Legaspi
+                });
+            }
+            if (! Schema::hasTable('blog_reactions')) {
+                Schema::create('blog_reactions', function (Blueprint $t) {
+                    $t->id();
+                    $t->uuid('blog_post_id')->index();
+                    $t->unsignedBigInteger('member_id');
+                    $t->string('reaction', 20);
+                    $t->timestamps();
+                    $t->unique(['blog_post_id', 'member_id']);
+                });
+            }
+            if (! Schema::hasTable('blog_comments')) {
+                Schema::create('blog_comments', function (Blueprint $t) {
+                    $t->id();
+                    $t->uuid('blog_post_id')->index();
+                    $t->unsignedBigInteger('member_id')->index();
+                    $t->string('author_name', 100);
+                    $t->text('body');
+                    $t->string('status', 10)->default('review')->index(); // published | review | hidden
+                    $t->string('check_note', 120)->nullable();             // why it was published or held
+                    $t->timestamps();
                 });
             }
             if (! Schema::hasColumn('media_assets', 'blog_post_id')) {

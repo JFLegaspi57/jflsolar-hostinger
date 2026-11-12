@@ -25,6 +25,8 @@ Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
 Route::get('/blog', [PageController::class, 'blog']);
 Route::get('/blog/{slug}', [PageController::class, 'blogPost'])->where('slug', '[a-z0-9-]+');
+Route::post('/blog/{slug}/react', [\App\Http\Controllers\BlogCommentController::class, 'react'])->where('slug', '[a-z0-9-]+')->middleware('throttle:forum');
+Route::post('/blog/{slug}/comments', [\App\Http\Controllers\BlogCommentController::class, 'comment'])->where('slug', '[a-z0-9-]+')->middleware('throttle:forum');
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
 Route::get('/faq', [PageController::class, 'faq']);
 Route::get('/net-metering', [PageController::class, 'netMetering']);
@@ -172,6 +174,8 @@ Route::prefix('admin')->group(function () {
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);
 
+        Route::get('blog/comments', [Admin\BlogCommentController::class, 'index']);
+        Route::post('blog/comments/{comment}', [Admin\BlogCommentController::class, 'update'])->whereNumber('comment');
         Route::get('forum', [Admin\ForumController::class, 'index']);
         Route::post('forum/posts/{post}', [Admin\ForumController::class, 'post'])->whereNumber('post');
         Route::post('forum/topics/{topic}', [Admin\ForumController::class, 'topic'])->whereNumber('topic');

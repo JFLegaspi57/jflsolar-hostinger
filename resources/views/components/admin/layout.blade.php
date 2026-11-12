@@ -23,6 +23,7 @@
     $active = fn ($href) => $href === '/admin' ? request()->is('admin') : request()->is(ltrim($href, '/'), ltrim($href, '/').'/*');
     $newInquiries = \App\Models\Inquiry::query()->where('status', 'new')->count();
     $forumPending = \App\Support\Forum::pendingCount();
+    $blogWaiting = \App\Support\BlogComments::waitingCount();
     // Online shop: the Orders page appears once the shop is switched on (or has had orders).
     $shopOn = \App\Support\Shop::ordersVisible();
     if (! $shopOn) {
@@ -65,6 +66,9 @@
                                     {{ $label }}
                                     @if ($href === '/admin/orders' && $paidOrders)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $paidOrders }}<span class="sr-only"> to prepare</span></span>
+                                    @endif
+                                    @if ($href === '/admin/blog' && $blogWaiting)
+                                        <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $blogWaiting }}<span class="sr-only"> comments to review</span></span>
                                     @endif
                                     @if ($href === '/admin/forum' && $forumPending)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $forumPending }}<span class="sr-only"> waiting for approval</span></span>
