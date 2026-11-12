@@ -23,6 +23,8 @@ Route::get('/products', [PageController::class, 'products']);
 Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug', '[a-z0-9-]+');
 Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
+Route::get('/blog', [PageController::class, 'blog']);
+Route::get('/blog/{slug}', [PageController::class, 'blogPost'])->where('slug', '[a-z0-9-]+');
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
 Route::get('/faq', [PageController::class, 'faq']);
 Route::get('/net-metering', [PageController::class, 'netMetering']);
@@ -129,24 +131,24 @@ Route::prefix('admin')->group(function () {
 
         Route::get('/', [Admin\DashboardController::class, 'index']);
         Route::get('visitors', [Admin\VisitorsController::class, 'index']);
-        Route::get('media/{path}', [MediaController::class, 'admin'])->where('path', '(packages|products|projects|blocks)/.*');
+        Route::get('media/{path}', [MediaController::class, 'admin'])->where('path', '(packages|products|projects|blog|blocks)/.*');
 
         $uuid = '[0-9a-f-]{36}';
-        foreach (['packages' => Admin\PackageController::class, 'products' => Admin\ProductController::class, 'projects' => Admin\ProjectController::class, 'categories' => Admin\CategoryController::class] as $entity => $controller) {
+        foreach (['packages' => Admin\PackageController::class, 'products' => Admin\ProductController::class, 'projects' => Admin\ProjectController::class, 'categories' => Admin\CategoryController::class, 'blog' => Admin\BlogController::class] as $entity => $controller) {
             Route::get($entity, [$controller, 'index']);
             Route::get("{$entity}/new", [$controller, 'create']);
             Route::post($entity, [$controller, 'store']);
             Route::get("{$entity}/{id}", [$controller, 'edit'])->where('id', $uuid);
             Route::post("{$entity}/{id}", [$controller, 'update'])->where('id', $uuid);
         }
-        $records = ['entity' => 'packages|products|projects|categories', 'id' => $uuid];
+        $records = ['entity' => 'packages|products|projects|categories|blog', 'id' => $uuid];
         Route::post('{entity}/{id}/status', [Admin\RecordController::class, 'status'])->where($records);
         Route::post('{entity}/{id}/featured', [Admin\RecordController::class, 'featured'])->where($records);
         Route::post('{entity}/{id}/move', [Admin\RecordController::class, 'move'])->where($records);
         Route::post('{entity}/{id}/delete', [Admin\RecordController::class, 'destroy'])->where($records);
         Route::get('preview/{entity}/{id}', [Admin\PreviewController::class, 'show'])->where(['entity' => 'packages|products|projects', 'id' => $uuid]);
 
-        Route::post('media/upload/{type}/{owner}', [Admin\MediaAdminController::class, 'upload'])->where('type', 'package|product|project|block');
+        Route::post('media/upload/{type}/{owner}', [Admin\MediaAdminController::class, 'upload'])->where('type', 'package|product|project|post|block');
         Route::post('media/{asset}/text', [Admin\MediaAdminController::class, 'text'])->where('asset', $uuid);
         Route::post('media/{asset}/op', [Admin\MediaAdminController::class, 'op'])->where('asset', $uuid);
         Route::post('media/{asset}/replace', [Admin\MediaAdminController::class, 'replace'])->where('asset', $uuid);

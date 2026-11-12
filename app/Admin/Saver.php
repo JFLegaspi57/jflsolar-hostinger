@@ -108,7 +108,7 @@ final class Saver
     /** Only ever return to an admin list page (never an arbitrary URL). */
     public static function safeBack(?string $back): bool
     {
-        return is_string($back) && (bool) preg_match('#^/admin/(packages|products|projects|categories)(\?[\w=&%.+-]*)?$#', $back);
+        return is_string($back) && (bool) preg_match('#^/admin/(packages|products|projects|categories|blog)(\?[\w=&%.+-]*)?$#', $back);
     }
 
     /** Turn a database error into a staff-friendly message (and field, if known). */
