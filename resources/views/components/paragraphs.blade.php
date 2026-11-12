@@ -1,6 +1,7 @@
-@props(['text'])
+@props(['text', 'heading' => 'h2'])
 {{-- Plain-text body → paragraphs. No HTML is rendered.
      Each line is its own paragraph. Lines starting with "*", "-" or "•" become a ticked list.
+     A line starting with "## " becomes a section heading (h2; pass heading="h3" when the page already uses h2).
      A short label before a colon ("Our Promise: ...") is shown in bold. --}}
 @php
     $groups = [];
@@ -9,7 +10,9 @@
         if ($line === '') {
             continue;
         }
-        if (preg_match('/^[*\-•]\s+(.+)$/u', $line, $m)) {
+        if (preg_match('/^##\s+(.+)$/u', $line, $m)) {
+            $groups[] = ['type' => 'h', 'text' => $m[1]];
+        } elseif (preg_match('/^[*\-•]\s+(.+)$/u', $line, $m)) {
             if (! $groups || end($groups)['type'] !== 'list') {
                 $groups[] = ['type' => 'list', 'items' => []];
             }
@@ -26,7 +29,9 @@
 @endphp
 <div {{ $attributes->merge(['class' => 'space-y-4']) }}>
     @foreach ($groups as $g)
-        @if ($g['type'] === 'list')
+        @if ($g['type'] === 'h')
+            <{{ $heading }} class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">{{ $g['text'] }}</{{ $heading }}>
+        @elseif ($g['type'] === 'list')
             <ul class="space-y-2">
                 @foreach ($g['items'] as $item)
                     @php [$label, $rest] = $split($item); @endphp
