@@ -114,6 +114,18 @@ class BlogTest extends TestCase
         $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertDontSee('name="author"', false);
     }
 
+    public function test_post_links_are_rendered_safely(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Meeting Robi', 'intent' => 'publish',
+            'body' => "Honored to meet [Robi Balboa](https://web.facebook.com/robi.balboa12) at the summit!\nNot a link: [x](javascript:alert(1)) and <b>bold</b>"]);
+        $post = BlogPost::query()->firstOrFail();
+        $this->get('/blog/'.$post->slug)->assertOk()
+            ->assertSee('Honored to meet <a href="https://web.facebook.com/robi.balboa12" target="_blank" rel="noopener nofollow"', false)
+            ->assertSee('>Robi Balboa<span class="sr-only"> (opens in a new tab)</span></a> at the summit!', false)
+            ->assertDontSee('href="javascript', false)->assertDontSee('<b>bold</b>', false)->assertSee('&lt;b&gt;bold&lt;/b&gt;', false);
+    }
+
     public function test_post_needs_a_title_and_body(): void
     {
         $this->actingAs($this->staff(), 'web')->post('/admin/blog', ['title' => '', 'body' => 'short'])
