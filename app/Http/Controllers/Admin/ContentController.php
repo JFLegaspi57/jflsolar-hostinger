@@ -55,7 +55,7 @@ class ContentController extends Controller
     {
         $p = new FormParser($request);
         // Existing blocks keep their key and section (they decide placement).
-        $section = $block ? $block->section : $p->choice('section', 'Section', ['about', 'why'], required: true);
+        $section = $block ? $block->section : $p->choice('section', 'Section', array_keys(\App\Admin\Blocks::SECTIONS), required: true);
         $title = $p->text('title', 'Title', 160, required: true);
         $key = $block?->key;
         if (! $key) {
