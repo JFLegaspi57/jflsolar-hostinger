@@ -1,10 +1,24 @@
-@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true, 'titleClass' => null, 'protect' => false, 'tall' => false])
+@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true, 'titleClass' => null, 'protect' => false, 'tall' => false, 'imageHref' => null, 'imageLabel' => null])
 {{-- Photo banner for inner pages, same design as the home page hero:
      mobile/tablet = photo band above the text; desktop = photo fading into the slate panel.
      flip = photo on the right and text on the left (desktop only).
      tilt = the photo leans in 3D toward the mouse (on by default; see partials/hero-tilt).
      titleClass = smaller title for long titles (blog posts); protect = no right-click saving or dragging of the photo.
-     tall = a taller banner that shows more of the photo (blog). --}}
+     tall = a taller banner that shows more of the photo (blog).
+     imageHref / imageLabel = the photo links somewhere (e.g. the blog post it comes from), with a small label on the photo. --}}
+@if ($imageHref)
+    @once
+        <style>
+            /* Linked photo: the text column lets clicks through to the photo, except on its own content. */
+            .hero-linked .hero-content { pointer-events: none; }
+            .hero-linked .hero-text { pointer-events: auto; }
+            .hero-photo-link { position: absolute; inset: 0; z-index: 1; }
+            .hero-photo-link:focus-visible { outline: 3px solid var(--color-gold-400); outline-offset: -3px; }
+            .hero-photo-tag { position: absolute; right: 1rem; bottom: 1rem; max-width: calc(100% - 2rem); display: inline-flex; align-items: center; gap: .4rem; border-radius: 999px; background: rgb(15 20 28 / .78); padding: .45rem .85rem; font-size: .85rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+            .hero-photo-link:hover .hero-photo-tag { background: var(--color-gold-500); color: var(--color-steel-950); }
+        </style>
+    @endonce
+@endif
 @if ($tall)
     @once
         <style>
@@ -18,7 +32,7 @@
 @if ($flip)
     <style>@media (width >= 64rem) { .hero-flip .hero-media { left: auto; right: 0 } .hero-flip .hero-fade { background-image: linear-gradient(to left, transparent 55%, var(--color-steel-950)) } .hero-flip .hero-text { margin-left: 0 } }</style>
 @endif
-<section aria-labelledby="page-hero-title" class="on-dark relative isolate overflow-hidden bg-steel-950 text-white {{ $flip ? 'hero-flip' : '' }} {{ $tilt ? 'hero-tilt' : '' }} {{ $tall ? 'hero-tall' : '' }}" @if ($tilt) data-hero-tilt @endif>
+<section aria-labelledby="page-hero-title" class="on-dark relative isolate overflow-hidden bg-steel-950 text-white {{ $flip ? 'hero-flip' : '' }} {{ $tilt ? 'hero-tilt' : '' }} {{ $tall ? 'hero-tall' : '' }} {{ $imageHref ? 'hero-linked' : '' }}" @if ($tilt) data-hero-tilt @endif>
     <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">
         @php $webpSrcset = \App\Support\Ui::webpSrcset($srcset ?: $image.' 1280w'); @endphp
         <picture>
@@ -30,8 +44,11 @@
         @if ($tilt)<div aria-hidden="true" class="hero-glare absolute inset-0"></div>@endif
         <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-steel-950 to-transparent lg:hidden"></div>
         <div aria-hidden="true" class="hero-fade absolute inset-0 hidden bg-gradient-to-r from-transparent from-55% to-steel-950 lg:block"></div>
+        @if ($imageHref)
+            <a href="{{ $imageHref }}" class="hero-photo-link"><span class="hero-photo-tag">{{ $imageLabel ?? 'Read more' }} <span aria-hidden="true">→</span></span></a>
+        @endif
     </div>
-    <x-container class="relative pt-4 pb-14 sm:pb-16 lg:py-28">
+    <x-container class="hero-content relative pt-4 pb-14 sm:pb-16 lg:py-28">
         <div class="hero-text max-w-xl lg:ml-auto lg:max-w-[33rem]">
             @if ($eyebrow)
                 <p class="mb-5 flex items-center gap-3 text-sm font-semibold tracking-wide text-gold-400 uppercase">
