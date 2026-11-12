@@ -1,19 +1,32 @@
-@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true, 'titleClass' => null, 'protect' => false])
+@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true, 'titleClass' => null, 'protect' => false, 'zoomOut' => false])
 {{-- Photo banner for inner pages, same design as the home page hero:
      mobile/tablet = photo band above the text; desktop = photo fading into the slate panel.
      flip = photo on the right and text on the left (desktop only).
      tilt = the photo leans in 3D toward the mouse (on by default; see partials/hero-tilt).
-     titleClass = smaller title for long titles (blog posts); protect = no right-click saving or dragging of the photo. --}}
+     titleClass = smaller title for long titles (blog posts); protect = no right-click saving or dragging of the photo.
+     zoomOut = for tall photos: from tablet width up the whole photo is shown, on a blurred copy of itself (phones keep the framed crop). --}}
+@if ($zoomOut)
+    @once
+        <style>
+            .hero-zoom-bg { display: none; }
+            @media (min-width: 40rem) {
+                .hero-zoom .hero-zoom-bg { display: block; position: absolute; inset: -2rem; width: calc(100% + 4rem); height: calc(100% + 4rem); object-fit: cover; filter: blur(22px) brightness(.75); }
+                .hero-zoom .hero-zoom-main { object-fit: contain !important; object-position: 50% 50% !important; }
+            }
+        </style>
+    @endonce
+@endif
 @if ($flip)
     <style>@media (width >= 64rem) { .hero-flip .hero-media { left: auto; right: 0 } .hero-flip .hero-fade { background-image: linear-gradient(to left, transparent 55%, var(--color-steel-950)) } .hero-flip .hero-text { margin-left: 0 } }</style>
 @endif
 <section aria-labelledby="page-hero-title" class="on-dark relative isolate overflow-hidden bg-steel-950 text-white {{ $flip ? 'hero-flip' : '' }} {{ $tilt ? 'hero-tilt' : '' }}" @if ($tilt) data-hero-tilt @endif>
-    <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">
+    <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%] {{ $zoomOut ? 'hero-zoom overflow-hidden' : '' }}">
+        @if ($zoomOut)<img src="{{ $image }}" @if ($srcset) srcset="{{ $srcset }}" sizes="40vw" @endif alt="" aria-hidden="true" decoding="async" class="hero-zoom-bg" @if ($protect) draggable="false" oncontextmenu="return false" @endif>@endif
         @php $webpSrcset = \App\Support\Ui::webpSrcset($srcset ?: $image.' 1280w'); @endphp
         <picture>
             @if ($webpSrcset)<source type="image/webp" srcset="{{ $webpSrcset }}" sizes="(min-width: 1024px) 62vw, 100vw">@endif
             <img src="{{ $image }}" @if ($srcset) srcset="{{ $srcset }}" sizes="(min-width: 1024px) 62vw, 100vw" @endif width="1280" height="577"
-                fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}@if ($protect); -webkit-touch-callout: none; user-select: none @endif" class="absolute inset-0 h-full w-full object-cover"
+                fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}@if ($protect); -webkit-touch-callout: none; user-select: none @endif" class="absolute inset-0 h-full w-full object-cover {{ $zoomOut ? 'hero-zoom-main' : '' }}"
                 @if ($protect) draggable="false" oncontextmenu="return false" @endif />
         </picture>
         @if ($tilt)<div aria-hidden="true" class="hero-glare absolute inset-0"></div>@endif

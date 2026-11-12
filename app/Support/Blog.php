@@ -152,6 +152,12 @@ final class Blog
         return $m->height > $m->width * 1.15 ? '50% 3%' : '50% 30%';
     }
 
+    /** Tall photos are shown whole ("zoomed out") in wide banners instead of tightly cropped. */
+    public static function zoomOut(\App\Models\MediaAsset $m): bool
+    {
+        return $m->width && $m->height && $m->width / $m->height < 0.8;
+    }
+
     /** Date shown on a post, e.g. "12 November 2026". */
     public static function date(BlogPost $p): string
     {
