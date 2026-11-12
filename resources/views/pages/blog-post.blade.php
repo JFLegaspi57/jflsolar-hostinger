@@ -61,7 +61,7 @@
                         <li>
                             <figure>
                                 <button type="button" data-photo="{{ $i + $offset }}" class="bp-open bp-photo relative block w-full overflow-hidden rounded-[var(--radius-panel)] bg-steel-100" style="aspect-ratio: 3 / 4">
-                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" draggable="false" style="position: absolute; inset: 0; object-position: 50% 15%" />
+                                    <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" draggable="false" style="position: absolute; inset: 0; object-position: 50% 0%" />
                                     <span class="bp-shield" aria-hidden="true"></span>
                                     <span class="sr-only">Enlarge photo: {{ $img->alt }}</span>
                                 </button>
