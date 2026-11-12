@@ -75,7 +75,7 @@
     @if ($logo)
         <div class="ba-logo">
             <p class="ba-logo-eyebrow"><span class="rule-gold" aria-hidden="true"></span>Brand guide<span class="rule-gold" aria-hidden="true"></span></p>
-            <span class="ba-logo-card"><img src="/images/brand-logo-{{ $slug }}.webp" alt="{{ $brand }} logo" fetchpriority="high" decoding="async" /></span>
+            <span class="ba-logo-card"><img src="/images/brand-logo-{{ $slug }}.webp?v=2" alt="{{ $brand }} logo" fetchpriority="high" decoding="async" /></span>
             <h1 class="ba-logo-title">{{ $title }}</h1>
             <p class="ba-logo-intro">{{ $intro }}</p>
         </div>
