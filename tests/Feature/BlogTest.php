@@ -28,7 +28,7 @@ class BlogTest extends TestCase
 
     public function test_founder_section_links_to_an_empty_blog(): void
     {
-        $this->get('/about')->assertOk()->assertSee('href="/blog"', false)->assertSee('Read My Blog');
+        $this->get('/about')->assertOk()->assertSee('href="/blog"', false)->assertSee('Blog Posts')->assertDontSee('Read My Blog');
         $this->get('/blog')->assertOk()->assertSee('Blog by JF Legaspi', false)->assertSee('The first post is on the way.');
         $this->get('/sitemap.xml')->assertOk()->assertSee('/blog');
     }
