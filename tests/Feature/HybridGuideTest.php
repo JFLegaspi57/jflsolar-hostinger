@@ -31,4 +31,21 @@ class HybridGuideTest extends TestCase
         $this->get('/hybrid-pv-system-guide')->assertOk()->assertSee('href="/grid-tied-pv-system-guide"', false);
         $this->get('/sitemap.xml')->assertOk()->assertSee('/grid-tied-pv-system-guide');
     }
+
+    public function test_tagalog_hybrid_guide_is_published_and_linked_both_ways(): void
+    {
+        $this->seed();
+        $this->get('/hybrid-pv-system-guide/tagalog')->assertOk()
+            ->assertSee('<html lang="fil">', false)
+            ->assertSee('Paano gumagana ang hybrid solar PV system')
+            ->assertSee('Sa loob ng hybrid inverter')->assertSee('Ano ang nangyayari kapag brownout')
+            ->assertSee('<svg viewBox="0 0 760 430" role="img"', false)
+            ->assertSee('href="/hybrid-pv-system-guide" hreflang="en"', false)
+            ->assertSee('hreflang="fil" href="', false)
+            ->assertDontSee('solar system');
+        $this->get('/hybrid-pv-system-guide')->assertOk()
+            ->assertSee('<html lang="en-PH">', false)
+            ->assertSee('href="/hybrid-pv-system-guide/tagalog" hreflang="fil"', false);
+        $this->get('/sitemap.xml')->assertOk()->assertSee('/hybrid-pv-system-guide/tagalog');
+    }
 }
