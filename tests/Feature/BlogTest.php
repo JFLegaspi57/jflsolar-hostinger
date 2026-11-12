@@ -80,6 +80,22 @@ class BlogTest extends TestCase
         $this->get('/blog')->assertSee('The first post is on the way.');
     }
 
+    public function test_post_date_can_be_set_and_orders_the_list(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Newer post', 'body' => 'A post written today about solar PV systems.', 'intent' => 'publish']);
+        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Who is JF Legaspi?', 'body' => 'An introduction written for the blog.', 'published_on' => '2024-06-01', 'intent' => 'publish']);
+        $old = BlogPost::query()->where('title', 'Who is JF Legaspi?')->firstOrFail();
+        $this->assertSame('2024-06-01', $old->published_at->timezone('Asia/Manila')->toDateString());
+        $this->get('/blog/'.$old->slug)->assertSee('1 June 2024')->assertSee('datetime="2024-06-01"', false);
+        $this->get('/blog')->assertSeeInOrder(['Newer post', 'Who is JF Legaspi?']);
+        $this->actingAs($staff, 'web')->get('/admin/blog/'.$old->id)->assertSee('value="2024-06-01"', false);
+
+        // Editing without a date keeps it; a bad date is refused.
+        $this->actingAs($staff, 'web')->post('/admin/blog/'.$old->id, ['title' => $old->title, 'slug' => $old->slug, 'body' => $old->body, 'published_on' => '1990-01-01', 'lock_version' => $old->lock_version])
+            ->assertSessionHasErrors('published_on');
+    }
+
     public function test_post_needs_a_title_and_body(): void
     {
         $this->actingAs($this->staff(), 'web')->post('/admin/blog', ['title' => '', 'body' => 'short'])

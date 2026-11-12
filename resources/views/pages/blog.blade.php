@@ -16,7 +16,7 @@
                                 </div>
                             @endif
                             <div class="flex flex-1 flex-col p-5">
-                                <p class="text-xs font-semibold tracking-wide text-steel-600 uppercase"><time datetime="{{ $post->published_at?->toDateString() }}">{{ Blog::date($post) }}</time></p>
+                                <p class="text-xs font-semibold tracking-wide text-steel-600 uppercase"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
                                 <h2 class="mt-2 text-lg font-bold text-steel-950">
                                     <a href="/blog/{{ $post->slug }}" class="after:absolute after:inset-0 hover:underline">{{ $post->title }}</a>
                                 </h2>
