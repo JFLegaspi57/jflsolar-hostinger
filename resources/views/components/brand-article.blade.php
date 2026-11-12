@@ -15,6 +15,8 @@
     use App\Support\Site;
     use App\Support\Ui;
     $hasQuestions = isset($questions) && $questions->isNotEmpty();
+    // Banner: the image of the published content block "brand.{slug}" (Admin → Site content), e.g. the brand's product poster.
+    $poster = \App\Support\PublicContent::snapshot()['blockImages']->get('brand.'.$slug)?->first();
     $toc = $toc + ['products' => $brand.' products we sell'] + ($hasQuestions ? ['questions' => 'Common questions'] : []);
 @endphp
 {{-- Shared layout of the brand articles (/brands/{slug}); each brand logo on /products opens its article. --}}
@@ -52,8 +54,20 @@
             .ba-tier.is-tier1 .ba-tier-badge { background: var(--color-gold-500); color: var(--color-steel-950); }
             .ba-brands a { display: inline-flex; min-height: 2.75rem; align-items: center; padding: 0 .9rem; border: 1px solid var(--color-steel-300); border-radius: 999px; font-size: .875rem; font-weight: 600; color: var(--color-steel-800); }
             .ba-brands a:hover { border-color: var(--color-steel-900); }
+            /* Poster banner: the whole width, at the poster's own shape (only very wide screens trim a little top and bottom). */
+            .ba-poster { position: relative; margin: 0; background: var(--color-steel-950); }
+            .ba-poster img { display: block; width: 100%; max-width: 100rem; height: auto; max-height: 40rem; margin: 0 auto; object-fit: cover; object-position: 50% 50%; -webkit-touch-callout: none; user-select: none; }
+            .ba-poster figcaption { position: absolute; right: .6rem; bottom: .5rem; border-radius: 999px; background: rgb(15 20 28 / .7); padding: .15rem .6rem; font-size: .75rem; color: #fff; }
         </style>
     </x-slot:head>
+    @if ($poster)
+        <figure class="ba-poster">
+            <img src="{{ $poster->url($poster->bestWidth(1280)) }}" srcset="{{ $poster->srcset() }}" sizes="(min-width: 100rem) 100rem, 100vw" alt="{{ $poster->alt }}"
+                @if ($poster->width) width="{{ $poster->width }}" @endif @if ($poster->height) height="{{ $poster->height }}" @endif
+                fetchpriority="high" decoding="async" draggable="false" oncontextmenu="return false" />
+            @if ($poster->caption)<figcaption>{{ $poster->caption }}</figcaption>@endif
+        </figure>
+    @endif
     <x-page-header eyebrow="Brand guide" :title="$title" :intro="$intro" />
     <x-container class="py-10 sm:py-14">
         <div class="ba space-y-10 text-steel-800" style="max-width: 48rem">
