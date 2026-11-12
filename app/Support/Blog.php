@@ -16,14 +16,15 @@ use Illuminate\Support\Facades\Schema;
  */
 final class Blog
 {
-    private const TABLES_KEY = 'blog-tables-v4'; // v2: author column; v3: reactions and comments; v4: photo framing
+    private const TABLES_KEY = 'blog-tables-v5'; // v2: author column; v3: reactions and comments; v4: photo framing; v5: date range label
 
     public const AUTHOR = 'JF Legaspi';
 
     public static function hasTables(): bool
     {
         return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id')
-            && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments') && Schema::hasColumn('media_assets', 'focus_y');
+            && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments') && Schema::hasColumn('media_assets', 'focus_y')
+            && Schema::hasColumn('blog_posts', 'date_label');
     }
 
     public static function ensureTables(): void
@@ -52,6 +53,11 @@ final class Blog
             if (! Schema::hasColumn('blog_posts', 'author')) {
                 Schema::table('blog_posts', function (Blueprint $t) {
                     $t->string('author', 80)->nullable(); // blank = JF Legaspi
+                });
+            }
+            if (! Schema::hasColumn('blog_posts', 'date_label')) {
+                Schema::table('blog_posts', function (Blueprint $t) {
+                    $t->string('date_label', 60)->nullable(); // e.g. "10–14 November 2026" for an event over several days
                 });
             }
             if (! Schema::hasTable('blog_reactions')) {
@@ -152,9 +158,13 @@ final class Blog
         return $m->height > $m->width * 1.15 ? '50% 3%' : '50% 30%';
     }
 
-    /** Date shown on a post, e.g. "12 November 2026". */
+    /** Date shown on a post, e.g. "12 November 2026", or its own label such as "10–14 November 2026". */
     public static function date(BlogPost $p): string
     {
+        if (($label = trim((string) $p->date_label)) !== '') {
+            return $label;
+        }
+
         return ($p->published_at ?? $p->created_at)->timezone('Asia/Manila')->format('j F Y');
     }
 }
