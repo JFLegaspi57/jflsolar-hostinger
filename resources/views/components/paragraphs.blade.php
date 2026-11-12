@@ -2,7 +2,8 @@
 {{-- Plain-text body → paragraphs. No HTML is rendered.
      Each line is its own paragraph. Lines starting with "*", "-" or "•" become a ticked list.
      A line starting with "## " becomes a section heading (h2; pass heading="h3" when the page already uses h2).
-     A short label before a colon ("Our Promise: ...") is shown in bold. --}}
+     A short label before a colon ("Our Promise: ...") is shown in bold.
+     [link text](https://example.com) becomes a link that opens in a new tab (http/https only; everything else stays escaped). --}}
 @php
     $groups = [];
     foreach (preg_split('/\R/', (string) $text) as $line) {
@@ -26,6 +27,19 @@
             ? [$m[1].':', $m[3] ?? '']
             : [null, $s];
     };
+    $inline = function (string $s): \Illuminate\Support\HtmlString {
+        $out = '';
+        $pos = 0;
+        if (preg_match_all('/\[([^\]\n]{1,120})\]\((https?:\/\/[^\s)]{1,500})\)/u', $s, $ms, PREG_OFFSET_CAPTURE | PREG_SET_ORDER)) {
+            foreach ($ms as $m) {
+                $out .= e(substr($s, $pos, $m[0][1] - $pos));
+                $out .= '<a href="'.e($m[2][0]).'" target="_blank" rel="noopener nofollow" class="font-semibold text-steel-900 underline">'.e($m[1][0]).'<span class="sr-only"> (opens in a new tab)</span></a>';
+                $pos = $m[0][1] + strlen($m[0][0]);
+            }
+        }
+
+        return new \Illuminate\Support\HtmlString($out.e(substr($s, $pos)));
+    };
 @endphp
 <div {{ $attributes->merge(['class' => 'space-y-4']) }}>
     @foreach ($groups as $g)
@@ -35,12 +49,12 @@
             <ul class="space-y-2">
                 @foreach ($g['items'] as $item)
                     @php [$label, $rest] = $split($item); @endphp
-                    <li class="flex items-start gap-2.5"><x-icon name="check" class="mt-1 size-4 shrink-0 text-gold-800" /><span>@if ($label)<strong class="font-semibold text-steel-950">{{ $label }}</strong> @endif{{ $rest }}</span></li>
+                    <li class="flex items-start gap-2.5"><x-icon name="check" class="mt-1 size-4 shrink-0 text-gold-800" /><span>@if ($label)<strong class="font-semibold text-steel-950">{{ $label }}</strong> @endif{{ $inline($rest) }}</span></li>
                 @endforeach
             </ul>
         @else
             @php [$label, $rest] = $split($g['text']); @endphp
-            <p>@if ($label)<strong class="font-semibold text-steel-950">{{ $label }}</strong> @endif{{ $rest }}</p>
+            <p>@if ($label)<strong class="font-semibold text-steel-950">{{ $label }}</strong> @endif{{ $inline($rest) }}</p>
         @endif
     @endforeach
 </div>
