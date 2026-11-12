@@ -9,6 +9,41 @@
             </div>
         @endforeach
     </dl>
+    <section id="online" aria-labelledby="online-title" class="mb-6 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            <h2 id="online-title" class="flex items-center gap-2 text-lg font-bold text-steel-950">
+                <span aria-hidden="true" style="display:inline-block;width:.65rem;height:.65rem;border-radius:999px;background:{{ $online->isNotEmpty() ? '#16a34a' : 'var(--color-steel-300)' }}"></span>
+                Online now <span class="tabular text-steel-600">({{ $online->count() }})</span>
+            </h2>
+            <a href="/admin/members#online" class="text-sm font-semibold text-steel-900 underline">Refresh</a>
+        </div>
+        <p class="mt-1 text-sm text-steel-600">Signed-in members who opened a page in the last {{ \App\Support\Members::ONLINE_MINUTES }} minutes. Only staff can see this list.</p>
+        @if ($online->isEmpty())
+            <p class="mt-3 text-steel-700">No members are online right now.</p>
+        @else
+            <ul class="mt-3 divide-y divide-steel-200">
+                @foreach ($online as $o)
+                    <li class="flex flex-wrap items-center justify-between gap-3 py-3">
+                        <div class="flex min-w-0 items-center gap-3">
+                            @if ($photo = \App\Support\Members::photoUrl($o))
+                                <img src="{{ $photo }}" alt="" width="40" height="40" class="size-10 shrink-0 rounded-full object-cover">
+                            @else
+                                <span aria-hidden="true" class="flex size-10 shrink-0 items-center justify-center rounded-full bg-steel-900 font-bold text-gold-400">{{ mb_strtoupper(mb_substr($o->name, 0, 1)) }}</span>
+                            @endif
+                            <div class="min-w-0">
+                                <p class="font-semibold break-words text-steel-950"><a href="/admin/members/{{ $o->id }}" class="underline-offset-2 hover:underline">{{ $o->name }}</a></p>
+                                <p class="text-sm break-all text-steel-600">{{ $o->email }}</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-steel-700">
+                            <p>@if ($o->last_path)Viewing <a href="{{ $o->last_path }}" target="_blank" rel="noopener" class="font-semibold break-all text-steel-900 underline">{{ \Illuminate\Support\Str::limit($o->last_path, 60) }}</a>@else Just signed in @endif</p>
+                            <p class="text-steel-600">{{ $o->last_seen->diffForHumans() }}@if ($o->last_place) · {{ $o->last_place }}@endif</p>
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+        @endif
+    </section>
     @if ($q !== '' && $members)
         <p role="status" class="mb-3 text-sm text-steel-700">{{ number_format($members->total()) }} {{ $members->total() === 1 ? 'member matches' : 'members match' }} “{{ $q }}”.</p>
     @endif

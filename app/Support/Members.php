@@ -229,6 +229,41 @@ final class Members
         }
     }
 
+    /** A member counts as online if they opened a page (or signed in) within this many minutes. */
+    public const ONLINE_MINUTES = 15;
+
+    /**
+     * Members online now, most recently active first: each with ->last_seen (Carbon), ->last_path and ->last_place.
+     * Admin only: never shown on public pages.
+     */
+    public static function online(): \Illuminate\Support\Collection
+    {
+        try {
+            if (! self::hasTables() || ! Schema::hasTable('member_activity')) {
+                return collect();
+            }
+            $ids = \Illuminate\Support\Facades\DB::table('member_activity')->where('created_at', '>=', now()->subMinutes(self::ONLINE_MINUTES))
+                ->selectRaw('max(id) as id')->groupBy('member_id')->pluck('id');
+            if ($ids->isEmpty()) {
+                return collect();
+            }
+            $rows = \Illuminate\Support\Facades\DB::table('member_activity')->whereIn('id', $ids)->get()->keyBy('member_id');
+            $members = Member::query()->whereIn('id', $rows->keys())->where('status', 'active')->get();
+            foreach ($members as $m) {
+                $r = $rows[$m->id];
+                $m->last_seen = \Illuminate\Support\Carbon::parse($r->created_at);
+                $m->last_path = $r->kind === 'login' ? null : $r->path;
+                $m->last_place = $r->place;
+            }
+
+            return $members->sortByDesc('last_seen')->values();
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('[members] online list unavailable: '.$e->getMessage());
+
+            return collect();
+        }
+    }
+
     /** Latest sign-in (time and place) for each of these members: [member_id => row]. */
     public static function lastLogins(array $memberIds): array
     {
