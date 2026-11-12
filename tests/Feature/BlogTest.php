@@ -29,7 +29,8 @@ class BlogTest extends TestCase
     public function test_founder_section_links_to_an_empty_blog(): void
     {
         $this->get('/about')->assertOk()->assertSee('href="/blog"', false)->assertSee('Blog Posts')->assertDontSee('Read My Blog');
-        $this->get('/blog')->assertOk()->assertSee('Blog by JF Legaspi', false)->assertSee('The first post is on the way.');
+        $this->get('/blog')->assertOk()->assertSee('Blog by JF Legaspi', false)->assertSee('The first post is on the way.')
+            ->assertSee('src="/images/blog-summit-1280.jpg"', false)->assertSee('/images/blog-summit-640.webp 640w', false);
         $this->get('/sitemap.xml')->assertOk()->assertSee('/blog');
         // "Blog Posts" sits in the About drop-down, and About is highlighted on blog pages.
         $this->get('/')->assertSeeInOrder(['href="/about"', 'href="/contact"', 'href="/blog"', 'Blog Posts'], false);
