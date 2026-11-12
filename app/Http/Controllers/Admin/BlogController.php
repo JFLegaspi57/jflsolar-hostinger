@@ -66,11 +66,18 @@ class BlogController extends Controller
             'excerpt' => $p->body('excerpt', 'Short summary', 300),
             'body' => $p->text('body', 'Post', 20000, required: true, min: 20) ?? '',
         ];
+        // Optional date shown on the post (e.g. to backdate an older story); blank keeps the first-publish date.
+        $date = $p->date('published_on', 'Date shown on the post');
+        if ($date && ($date < '2000-01-01' || $date > now('Asia/Manila')->addYear()->toDateString())) {
+            $p->errors['published_on'] = 'Choose a date between 2000 and next year.';
+        }
         if (! $p->ok()) {
             return Saver::invalid($p);
         }
         // First publish sets the date shown on the post (updates skip model events).
-        if (Saver::intent($request) === 'publish' && $record && ! $record->published_at) {
+        if ($date) {
+            $row['published_at'] = \Illuminate\Support\Carbon::parse($date.' 12:00', 'Asia/Manila')->utc();
+        } elseif (Saver::intent($request) === 'publish' && $record && ! $record->published_at) {
             $row['published_at'] = now();
         }
 
