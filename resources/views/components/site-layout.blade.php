@@ -1,4 +1,4 @@
-@props(['title' => null, 'description' => \App\Support\Site::DESCRIPTION, 'path' => '/', 'noindex' => false, 'reviewsAboveFooter' => true])
+@props(['title' => null, 'description' => \App\Support\Site::DESCRIPTION, 'path' => '/', 'noindex' => false, 'reviewsAboveFooter' => true, 'lang' => 'en-PH'])
 @php
     use App\Support\Site;
     $fullTitle = $path === '/' || ! $title ? Site::NAME.' — '.Site::TAGLINE : $title.' | '.Site::NAME;
@@ -7,7 +7,7 @@
     $robots = ($noindex || ! Site::allowsIndexing()) ? 'noindex, nofollow' : 'index, follow';
 @endphp
 <!DOCTYPE html>
-<html lang="en-PH">
+<html lang="{{ $lang }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +23,7 @@
     <meta property="og:title" content="{{ $fullTitle }}">
     <meta property="og:description" content="{{ $description }}">
     <meta property="og:site_name" content="{{ Site::NAME }}">
-    <meta property="og:locale" content="en_PH">
+    <meta property="og:locale" content="{{ str_starts_with($lang, 'fil') ? 'fil_PH' : 'en_PH' }}">
     <meta property="og:image" content="{{ $share }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">

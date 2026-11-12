@@ -12,11 +12,14 @@
     description="A technical guide to how a hybrid solar PV system works: solar array and MPPT, the hybrid inverter's converters, battery and BMS, power-flow priorities, operating modes, brownout backup, protection devices and losses.">
     <x-slot:head>
         @include('partials.guide-styles')
+        @include('partials.hybrid-guide-hreflang')
     </x-slot:head>
     <x-page-header eyebrow="Technical guide" title="How a hybrid solar PV system works"
         intro="From sunlight to socket: what each part does, what happens inside the hybrid inverter, how power is shared between your home, the battery and the grid, and how the system keeps the lights on during a brownout." />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
+            <p class="text-sm"><a href="/hybrid-pv-system-guide/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
+
             <nav aria-label="On this page" class="hg-toc hg-note">
                 <p class="font-bold text-steel-950">On this page</p>
                 <ul class="mt-1 grid sm:grid-cols-2" style="column-gap: 1.5rem">
