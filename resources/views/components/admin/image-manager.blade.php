@@ -4,6 +4,7 @@
         'package' => 'Use equipment or system photos you have permission to publish.',
         'product' => 'Use clear product photos — ideally the manufacturer’s official images or your own photos.',
         'project' => 'Use only real JFL Solar project photos that you have permission to publish. Never use stock photos or other companies’ work.',
+        'post' => 'Use your own photos or images you have permission to publish. The cover image shows on the blog list and at the top of the post.',
         'block' => 'Only use images you have permission to publish.',
     ];
     $btn = 'inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 text-sm font-semibold text-steel-900 hover:border-steel-900 disabled:opacity-40';

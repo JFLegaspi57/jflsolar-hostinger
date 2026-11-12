@@ -11,7 +11,7 @@ use App\Models\MediaAsset;
  */
 final class MediaStore
 {
-    public const FOLDERS = ['packages', 'products', 'projects', 'blocks'];
+    public const FOLDERS = ['packages', 'products', 'projects', 'blog', 'blocks'];
 
     private const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
@@ -57,6 +57,7 @@ final class MediaStore
                 return $record($p) && $p->category?->status === 'published';
             })(),
             $m->project_id !== null => $record(\App\Models\Project::query()->find($m->project_id)),
+            $m->blog_post_id !== null => $record(\App\Models\BlogPost::query()->find($m->blog_post_id)),
             $m->content_block_key !== null => (function () use ($m, $production) {
                 $b = \App\Models\ContentBlock::query()->find($m->content_block_key);
 

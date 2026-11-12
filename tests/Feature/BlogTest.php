@@ -1,0 +1,89 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\BlogPost;
+use App\Models\MediaAsset;
+use App\Models\User;
+use App\Support\PublicContent;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Tests\TestCase;
+
+class BlogTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+        PublicContent::flush();
+    }
+
+    private function staff(): User
+    {
+        return User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
+    }
+
+    public function test_founder_section_links_to_an_empty_blog(): void
+    {
+        $this->get('/about')->assertOk()->assertSee('href="/blog"', false)->assertSee('Read My Blog');
+        $this->get('/blog')->assertOk()->assertSee('Blog by JF Legaspi', false)->assertSee('The first post is on the way.');
+        $this->get('/sitemap.xml')->assertOk()->assertSee('/blog');
+    }
+
+    public function test_staff_write_publish_and_unpublish_a_post_with_a_cover_image(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->get('/admin/blog')->assertOk()->assertSee('No posts yet');
+        $this->actingAs($staff, 'web')->get('/admin')->assertSee('href="/admin/blog"', false);
+
+        // A new post starts as a draft and is hidden.
+        $this->actingAs($staff, 'web')->post('/admin/blog', [
+            'title' => 'Why we size solar PV systems around daytime use',
+            'excerpt' => 'Solar you use yourself saves more than solar you export.',
+            'body' => "Most homes use the most power at night.\n- Run the washing machine at noon\nTip: check your bill first.",
+        ]);
+        $post = BlogPost::query()->firstOrFail();
+        $this->assertSame('draft', $post->status);
+        $this->assertNull($post->published_at);
+        $this->get('/blog/'.$post->slug)->assertNotFound();
+
+        // Cover image upload, hidden while the post is a draft.
+        $this->actingAs($staff, 'web')->post('/admin/media/upload/post/'.$post->id, ['alt' => 'Panels on a roof at noon', 'file' => UploadedFile::fake()->image('roof.jpg', 1600, 1000)]);
+        $img = MediaAsset::query()->where('blog_post_id', $post->id)->firstOrFail();
+        $this->assertTrue($img->is_cover);
+        $this->get($img->url($img->bestWidth(1280)))->assertNotFound();
+
+        // Publish.
+        $this->actingAs($staff, 'web')->post('/admin/blog/'.$post->id, [
+            'title' => $post->title, 'slug' => $post->slug, 'excerpt' => $post->excerpt, 'body' => $post->body,
+            'lock_version' => $post->lock_version, 'intent' => 'publish',
+        ]);
+        $post->refresh();
+        $this->assertSame('published', $post->status);
+        $this->assertNotNull($post->published_at);
+
+        $this->get('/blog')->assertOk()->assertSee('Why we size solar PV systems around daytime use')->assertSee('Solar you use yourself saves more')
+            ->assertDontSee('The first post is on the way.');
+        $this->get('/blog/'.$post->slug)->assertOk()
+            ->assertSee('By <a href="/about"', false)->assertSee('JF Legaspi')
+            ->assertSee('Run the washing machine at noon')->assertSee('"@type":"BlogPosting"', false)
+            ->assertSee('alt="Panels on a roof at noon"', false);
+        $this->get($img->url($img->bestWidth(1280)))->assertOk();
+        $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
+
+        // Unpublish from the list hides it again.
+        $this->actingAs($staff, 'web')->post('/admin/blog/'.$post->id.'/status', ['status' => 'draft']);
+        $this->get('/blog/'.$post->slug)->assertNotFound();
+        $this->get('/blog')->assertSee('The first post is on the way.');
+    }
+
+    public function test_post_needs_a_title_and_body(): void
+    {
+        $this->actingAs($this->staff(), 'web')->post('/admin/blog', ['title' => '', 'body' => 'short'])
+            ->assertSessionHasErrors(['title', 'body']);
+        $this->assertSame(0, BlogPost::query()->count());
+    }
+}

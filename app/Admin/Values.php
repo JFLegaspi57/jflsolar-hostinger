@@ -2,6 +2,7 @@
 
 namespace App\Admin;
 
+use App\Models\BlogPost;
 use App\Models\ContentBlock;
 use App\Models\Package;
 use App\Models\Product;
@@ -76,6 +77,11 @@ final class Values
             'summary' => $p->summary, 'description' => $p->description, 'video_urls' => self::s($p->video_urls ?? null), 'admin_notes' => self::s($p->admin_notes),
             'featured' => self::b($p->featured), 'is_sample' => self::b($p->is_sample),
         ];
+    }
+
+    public static function post(?BlogPost $p): array
+    {
+        return $p ? ['title' => $p->title, 'slug' => $p->slug, 'excerpt' => $p->excerpt, 'body' => $p->body] : [];
     }
 
     public static function category(?ProductCategory $c): array

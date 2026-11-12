@@ -2,12 +2,13 @@
 
 namespace App\Admin;
 
+use App\Models\BlogPost;
 use App\Models\Package;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Project;
 
-/** The four list-managed record types and how the shared controls treat them. */
+/** The list-managed record types and how the shared controls treat them. */
 final class Entities
 {
     public const MAP = [
@@ -15,6 +16,7 @@ final class Entities
         'products' => ['model' => Product::class, 'singular' => 'product', 'media' => 'product_id', 'featured' => true, 'title' => 'name'],
         'projects' => ['model' => Project::class, 'singular' => 'project', 'media' => 'project_id', 'featured' => true, 'title' => 'title'],
         'categories' => ['model' => ProductCategory::class, 'singular' => 'category', 'media' => null, 'featured' => false, 'title' => 'name'],
+        'blog' => ['model' => BlogPost::class, 'singular' => 'post', 'media' => 'blog_post_id', 'featured' => false, 'title' => 'title'],
     ];
 
     public static function get(string $entity): array

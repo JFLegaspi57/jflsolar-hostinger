@@ -84,6 +84,7 @@
                     <h2 id="founder-title" class="mt-3 text-3xl font-extrabold text-steel-950">{{ $founder->title }}</h2>
                     @if ($founder->subtitle)<p class="mt-1 font-semibold text-steel-600">{{ $founder->subtitle }}</p>@endif
                     <x-paragraphs :text="$founder->body" class="mt-4 max-w-2xl text-lg text-steel-700" />
+                    <a href="/blog" class="{{ Ui::button('secondary', 'lg', 'mt-6') }}">Read My Blog <x-icon name="arrow" class="size-4" /></a>
                 </div>
             </div>
         </x-section>

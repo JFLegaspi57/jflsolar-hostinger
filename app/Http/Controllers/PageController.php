@@ -160,6 +160,19 @@ class PageController extends Controller
         return view('pages.net-metering-tl', ['settings' => PublicContent::settings()]);
     }
 
+    /** JF Legaspi's blog. */
+    public function blog(): View
+    {
+        return view('pages.blog', ['posts' => \App\Support\Blog::published()]);
+    }
+
+    public function blogPost(string $slug): View
+    {
+        $post = \App\Support\Blog::find($slug) ?? abort(404);
+
+        return view('pages.blog-post', ['post' => $post, 'settings' => PublicContent::settings()]);
+    }
+
     /** Technical guide: how a hybrid solar PV system works. */
     public function hybridGuide(): View
     {
@@ -225,6 +238,11 @@ class PageController extends Controller
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
             }
+        }
+
+        $urls->push(['loc' => Site::url('/blog'), 'lastmod' => null]);
+        foreach (\App\Support\Blog::published()->where('is_sample', false) as $post) {
+            $urls->push(['loc' => Site::url('/blog/'.$post->slug), 'lastmod' => $post->updated_at?->toAtomString()]);
         }
 
         $urls->push(['loc' => Site::url('/forum'), 'lastmod' => null]);

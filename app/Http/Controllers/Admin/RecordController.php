@@ -104,6 +104,9 @@ class RecordController extends Controller
         foreach ($media as $m) {
             MediaStore::deleteFiles($m); // rows are removed by ON DELETE CASCADE
         }
+        if ($cfg['media']) {
+            MediaAsset::query()->where($cfg['media'], $id)->delete(); // blog images have no foreign key to cascade
+        }
         PublicContent::flush();
 
         return redirect("/admin/{$entity}?view=archived")->with('status', 'Permanently deleted.');

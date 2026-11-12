@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BlogPost;
 use App\Models\ContentBlock;
 use App\Models\MediaAsset;
 use App\Models\Package;
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Images (packages, products, projects, content blocks) and product datasheets.
+ * Images (packages, products, projects, blog posts, content blocks) and product datasheets.
  * These save separately from the main edit form and apply immediately.
  */
 class MediaAdminController extends Controller
@@ -26,6 +27,7 @@ class MediaAdminController extends Controller
         'package' => ['column' => 'package_id', 'folder' => 'packages', 'model' => Package::class, 'edit' => '/admin/packages/'],
         'product' => ['column' => 'product_id', 'folder' => 'products', 'model' => Product::class, 'edit' => '/admin/products/'],
         'project' => ['column' => 'project_id', 'folder' => 'projects', 'model' => Project::class, 'edit' => '/admin/projects/'],
+        'post' => ['column' => 'blog_post_id', 'folder' => 'blog', 'model' => BlogPost::class, 'edit' => '/admin/blog/'],
         'block' => ['column' => 'content_block_key', 'folder' => 'blocks', 'model' => ContentBlock::class, 'edit' => '/admin/content/'],
     ];
 
