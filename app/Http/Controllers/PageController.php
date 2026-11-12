@@ -163,7 +163,11 @@ class PageController extends Controller
     /** JF Legaspi's blog. */
     public function blog(): View
     {
-        return view('pages.blog', ['posts' => \App\Support\Blog::published()]);
+        $posts = \App\Support\Blog::published();
+        // Banner: a random photo from all published posts (a new one on each visit).
+        $photos = $posts->flatMap(fn ($p) => $p->photos);
+
+        return view('pages.blog', ['posts' => $posts, 'banner' => $photos->isNotEmpty() ? $photos->random() : null]);
     }
 
     public function blogPost(string $slug): View

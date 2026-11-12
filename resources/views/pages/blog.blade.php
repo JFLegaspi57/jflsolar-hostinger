@@ -3,10 +3,16 @@
     use App\Support\Site;
 @endphp
 <x-site-layout title="Blog by JF Legaspi" path="/blog" :reviews-above-footer="false" description="The blog of JF Legaspi of JFL Solar: notes, lessons and stories about solar PV systems, projects and the business.">
-    {{-- Banner: JF on stage at the GoodWe Global Installer Summit 2026 (owner's photo). --}}
-    <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
-        image="/images/blog-summit-1280.jpg" srcset="/images/blog-summit-640.jpg 640w, /images/blog-summit-960.jpg 960w, /images/blog-summit-1280.jpg 1280w, /images/blog-summit-1600.jpg 1600w"
-        imageAlt="JF Legaspi on stage at the GoodWe Global Installer Summit 2026" focus="88% 45%" :flip="true" />
+    {{-- Banner: a random photo from the published posts; JF on stage at the GoodWe summit when there are none. --}}
+    @if ($banner)
+        <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
+            :image="$banner->url($banner->bestWidth(1280))" :srcset="$banner->srcset()" :image-alt="$banner->alt"
+            :focus="$banner->height > $banner->width * 1.15 ? '50% 3%' : '50% 40%'" :flip="true" protect />
+    @else
+        <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
+            image="/images/blog-summit-1280.jpg" srcset="/images/blog-summit-640.jpg 640w, /images/blog-summit-960.jpg 960w, /images/blog-summit-1280.jpg 1280w, /images/blog-summit-1600.jpg 1600w"
+            imageAlt="JF Legaspi on stage at the GoodWe Global Installer Summit 2026" focus="88% 45%" :flip="true" protect />
+    @endif
     <x-container class="py-10 sm:py-14">
         @if ($posts->isNotEmpty())
             <ul class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

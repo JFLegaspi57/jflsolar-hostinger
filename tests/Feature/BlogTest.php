@@ -70,6 +70,8 @@ class BlogTest extends TestCase
         $this->assertSame('published', $post->status);
         $this->assertNotNull($post->published_at);
 
+        // The blog page banner is now one of the post's photos (random from all published posts).
+        $this->get('/blog')->assertSee('/media/blog/'.$post->id.'/', false)->assertDontSee('src="/images/blog-summit-1280.jpg"', false);
         $this->get('/blog')->assertOk()->assertSee('Why we size solar PV systems around daytime use')->assertSee('Solar you use yourself saves more')
             ->assertDontSee('The first post is on the way.');
         $this->get('/blog/'.$post->slug)->assertOk()
