@@ -71,11 +71,16 @@
             @media (min-width: 40rem) { .ba-logo { padding: 3rem 1rem; } .ba-logo img { height: 5rem; max-width: 26rem; } }
         </style>
     </x-slot:head>
-    @php $logo = is_file(public_path('images/brand-logo-'.$slug.'.webp')); @endphp
+    @php
+        // The logo is small (about 5-18 KB), so it is written straight into the page: it appears together with the page, without a separate download.
+        $logoFile = public_path('images/brand-logo-'.$slug.'.webp');
+        $logo = is_file($logoFile);
+        $logoSize = $logo ? @getimagesize($logoFile) : false;
+    @endphp
     @if ($logo)
         <div class="ba-logo">
             <p class="ba-logo-eyebrow"><span class="rule-gold" aria-hidden="true"></span>Brand guide<span class="rule-gold" aria-hidden="true"></span></p>
-            <span class="ba-logo-card"><img src="/images/brand-logo-{{ $slug }}.webp?v=4" alt="{{ $brand }} logo" fetchpriority="high" decoding="async" /></span>
+            <span class="ba-logo-card"><img src="data:image/webp;base64,{{ base64_encode(file_get_contents($logoFile)) }}" alt="{{ $brand }} logo" @if ($logoSize) width="{{ $logoSize[0] }}" height="{{ $logoSize[1] }}" @endif decoding="sync" /></span>
             <h1 class="ba-logo-title">{{ $title }}</h1>
             <p class="ba-logo-intro">{{ $intro }}</p>
         </div>
