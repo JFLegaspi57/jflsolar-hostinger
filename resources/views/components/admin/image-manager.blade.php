@@ -55,6 +55,20 @@
                                 <label for="cap-{{ $img->id }}" class="block text-sm font-semibold">Caption</label>
                                 <input id="cap-{{ $img->id }}" name="caption" value="{{ $caption }}" maxlength="300" class="{{ $input }}">
                             </div>
+                            @if ($ownerType === 'post')
+                                <div class="sm:col-span-2">
+                                    <label for="focus-{{ $img->id }}" class="block text-sm font-semibold">Banner framing: where are the faces?</label>
+                                    @php $fv = $img->focus_y; @endphp
+                                    <select id="focus-{{ $img->id }}" name="focus_y" class="{{ $input }}" aria-describedby="focus-{{ $img->id }}-hint">
+                                        <option value="" @selected($fv === null)>Automatic</option>
+                                        @foreach (\App\Support\Blog::FOCUS_CHOICES as $c)
+                                            <option value="{{ $c }}" @selected($fv === $c)>{{ $c === 0 ? 'At the very top' : 'About '.$c.'% down from the top' }}</option>
+                                        @endforeach
+                                        @if ($fv !== null && ! in_array($fv, \App\Support\Blog::FOCUS_CHOICES, true))<option value="{{ $fv }}" selected>About {{ $fv }}% down from the top</option>@endif
+                                    </select>
+                                    <p id="focus-{{ $img->id }}-hint" class="mt-1 text-xs text-steel-600">Banners and list thumbnails crop the photo; this keeps the faces in view. The gallery always shows the whole photo.</p>
+                                </div>
+                            @endif
                             <div class="flex flex-wrap items-center gap-2 sm:col-span-2">
                                 <button type="submit" class="{{ $btn }}">Save image details</button>
                                 <p class="text-sm font-semibold text-warn-800" data-unsaved-note @unless ($mine) hidden @endunless>Unsaved changes</p>

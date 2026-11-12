@@ -85,6 +85,20 @@ class BlogTest extends TestCase
         $this->get($img->url($img->bestWidth(1280)))->assertOk();
         $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
 
+        // Banner framing: staff set where the faces are; banners and list thumbnails follow it, the gallery is never cropped.
+        $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertSee('Banner framing: where are the faces?');
+        $this->actingAs($staff, 'web')->post('/admin/media/'.$img->id.'/text', ['alt' => $img->alt, 'focus_y' => '25'])->assertSessionHas('media_status');
+        $this->assertSame(25, $img->fresh()->focus_y);
+        $this->get('/blog/'.$post->slug)->assertSee('object-position: 50% 25%', false)->assertSee('class="bp-gallery mt-10"', false)->assertDontSee('aspect-ratio: 3 / 4', false);
+        $this->get('/blog')->assertSee('object-position: 50% 25%', false);
+        // The small (600 px wide) photo is never picked for the blog page banner.
+        $small = MediaAsset::query()->where('blog_post_id', $post->id)->where('is_cover', false)->firstOrFail();
+        for ($n = 0; $n < 6; $n++) {
+            $this->get('/blog')->assertDontSee('alt="'.$small->alt.'" style', false);
+        }
+        $this->actingAs($staff, 'web')->post('/admin/media/'.$img->id.'/text', ['alt' => $img->alt, 'focus_y' => ''])->assertSessionHas('media_status');
+        $this->assertNull($img->fresh()->focus_y);
+
         // Unpublish from the list hides it again.
         $this->actingAs($staff, 'web')->post('/admin/blog/'.$post->id.'/status', ['status' => 'draft']);
         $this->get('/blog/'.$post->slug)->assertNotFound();

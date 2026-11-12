@@ -131,7 +131,13 @@ class MediaAdminController extends Controller
             return redirect($cfg['edit'].$ownerKey.'#img-'.$m->id)->withInput(['asset' => $m->id, 'alt' => $alt, 'caption' => $caption])
                 ->withErrors(['alt' => mb_strlen($alt) < 3 ? 'Alternative text must be at least 3 characters.' : 'Alternative text and caption must be 300 characters or fewer.'], 'img'.$m->id);
         }
-        $m->forceFill(['alt' => $alt, 'caption' => $caption])->save();
+        $fill = ['alt' => $alt, 'caption' => $caption];
+        // Blog photos: banner framing (where the faces are). Blank = automatic.
+        if ($m->blog_post_id !== null && $request->has('focus_y')) {
+            $f = (string) $request->input('focus_y');
+            $fill['focus_y'] = $f === '' ? null : max(0, min(100, (int) $f));
+        }
+        $m->forceFill($fill)->save();
         PublicContent::flush();
 
         return redirect($cfg['edit'].$ownerKey.'#img-'.$m->id)->with('media_status', 'Image details saved.');

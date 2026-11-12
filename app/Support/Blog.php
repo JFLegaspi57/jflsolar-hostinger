@@ -16,14 +16,14 @@ use Illuminate\Support\Facades\Schema;
  */
 final class Blog
 {
-    private const TABLES_KEY = 'blog-tables-v3'; // v2: author column; v3: reactions and comments
+    private const TABLES_KEY = 'blog-tables-v4'; // v2: author column; v3: reactions and comments; v4: photo framing
 
     public const AUTHOR = 'JF Legaspi';
 
     public static function hasTables(): bool
     {
         return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id')
-            && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments');
+            && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments') && Schema::hasColumn('media_assets', 'focus_y');
     }
 
     public static function ensureTables(): void
@@ -76,6 +76,11 @@ final class Blog
                     $t->timestamps();
                 });
             }
+            if (! Schema::hasColumn('media_assets', 'focus_y')) {
+                Schema::table('media_assets', function (Blueprint $t) {
+                    $t->unsignedTinyInteger('focus_y')->nullable(); // banner framing: where the faces are, % from the top
+                });
+            }
             if (! Schema::hasColumn('media_assets', 'blog_post_id')) {
                 Schema::table('media_assets', function (Blueprint $t) {
                     $t->uuid('blog_post_id')->nullable()->index();
@@ -126,6 +131,25 @@ final class Blog
     public static function author(BlogPost $p): string
     {
         return trim((string) $p->author) ?: self::AUTHOR;
+    }
+
+    /** Smallest photo width used for the blog page banner (smaller photos look blurry that large). */
+    public const BANNER_MIN_WIDTH = 900;
+
+    /** Choices for a photo's banner framing in the admin: % from the top where the faces are. */
+    public const FOCUS_CHOICES = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70];
+
+    /**
+     * CSS object-position for a cropped blog photo (banners and list thumbnails), so faces stay in view.
+     * Uses the framing set in the admin; otherwise tall photos keep the top and others sit a little above the middle.
+     */
+    public static function focus(\App\Models\MediaAsset $m): string
+    {
+        if ($m->focus_y !== null) {
+            return '50% '.(int) $m->focus_y.'%';
+        }
+
+        return $m->height > $m->width * 1.15 ? '50% 3%' : '50% 30%';
     }
 
     /** Date shown on a post, e.g. "12 November 2026". */

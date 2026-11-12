@@ -7,7 +7,7 @@
     @if ($banner)
         <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
             :image="$banner->url($banner->bestWidth(1280))" :srcset="$banner->srcset()" :image-alt="$banner->alt"
-            :focus="$banner->height > $banner->width * 1.15 ? '50% 3%' : '50% 40%'" :flip="true" protect />
+            :focus="Blog::focus($banner)" :flip="true" protect />
     @else
         <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
             image="/images/blog-summit-1280.jpg" srcset="/images/blog-summit-640.jpg 640w, /images/blog-summit-960.jpg 960w, /images/blog-summit-1280.jpg 1280w, /images/blog-summit-1600.jpg 1600w"
@@ -21,7 +21,7 @@
                         <article class="group relative flex w-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-white">
                             @if ($post->cover)
                                 <div class="aspect-[3/2] overflow-hidden bg-steel-100" oncontextmenu="return false" style="-webkit-touch-callout: none; user-select: none">
-                                    <x-media-image :asset="$post->cover" sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" class="transition-transform duration-300 group-hover:scale-[1.02]" style="object-position: 50% 0%" draggable="false" />
+                                    <x-media-image :asset="$post->cover" sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" class="transition-transform duration-300 group-hover:scale-[1.02]" style="object-position: {{ Blog::focus($post->cover) }}" draggable="false" />
                                 </div>
                             @endif
                             <div class="flex flex-1 flex-col p-5">
