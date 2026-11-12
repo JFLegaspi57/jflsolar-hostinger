@@ -72,7 +72,9 @@ class BlogTest extends TestCase
             ->assertSee('By <a href="/about"', false)->assertSee('JF Legaspi')
             ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertSee('"@type":"BlogPosting"', false)
             ->assertSee('alt="Panels on a roof at noon"', false)
-            ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false);
+            ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false)
+            ->assertSee('<dialog id="photo-viewer"', false)->assertSee('data-photo="0"', false)->assertSee('data-photo="1"', false)
+            ->assertSee('draggable="false"', false)->assertDontSee('target="_blank" rel="noopener" class="relative block', false);
         $this->get($img->url($img->bestWidth(1280)))->assertOk();
         $this->get('/sitemap.xml')->assertSee('/blog/'.$post->slug);
 
