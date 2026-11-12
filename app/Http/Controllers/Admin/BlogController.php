@@ -65,6 +65,8 @@ class BlogController extends Controller
             'slug' => $p->slug('slug', $title),
             'excerpt' => $p->body('excerpt', 'Short summary', 300),
             'body' => $p->text('body', 'Post', 20000, required: true, min: 20) ?? '',
+            // Optional wording for the date, e.g. "10–14 November 2026" for an event over several days.
+            'date_label' => $p->text('date_label', 'Show the date as', 60) ?: null,
         ];
         // Optional date shown on the post (e.g. to backdate an older story); blank keeps the first-publish date.
         $date = $p->date('published_on', 'Date shown on the post');

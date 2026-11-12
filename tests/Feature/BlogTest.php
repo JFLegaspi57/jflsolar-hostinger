@@ -37,6 +37,31 @@ class BlogTest extends TestCase
         $this->get('/blog')->assertSee('aria-current="page"', false);
     }
 
+    public function test_a_post_can_show_a_date_range(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->get('/admin/blog/new')->assertOk()->assertSee('Show the date as (optional)');
+        $this->actingAs($staff, 'web')->post('/admin/blog', [
+            'title' => 'At the summit', 'body' => 'Five days of learning at the summit, from the factory to the stage.',
+            'published_on' => '2026-11-10', 'date_label' => '10–14 November 2026', 'intent' => 'publish',
+        ]);
+        $post = BlogPost::query()->firstOrFail();
+        $this->assertSame('published', $post->status);
+        $this->assertSame('10–14 November 2026', $post->date_label);
+        auth('web')->logout();
+        $this->get('/blog/'.$post->slug)->assertOk()->assertSee('datetime="2026-11-10">10–14 November 2026</time>', false);
+        $this->get('/blog')->assertOk()->assertSee('10–14 November 2026');
+
+        // Blank label: back to the single date.
+        $this->actingAs($staff, 'web')->post('/admin/blog/'.$post->id, [
+            'title' => $post->title, 'slug' => $post->slug, 'excerpt' => '', 'body' => $post->body, 'published_on' => '2026-11-10',
+            'date_label' => '', 'lock_version' => $post->lock_version, 'intent' => 'publish',
+        ]);
+        $this->assertNull($post->refresh()->date_label);
+        auth('web')->logout();
+        $this->get('/blog/'.$post->slug)->assertSee('10 November 2026')->assertDontSee('10–14 November 2026');
+    }
+
     public function test_staff_write_publish_and_unpublish_a_post_with_a_cover_image(): void
     {
         $staff = $this->staff();
