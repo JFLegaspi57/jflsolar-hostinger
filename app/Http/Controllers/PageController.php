@@ -178,9 +178,11 @@ class PageController extends Controller
         $post = \App\Support\Blog::find($slug) ?? abort(404);
 
         $member = \App\Support\Members::current();
+        // Members (and signed-in staff) read the whole post; visitors see the opening and an invitation to sign up.
+        $fullAccess = $member !== null || auth('web')->check();
 
         return view('pages.blog-post', [
-            'post' => $post, 'settings' => PublicContent::settings(), 'member' => $member,
+            'post' => $post, 'settings' => PublicContent::settings(), 'member' => $member, 'fullAccess' => $fullAccess,
             'reactions' => \App\Support\BlogComments::counts($post), 'myReaction' => \App\Support\BlogComments::memberReaction($post, $member),
             'comments' => \App\Support\BlogComments::visible($post, $member),
         ]);
