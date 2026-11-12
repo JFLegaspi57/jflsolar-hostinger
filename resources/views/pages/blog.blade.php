@@ -12,7 +12,7 @@
                         <article class="group relative flex w-full flex-col overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-white">
                             @if ($post->cover)
                                 <div class="aspect-[3/2] overflow-hidden bg-steel-100">
-                                    <x-media-image :asset="$post->cover" sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" class="transition-transform duration-300 group-hover:scale-[1.02]" style="object-position: 50% 15%" />
+                                    <x-media-image :asset="$post->cover" sizes="(min-width: 1024px) 380px, (min-width: 768px) 50vw, 100vw" class="transition-transform duration-300 group-hover:scale-[1.02]" style="object-position: 50% 0%" />
                                 </div>
                             @endif
                             <div class="flex flex-1 flex-col p-5">
