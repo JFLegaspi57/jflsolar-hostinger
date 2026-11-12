@@ -31,6 +31,9 @@ class BlogTest extends TestCase
         $this->get('/about')->assertOk()->assertSee('href="/blog"', false)->assertSee('Blog Posts')->assertDontSee('Read My Blog');
         $this->get('/blog')->assertOk()->assertSee('Blog by JF Legaspi', false)->assertSee('The first post is on the way.');
         $this->get('/sitemap.xml')->assertOk()->assertSee('/blog');
+        // "Blog Posts" sits in the About drop-down, and About is highlighted on blog pages.
+        $this->get('/')->assertSeeInOrder(['href="/about"', 'href="/contact"', 'href="/blog"', 'Blog Posts'], false);
+        $this->get('/blog')->assertSee('aria-current="page"', false);
     }
 
     public function test_staff_write_publish_and_unpublish_a_post_with_a_cover_image(): void
@@ -69,7 +72,7 @@ class BlogTest extends TestCase
         $this->get('/blog')->assertOk()->assertSee('Why we size solar PV systems around daytime use')->assertSee('Solar you use yourself saves more')
             ->assertDontSee('The first post is on the way.');
         $this->get('/blog/'.$post->slug)->assertOk()
-            ->assertSee('By <a href="/about"', false)->assertSee('JF Legaspi')
+            ->assertDontSee('By <a href="/about"', false)->assertDontSee('By JF Legaspi')
             ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertDontSee('>Request a Quote</a>\n            </div>', false)->assertSee('"@type":"BlogPosting"', false)
             ->assertSee('alt="Panels on a roof at noon"', false)
             ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false)
@@ -100,13 +103,15 @@ class BlogTest extends TestCase
             ->assertSessionHasErrors('published_on');
     }
 
-    public function test_post_can_show_another_author(): void
+    public function test_posts_show_no_author_byline(): void
     {
         $staff = $this->staff();
-        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Who is JF Legaspi?', 'author' => 'Buckny', 'body' => 'JF Legaspi is a Filipino engineer.', 'intent' => 'publish']);
+        $this->actingAs($staff, 'web')->post('/admin/blog', ['title' => 'Who is JF Legaspi?', 'body' => 'JF Legaspi is a Filipino engineer.', 'published_on' => '2024-06-01', 'intent' => 'publish']);
         $post = BlogPost::query()->firstOrFail();
-        $this->get('/blog/'.$post->slug)->assertSee('By <span class="text-steel-900">Buckny</span>', false)->assertDontSee('By <a href="/about"', false);
-        $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertSee('value="Buckny"', false);
+        $this->get('/blog/'.$post->slug)->assertOk()
+            ->assertSee('<p class="text-sm font-semibold text-steel-600"><time datetime="2024-06-01">1 June 2024</time></p>', false)
+            ->assertDontSee('>By ', false);
+        $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertDontSee('name="author"', false);
     }
 
     public function test_post_needs_a_title_and_body(): void

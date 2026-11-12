@@ -23,6 +23,7 @@ final class Site
     public const ABOUT_MENU = [
         ['href' => '/about', 'label' => 'About Us'],
         ['href' => '/contact', 'label' => 'Contact'],
+        ['href' => '/blog', 'label' => 'Blog Posts'],
     ];
 
     /** Pages listed in the footer only (not in the main menu). The forum stays open at /forum. */

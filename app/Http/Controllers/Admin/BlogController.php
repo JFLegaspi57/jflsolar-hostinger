@@ -64,7 +64,6 @@ class BlogController extends Controller
             'title' => $title,
             'slug' => $p->slug('slug', $title),
             'excerpt' => $p->body('excerpt', 'Short summary', 300),
-            'author' => $p->text('author', 'Author shown on the post', 80),
             'body' => $p->text('body', 'Post', 20000, required: true, min: 20) ?? '',
         ];
         // Optional date shown on the post (e.g. to backdate an older story); blank keeps the first-publish date.
