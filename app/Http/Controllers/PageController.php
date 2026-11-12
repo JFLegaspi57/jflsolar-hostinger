@@ -154,6 +154,12 @@ class PageController extends Controller
         return view('pages.net-metering', ['settings' => PublicContent::settings()]);
     }
 
+    /** Tagalog version of the net metering guide. */
+    public function netMeteringTagalog(): View
+    {
+        return view('pages.net-metering-tl', ['settings' => PublicContent::settings()]);
+    }
+
     /** Technical guide: how a hybrid solar PV system works. */
     public function hybridGuide(): View
     {
@@ -170,6 +176,12 @@ class PageController extends Controller
     public function gridTiedGuide(): View
     {
         return view('pages.grid-tied-pv-guide', ['settings' => PublicContent::settings()]);
+    }
+
+    /** Tagalog version of the grid-tied guide. */
+    public function gridTiedGuideTagalog(): View
+    {
+        return view('pages.grid-tied-pv-guide-tl', ['settings' => PublicContent::settings()]);
     }
 
     /** Brand articles (/brands/{slug}); the brand logos on /products link here. */
@@ -208,7 +220,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);

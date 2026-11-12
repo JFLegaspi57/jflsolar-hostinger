@@ -12,7 +12,7 @@
     description="A technical guide to how a hybrid solar PV system works: solar array and MPPT, the hybrid inverter's converters, battery and BMS, power-flow priorities, operating modes, brownout backup, protection devices and losses.">
     <x-slot:head>
         @include('partials.guide-styles')
-        @include('partials.hybrid-guide-hreflang')
+        @include('partials.guide-hreflang', ['en' => '/hybrid-pv-system-guide'])
     </x-slot:head>
     <x-page-header eyebrow="Technical guide" title="How a hybrid solar PV system works"
         intro="From sunlight to socket: what each part does, what happens inside the hybrid inverter, how power is shared between your home, the battery and the grid, and how the system keeps the lights on during a brownout." />
