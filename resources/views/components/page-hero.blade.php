@@ -1,8 +1,9 @@
-@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true])
+@props(['eyebrow' => null, 'title', 'intro' => null, 'image', 'srcset' => null, 'imageAlt' => '', 'focus' => '35% 60%', 'flip' => false, 'tilt' => true, 'titleClass' => null, 'protect' => false])
 {{-- Photo banner for inner pages, same design as the home page hero:
      mobile/tablet = photo band above the text; desktop = photo fading into the slate panel.
      flip = photo on the right and text on the left (desktop only).
-     tilt = the photo leans in 3D toward the mouse (on by default; see partials/hero-tilt). --}}
+     tilt = the photo leans in 3D toward the mouse (on by default; see partials/hero-tilt).
+     titleClass = smaller title for long titles (blog posts); protect = no right-click saving or dragging of the photo. --}}
 @if ($flip)
     <style>@media (width >= 64rem) { .hero-flip .hero-media { left: auto; right: 0 } .hero-flip .hero-fade { background-image: linear-gradient(to left, transparent 55%, var(--color-steel-950)) } .hero-flip .hero-text { margin-left: 0 } }</style>
 @endif
@@ -12,7 +13,8 @@
         <picture>
             @if ($webpSrcset)<source type="image/webp" srcset="{{ $webpSrcset }}" sizes="(min-width: 1024px) 62vw, 100vw">@endif
             <img src="{{ $image }}" @if ($srcset) srcset="{{ $srcset }}" sizes="(min-width: 1024px) 62vw, 100vw" @endif width="1280" height="577"
-                fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}" class="absolute inset-0 h-full w-full object-cover" />
+                fetchpriority="high" decoding="async" alt="{{ $imageAlt }}" style="object-position: {{ $focus }}@if ($protect); -webkit-touch-callout: none; user-select: none @endif" class="absolute inset-0 h-full w-full object-cover"
+                @if ($protect) draggable="false" oncontextmenu="return false" @endif />
         </picture>
         @if ($tilt)<div aria-hidden="true" class="hero-glare absolute inset-0"></div>@endif
         <div aria-hidden="true" class="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-steel-950 to-transparent lg:hidden"></div>
@@ -25,7 +27,7 @@
                     <span class="rule-gold" aria-hidden="true"></span>{{ $eyebrow }}
                 </p>
             @endif
-            <h1 id="page-hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ $title }}</h1>
+            <h1 id="page-hero-title" class="{{ $titleClass ?? 'text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]' }}">{{ $title }}</h1>
             @if ($intro)
                 <p class="mt-6 text-lg text-steel-100">{{ $intro }}</p>
             @endif

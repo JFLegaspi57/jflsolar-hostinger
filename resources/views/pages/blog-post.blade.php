@@ -3,11 +3,10 @@
     use App\Support\Site;
     use App\Support\Ui;
     $description = $post->excerpt ?: \Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', $post->body), 155);
-    $more = $post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id)->values();
-    // Photo viewer (pop-up): the cover first, then the gallery photos.
-    $viewer = collect([$post->cover])->filter()->concat($more)->values()
-        ->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
-    $offset = $post->cover ? 1 : 0;
+    // The cover (thumbnail) is the banner at the top; all photos, cover first, are in the gallery and the pop-up viewer.
+    $more = collect([$post->cover])->filter()->concat($post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id))->values();
+    $viewer = $more->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
+    $offset = 0;
     $jsonLd = [
         '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
         'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(),
@@ -59,29 +58,21 @@
         </style>
         <script type="application/ld+json">{!! json_encode(array_filter($jsonLd), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     </x-slot:head>
-    <x-page-header eyebrow="Blog" :title="$post->title" />
+    @if ($post->cover)
+        <x-page-hero eyebrow="Blog" :title="$post->title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
+            :image-alt="$post->cover->alt" focus="50% 15%" :flip="true" protect title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
+    @else
+        <x-page-header eyebrow="Blog" :title="$post->title" />
+    @endif
     <x-container class="py-10 sm:py-14">
         <div class="bp-layout">
         <article class="min-w-0 max-w-3xl">
             {{-- No author byline on posts (owner's choice); only the date is shown. --}}
             <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
-            @if ($post->cover)
-                <figure class="mt-6">
-                    {{-- Tall (portrait) photos are capped in height so they don't fill the whole screen. --}}
-                    <button type="button" data-photo="0" class="bp-open bp-photo flex w-full justify-center overflow-hidden rounded-[var(--radius-panel)] bg-steel-100">
-                        <span class="relative inline-flex">
-                            <x-media-image :asset="$post->cover" sizes="(min-width: 768px) 768px, 100vw" priority fit="contain" draggable="false" style="width: auto; height: auto; max-width: 100%; max-height: 36rem" />
-                            <span class="bp-shield" aria-hidden="true"></span>
-                        </span>
-                        <span class="sr-only">Enlarge photo</span>
-                    </button>
-                    @if ($post->cover->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $post->cover->caption }}</figcaption>@endif
-                </figure>
-            @endif
             <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
             @if ($more->isNotEmpty())
-                {{-- Other photos as a gallery; each opens in the pop-up viewer. --}}
+                {{-- All photos (the banner photo first) as a gallery; each opens in the pop-up viewer. --}}
                 <ul class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3" aria-label="Photos">
                     @foreach ($more as $i => $img)
                         <li>
