@@ -1,0 +1,27 @@
+Sino si JF Legaspi?
+Isang Pilipinong engineer na mahigit tatlong dekada nang nakatira sa Europe, dating CTO ng isang solar company doon, at ngayon ay founder ng JFL Solar at ng sarili niyang Solar Training Center.
+Si JF Legaspi ay isang Pilipinong mahigit tatlong dekada nang naninirahan sa Europe. Ang kanyang background ay Electrical and Renewable Energy Engineering, at halos buong buhay-trabaho niya ay ginugol niya kung saan nagtatagpo ang dalawang larangang ito: ang pagdisenyo ng mga solar PV system at ang pagtiyak na tama ang pagkakagawa ng mga ito.
+## Solar PV engineering sa Europe
+Sa Europe, naging CTO (Chief Technology Officer) si JF ng isang B2B solar company. Siya ang nagdidisenyo at namamahala sa karamihan ay mga commercial at industrial na solar PV installation: bubong ng mga pabrika, warehouse, opisina at iba pang lugar ng negosyo.
+Halos walang puwang para sa pagkakamali sa mga commercial at industrial na proyekto. Hindi tapos ang isang disenyo dahil lang kasya ang mga panel sa bubong. Bawat string ay kailangang manatili sa loob ng voltage limits ng inverter, sa pinakamalamig na umaga man o sa pinakamainit na hapon. Bawat cable at breaker ay kailangang tama ang laki para sa totoong current, at ang protection ay kailangang magpanatiling ligtas sa tao at sa kagamitan sa buong buhay ng system. Sa huli, hinuhusgahan ng kliyente ang trabaho batay sa kilowatt-hours na naibibigay ng system taon-taon, hindi sa brochure.
+Hinubog ng mga taong iyon kung paano niya tinitingnan ang trabaho. Ang isang mahusay na solar PV system ay kabuuan ng maraming maliliit na bagay na ginawa nang tama: tamang disenyo, tamang materyales, tamang settings at maingat na installation.
+## Pagbabahagi ng kaalaman
+Regular na iniimbitahan si JF bilang resource person sa mga solar PV seminar sa buong Pilipinas, na inoorganisa ng iba't ibang solar company. Hangga't kaya niya, pumapayag siya, dahil likas siyang guro. Iyan ang dahilan kung bakit bukas-palad niyang ibinabahagi ang kanyang teknikal na kaalaman.
+Naniniwala siya na habang mas naiintindihan ng ating mga installer, engineer at customer kung paano talaga gumagana ang isang solar PV system, mas gumaganda at mas nagiging ligtas ang industriya ng solar. Kapag naiintindihan ng tao ang "bakit", mas kaunti ang pagkakamali nila, at mas tumatagal ang mga system na itinatayo nila.
+## Bakit niya itinatag ang JFL Solar
+Noong unang bahagi ng 2024, itinatag ni JF ang sarili niyang solar company sa Pilipinas: ang JFL Solar. Pinaglilingkuran nito ang dalawang grupo:
+- Mga Pro-DIYer at propesyonal na installer na gusto ng de-kalidad na materyales at ng maaasahang taong matatawagan kapag kailangan nila ng tulong
+- Mga solar PV company na naghahanap ng maaasahang supplier at technical partner
+Nagbibigay ang JFL Solar ng installation at ng supply ng solar materials: solar panels, inverters, batteries at ang mga piyesang kasama nito. Ang nagpapaiba rito ay ang nangyayari pagkatapos ng benta. Ang mga customer na bumibili sa JFL Solar ay nakakatanggap ng:
+- Libreng technical support
+- Parameter settings ng kanilang inverter at battery
+- Troubleshooting kapag may hindi gumagana nang tama
+Matatalino ang mga modernong hybrid inverter at lithium battery, pero kapag maayos lang ang setup. Kailangang magtugma ang battery type, charge voltage, current limits at ang communication sa pagitan ng inverter at battery. Ang maling setting ay puwedeng magdulot ng error na mukhang sira ang produkto, o tahimik na paikliin ang buhay ng isang mamahaling battery. Para kay JF, ang pagtiyak na tama ang mga settings ay bahagi ng maayos na trabaho, hindi dagdag lang.
+## Ang JFL Solar Training Center
+Nagpapatakbo na rin si JF ng sarili niyang Solar Training Center para sa mga gustong matuto pa tungkol sa mga solar PV system, nagsisimula pa lang man sila o nag-i-install na at gustong palalimin ang kanilang kaalaman.
+Ang layunin niya ay ituro ang solar PV sa paraang natutunan at isinabuhay niya: ang teorya sa likod nito, para maintindihan ng mga estudyante ang ginagawa nila, at ang praktikal na kasanayan para gawin ito nang ligtas at tama. Sabi nga niya: "Learn from the best... learn it the right way!"
+## Ang gumagabay sa kanya
+Isinasabuhay ni JF ang Filipos 4:8:
+"Sa katapustapusan, mga kapatid, anomang bagay na katotohanan, anomang bagay na kagalanggalang, anomang bagay na matuwid, anomang bagay na malinis, anomang bagay na kahilighilig, anomang bagay na mabuting ulat; kung may anomang kagalingan, at kung may anomang kapurihan, ay isipin ninyo ang mga bagay na ito." (Ang Biblia, 1905)
+Para sa kanya, paalala ang talatang ito na panatilihing totoo at tapat ang kanyang trabaho: tapat na payo, at trabahong ginawa nang tama, kahit sa mga bahaging walang makakakita.
+Kung nagpaplano ka ng solar PV system, kailangan mo ng tulong sa iyong inverter o battery, o gusto mong sumali sa isang training, magpadala ng mensahe sa JFL Solar. Ikalulugod ni JF na tumulong.

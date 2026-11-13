@@ -1,0 +1,48 @@
+Isang Pribilehiyong Dumalo sa Global Energy Pioneer Summit (GEPS) 2026 ng Sungrow
+Nagkaroon ako ng pribilehiyong dumalo sa Global Energy Pioneer Summit 2026 ng Sungrow sa Hefei, China: paglilibot sa kanilang showroom at Global Digital Factory, at ang paglulunsad ng PowerStack 3.0. Narito ang aking nakita at kung bakit ito mahalaga sa mga negosyong Pilipino.
+Mula Nobyembre 10 hanggang 14, 2026, nagkaroon ako ng pribilehiyong dumalo sa Global Energy Pioneer Summit (GEPS) 2026 ng Sungrow sa Hefei, China, ang lungsod na tahanan ng Sungrow. Ang makapasok sa headquarters ng isa sa pinakamalalaking pangalan sa inverters at energy storage, sa linggong ipinapakita nila sa mundo kung ano ang susunod, ay hindi ko basta-basta tinitingnan.
+Naroon ako sa imbitasyon ni Sir Wilson Valdez ng Photonergy Philippines Inc., at tunay akong nagpapasalamat sa kanya para roon.
+Sinabi na ng tema ng summit ang lahat: "Pioneer as One, Success for All." Mga manufacturer, distributor at installer na sabay-sabay na sumusulong, para makinabang din ang mga taong gumagamit ng teknolohiya.
+## Bakit mahalaga ang summit na ito
+Isa ang Sungrow sa mga nangungunang gumagawa ng PV inverters at energy storage systems sa mundo. Nakalista ito bilang Tier 1 PV inverter supplier ng S&P Global at itinanghal na pinaka-bankable na inverter brand sa survey ng BloombergNEF noong 2025. Mababasa mo pa ang tungkol sa kumpanya sa aming [Sungrow guide](https://www.jflsolar.ph/brands/sungrow).
+Sa GEPS ipinapakita ng Sungrow kung saan patungo ang industriya. Para sa isang installer, mahalaga iyan: ang inilulunsad sa entabladong iyon ngayon ang itatanong ng aming mga kliyente bukas.
+## Sa loob ng showroom at Global Digital Factory ng Sungrow
+Sa panahon ng summit, nilibot din namin ang headquarters. Sa commercial PV + energy storage area ng showroom, ipinapakita ng Sungrow ang mga kumpletong solusyon para sa mga pabrika, shopping center, car park at island microgrid, kasama ang PowerKeeper, ang modular DC-coupled storage system nito para sa mga C&I site, na may three-phase hybrid inverter at stackable battery modules.
+Ang pinaka-kahanga-hangang sandali para sa akin ay ang Global Digital Factory wall, isang live na pangkalahatang-tanaw ng manufacturing ng Sungrow sa buong mundo. Ang mga numerong ipinakita roon ay nagsasalita para sa sarili nila:
+- Production capacity: 450 GW ng power electronic equipment, 270 GW ng PV inverters at 100 GWh ng energy storage systems.
+- Mga pabrika: ang headquarters factory sa Hefei, at mga pabrika sa Poland, India at Thailand. Malapit ang Thailand sa atin, magandang balita iyan para sa supply sa Southeast Asia.
+- Kalidad: first-pass yield na 99.78%, ibig sabihin halos bawat unit ay pumapasa sa bawat production test sa unang pagkakataon, nang walang rework.
+- Automation at AI: 73% automation rate sa mga benchmark production line, at AI image inspection na may accuracy na higit sa 99.5%.
+- Sustainability: 79% ng kuryenteng ginagamit sa operasyon ay mula sa renewable sources, at layunin nilang maging carbon neutral ang operasyon pagsapit ng 2028.
+Bilang engineer, ito ang gusto kong makita. Ang automation at AI inspection ang paraan para magawa ng isang manufacturer na kasinghusay ng una ang ika-isang milyong inverter.
+## Ang malaking paglulunsad: PowerStack 3.0
+Ang pinakatampok ay ang paglulunsad ng PowerStack 3.0, ang next-generation energy storage system ng Sungrow para sa mga commercial at industrial (C&I) site. Tinatawag ito ng Sungrow na paglipat mula "All-in-One" patungong "Scene-in-One": sa halip na iisang kahon para sa bawat trabaho, binubuo ang system ayon sa trabahong kailangan nitong gawin.
+Isang "multi-scenario dock" na may apat na module (PCS, Solar, Charging at Microgrid) ang nagpapagana sa iisang platform bilang:
+- Standalone storage: puwedeng pagsamahin ang mga power module para sa 2-hour o 4-hour na system.
+- Solar plus storage: DC-coupled, nang walang dagdag na inverter.
+- Solar, storage at EV charging: tatlong magkakasamang DC-coupled sa iisang system.
+- Microgrid: nananatiling may kuryente ang mga critical load kapag may outage, na may 0 ms na switchover at walang hiwalay na static transfer switch (STS) cabinet.
+## Ang mga numerong pumukaw sa aking pansin
+- Compact: hanggang 256 kWh kada square meter, hanggang 20 unit na naka-parallel, at 43% na mas maliit na footprint para sa isang 5 MWh na planta kumpara sa nakaraang henerasyon.
+- Efficient: silicon carbide (SiC) power converter na may hanggang 99.2% na conversion efficiency, at higit sa 92% na round-trip efficiency gamit ang 684 Ah stacked cells.
+- Matibay: IP55 na proteksyon, C5-level na proteksyon laban sa kalawang, gumagana mula -30°C hanggang 50°C, at kayang tiisin ang hanggang 30% na grid harmonics.
+- Ligtas: three-level fuse protection at four-layer fire safety design.
+Ilan sa mga ito ay dapat ipaliwanag sa simpleng salita. Sinasabi ng round-trip efficiency kung gaano karaming enerhiya ang bumabalik mula sa battery: sa bawat 100 kWh na naiimbak, higit sa 92 kWh ang magagamit muli. Ang C5 corrosion protection ang pinakamataas na klase para sa malulupit na kapaligiran, na mahalaga para sa mga lugar na malapit sa dagat, at marami tayong ganoon sa Pilipinas. Mahalaga ang tolerance sa grid harmonics sa mga pabrika, kung saan ginagawang "maingay" ng mga motor, pump at drive ang grid at puwedeng mag-trip ang hindi gaanong matibay na kagamitan.
+## AI na katuwang ng installer
+May kasamang Bubbly ang PowerStack 3.0, ang sariling AI assistant ng Sungrow, na sumusuporta sa buong buhay ng isang proyekto:
+- Disenyo: gamit ang satellite imagery at 3D modelling, nakagagawa ito ng design proposal, kasama ang layout at financial calculation, sa loob ng mga 30 segundo.
+- Commissioning: awtomatikong configuration at data checks sa loob ng mga 3 minuto.
+- Operasyon: smart scheduling sa pagitan ng self-consumption, demand control, energy arbitrage at frequency regulation. Sabi ng Sungrow, puwede itong magbigay ng kita na higit sa 12% na mas mataas kaysa sa simpleng self-consumption.
+- Maintenance: 24/7 na monitoring na nagbabantay sa higit sa 30 posibleng panganib, at fault report para sa isang 10 MWh na planta sa loob ng mga isang minuto.
+Dahil maraming taon akong nagdisenyo at namahala ng mga C&I solar PV installation, masasabi ko sa iyo na sa disenyo at commissioning pinakamaraming nasasayang na oras ang mga proyekto. Hindi pinapalitan ng mga tool na ito ang isang mahusay na engineer, pero pinapagawa nila ang isang mahusay na engineer nang mas marami, mas mabilis at may mas kaunting pagkakamali.
+## Ang ibig sabihin nito para sa mga negosyong Pilipino
+Isa ang kuryente sa pinakamalalaking gastos ng maraming negosyo sa Pilipinas, at marami ang sinisingil hindi lang sa enerhiyang ginagamit nila kundi pati sa pinakamataas nilang power demand. Ang solar plus storage na dinisenyo ayon sa site, para putulin ang mga peak na iyon, iimbak ang solar sa tanghali para magamit mamaya at panatilihing tumatakbo ang mga critical load kapag brownout, ay eksaktong kung saan patungo ang C&I energy. Malinaw na ipinapakita ng PowerStack 3.0 ang direksyong iyon.
+## Mga pioneer mula sa buong mundo, at maraming kapwa Pilipino
+Pinagsama-sama ng GEPS ang mga partner mula sa maraming bansa, at ilan sa pinakamagagandang usapan ay nangyari sa pagitan ng mga session at sa hapunan. Pero ang lalong nagpaespesyal sa biyaheng ito ay ang dami ng Pilipinong nakilala ko roon.
+Nagkaroon ako ng kasiyahang makilala sina [Sir James Mark Battung](https://web.facebook.com/james.m.battung) at [Sir Rene Padua](https://web.facebook.com/rene.padua). Ibinahagi ni Sir Rene ang kanyang patotoo kung paano niya sinimulan ang kanyang negosyo sa solar, at talagang nakaka-inspire ito. Ipinapaalala ng mga kwentong tulad ng sa kanya na bawat solar company sa Pilipinas ay nagsimula sa iisang tao, iisang desisyon at maraming pagsisikap.
+Nakilala ko rin si [Kulas ng Becoming Filipino vlog](https://web.facebook.com/becomingfilipino), at marami pang ibang Pilipino, ang ilan sa kanila ay followers ng aking Facebook page at subscribers ng aking YouTube channel. Isang karangalan ang makilala kayo nang personal, sa malayo sa ating bayan. Maraming salamat sa suporta!
+## Nagpapasalamat sa pribilehiyo
+Salamat, Sungrow, sa pagkakataong ito, at salamat muli, Sir Wilson Valdez at Photonergy Philippines, sa imbitasyon. Uuwi ako dala ang aking natutunan, at ibabahagi ko ito sa aming mga kliyente at sa mga installer at estudyante sa aming Solar Training Center at sa aking mga seminar, para makinabang ang buong industriya rito.
+Kung nagpaplano ka ng solar PV system na may energy storage para sa iyong negosyo, [mag-message sa amin](https://www.jflsolar.ph/contact) at pag-usapan natin kung ano ang bagay sa iyong site.
+— JF, JFL Solar
+#JFLSolar #Sungrow #GEPS2026 #EnergyStorage #SolarPhilippines #RenewableEnergy

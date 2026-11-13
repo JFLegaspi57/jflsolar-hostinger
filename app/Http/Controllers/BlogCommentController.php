@@ -19,10 +19,11 @@ class BlogCommentController extends Controller
     public function react(Request $request, string $slug): RedirectResponse
     {
         $post = Blog::find($slug) ?? abort(404);
-        $back = '/blog/'.$post->slug.'#comments';
+        $page = '/blog/'.$post->slug.(Input::str($request, 'version') === 'tagalog' ? '/tagalog' : '');
+        $back = $page.'#comments';
         $member = Members::current();
         if (! $member) {
-            return redirect('/login?next='.rawurlencode('/blog/'.$post->slug));
+            return redirect('/login?next='.rawurlencode($page));
         }
         $reaction = Input::str($request, 'reaction');
         abort_unless(array_key_exists($reaction, BlogComments::REACTIONS), 400);
@@ -42,10 +43,11 @@ class BlogCommentController extends Controller
     public function comment(Request $request, string $slug): RedirectResponse
     {
         $post = Blog::find($slug) ?? abort(404);
-        $back = '/blog/'.$post->slug.'#comments';
+        $page = '/blog/'.$post->slug.(Input::str($request, 'version') === 'tagalog' ? '/tagalog' : '');
+        $back = $page.'#comments';
         $member = Members::current();
         if (! $member) {
-            return redirect('/login?next='.rawurlencode('/blog/'.$post->slug));
+            return redirect('/login?next='.rawurlencode($page));
         }
         if (Input::str($request, 'website') !== '') { // spam trap
             return redirect($back);
@@ -66,8 +68,10 @@ class BlogCommentController extends Controller
             'body' => $body, 'status' => $publish ? 'published' : 'review', 'check_note' => mb_substr($note, 0, 120),
         ]);
 
+        $tl = str_ends_with($page, '/tagalog');
+
         return redirect($back)->with('comment_status', $publish
-            ? 'Thank you! Your comment is posted.'
-            : 'Thank you! Your comment will appear once our team has reviewed it.');
+            ? ($tl ? 'Salamat! Nai-post na ang iyong komento.' : 'Thank you! Your comment is posted.')
+            : ($tl ? 'Salamat! Lalabas ang iyong komento kapag nasuri na ng aming team.' : 'Thank you! Your comment will appear once our team has reviewed it.'));
     }
 }

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Schema;
  */
 final class Blog
 {
-    private const TABLES_KEY = 'blog-tables-v5'; // v2: author column; v3: reactions and comments; v4: photo framing; v5: date range label
+    private const TABLES_KEY = 'blog-tables-v6'; // v2: author column; v3: reactions and comments; v4: photo framing; v5: date range label; v6: Filipino version
 
     public const AUTHOR = 'JF Legaspi';
 
@@ -24,7 +24,7 @@ final class Blog
     {
         return Schema::hasTable('blog_posts') && Schema::hasColumn('blog_posts', 'author') && Schema::hasColumn('media_assets', 'blog_post_id')
             && Schema::hasTable('blog_reactions') && Schema::hasTable('blog_comments') && Schema::hasColumn('media_assets', 'focus_y')
-            && Schema::hasColumn('blog_posts', 'date_label');
+            && Schema::hasColumn('blog_posts', 'date_label') && Schema::hasColumn('blog_posts', 'body_tl');
     }
 
     public static function ensureTables(): void
@@ -53,6 +53,14 @@ final class Blog
             if (! Schema::hasColumn('blog_posts', 'author')) {
                 Schema::table('blog_posts', function (Blueprint $t) {
                     $t->string('author', 80)->nullable(); // blank = JF Legaspi
+                });
+            }
+            if (! Schema::hasColumn('blog_posts', 'body_tl')) {
+                Schema::table('blog_posts', function (Blueprint $t) {
+                    // Filipino (Tagalog) version of the post, shown at /blog/{slug}/tagalog. Blank = from resources/blog-tl/{slug}.txt, if any.
+                    $t->string('title_tl', 160)->nullable();
+                    $t->string('excerpt_tl', 300)->nullable();
+                    $t->text('body_tl')->nullable();
                 });
             }
             if (! Schema::hasColumn('blog_posts', 'date_label')) {
@@ -166,5 +174,35 @@ final class Blog
         }
 
         return ($p->published_at ?? $p->created_at)->timezone('Asia/Manila')->format('j F Y');
+    }
+
+    private const MONTHS_TL = ['January' => 'Enero', 'February' => 'Pebrero', 'March' => 'Marso', 'April' => 'Abril', 'May' => 'Mayo', 'June' => 'Hunyo',
+        'July' => 'Hulyo', 'August' => 'Agosto', 'September' => 'Setyembre', 'October' => 'Oktubre', 'November' => 'Nobyembre', 'December' => 'Disyembre'];
+
+    /** The post's date in Filipino, e.g. "12 Nobyembre 2026" or "10–14 Nobyembre 2026". */
+    public static function dateTl(BlogPost $p): string
+    {
+        return strtr(self::date($p), self::MONTHS_TL);
+    }
+
+    /**
+     * Filipino version of a post: ['title', 'excerpt', 'body'], or null when there is none.
+     * What staff enter in Admin wins; otherwise resources/blog-tl/{slug}.txt (line 1 title, line 2 excerpt, then the post).
+     */
+    public static function tagalog(BlogPost $p): ?array
+    {
+        if (trim((string) $p->body_tl) !== '') {
+            return ['title' => trim((string) $p->title_tl) ?: $p->title, 'excerpt' => trim((string) $p->excerpt_tl), 'body' => (string) $p->body_tl];
+        }
+        $file = resource_path('blog-tl/'.$p->slug.'.txt');
+        if (! preg_match('/^[a-z0-9-]+$/D', (string) $p->slug) || ! is_file($file)) {
+            return null;
+        }
+        $lines = preg_split('/\R/', trim((string) file_get_contents($file)), 3);
+        if (count($lines) < 3) {
+            return null;
+        }
+
+        return ['title' => trim($lines[0]), 'excerpt' => trim($lines[1]), 'body' => trim($lines[2])];
     }
 }
