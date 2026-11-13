@@ -175,7 +175,20 @@ class PageController extends Controller
 
     public function blogPost(string $slug): View
     {
+        return $this->blogPostView($slug, false);
+    }
+
+    /** Filipino version of a post: same photos, reactions and comments as the English one. */
+    public function blogPostTagalog(string $slug): View
+    {
+        return $this->blogPostView($slug, true);
+    }
+
+    private function blogPostView(string $slug, bool $tagalog): View
+    {
         $post = \App\Support\Blog::find($slug) ?? abort(404);
+        $tl = \App\Support\Blog::tagalog($post);
+        abort_if($tagalog && ! $tl, 404);
 
         $member = \App\Support\Members::current();
         // Members (and signed-in staff) read the whole post; visitors see the opening and an invitation to sign up.
@@ -183,6 +196,7 @@ class PageController extends Controller
 
         return view('pages.blog-post', [
             'post' => $post, 'settings' => PublicContent::settings(), 'member' => $member, 'fullAccess' => $fullAccess,
+            'tagalog' => $tagalog, 'tl' => $tl,
             'reactions' => \App\Support\BlogComments::counts($post), 'myReaction' => \App\Support\BlogComments::memberReaction($post, $member),
             'comments' => \App\Support\BlogComments::visible($post, $member),
         ]);
@@ -258,6 +272,9 @@ class PageController extends Controller
         $urls->push(['loc' => Site::url('/blog'), 'lastmod' => null]);
         foreach (\App\Support\Blog::published()->where('is_sample', false) as $post) {
             $urls->push(['loc' => Site::url('/blog/'.$post->slug), 'lastmod' => $post->updated_at?->toAtomString()]);
+            if (\App\Support\Blog::tagalog($post)) {
+                $urls->push(['loc' => Site::url('/blog/'.$post->slug.'/tagalog'), 'lastmod' => $post->updated_at?->toAtomString()]);
+            }
         }
 
         $urls->push(['loc' => Site::url('/forum'), 'lastmod' => null]);

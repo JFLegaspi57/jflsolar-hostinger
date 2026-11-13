@@ -81,7 +81,7 @@ final class Values
 
     public static function post(?BlogPost $p): array
     {
-        return $p ? ['title' => $p->title, 'slug' => $p->slug, 'excerpt' => $p->excerpt, 'author' => self::s($p->author), 'body' => $p->body, 'published_on' => $p->published_at?->timezone('Asia/Manila')->toDateString() ?? '', 'date_label' => self::s($p->date_label)] : [];
+        return $p ? ['title' => $p->title, 'slug' => $p->slug, 'excerpt' => $p->excerpt, 'author' => self::s($p->author), 'body' => $p->body, 'published_on' => $p->published_at?->timezone('Asia/Manila')->toDateString() ?? '', 'date_label' => self::s($p->date_label), 'title_tl' => self::s($p->title_tl), 'excerpt_tl' => self::s($p->excerpt_tl), 'body_tl' => self::s($p->body_tl)] : [];
     }
 
     public static function category(?ProductCategory $c): array

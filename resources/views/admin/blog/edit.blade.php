@@ -22,6 +22,12 @@
             <x-admin.textarea :form="$form" name="body" label="Post" required maxlength="20000" rows="16" class="sm:col-span-2"
                 hint="Each line becomes its own paragraph. Start a line with “## ” for a section heading and “-” for a bullet point. A short label before a colon (“Tip: …”) is shown in bold. For a link, write [link text](https://…)." />
         </x-admin.fieldset>
+        <x-admin.fieldset legend="Filipino version (optional)">
+            <p class="text-sm text-steel-600 sm:col-span-2">Shown at /blog/{{ $post?->slug ?: 'your-slug' }}/tagalog, with a “Basahin sa Filipino” link on the English post. Reactions and comments are shared by both versions. Leave the Filipino post blank to use the ready-made translation, if there is one, or to have no Filipino version.</p>
+            <x-admin.text :form="$form" name="title_tl" label="Filipino title" maxlength="160" class="sm:col-span-2" />
+            <x-admin.textarea :form="$form" name="excerpt_tl" label="Filipino summary" maxlength="300" rows="2" class="sm:col-span-2" />
+            <x-admin.textarea :form="$form" name="body_tl" label="Filipino post" maxlength="20000" rows="16" class="sm:col-span-2" hint="Same writing rules as the English post." />
+        </x-admin.fieldset>
     </x-admin.form>
 
     @unless ($isNew)

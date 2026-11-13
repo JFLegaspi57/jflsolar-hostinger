@@ -2,7 +2,15 @@
     use App\Support\Blog;
     use App\Support\Site;
     use App\Support\Ui;
-    $description = $post->excerpt ?: \Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', $post->body), 155);
+    // English post, or its Filipino version at /blog/{slug}/tagalog (same photos, reactions and comments).
+    $tagalog = $tagalog ?? false;
+    $tl = $tl ?? null;
+    $title = $tagalog ? $tl['title'] : $post->title;
+    $text = $tagalog ? $tl['body'] : (string) $post->body;
+    $excerpt = $tagalog ? $tl['excerpt'] : $post->excerpt;
+    $enPath = '/blog/'.$post->slug;
+    $pagePath = $tagalog ? $enPath.'/tagalog' : $enPath;
+    $description = $excerpt ?: \Illuminate\Support\Str::limit(preg_replace('/\s+/', ' ', $text), 155);
     // The cover (thumbnail) is the banner at the top; all photos, cover first, are in the gallery and the pop-up viewer.
     $more = collect([$post->cover])->filter()->concat($post->photos->reject(fn ($m) => $post->cover && $m->id === $post->cover->id))->values();
     $viewer = $more->map(fn ($m) => ['src' => $m->url($m->bestWidth(1280)), 'alt' => $m->alt, 'caption' => (string) $m->caption])->all();
@@ -11,7 +19,7 @@
     $fullAccess = $fullAccess ?? true;
     $preview = null;
     if (! $fullAccess) {
-        $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', (string) $post->body)), fn ($l) => $l !== ''));
+        $lines = array_values(array_filter(array_map('trim', preg_split('/\R/', $text)), fn ($l) => $l !== ''));
         $kept = []; $paras = 0;
         foreach ($lines as $l) {
             $kept[] = $l;
@@ -23,17 +31,18 @@
         $more = collect();
         $viewer = [];
     }
-    $nextPath = rawurlencode('/blog/'.$post->slug);
+    $nextPath = rawurlencode($pagePath);
     $heroFocus = $post->cover ? Blog::focus($post->cover) : null;
     $jsonLd = [
-        '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $post->title, 'description' => $description,
+        '@context' => 'https://schema.org', '@type' => 'BlogPosting', 'headline' => $title, 'inLanguage' => $tagalog ? 'fil' : 'en', 'description' => $description,
         'datePublished' => $post->published_at?->toAtomString(), 'dateModified' => $post->updated_at?->toAtomString(),
         'author' => Blog::author($post) === Blog::AUTHOR ? ['@type' => 'Person', 'name' => Blog::AUTHOR] : ['@type' => 'Organization', 'name' => Site::NAME], 'publisher' => ['@type' => 'Organization', 'name' => Site::NAME],
-        'mainEntityOfPage' => Site::url('/blog/'.$post->slug),
+        'mainEntityOfPage' => Site::url($pagePath),
     ];
 @endphp
-<x-site-layout :title="$post->title" :path="'/blog/'.$post->slug" :description="$description" :noindex="$post->is_sample" :reviews-above-footer="false">
+<x-site-layout :title="$title" :path="$pagePath" :description="$description" :noindex="$post->is_sample" :reviews-above-footer="false" :lang="$tagalog ? 'fil' : 'en-PH'">
     <x-slot:head>
+        @if ($tl)@include('partials.guide-hreflang', ['en' => $enPath])@endif
         <style>
             /* Photos: no right-click "Save image", dragging or long-press saving (a deterrent; screenshots cannot be blocked). */
             .bp-photo { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -84,50 +93,73 @@
             .bp-gate li { margin-left: 1.25rem; list-style: disc; color: var(--color-steel-800); }
             .bp-gate li + li { margin-top: .25rem; }
             .bp-gate-actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
+            .bp-lang { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; font-weight: 700; color: var(--color-steel-900); text-decoration: underline; text-underline-offset: .2em; }
+            .bp-lang:hover { color: var(--color-gold-700, #8a5a00); }
             .bp-caption { margin-top: .5rem; max-width: 40rem; padding: 0 1rem; text-align: center; font-size: .95rem; color: rgb(255 255 255 / .85); }
         </style>
         <script type="application/ld+json">{!! json_encode(array_filter($jsonLd) + ['isAccessibleForFree' => false], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG) !!}</script>
     </x-slot:head>
     @if ($post->cover)
-        <x-page-hero eyebrow="Blog" :title="$post->title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
+        <x-page-hero eyebrow="Blog" :title="$title" :image="$post->cover->url($post->cover->bestWidth(1280))" :srcset="$post->cover->srcset()"
             :image-alt="$post->cover->alt" :focus="$heroFocus" :flip="true" protect tall title-class="text-3xl leading-[1.08] font-extrabold sm:text-4xl" />
     @else
-        <x-page-header eyebrow="Blog" :title="$post->title" />
+        <x-page-header eyebrow="Blog" :title="$title" />
     @endif
     <x-container class="py-10 sm:py-14">
         <div class="bp-layout">
         <article class="min-w-0 max-w-3xl">
             {{-- No author byline on posts (owner's choice); only the date is shown. --}}
-            <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ Blog::date($post) }}</time></p>
+            <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
+                <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ $tagalog ? Blog::dateTl($post) : Blog::date($post) }}</time></p>
+                @if ($tagalog)
+                    <a href="{{ $enPath }}" class="bp-lang" hreflang="en" lang="en"><span aria-hidden="true">🌐</span> Read in English</a>
+                @elseif ($tl)
+                    <a href="{{ $enPath }}/tagalog" class="bp-lang" hreflang="fil" lang="fil"><span aria-hidden="true">🌐</span> Basahin sa Filipino</a>
+                @endif
+            </div>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
             @if ($fullAccess)
-                <x-paragraphs :text="$post->body" class="mt-8 text-lg leading-relaxed text-steel-800" />
+                <x-paragraphs :text="$text" class="mt-8 text-lg leading-relaxed text-steel-800" />
             @else
                 <div class="bp-preview"><x-paragraphs :text="$preview" class="mt-8 text-lg leading-relaxed text-steel-800" /></div>
                 <section class="bp-gate" aria-labelledby="bp-gate-title">
-                    <h2 id="bp-gate-title">Read the full post: free for members</h2>
-                    <p class="mt-2 text-steel-800">Create a free JFL Solar account to read every blog post in full, with all the photos.</p>
-                    <ul>
-                        <li>Full articles and photo galleries</li>
-                        <li>React to and comment on posts</li>
-                        <li>Join the discussions in our forum</li>
-                    </ul>
-                    <div class="bp-gate-actions">
-                        <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
-                        <span class="text-steel-700">Already a member? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Sign in</a></span>
-                    </div>
+                    @if ($tagalog)
+                        <h2 id="bp-gate-title">Basahin ang buong post: libre para sa mga miyembro</h2>
+                        <p class="mt-2 text-steel-800">Gumawa ng libreng JFL Solar account para mabasa nang buo ang bawat blog post, kasama ang lahat ng larawan.</p>
+                        <ul>
+                            <li>Buong artikulo at mga photo gallery</li>
+                            <li>Mag-react at mag-comment sa mga post</li>
+                            <li>Sumali sa mga talakayan sa aming forum</li>
+                        </ul>
+                        <div class="bp-gate-actions">
+                            <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Mag-sign up nang libre</a>
+                            <span class="text-steel-700">Miyembro ka na? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Mag-sign in</a></span>
+                        </div>
+                    @else
+                        <h2 id="bp-gate-title">Read the full post: free for members</h2>
+                        <p class="mt-2 text-steel-800">Create a free JFL Solar account to read every blog post in full, with all the photos.</p>
+                        <ul>
+                            <li>Full articles and photo galleries</li>
+                            <li>React to and comment on posts</li>
+                            <li>Join the discussions in our forum</li>
+                        </ul>
+                        <div class="bp-gate-actions">
+                            <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
+                            <span class="text-steel-700">Already a member? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Sign in</a></span>
+                        </div>
+                    @endif
                 </section>
             @endif
             @if ($more->isNotEmpty())
                 {{-- All photos (the banner photo first) as a gallery; each opens in the pop-up viewer. --}}
-                <ul class="bp-gallery mt-10" aria-label="Photos">
+                <ul class="bp-gallery mt-10" aria-label="{{ $tagalog ? 'Mga larawan' : 'Photos' }}">
                     @foreach ($more as $i => $img)
                         <li>
                             <figure>
                                 <button type="button" data-photo="{{ $i + $offset }}" class="bp-open bp-photo relative block w-full overflow-hidden rounded-[var(--radius-panel)] bg-steel-100">
                                     <x-media-image :asset="$img" sizes="(min-width: 640px) 250px, 50vw" draggable="false" style="display: block; width: 100%; height: auto" />
                                     <span class="bp-shield" aria-hidden="true"></span>
-                                    <span class="sr-only">Enlarge photo: {{ $img->alt }}</span>
+                                    <span class="sr-only">{{ $tagalog ? 'Palakihin ang larawan' : 'Enlarge photo' }}: {{ $img->alt }}</span>
                                 </button>
                                 @if ($img->caption)<figcaption class="mt-2 text-sm text-steel-600">{{ $img->caption }}</figcaption>@endif
                             </figure>
@@ -136,7 +168,7 @@
                 </ul>
             @endif
             <div class="mt-12 flex flex-col gap-2 border-t border-steel-200 sm:flex-row" style="padding-top: 1.5rem">
-                <a href="/blog" class="{{ Ui::button('secondary', 'lg') }}"><span aria-hidden="true">←</span> All posts</a>
+                <a href="/blog" class="{{ Ui::button('secondary', 'lg') }}"><span aria-hidden="true">←</span> {{ $tagalog ? 'Lahat ng post' : 'All posts' }}</a>
             </div>
         </article>
         <aside id="comments" class="bp-aside" style="scroll-margin-top: 6rem">

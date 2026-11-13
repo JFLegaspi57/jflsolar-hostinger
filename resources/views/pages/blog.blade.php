@@ -32,7 +32,10 @@
                                 </h2>
                                 @if ($post->excerpt)<p class="mt-1.5 text-[0.95rem] text-steel-600">{{ $post->excerpt }}</p>@endif
                                 @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
-                                <p class="mt-auto pt-4 text-sm font-semibold text-steel-900">Read more <span aria-hidden="true">→</span></p>
+                                <p class="mt-auto flex flex-wrap items-center justify-between gap-x-4 gap-y-1 pt-4 text-sm font-semibold text-steel-900">
+                                    <span>Read more <span aria-hidden="true">→</span></span>
+                                    @if (Blog::tagalog($post))<a href="/blog/{{ $post->slug }}/tagalog" lang="fil" hreflang="fil" class="relative underline underline-offset-2 hover:text-steel-700" style="z-index: 1">Basahin sa Filipino</a>@endif
+                                </p>
                             </div>
                         </article>
                     </li>

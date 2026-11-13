@@ -1,0 +1,27 @@
+Ang Pagbisita ni JF sa Dyness: Sa Loob ng Isang Smart Battery Factory
+Nilibot ko ang headquarters, showroom at mga battery production line ng Dyness. Narito kung paano binubuo ang isang battery gamit ang AI at modernong makinarya, at kung bakit mahalaga ito sa iyo.
+Noong Nobyembre 9, 2026, nilibot ko ang headquarters ng Dyness, ang showroom nito at ang mga battery production line nito. Isa ang Dyness sa mga battery brand na sinu-supply at ini-install namin sa JFL Solar, kaya gusto kong makita ng sarili kong mga mata kung paano ginagawa ang mga battery na nasa mga tahanan at negosyo ng aming mga kliyente.
+## Ang mga tao sa likod ng mga battery
+Nagkaroon ako ng karangalang makilala ang head ng R&D (research and development) team at ang head ng sales. Ang isa ang nagdidisenyo ng mga produkto; ang isa naman ang nagdadala ng mga ito sa mga merkado tulad ng sa atin. Dahil nakausap ko silang dalawa, mas malinaw na sa akin kung saan patungo ang Dyness, at may direktang linya na ako sa tamang tao kapag kailangan ng aming mga kliyente ng teknikal na sagot o suporta.
+## Ang showroom
+Saklaw ng showroom ang energy storage mula sa mga tahanan hanggang sa mga commercial at industrial (C&I) na lugar. Ilang bagay ang tumatak sa akin bilang installer:
+- Low-voltage design: ang mga home battery ay dinisenyong manatili sa ilalim ng 60 V. Mas ligtas hawakan ang mas mababang voltage habang nag-i-install at nagse-service.
+- Mahabang cycle life: ang ilang modelong naka-display ay rated para sa 8,000+ cycles. Ang isang cycle ay halos isang buong charge at discharge, kaya ang battery na naka-cycle isang beses kada araw ay puwedeng gumana nang maraming taon.
+- Ginawa para sa totoong kondisyon: IP65 na proteksyon laban sa alikabok at tubig, at tahimik at manipis na disenyong bagay sa bahay.
+- Smart energy management: mga operating mode na may tulong ng AI na natututo kung paano gumagamit ng kuryente ang isang tahanan at nagpapasya kung kailan magcha-charge at magdi-discharge, para mas mapakinabangan ang bawat kWh ng solar.
+## Paano binubuo ang isang battery: AI at modernong makinarya
+Ang production line ang pinakatampok. Mukhang simple sa labas ang isang home battery, pero sa loob ay dose-dosenang lithium iron phosphate (LiFePO4) cells, mga koneksyon, sensor at isang battery management system (BMS) na kailangang magtulungan sa loob ng maraming taon. Ganito ang pagbuo sa mga ito, hakbang-hakbang:
+- Incoming cell inspection: sinusukat ang bawat cell para sa voltage, internal resistance at capacity bago ito gamitin, at ipinapangkat ayon sa resulta.
+- Cell matching: pinagsasama-sama ang mga cell na halos magkakapareho ang katangian. Pantay na nagcha-charge at tumatanda ang magkakatugmang cell, kaya mas mahaba ang buhay at mas magaan ang trabaho ng BMS sa pag-balance sa mga ito.
+- Automated assembly: pinapatong-patong ng mga robot ang mga cell, insulation at structural parts nang may katumpakang hindi kaya ng kamay sa libu-libong unit.
+- Laser welding: laser welded ang mga busbar na nagkokonekta sa mga cell. Ang magandang weld ay mababa ang resistance at mas kaunti ang init; ang masama ay puwedeng maging hot spot pagkalipas ng ilang taon.
+- AI vision inspection: mga camera na suportado ng AI software ang sumusuri sa mga weld at detalye ng assembly nang real time, at nagtuturo ng mga depektong madaling makaligtaan ng mata ng tao.
+- BMS at end-of-line testing: bawat tapos na battery ay chinacharge at dinidischarge, tine-test ang mga protection function at insulation nito, at sinusuri ang communication nito sa inverter.
+- Traceability: naitatala ang test data sa serial number ng bawat battery, kaya masusundan ang kasaysayan nito kung sakaling magkaroon ng tanong.
+## Bakit ito mahalaga sa iyo
+Kasinghusay lang ng pinakamahinang cell at pinakamahinang koneksyon nito ang isang battery. Ang automation at AI inspection ang paraan para magawa ng isang manufacturer na kasinghusay ng una ang ika-isang libong battery. Para sa aming mga kliyente, nangangahulugan iyon ng mas ligtas na storage, mas mahabang service life at mas malaking tiwala na maibibigay ng battery ang ipinangako ng datasheet nito.
+Mahalaga rin ito sa aming trabaho. Bahagi ng bawat installation at after-sales service na ginagawa namin ang tamang battery settings at ang communication sa pagitan ng battery at inverter, at ang pagkakilala sa produkto mula sa loob ay lalong nagpapahusay sa suportang iyon.
+## Isang certificate of appreciation
+Sa pagtatapos ng pagbisita, iginawad ng Dyness sa JFL Solar & Renewables Corp ang isang Certificate of Appreciation para sa aming factory visit at malalim na palitan ng kaalaman. Sa kanilang mga salita: "Join together to Power a Sustainable Energy Future." Salamat, Dyness, sa mainit na pagtanggap. Inaasahan ko ang isang mahabang partnership para sa aming mga kliyente sa Pilipinas.
+Alamin pa ang tungkol sa brand sa aming [Dyness guide](https://www.jflsolar.ph/brands/dyness).
+— JF, JFL Solar

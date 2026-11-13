@@ -67,6 +67,10 @@ class BlogController extends Controller
             'body' => $p->text('body', 'Post', 20000, required: true, min: 20) ?? '',
             // Optional wording for the date, e.g. "10–14 November 2026" for an event over several days.
             'date_label' => $p->text('date_label', 'Show the date as', 60) ?: null,
+            // Filipino version (optional), shown at /blog/{slug}/tagalog with the same reactions and comments.
+            'title_tl' => $p->text('title_tl', 'Filipino title', 160) ?: null,
+            'excerpt_tl' => $p->text('excerpt_tl', 'Filipino summary', 300) ?: null,
+            'body_tl' => $p->text('body_tl', 'Filipino post', 20000) ?: null,
         ];
         // Optional date shown on the post (e.g. to backdate an older story); blank keeps the first-publish date.
         $date = $p->date('published_on', 'Date shown on the post');
