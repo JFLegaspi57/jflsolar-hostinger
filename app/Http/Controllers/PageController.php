@@ -149,6 +149,12 @@ class PageController extends Controller
         return view('pages.faq', ['settings' => $settings, 'items' => \App\Support\Faq::items($settings)]);
     }
 
+    /** Estimated delivery fees from the warehouse to towns within about 100 km. */
+    public function deliveryRates(): View
+    {
+        return view('pages.delivery-rates', ['settings' => PublicContent::settings(), 'areas' => \App\Support\DeliveryRates::areas(), 'range' => \App\Support\DeliveryRates::range()]);
+    }
+
     public function netMetering(): View
     {
         return view('pages.net-metering', ['settings' => PublicContent::settings()]);
@@ -262,7 +268,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/delivery-rates', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);

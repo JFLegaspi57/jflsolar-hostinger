@@ -29,6 +29,7 @@ final class Site
     /** Pages listed in the footer only (not in the main menu). The forum stays open at /forum. */
     public const HELP_LINKS = [
         ['href' => '/faq', 'label' => 'FAQ'],
+        ['href' => '/delivery-rates', 'label' => 'Delivery rates'],
         ['href' => '/forum', 'label' => 'Forum'],
         ['href' => '/net-metering', 'label' => 'Net metering guide'],
         ['href' => '/hybrid-pv-system-guide', 'label' => 'How hybrid PV systems work'],
