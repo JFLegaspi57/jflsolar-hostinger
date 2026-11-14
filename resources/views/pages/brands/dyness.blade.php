@@ -50,8 +50,9 @@
     <section aria-labelledby="philippines">
         <h2 id="philippines">Dyness in the Philippines</h2>
         <ul class="dots">
+            <li>Dyness batteries are distributed in the Philippines by <strong>Photonergy Philippines Inc.</strong>, its main distributor here.</li>
             <li>Dyness has a local team in the Philippines for pre-sales, order tracking and after-sales support.</li>
-            <li>In May 2024 it held its “Light of Tomorrow” event at Conrad Manila together with Solis and JA Solar, and in May 2025 a Brand Day there with IAN Solar, Solis and JA Solar, where the PowerBrick was shown.</li>
+            <li>In May 2024 it held its “Light of Tomorrow” event at Conrad Manila together with Solis and JA Solar, and in May 2025 a Brand Day there with Solis and JA Solar, where the PowerBrick was shown.</li>
             <li>In August 2025 Solis toured the provinces (Calapan, Tuguegarao, Kalibo, Naga, Dumaguete and Ozamiz) demonstrating its hybrid inverter with Dyness batteries.</li>
         </ul>
     </section>
