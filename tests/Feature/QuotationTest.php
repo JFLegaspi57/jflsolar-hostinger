@@ -23,11 +23,11 @@ class QuotationTest extends TestCase
         PublicContent::flush();
     }
 
-    private function product(string $slug, string $name, ?float $price, string $mode = 'fixed', string $basis = 'Pickup price per piece'): Product
+    private function product(string $slug, string $name, ?float $price, string $mode = 'fixed', string $basis = 'Pickup price per piece', string $availability = 'available'): Product
     {
         $category = ProductCategory::query()->firstOrCreate(['slug' => 'inverters-q'], ['name' => 'Inverters', 'status' => 'published', 'sort_order' => 50]);
         $p = Product::query()->create(['slug' => $slug, 'name' => $name, 'brand' => 'B', 'model' => 'M', 'category_id' => $category->id, 'summary' => '', 'description' => 'x', 'specs' => [],
-            'pricing_mode' => $mode, 'price_php' => $price, 'price_basis' => $basis, 'price_is_sample' => false, 'availability' => 'available', 'status' => 'published', 'is_sample' => false]);
+            'pricing_mode' => $mode, 'price_php' => $price, 'price_basis' => $basis, 'price_is_sample' => false, 'availability' => $availability, 'status' => 'published', 'is_sample' => false]);
         PublicContent::flush();
 
         return $p;
@@ -174,5 +174,32 @@ class QuotationTest extends TestCase
         $p = $this->product('panel-650', 'Panel 650 W', 7500);
         $this->post('/quotation', ['product_id' => $p->id]);
         $this->assertSame($p->id, MemberQuote::query()->latest('id')->first()->items[0]['product_id']);
+    }
+
+    public function test_only_products_available_to_order_can_be_picked(): void
+    {
+        $ok = $this->product('in-stock', 'Inverter in stock', 50000);
+        $out = $this->product('sold-out', 'Inverter sold out', 48000, 'fixed', 'Pickup price per piece', 'unavailable');
+        $ask = $this->product('ask-first', 'Battery ask first', 90000, 'fixed', 'Pickup price per piece', 'on_request');
+        $this->actingAs($this->member(), 'member');
+        $this->post('/quotation');
+        $q = MemberQuote::query()->firstOrFail();
+
+        $this->get('/quotation/'.$q->id)->assertSee('Inverter in stock')->assertDontSee('Inverter sold out')->assertDontSee('Battery ask first');
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_product', 'add_product_id' => $out->id]))
+            ->assertSessionHas('quote_error', 'That product is currently not available to order. Please choose another, or add it as your own item.');
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_product', 'add_product_id' => $ask->id]))->assertSessionHas('quote_error');
+        $this->post('/quotation', ['product_id' => $out->id]);
+        $this->assertSame([], MemberQuote::query()->latest('id')->first()->items);
+
+        // A product that stops being available stays on the quotation, flagged and not counted.
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_product', 'add_product_id' => $ok->id, 'add_qty' => 2]));
+        $ok->forceFill(['availability' => 'unavailable'])->save();
+        PublicContent::flush();
+        $sum = Quotations::lines($q->refresh());
+        $this->assertTrue($sum['lines'][0]['unavailable']);
+        $this->assertSame(0.0, $sum['total']);
+        $this->get('/quotation/'.$q->id)->assertSee('Currently not available');
+        $this->assertStringContainsString('Inverter in stock (currently not available)', Quotations::message($q));
     }
 }
