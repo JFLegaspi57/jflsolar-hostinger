@@ -42,7 +42,7 @@
                 <ul class="mq-list mt-6">
                     @foreach ($quotes as $q)
                         @php $sum = Quotations::lines($q); $n = count($sum['lines']); @endphp
-                        <li class="{{ $card }} mq-item">
+                        <li id="q-{{ $q->id }}" class="{{ $card }} mq-item">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold text-steel-600">{{ $q->reference() }} · {{ $n }} {{ $n === 1 ? 'line' : 'lines' }}</p>
                                 <h3 class="mt-1 text-lg font-bold text-steel-950"><a href="/quotation/{{ $q->id }}" class="underline-offset-2 hover:underline">{{ $q->title }}</a></h3>
@@ -55,6 +55,17 @@
                                     @endif
                                     Last changed {{ $q->updated_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}
                                 </p>
+                                <details class="mq-rename mt-3">
+                                    <summary class="mq-rename-btn"><span aria-hidden="true">✎</span> Rename</summary>
+                                    <form method="post" action="/quotation/{{ $q->id }}/rename" class="mq-rename-box">@csrf
+                                        <label for="rename-{{ $q->id }}" class="block text-sm font-semibold text-steel-900">Quotation name</label>
+                                        <div class="mq-rename-row">
+                                            <input id="rename-{{ $q->id }}" name="title" value="{{ $q->title }}" maxlength="{{ Quotations::LIMITS['title'] }}" required
+                                                class="min-h-11 w-full rounded-[var(--radius-control)] border border-steel-500 bg-white px-3 text-base text-steel-950 focus:border-steel-900">
+                                            <button type="submit" class="{{ Ui::button('dark') }}">Save name</button>
+                                        </div>
+                                    </form>
+                                </details>
                             </div>
                             <div class="mq-item-side">
                                 <p class="text-sm text-steel-600">Estimated</p>
@@ -80,6 +91,13 @@
             .mq-item { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; }
             .mq-item-side { text-align: right; }
             @media (max-width: 39.99rem) { .mq-item-side { text-align: left; } }
+            .mq-rename summary { list-style: none; }
+            .mq-rename summary::-webkit-details-marker { display: none; }
+            .mq-rename-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .9rem; font-size: .9rem; font-weight: 700; color: var(--color-steel-900); }
+            .mq-rename-btn:hover, .mq-rename[open] .mq-rename-btn { border-color: var(--color-steel-900); }
+            .mq-rename-box { margin-top: .5rem; width: min(30rem, calc(100vw - 5rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: var(--color-steel-50); padding: .9rem; }
+            .mq-rename-row { margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+            .mq-rename-row input { flex: 1 1 12rem; }
             .mq-badge { display: inline-block; margin-right: .4rem; border: 1px solid var(--color-steel-300); border-radius: 999px; padding: 0 .55rem; font-size: .75rem; font-weight: 700; color: var(--color-steel-800); background: var(--color-steel-50); }
             .mq-sent { border-color: #b7e2c6; background: var(--color-ok-50); color: var(--color-ok-700); }
             .mq-changed { border-color: #f0d39a; background: var(--color-warn-50); color: var(--color-warn-800); }

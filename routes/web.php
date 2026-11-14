@@ -84,6 +84,7 @@ Route::post('/quotation', [Account\QuotationController::class, 'store'])->middle
 Route::get('/quotation/{id}', [Account\QuotationController::class, 'edit'])->whereNumber('id');
 Route::post('/quotation/{id}', [Account\QuotationController::class, 'update'])->whereNumber('id')->middleware('throttle:quotation');
 Route::get('/quotation/{id}/print', [Account\QuotationController::class, 'print'])->whereNumber('id');
+Route::post('/quotation/{id}/rename', [Account\QuotationController::class, 'rename'])->whereNumber('id')->middleware('throttle:quotation');
 Route::post('/quotation/{id}/duplicate', [Account\QuotationController::class, 'duplicate'])->whereNumber('id')->middleware('throttle:account');
 Route::post('/quotation/{id}/delete', [Account\QuotationController::class, 'destroy'])->whereNumber('id');
 

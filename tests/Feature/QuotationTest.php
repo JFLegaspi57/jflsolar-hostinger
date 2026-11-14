@@ -231,4 +231,30 @@ class QuotationTest extends TestCase
         $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'remove:'.$labourIndex]))->assertSessionHas('quote_status', 'Removed “Labour”.');
         $this->assertSame(['Battery X', 'Panel X', 'Panel Y'], array_column(Quotations::lines($q->refresh())['lines'], 'name'));
     }
+
+    public function test_a_quotation_can_be_renamed_from_the_top_of_the_page(): void
+    {
+        $this->actingAs($this->member(), 'member');
+        $this->post('/quotation');
+        $q = MemberQuote::query()->firstOrFail();
+        $this->get('/quotation/'.$q->id)->assertSee('Rename')->assertSee('form="mq-form" value="My quotation 1"', false)->assertSee('value="rename"', false);
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'rename', 'title' => '  Warehouse roof 30 kW ']))
+            ->assertRedirect('/quotation/'.$q->id)->assertSessionHas('quote_status', 'Renamed to “Warehouse roof 30 kW”.');
+        $this->assertSame('Warehouse roof 30 kW', $q->refresh()->title);
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'rename', 'title' => '']))->assertSessionHas('quote_error', 'Type a name for your quotation.');
+        $this->assertSame('Warehouse roof 30 kW', $q->refresh()->title);
+        $this->get('/quotation')->assertSee('Warehouse roof 30 kW');
+
+        // From the list of quotations.
+        $this->get('/quotation')->assertSee('action="/quotation/'.$q->id.'/rename"', false);
+        $this->post('/quotation/'.$q->id.'/rename', ['title' => 'Warehouse roof 40 kW'])->assertRedirect('/quotation#q-'.$q->id)
+            ->assertSessionHas('quote_status', 'Renamed “Warehouse roof 30 kW” to “Warehouse roof 40 kW”.');
+        $this->assertSame('Warehouse roof 40 kW', $q->refresh()->title);
+        $this->post('/quotation/'.$q->id.'/rename', ['title' => ' '])->assertSessionHas('quote_error');
+        auth('member')->logout();
+        $this->flushSession();
+        $this->actingAs($this->member('other@example.com'), 'member');
+        $this->post('/quotation/'.$q->id.'/rename', ['title' => 'Hijack'])->assertNotFound();
+        $this->assertSame('Warehouse roof 40 kW', $q->refresh()->title);
+    }
 }
