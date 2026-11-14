@@ -62,6 +62,8 @@ class QuotationTest extends TestCase
         // The gold header button and the phone menu button lead here.
         $this->get('/')->assertSee('class="hdr-quote', false)->assertDontSee('Get a quote')
             ->assertSeeInOrder(['href="/quotation"', 'Make a Quotation'], false);
+        // On the Products page the gold header button is "Get a Quote" (the page has its own Make a Quotation button).
+        $this->get('/products')->assertSee('<a href="'.\App\Support\Site::QUOTE_HREF.'"  class="hdr-quote', false)->assertSee('Get a Quote');
     }
 
     public function test_a_member_builds_customises_and_sends_a_quotation(): void
