@@ -182,6 +182,7 @@
         </div>
     </x-container>
 
+    @include('pages.quotation.confirm-delete')
     <x-slot:head>
         <style>
             .mq-titlebar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
