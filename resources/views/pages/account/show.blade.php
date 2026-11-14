@@ -49,6 +49,17 @@
                 </section>
             @endif
 
+            <section id="quotations" aria-labelledby="quotations-h" class="{{ $card }}">
+                <h2 id="quotations-h" class="text-xl font-bold text-steel-950">{{ \App\Support\Quotations::NAME }}</h2>
+                <p class="mt-2 text-steel-700">
+                    @if (($quoteCount ?? 0) > 0)
+                        You have {{ $quoteCount }} {{ $quoteCount === 1 ? 'quotation' : 'quotations' }}.
+                    @else
+                        List the products you need, add your own items, and send it to us for a formal quotation.
+                    @endif
+                </p>
+                <p class="mt-4"><a href="/quotation" class="{{ Ui::button('secondary') }}">{{ ($quoteCount ?? 0) > 0 ? 'Open your quotations' : 'Make a quotation' }}</a></p>
+            </section>
             <section aria-labelledby="orders-h" class="{{ $card }}">
                 <h2 id="orders-h" class="text-xl font-bold text-steel-950">Your orders</h2>
                 @if ($orders->isEmpty())

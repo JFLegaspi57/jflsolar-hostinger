@@ -78,6 +78,15 @@ Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->m
 Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}\.webp');
 
+// Make a Quotation: members build quote requests from the catalogue and their own items.
+Route::get('/quotation', [Account\QuotationController::class, 'index']);
+Route::post('/quotation', [Account\QuotationController::class, 'store'])->middleware('throttle:account');
+Route::get('/quotation/{id}', [Account\QuotationController::class, 'edit'])->whereNumber('id');
+Route::post('/quotation/{id}', [Account\QuotationController::class, 'update'])->whereNumber('id')->middleware('throttle:quotation');
+Route::get('/quotation/{id}/print', [Account\QuotationController::class, 'print'])->whereNumber('id');
+Route::post('/quotation/{id}/duplicate', [Account\QuotationController::class, 'duplicate'])->whereNumber('id')->middleware('throttle:account');
+Route::post('/quotation/{id}/delete', [Account\QuotationController::class, 'destroy'])->whereNumber('id');
+
 // Forum: everyone can read; registered users post (first post reviewed by staff)
 Route::get('/forum', [\App\Http\Controllers\ForumController::class, 'index']);
 Route::get('/forum/new', [\App\Http\Controllers\ForumController::class, 'create']);
