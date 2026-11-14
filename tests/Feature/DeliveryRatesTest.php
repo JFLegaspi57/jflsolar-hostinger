@@ -26,7 +26,9 @@ class DeliveryRatesTest extends TestCase
                 $this->assertLessThanOrEqual(DeliveryRates::MAX_KM, $t['km']);
             }
         }
-        $this->assertSame(['Cavite', 'Laguna', 'Batangas', 'Metro Manila'], array_keys(DeliveryRates::areas()));
+        $this->assertSame(250, DeliveryRates::MAX_KM);
+        $this->assertContains('Pangasinan', array_keys(DeliveryRates::areas()));
+        $this->assertContains('Quezon', array_keys(DeliveryRates::areas()));
     }
 
     public function test_page_lists_towns_and_fees(): void
@@ -36,6 +38,8 @@ class DeliveryRatesTest extends TestCase
             ->assertSee('Batangas City')
             ->assertSee('Lipa City')
             ->assertSee('Calamba')
+            ->assertSee('Dagupan')
+            ->assertSee('Cabanatuan')
             ->assertSee('₱2,050')
             ->assertSee('₱3,250')
             ->assertSee('id="dr-town"', false);
