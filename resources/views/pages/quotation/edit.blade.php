@@ -16,7 +16,8 @@
                 <div class="mq-titlebar">
                     <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $q->title }}</h1>
                     {{-- Rename: the field belongs to the main form below (form="mq-form"). --}}
-                    <details class="mq-rename" @if (session('quote_focus') === 'title') open @endif>
+                    <div class="mq-tools">
+                    <details class="mq-rename" name="mq-tools" @if (session('quote_focus') === 'title') open @endif>
                         <summary class="mq-rename-btn"><span aria-hidden="true">✎</span> Rename</summary>
                         <div class="mq-rename-box">
                             <label for="q-title" class="block text-sm font-semibold text-steel-900">Quotation name</label>
@@ -26,6 +27,14 @@
                             </div>
                         </div>
                     </details>
+                    <details class="mq-rename mq-del" name="mq-tools">
+                        <summary class="mq-rename-btn mq-del-btn"><span aria-hidden="true">🗑</span> Delete</summary>
+                        <form method="post" action="/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
+                            <p class="text-sm text-steel-900">Delete “{{ $q->title }}”? This cannot be undone.@if ($q->sent_at) A request you already sent stays with our team.@endif</p>
+                            <button type="submit" class="{{ Ui::button('danger', 'sm') }} mt-2">Yes, delete it</button>
+                        </form>
+                    </details>
+                    </div>
                 </div>
                 <p class="mt-2 text-sm text-steel-700">
                     @if ($q->sent_at)
@@ -170,13 +179,6 @@
 
         <div class="mq-more mt-8">
             <form method="post" action="/quotation/{{ $q->id }}/duplicate">@csrf<button type="submit" class="{{ Ui::button('secondary', 'sm') }}">Make a copy</button></form>
-            <details class="mq-delete">
-                <summary class="{{ Ui::button('ghost', 'sm') }}">Delete this quotation…</summary>
-                <form method="post" action="/quotation/{{ $q->id }}/delete" class="mt-2">@csrf
-                    <p class="text-sm text-steel-800">Delete “{{ $q->title }}”? This cannot be undone.</p>
-                    <button type="submit" class="{{ Ui::button('danger', 'sm') }} mt-2">Yes, delete it</button>
-                </form>
-            </details>
         </div>
     </x-container>
 
@@ -184,12 +186,16 @@
         <style>
             .mq-titlebar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
             .mq-rename { position: relative; }
-            .mq-rename[open] { flex-basis: 100%; }
+            .mq-tools { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+            .mq-tools .mq-rename { position: static; }
+            .mq-tools .mq-rename-box { position: absolute; left: 0; top: 100%; z-index: 30; margin-top: .5rem; box-shadow: 0 12px 28px -10px rgb(15 20 28 / .35); }
+            .mq-del-btn:hover, .mq-del[open] .mq-del-btn { border-color: var(--color-danger-700) !important; color: var(--color-danger-700); }
+            .mq-del-box { border-color: #f3c3be !important; background: #fff7f6 !important; }
             .mq-rename summary { list-style: none; }
             .mq-rename summary::-webkit-details-marker { display: none; }
             .mq-rename-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .9rem; font-size: .9rem; font-weight: 700; color: var(--color-steel-900); }
             .mq-rename-btn:hover, .mq-rename[open] .mq-rename-btn { border-color: var(--color-steel-900); }
-            .mq-rename-box { margin-top: .5rem; width: min(34rem, calc(100vw - 2rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: var(--color-steel-50); padding: .9rem; }
+            .mq-rename-box { margin-top: .5rem; width: min(34rem, calc(100vw - 2rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: #fff; padding: .9rem; }
             .mq-rename-row { margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .5rem; }
             .mq-rename-row input { flex: 1 1 14rem; }
             .mq-default { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }

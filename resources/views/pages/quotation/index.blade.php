@@ -55,7 +55,8 @@
                                     @endif
                                     Last changed {{ $q->updated_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}
                                 </p>
-                                <details class="mq-rename mt-3">
+                                <div class="mq-tools mt-3">
+                                <details class="mq-rename" name="mq-tools-{{ $q->id }}">
                                     <summary class="mq-rename-btn"><span aria-hidden="true">✎</span> Rename</summary>
                                     <form method="post" action="/quotation/{{ $q->id }}/rename" class="mq-rename-box">@csrf
                                         <label for="rename-{{ $q->id }}" class="block text-sm font-semibold text-steel-900">Quotation name</label>
@@ -66,6 +67,14 @@
                                         </div>
                                     </form>
                                 </details>
+                                <details class="mq-rename mq-del" name="mq-tools-{{ $q->id }}">
+                                    <summary class="mq-rename-btn mq-del-btn"><span aria-hidden="true">🗑</span> Delete</summary>
+                                    <form method="post" action="/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
+                                        <p class="text-sm text-steel-900">Delete “{{ $q->title }}”? This cannot be undone.@if ($q->sent_at) A request you already sent stays with our team.@endif</p>
+                                        <button type="submit" class="{{ Ui::button('danger', 'sm') }} mt-2">Yes, delete it</button>
+                                    </form>
+                                </details>
+                                </div>
                             </div>
                             <div class="mq-item-side">
                                 <p class="text-sm text-steel-600">Estimated</p>
@@ -91,11 +100,16 @@
             .mq-item { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 1rem; }
             .mq-item-side { text-align: right; }
             @media (max-width: 39.99rem) { .mq-item-side { text-align: left; } }
+            .mq-tools { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+            .mq-tools .mq-rename { position: static; }
+            .mq-tools .mq-rename-box { position: absolute; left: 0; top: 100%; z-index: 30; margin-top: .5rem; box-shadow: 0 12px 28px -10px rgb(15 20 28 / .35); }
+            .mq-del-btn:hover, .mq-del[open] .mq-del-btn { border-color: var(--color-danger-700) !important; color: var(--color-danger-700); }
+            .mq-del-box { border-color: #f3c3be !important; background: #fff7f6 !important; }
             .mq-rename summary { list-style: none; }
             .mq-rename summary::-webkit-details-marker { display: none; }
             .mq-rename-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .9rem; font-size: .9rem; font-weight: 700; color: var(--color-steel-900); }
             .mq-rename-btn:hover, .mq-rename[open] .mq-rename-btn { border-color: var(--color-steel-900); }
-            .mq-rename-box { margin-top: .5rem; width: min(30rem, calc(100vw - 5rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: var(--color-steel-50); padding: .9rem; }
+            .mq-rename-box { margin-top: .5rem; width: min(30rem, calc(100vw - 5rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: #fff; padding: .9rem; }
             .mq-rename-row { margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .5rem; }
             .mq-rename-row input { flex: 1 1 12rem; }
             .mq-badge { display: inline-block; margin-right: .4rem; border: 1px solid var(--color-steel-300); border-radius: 999px; padding: 0 .55rem; font-size: .75rem; font-weight: 700; color: var(--color-steel-800); background: var(--color-steel-50); }
