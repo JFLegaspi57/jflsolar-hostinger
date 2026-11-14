@@ -9,6 +9,7 @@
         image="/images/products-rooftop-1280.jpg" srcset="/images/products-rooftop-640.jpg 640w, /images/products-rooftop-960.jpg 960w, /images/products-rooftop-1280.jpg 1280w"
         imageAlt="Rows of solar panels installed on a large metal rooftop under a bright sky" focus="35% 70%">
         <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
+        <p class="mt-5"><a href="/quotation" class="{{ \App\Support\Ui::button('primary', 'lg') }}">{{ \App\Support\Quotations::NAME }}</a></p>
     </x-page-hero>
     {{-- Brand strip (logos from the owner's brand sheet). Each logo is a link to that brand's products:
          the link shows its own slice of the same image, so it lines up exactly and can lift on hover. --}}

@@ -269,6 +269,7 @@ class PageController extends Controller
             }
         }
 
+        $urls->push(['loc' => Site::url('/quotation'), 'lastmod' => null]);
         $urls->push(['loc' => Site::url('/blog'), 'lastmod' => null]);
         foreach (\App\Support\Blog::published()->where('is_sample', false) as $post) {
             $urls->push(['loc' => Site::url('/blog/'.$post->slug), 'lastmod' => $post->updated_at?->toAtomString()]);
