@@ -42,7 +42,7 @@ class QuotationController extends Controller
             return redirect('/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need first.');
         }
         $items = [];
-        if ($p = Quotations::catalogue()->get(Input::str($request, 'product_id'))) {
+        if ($p = Quotations::available()->get(Input::str($request, 'product_id'))) {
             $items[] = ['kind' => 'product', 'product_id' => $p->id, 'name' => $p->name, 'qty' => 1];
         }
         $n = MemberQuote::query()->where('member_id', $member->id)->count() + 1;
@@ -56,7 +56,7 @@ class QuotationController extends Controller
     public function edit(int $id): View
     {
         $q = $this->find($id);
-        $catalogue = Quotations::catalogue();
+        $catalogue = Quotations::available();
 
         return view('pages.quotation.edit', [
             'q' => $q, 'sum' => Quotations::lines($q), 'member' => Members::current(),
@@ -110,9 +110,12 @@ class QuotationController extends Controller
                 return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'A quotation can have up to '.Quotations::MAX_LINES.' lines. Start a new quotation for more.');
             }
             if ($intent === 'add_product') {
-                $p = Quotations::catalogue()->get(Input::str($request, 'add_product_id'));
+                $id = Input::str($request, 'add_product_id');
+                $p = Quotations::available()->get($id);
                 if (! $p) {
-                    return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'Choose a product from the list first.')->with('quote_focus', 'add-product');
+                    $msg = Quotations::catalogue()->has($id) ? 'That product is currently not available to order. Please choose another, or add it as your own item.' : 'Choose a product from the list first.';
+
+                    return $this->save($q, $items, $wasSent, $before)->with('quote_error', $msg)->with('quote_focus', 'add-product');
                 }
                 $qty = Quotations::qty($request->input('add_qty', 1));
                 $existing = collect($items)->search(fn ($it) => ($it['kind'] ?? '') === 'product' && ($it['product_id'] ?? '') === $p->id);

@@ -48,6 +48,7 @@
                                                 @if ($l['kind'] === 'product')
                                                     @if ($l['slug'])<a href="/products/{{ $l['slug'] }}" class="font-semibold text-steel-950 underline-offset-2 hover:underline" target="_blank" rel="noopener">{{ $l['name'] }}</a>@else<span class="font-semibold text-steel-950">{{ $l['name'] }}</span>@endif
                                                     @if ($l['missing'])<span class="mq-badge mq-changed">No longer listed</span>@endif
+                                                    @if ($l['unavailable'])<span class="mq-badge mq-changed">Currently not available</span>@endif
                                                 @else
                                                     <label class="sr-only" for="it-{{ $i }}-name">Item name</label>
                                                     <input id="it-{{ $i }}-name" name="items[{{ $i }}][name]" value="{{ $l['name'] }}" maxlength="{{ $L['name'] }}" class="{{ $input }} font-semibold">
@@ -84,7 +85,7 @@
                         <div class="mq-add mt-6">
                             <div class="mq-add-box">
                                 <h3 class="font-bold text-steel-950">Add a product</h3>
-                                <label for="add-product" class="mt-2 block text-sm font-semibold text-steel-800">Product</label>
+                                <label for="add-product" class="mt-2 block text-sm font-semibold text-steel-800">Product <span class="font-normal text-steel-600">(available to order)</span></label>
                                 <select id="add-product" name="add_product_id" class="{{ $input }}" @if ($focus === 'add-product') autofocus @endif>
                                     <option value="">Choose a product…</option>
                                     @foreach ($groups as $category => $products)

@@ -59,10 +59,16 @@ final class Quotations
         Cache::forever(self::TABLES_KEY, true);
     }
 
-    /** Products a member can pick: everything visible in the public catalogue, by category. */
+    /** Every product visible in the public catalogue (used to show lines already on a quotation). */
     public static function catalogue(): Collection
     {
         return PublicContent::snapshot()['products']->keyBy('id');
+    }
+
+    /** Products a member can add: only those marked "Available to order". */
+    public static function available(): Collection
+    {
+        return self::catalogue()->filter(fn (Product $p) => $p->availability === 'available');
     }
 
     /** Website price used as a reference (null = "to be quoted": quote-only, sample or no price). */
@@ -100,12 +106,14 @@ final class Quotations
                 $p = $catalogue->get((string) ($item['product_id'] ?? ''));
                 $price = self::refPrice($p);
                 $unit = $p && Shop::perMetre($p) ? ($qty === 1 ? 'metre' : 'metres') : ($qty === 1 ? 'piece' : 'pieces');
+                $unavailable = $p !== null && $p->availability !== 'available';
+                $price = $unavailable ? null : $price;
                 $lines[] = ['i' => $i, 'kind' => 'product', 'name' => $p?->name ?? (string) ($item['name'] ?? 'Product'), 'qty' => $qty, 'unit' => $unit,
                     'note' => (string) ($item['note'] ?? ''), 'price' => $price, 'total' => $price === null ? null : round($price * $qty, 2),
-                    'slug' => $p?->slug, 'missing' => $p === null];
+                    'slug' => $p?->slug, 'missing' => $p === null, 'unavailable' => $unavailable];
             } else {
                 $lines[] = ['i' => $i, 'kind' => 'custom', 'name' => (string) ($item['name'] ?? ''), 'qty' => $qty, 'unit' => (string) ($item['unit'] ?? ''),
-                    'note' => (string) ($item['note'] ?? ''), 'price' => null, 'total' => null, 'slug' => null, 'missing' => false];
+                    'note' => (string) ($item['note'] ?? ''), 'price' => null, 'total' => null, 'slug' => null, 'missing' => false, 'unavailable' => false];
             }
         }
         $priced = array_filter($lines, fn ($l) => $l['total'] !== null);
@@ -121,7 +129,7 @@ final class Quotations
         foreach ($sum['lines'] as $n => $l) {
             $qty = $l['qty'].($l['unit'] !== '' ? ' '.$l['unit'] : '');
             $price = $l['kind'] === 'custom' ? 'to be quoted (own item)' : ($l['price'] === null ? 'price to be confirmed' : Pricing::formatPhp($l['price']).' each = '.Pricing::formatPhp($l['total']));
-            $out[] = ($n + 1).'. '.$l['name'].($l['missing'] ? ' (no longer listed on the website)' : '').' — '.$qty.' — '.$price;
+            $out[] = ($n + 1).'. '.$l['name'].($l['missing'] ? ' (no longer listed on the website)' : '').($l['unavailable'] ? ' (currently not available)' : '').' — '.$qty.' — '.$price;
             if ($l['note'] !== '') {
                 $out[] = '   Note: '.$l['note'];
             }
