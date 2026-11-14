@@ -42,8 +42,7 @@
                 </tr>
             </table>
 
-            <h1 style="margin:18px 0 2px;font-size:22px;">Quotation request</h1>
-            <p style="margin:0 0 12px;font-size:16px;font-weight:bold;">{{ $q->title }}</p>
+            <h1 style="margin:18px 0 12px;font-size:22px;">{{ $q->title }}</h1>
             <table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
                 <tr><td style="{{ $label }}">Reference</td><td style="{{ $value }}"><strong style="font-family:Consolas,Menlo,monospace;">{{ $q->reference() }}</strong></td></tr>
                 <tr><td style="{{ $label }}">Date</td><td style="{{ $value }}">{{ now()->timezone('Asia/Manila')->format('j F Y') }}</td></tr>
