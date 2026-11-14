@@ -37,12 +37,8 @@
         <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;">
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-bottom:3px solid #f59e0b;">
                 <tr>
+                    {{-- Logo only; the company's addresses and contact details are in the footer. --}}
                     <td style="padding:0 0 12px;vertical-align:middle;"><img src="/brand/jfl-renewables-logo-272.png" width="190" height="56" alt="{{ Site::NAME }}" style="display:block;width:190px;height:auto;border:0;"></td>
-                    <td style="padding:0 0 12px;text-align:right;vertical-align:middle;font-size:13px;color:#374151;line-height:1.5;">
-                        <strong style="font-size:15px;color:#111827;">{{ Site::NAME }}</strong><br>
-                        {{ $settings->phone_display ?? $settings->phone_e164 }}@if ($settings->public_email)<br>{{ $settings->public_email }}@endif<br>
-                        {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}
-                    </td>
                 </tr>
             </table>
 

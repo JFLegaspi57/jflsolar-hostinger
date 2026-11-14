@@ -112,6 +112,7 @@ class QuotationTest extends TestCase
         $this->get('/quotation/'.$q->id.'/print')->assertSee('Brand: GoodWe · Model: GW8K-ET');
         $this->get('/quotation/'.$q->id)->assertSee('Our 8 kW hybrid')->assertSee('₱133,400')->assertSee('+ 1 item to be quoted by JFL Solar')->assertDontSee('Note (optional)');
         $this->get('/quotation/'.$q->id.'/print')->assertOk()->assertSee('Quotation request')->assertSee($q->reference())->assertSee('Installation labour and commissioning')->assertSee('not a formal quotation')
+            ->assertDontSee('<strong style="font-size:15px;color:#111827;">', false)
             ->assertSeeInOrder(['>Office</p>', \App\Support\PublicContent::settings()->office_address, '>Warehouse</p>', '>Contact</p>', 'Website:'], false);
         $this->get('/quotation')->assertSee('Our 8 kW hybrid')->assertSee('Draft');
 
