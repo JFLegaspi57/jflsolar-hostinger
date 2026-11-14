@@ -263,7 +263,7 @@ class QuotationTest extends TestCase
         $this->actingAs($this->member(), 'member');
         $this->post('/quotation');
         $q = MemberQuote::query()->firstOrFail();
-        $this->get('/quotation')->assertSeeInOrder(['Rename', 'Delete', 'action="/quotation/'.$q->id.'/delete"', 'Yes, delete it'], false);
+        $this->get('/quotation')->assertSeeInOrder(['href="/quotation/'.$q->id.'" class="mq-rename-btn mq-edit-btn"', 'Edit', 'Rename', 'Delete', 'action="/quotation/'.$q->id.'/delete"', 'Yes, delete it'], false);
         $this->get('/quotation/'.$q->id)->assertSeeInOrder(['Rename', 'Delete', 'action="/quotation/'.$q->id.'/delete"'], false);
         $this->post('/quotation/'.$q->id.'/delete')->assertRedirect('/quotation')->assertSessionHas('quote_status', 'Deleted “My quotation 1”.');
         $this->assertSame(0, MemberQuote::query()->count());

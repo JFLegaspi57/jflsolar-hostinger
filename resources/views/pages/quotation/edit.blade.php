@@ -18,7 +18,7 @@
                     {{-- Rename: the field belongs to the main form below (form="mq-form"). --}}
                     <div class="mq-tools">
                     <details class="mq-rename" name="mq-tools" @if (session('quote_focus') === 'title') open @endif>
-                        <summary class="mq-rename-btn"><span aria-hidden="true">✎</span> Rename</summary>
+                        <summary class="mq-rename-btn"><span aria-hidden="true" class="mq-aa">Aa</span> Rename</summary>
                         <div class="mq-rename-box">
                             <label for="q-title" class="block text-sm font-semibold text-steel-900">Quotation name</label>
                             <div class="mq-rename-row">
@@ -191,6 +191,7 @@
             .mq-tools .mq-rename-box { position: absolute; left: 0; top: 100%; z-index: 30; margin-top: .5rem; box-shadow: 0 12px 28px -10px rgb(15 20 28 / .35); }
             .mq-del-btn:hover, .mq-del[open] .mq-del-btn { border-color: var(--color-danger-700) !important; color: var(--color-danger-700); }
             .mq-del-box { border-color: #f3c3be !important; background: #fff7f6 !important; }
+            .mq-aa { font-family: Georgia, serif; font-size: .85em; font-weight: 700; }
             .mq-rename summary { list-style: none; }
             .mq-rename summary::-webkit-details-marker { display: none; }
             .mq-rename-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .9rem; font-size: .9rem; font-weight: 700; color: var(--color-steel-900); }
