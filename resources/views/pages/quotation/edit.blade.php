@@ -79,8 +79,6 @@
                                                     <input id="it-{{ $i }}-name" name="items[{{ $i }}][name]" value="{{ $l['name'] }}" maxlength="{{ $L['name'] }}" class="{{ $input }} font-semibold">
                                                     <span class="mq-own">Your own item · priced by JFL Solar</span>
                                                 @endif
-                                                <label class="sr-only" for="it-{{ $i }}-note">Note for {{ $l['name'] }}</label>
-                                                <input id="it-{{ $i }}-note" name="items[{{ $i }}][note]" value="{{ $l['note'] }}" maxlength="{{ $L['note'] }}" placeholder="Note (optional), e.g. preferred model or colour" class="{{ $input }} mq-note">
                                             </td>
                                             <td class="mq-num" data-label="Qty">
                                                 <label class="sr-only" for="it-{{ $i }}-qty">Quantity of {{ $l['name'] }}</label>
@@ -211,7 +209,6 @@
             .mq-table td { border-bottom: 1px solid var(--color-steel-200); padding: .75rem .5rem; vertical-align: top; }
             .mq-table .mq-num { text-align: right; white-space: nowrap; }
             .mq-name { min-width: 14rem; }
-            .mq-note { margin-top: .4rem; min-height: 2.5rem !important; font-size: .9rem !important; }
             .mq-own { display: block; margin-top: .25rem; font-size: .75rem; color: var(--color-steel-600); }
             .mq-qty { display: flex; gap: .35rem; align-items: center; justify-content: flex-end; }
             .mq-qty input[data-qty] { width: 5.5rem; text-align: right; }

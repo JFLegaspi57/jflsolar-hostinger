@@ -46,7 +46,7 @@ class QuotationTest extends TestCase
         $q->refresh();
         $items = [];
         foreach ((array) $q->items as $i => $it) {
-            $items[$i] = ['qty' => $it['qty'], 'note' => $it['note'] ?? ''] + (($it['kind'] ?? '') === 'custom' ? ['name' => $it['name'], 'unit' => $it['unit'] ?? ''] : []);
+            $items[$i] = ['qty' => $it['qty']] + (($it['kind'] ?? '') === 'custom' ? ['name' => $it['name'], 'unit' => $it['unit'] ?? ''] : []);
         }
 
         return array_merge(['title' => $q->title, 'location' => $q->location, 'phone' => $q->phone, 'notes' => $q->notes, 'items' => $items, 'intent' => 'save'], $extra);
@@ -94,7 +94,6 @@ class QuotationTest extends TestCase
         $form = $this->form($q, ['title' => 'Our 8 kW hybrid', 'location' => 'Lipa, Batangas', 'notes' => 'Delivery in December please.']);
         $form['items'][1]['qty'] = 40;
         $form['items'][3]['name'] = 'Installation labour and commissioning';
-        $form['items'][0]['note'] = 'White colour if possible';
         $this->post('/quotation/'.$q->id, $form)->assertRedirect('/quotation/'.$q->id);
         $sum = Quotations::lines($q->refresh());
         $this->assertSame(65000.0 * 2 + 85.0 * 40, $sum['total']);
@@ -106,7 +105,7 @@ class QuotationTest extends TestCase
         $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'remove:2']))->assertSessionHas('quote_status', 'Removed “Battery 15 kWh”.');
         $this->assertCount(3, $q->refresh()->items);
 
-        $this->get('/quotation/'.$q->id)->assertSee('Our 8 kW hybrid')->assertSee('₱133,400')->assertSee('+ 1 item to be quoted by JFL Solar')->assertSee('White colour if possible');
+        $this->get('/quotation/'.$q->id)->assertSee('Our 8 kW hybrid')->assertSee('₱133,400')->assertSee('+ 1 item to be quoted by JFL Solar')->assertDontSee('Note (optional)');
         $this->get('/quotation/'.$q->id.'/print')->assertOk()->assertSee('Quotation request')->assertSee($q->reference())->assertSee('Installation labour and commissioning')->assertSee('not a formal quotation');
         $this->get('/quotation')->assertSee('Our 8 kW hybrid')->assertSee('Draft');
 

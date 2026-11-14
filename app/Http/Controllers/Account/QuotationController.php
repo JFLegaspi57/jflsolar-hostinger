@@ -85,13 +85,13 @@ class QuotationController extends Controller
         $q->phone = Quotations::clean($request->input('phone'), Quotations::LIMITS['phone']) ?: null;
         $q->notes = Quotations::clean($request->input('notes'), Quotations::LIMITS['notes'], true) ?: null;
 
-        // Existing lines: quantity, and for own items the name, unit and note.
+        // Existing lines: quantity, and for own items the name and unit. (Lines have no notes; old ones are dropped.)
         $posted = is_array($request->input('items')) ? $request->input('items') : [];
         $items = [];
         foreach (array_values((array) $q->items) as $i => $item) {
             $row = is_array($posted[$i] ?? null) ? $posted[$i] : [];
             $item['qty'] = Quotations::qty($row['qty'] ?? ($item['qty'] ?? 1));
-            $item['note'] = array_key_exists('note', $row) ? Quotations::clean($row['note'], Quotations::LIMITS['note']) : (string) ($item['note'] ?? '');
+            unset($item['note']);
             if (($item['kind'] ?? '') === 'custom') {
                 $name = Quotations::clean($row['name'] ?? ($item['name'] ?? ''), Quotations::LIMITS['name']);
                 $item['name'] = $name !== '' ? $name : (string) ($item['name'] ?? 'Item');
@@ -129,7 +129,7 @@ class QuotationController extends Controller
                     $items[$existing]['qty'] = Quotations::qty($items[$existing]['qty'] + $qty);
                     $status = 'Added '.$qty.' more of “'.$p->name.'”.';
                 } else {
-                    $items[] = ['kind' => 'product', 'product_id' => $p->id, 'name' => $p->name, 'qty' => $qty, 'note' => ''];
+                    $items[] = ['kind' => 'product', 'product_id' => $p->id, 'name' => $p->name, 'qty' => $qty];
                     $status = 'Added “'.$p->name.'”.';
                 }
             } else {
@@ -138,7 +138,7 @@ class QuotationController extends Controller
                     return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'Type a name for your item, e.g. “Installation labour” or “Ground-mount frame”.')->with('quote_focus', 'custom-name');
                 }
                 $items[] = ['kind' => 'custom', 'name' => $name, 'qty' => Quotations::qty($request->input('custom_qty', 1)),
-                    'unit' => Quotations::clean($request->input('custom_unit'), Quotations::LIMITS['unit']), 'note' => ''];
+                    'unit' => Quotations::clean($request->input('custom_unit'), Quotations::LIMITS['unit'])];
                 $status = 'Added “'.$name.'”.';
             }
         }

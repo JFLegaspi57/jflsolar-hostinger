@@ -24,7 +24,7 @@ final class Quotations
 
     public const MAX_QTY = 10000;
 
-    public const LIMITS = ['title' => 120, 'location' => 120, 'phone' => 30, 'notes' => 2000, 'name' => 160, 'unit' => 30, 'note' => 200];
+    public const LIMITS = ['title' => 120, 'location' => 120, 'phone' => 30, 'notes' => 2000, 'name' => 160, 'unit' => 30];
 
     public const SEND_LIMIT = 5;            // sends per member per hour
 
@@ -103,7 +103,7 @@ final class Quotations
      * The quotation's lines, priced from today's catalogue, arranged by category in the shop's order
      * (the order the member added them is kept within a category). 'i' is the line's place in the saved list.
      *
-     * @return array{lines: list<array{i: int, kind: string, name: string, qty: int, unit: string, note: string, price: ?float, total: ?float, slug: ?string, missing: bool}>, total: float, unpriced: int}
+     * @return array{lines: list<array{i: int, kind: string, name: string, qty: int, unit: string, price: ?float, total: ?float, slug: ?string, missing: bool}>, total: float, unpriced: int}
      */
     public static function lines(MemberQuote $q): array
     {
@@ -119,12 +119,12 @@ final class Quotations
                 $unavailable = $p !== null && $p->availability !== 'available';
                 $price = $unavailable ? null : $price;
                 $lines[] = ['i' => $i, 'kind' => 'product', 'name' => $p?->name ?? (string) ($item['name'] ?? 'Product'), 'qty' => $qty, 'unit' => $unit,
-                    'note' => (string) ($item['note'] ?? ''), 'price' => $price, 'total' => $price === null ? null : round($price * $qty, 2),
+                    'price' => $price, 'total' => $price === null ? null : round($price * $qty, 2),
                     'slug' => $p?->slug, 'missing' => $p === null, 'unavailable' => $unavailable,
                     'category' => $p?->category?->name ?? 'Other products', 'sort' => $p ? ($order[$p->category_id] ?? 900) : 950];
             } else {
                 $lines[] = ['i' => $i, 'kind' => 'custom', 'name' => (string) ($item['name'] ?? ''), 'qty' => $qty, 'unit' => (string) ($item['unit'] ?? ''),
-                    'note' => (string) ($item['note'] ?? ''), 'price' => null, 'total' => null, 'slug' => null, 'missing' => false, 'unavailable' => false,
+                    'price' => null, 'total' => null, 'slug' => null, 'missing' => false, 'unavailable' => false,
                     'category' => self::OWN_ITEMS, 'sort' => 1000];
             }
         }
@@ -149,9 +149,6 @@ final class Quotations
             $qty = $l['qty'].($l['unit'] !== '' ? ' '.$l['unit'] : '');
             $price = $l['kind'] === 'custom' ? 'to be quoted (own item)' : ($l['price'] === null ? 'price to be confirmed' : Pricing::formatPhp($l['price']).' each = '.Pricing::formatPhp($l['total']));
             $out[] = ($n + 1).'. '.$l['name'].($l['missing'] ? ' (no longer listed on the website)' : '').($l['unavailable'] ? ' (currently not available)' : '').' — '.$qty.' — '.$price;
-            if ($l['note'] !== '') {
-                $out[] = '   Note: '.$l['note'];
-            }
         }
         $out[] = '';
         $out[] = 'Estimated total of website prices: '.Pricing::formatPhp($sum['total']).($sum['unpriced'] ? ' (plus '.$sum['unpriced'].' item(s) to be quoted)' : '');

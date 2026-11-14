@@ -64,7 +64,7 @@
                         @endif
                         <tr>
                             <td style="{{ $td }}">{{ $n + 1 }}</td>
-                            <td style="{{ $td }}"><strong>{{ $l['name'] }}</strong>@if ($l['unavailable'])<br><span style="font-size:12px;color:#92400e;">Currently not available</span>@endif @if ($l['kind'] === 'custom')<br><span style="font-size:12px;color:#4b5563;">Own item</span>@endif @if ($l['note'] !== '')<br><span style="font-size:12px;color:#4b5563;">{{ $l['note'] }}</span>@endif</td>
+                            <td style="{{ $td }}"><strong>{{ $l['name'] }}</strong>@if ($l['unavailable'])<br><span style="font-size:12px;color:#92400e;">Currently not available</span>@endif @if ($l['kind'] === 'custom')<br><span style="font-size:12px;color:#4b5563;">Own item</span>@endif</td>
                             <td class="num" style="{{ $td }}">{{ $l['qty'] }} {{ $l['unit'] }}</td>
                             <td class="num" style="{{ $td }}">{{ $l['price'] !== null ? Pricing::formatPhp($l['price']) : 'To be quoted' }}</td>
                             <td class="num" style="{{ $td }}">{{ $l['total'] !== null ? Pricing::formatPhp($l['total']) : '—' }}</td>
