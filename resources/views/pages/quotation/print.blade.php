@@ -59,6 +59,9 @@
                 <thead><tr><th style="{{ $th }}">#</th><th style="{{ $th }}">Item</th><th class="num" style="{{ $th }}">Qty</th><th class="num" style="{{ $th }}">Website price</th><th class="num" style="{{ $th }}">Total</th></tr></thead>
                 <tbody>
                     @forelse ($sum['lines'] as $n => $l)
+                        @if ($n === 0 || $sum['lines'][$n - 1]['category'] !== $l['category'])
+                            <tr><th colspan="5" style="text-align:left;padding:14px 10px 4px;border-bottom:1px solid #9ca3af;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:#111827;">{{ $l['category'] }}</th></tr>
+                        @endif
                         <tr>
                             <td style="{{ $td }}">{{ $n + 1 }}</td>
                             <td style="{{ $td }}"><strong>{{ $l['name'] }}</strong>@if ($l['unavailable'])<br><span style="font-size:12px;color:#92400e;">Currently not available</span>@endif @if ($l['kind'] === 'custom')<br><span style="font-size:12px;color:#4b5563;">Own item</span>@endif @if ($l['note'] !== '')<br><span style="font-size:12px;color:#4b5563;">{{ $l['note'] }}</span>@endif</td>

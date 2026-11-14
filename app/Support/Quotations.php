@@ -91,14 +91,24 @@ final class Quotations
         return max(1, min(self::MAX_QTY, (int) (is_numeric($raw) ? $raw : 1)));
     }
 
+    /** Category order of the shop: [category id => position]; own items and unlisted products come last. */
+    public static function categoryOrder(): array
+    {
+        return PublicContent::snapshot()['categories']->values()->mapWithKeys(fn ($c, $n) => [$c->id => $n])->all();
+    }
+
+    public const OWN_ITEMS = 'Your own items';
+
     /**
-     * The quotation's lines, priced from today's catalogue.
+     * The quotation's lines, priced from today's catalogue, arranged by category in the shop's order
+     * (the order the member added them is kept within a category). 'i' is the line's place in the saved list.
      *
      * @return array{lines: list<array{i: int, kind: string, name: string, qty: int, unit: string, note: string, price: ?float, total: ?float, slug: ?string, missing: bool}>, total: float, unpriced: int}
      */
     public static function lines(MemberQuote $q): array
     {
         $catalogue = self::catalogue();
+        $order = self::categoryOrder();
         $lines = [];
         foreach (array_values((array) $q->items) as $i => $item) {
             $qty = self::qty($item['qty'] ?? 1);
@@ -110,12 +120,15 @@ final class Quotations
                 $price = $unavailable ? null : $price;
                 $lines[] = ['i' => $i, 'kind' => 'product', 'name' => $p?->name ?? (string) ($item['name'] ?? 'Product'), 'qty' => $qty, 'unit' => $unit,
                     'note' => (string) ($item['note'] ?? ''), 'price' => $price, 'total' => $price === null ? null : round($price * $qty, 2),
-                    'slug' => $p?->slug, 'missing' => $p === null, 'unavailable' => $unavailable];
+                    'slug' => $p?->slug, 'missing' => $p === null, 'unavailable' => $unavailable,
+                    'category' => $p?->category?->name ?? 'Other products', 'sort' => $p ? ($order[$p->category_id] ?? 900) : 950];
             } else {
                 $lines[] = ['i' => $i, 'kind' => 'custom', 'name' => (string) ($item['name'] ?? ''), 'qty' => $qty, 'unit' => (string) ($item['unit'] ?? ''),
-                    'note' => (string) ($item['note'] ?? ''), 'price' => null, 'total' => null, 'slug' => null, 'missing' => false, 'unavailable' => false];
+                    'note' => (string) ($item['note'] ?? ''), 'price' => null, 'total' => null, 'slug' => null, 'missing' => false, 'unavailable' => false,
+                    'category' => self::OWN_ITEMS, 'sort' => 1000];
             }
         }
+        usort($lines, fn ($a, $b) => [$a['sort'], $a['i']] <=> [$b['sort'], $b['i']]);
         $priced = array_filter($lines, fn ($l) => $l['total'] !== null);
 
         return ['lines' => $lines, 'total' => round(array_sum(array_column($priced, 'total')), 2), 'unpriced' => count($lines) - count($priced)];
@@ -125,8 +138,14 @@ final class Quotations
     public static function message(MemberQuote $q): string
     {
         $sum = self::lines($q);
-        $out = [self::NAME.' '.$q->reference().': '.$q->title, ''];
+        $out = [self::NAME.' '.$q->reference().': '.$q->title];
+        $category = null;
         foreach ($sum['lines'] as $n => $l) {
+            if ($l['category'] !== $category) {
+                $category = $l['category'];
+                $out[] = '';
+                $out[] = mb_strtoupper($category);
+            }
             $qty = $l['qty'].($l['unit'] !== '' ? ' '.$l['unit'] : '');
             $price = $l['kind'] === 'custom' ? 'to be quoted (own item)' : ($l['price'] === null ? 'price to be confirmed' : Pricing::formatPhp($l['price']).' each = '.Pricing::formatPhp($l['total']));
             $out[] = ($n + 1).'. '.$l['name'].($l['missing'] ? ' (no longer listed on the website)' : '').($l['unavailable'] ? ' (currently not available)' : '').' — '.$qty.' — '.$price;

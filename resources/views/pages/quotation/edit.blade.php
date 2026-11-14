@@ -36,14 +36,17 @@
                     <section class="{{ $card }}" aria-labelledby="mq-items-h">
                         <h2 id="mq-items-h" class="text-xl font-bold text-steel-950">Items</h2>
                         @if (! $sum['lines'])
-                            <p class="mt-3 text-steel-700">No items yet. Add products from our catalogue or items of your own below.</p>
+                            <p class="mt-3 text-steel-700">No items yet. Add products from our catalogue or items of your own below. They are arranged by category automatically.</p>
                         @else
                             <table class="mq-table mt-4">
-                                <thead><tr><th scope="col">Item</th><th scope="col" class="mq-num">Qty</th><th scope="col" class="mq-num">Website price</th><th scope="col" class="mq-num">Total</th><th scope="col"><span class="sr-only">Move or remove</span></th></tr></thead>
+                                <thead><tr><th scope="col">Item</th><th scope="col" class="mq-num">Qty</th><th scope="col" class="mq-num">Website price</th><th scope="col" class="mq-num">Total</th><th scope="col"><span class="sr-only">Remove</span></th></tr></thead>
                                 <tbody>
                                     @foreach ($sum['lines'] as $l)
                                         @php $i = $l['i']; @endphp
-                                        <tr data-price="{{ $l['price'] ?? '' }}">
+                                        @if ($loop->first || $sum['lines'][$loop->index - 1]['category'] !== $l['category'])
+                                            <tr class="mq-cat"><th colspan="5" scope="colgroup">{{ $l['category'] }}</th></tr>
+                                        @endif
+                                        <tr class="mq-line" data-price="{{ $l['price'] ?? '' }}">
                                             <td class="mq-name" data-label="Item">
                                                 @if ($l['kind'] === 'product')
                                                     @if ($l['slug'])<a href="/products/{{ $l['slug'] }}" class="font-semibold text-steel-950 underline-offset-2 hover:underline" target="_blank" rel="noopener">{{ $l['name'] }}</a>@else<span class="font-semibold text-steel-950">{{ $l['name'] }}</span>@endif
@@ -72,9 +75,7 @@
                                             <td class="mq-num tabular" data-label="Website price">{{ $l['price'] !== null ? Pricing::formatPhp($l['price']) : ($l['kind'] === 'custom' ? 'To be quoted' : 'To be confirmed') }}</td>
                                             <td class="mq-num tabular font-semibold" data-label="Total" data-total>{{ $l['total'] !== null ? Pricing::formatPhp($l['total']) : '—' }}</td>
                                             <td class="mq-actions">
-                                                <button type="submit" name="intent" value="up:{{ $i }}" class="mq-icon" @disabled($loop->first) title="Move up"><span aria-hidden="true">↑</span><span class="sr-only">Move {{ $l['name'] }} up</span></button>
-                                                <button type="submit" name="intent" value="down:{{ $i }}" class="mq-icon" @disabled($loop->last) title="Move down"><span aria-hidden="true">↓</span><span class="sr-only">Move {{ $l['name'] }} down</span></button>
-                                                <button type="submit" name="intent" value="remove:{{ $i }}" class="mq-icon mq-remove" title="Remove"><span aria-hidden="true">✕</span><span class="sr-only">Remove {{ $l['name'] }}</span></button>
+                                                <button type="submit" name="intent" value="remove:{{ $i }}" class="mq-remove"><span aria-hidden="true">✕</span> Remove<span class="sr-only"> {{ $l['name'] }} from this quotation</span></button>
                                             </td>
                                         </tr>
                                     @endforeach
@@ -188,10 +189,10 @@
             .mq-unit { width: 5.5rem; }
             .mq-unit-text { min-width: 3.2rem; text-align: left; font-size: .85rem; color: var(--color-steel-700); }
             .mq-actions { white-space: nowrap; text-align: right; }
-            .mq-icon { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; font-weight: 800; color: var(--color-steel-900); }
-            .mq-icon:hover:not(:disabled) { border-color: var(--color-steel-900); }
-            .mq-icon:disabled { opacity: .35; cursor: not-allowed; }
-            .mq-remove:hover { border-color: var(--color-danger-700) !important; color: var(--color-danger-700); }
+            .mq-remove { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .8rem; font-size: .875rem; font-weight: 700; color: var(--color-steel-800); }
+            .mq-remove:hover, .mq-remove:focus-visible { border-color: var(--color-danger-700); background: var(--color-danger-50); color: var(--color-danger-700); }
+            .mq-table tr.mq-cat th { border-bottom: 1px solid var(--color-steel-300); padding: 1.25rem .5rem .4rem; font-size: .8rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--color-steel-950); }
+            .mq-table tbody tr.mq-cat:first-child th { padding-top: .6rem; }
             .mq-add { display: grid; gap: 1rem; }
             @media (min-width: 48rem) { .mq-add { grid-template-columns: 1fr 1fr; } }
             .mq-add-box { border: 1px dashed var(--color-steel-300); border-radius: var(--radius-control); background: var(--color-steel-50); padding: 1rem; }
@@ -206,7 +207,8 @@
             @media (max-width: 47.99rem) {
                 .mq-table thead { position: absolute; left: -9999px; }
                 .mq-table, .mq-table tbody, .mq-table tr, .mq-table td { display: block; width: 100%; }
-                .mq-table tr { border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); padding: .75rem; margin-bottom: .75rem; }
+                .mq-table tr.mq-line { border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); padding: .75rem; margin-bottom: .75rem; }
+                .mq-table tr.mq-cat th { display: block; padding: .75rem 0 .4rem; border: 0; }
                 .mq-table td { border: 0; padding: .3rem 0; }
                 .mq-table td.mq-num { display: flex; justify-content: space-between; align-items: center; text-align: right; }
                 .mq-table td.mq-num::before { content: attr(data-label); font-size: .85rem; font-weight: 600; color: var(--color-steel-700); }
@@ -224,7 +226,7 @@
             const dirty = form.querySelector('[data-dirty]');
             const recalc = () => {
                 let sum = 0;
-                form.querySelectorAll('tr[data-price]').forEach(tr => {
+                form.querySelectorAll('tr.mq-line[data-price]').forEach(tr => {
                     const price = parseFloat(tr.dataset.price);
                     if (Number.isNaN(price)) return;
                     const qty = Math.max(1, Math.min({{ Quotations::MAX_QTY }}, parseInt(tr.querySelector('[data-qty]').value, 10) || 1));

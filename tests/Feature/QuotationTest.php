@@ -94,9 +94,8 @@ class QuotationTest extends TestCase
         $this->assertSame(2, $sum['unpriced']);
         $this->assertSame('metres', $sum['lines'][1]['unit']);
 
-        // Move, remove.
-        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'down:0']));
-        $this->assertSame($cable->id, $q->refresh()->items[0]['product_id']);
+        // Remove a line.
+        $this->get('/quotation/'.$q->id)->assertSee('value="remove:2"', false)->assertSee('Remove<span class="sr-only"> Battery 15 kWh from this quotation</span>', false);
         $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'remove:2']))->assertSessionHas('quote_status', 'Removed “Battery 15 kWh”.');
         $this->assertCount(3, $q->refresh()->items);
 
@@ -201,5 +200,35 @@ class QuotationTest extends TestCase
         $this->assertSame(0.0, $sum['total']);
         $this->get('/quotation/'.$q->id)->assertSee('Currently not available');
         $this->assertStringContainsString('Inverter in stock (currently not available)', Quotations::message($q));
+    }
+
+    public function test_lines_and_the_product_list_follow_the_shop_category_order(): void
+    {
+        $batteries = ProductCategory::query()->create(['slug' => 'batteries-q', 'name' => 'Batteries', 'status' => 'published', 'sort_order' => 1]);
+        $panels = ProductCategory::query()->create(['slug' => 'panels-q', 'name' => 'Solar panels', 'status' => 'published', 'sort_order' => 2]);
+        $mk = fn ($cat, $slug, $name) => Product::query()->create(['slug' => $slug, 'name' => $name, 'brand' => 'B', 'model' => 'M', 'category_id' => $cat->id, 'summary' => '', 'description' => 'x', 'specs' => [],
+            'pricing_mode' => 'fixed', 'price_php' => 1000, 'price_basis' => 'Pickup price per piece', 'price_is_sample' => false, 'availability' => 'available', 'status' => 'published', 'is_sample' => false]);
+        $panel = $mk($panels, 'panel-x', 'Panel X');
+        $battery = $mk($batteries, 'battery-x', 'Battery X');
+        $panel2 = $mk($panels, 'panel-y', 'Panel Y');
+        PublicContent::flush();
+
+        $this->actingAs($this->member(), 'member');
+        $this->post('/quotation');
+        $q = MemberQuote::query()->firstOrFail();
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_custom', 'custom_name' => 'Labour']));
+        foreach ([$panel, $battery, $panel2] as $p) {
+            $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_product', 'add_product_id' => $p->id]));
+        }
+        $sum = Quotations::lines($q->refresh());
+        $this->assertSame(['Battery X', 'Panel X', 'Panel Y', 'Labour'], array_column($sum['lines'], 'name'));
+        $this->assertSame(['Batteries', 'Solar panels', 'Solar panels', Quotations::OWN_ITEMS], array_column($sum['lines'], 'category'));
+        $this->get('/quotation/'.$q->id)->assertSeeInOrder(['<optgroup label="Batteries">', '<optgroup label="Solar panels">'], false)
+            ->assertSeeInOrder(['scope="colgroup">Batteries</th>', 'Battery X', 'scope="colgroup">Solar panels</th>', 'Panel X', 'Panel Y', 'scope="colgroup">Your own items</th>'], false);
+        $this->assertStringContainsString("BATTERIES\n1. Battery X", Quotations::message($q));
+        // Removing a line in the middle removes that line, whatever the display order.
+        $labourIndex = collect($q->items)->search(fn ($it) => $it['kind'] === 'custom');
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'remove:'.$labourIndex]))->assertSessionHas('quote_status', 'Removed “Labour”.');
+        $this->assertSame(['Battery X', 'Panel X', 'Panel Y'], array_column(Quotations::lines($q->refresh())['lines'], 'name'));
     }
 }
