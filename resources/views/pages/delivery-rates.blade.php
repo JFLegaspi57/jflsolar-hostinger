@@ -5,7 +5,7 @@
     $peso = fn (int $n) => DeliveryRates::peso($n);
     $from = $settings->warehouse_address ?: 'our warehouse in Dasmariñas, Cavite';
 @endphp
-<x-site-layout title="Delivery Rates" path="/delivery-rates" :reviews-above-footer="false" description="Estimated delivery fees for solar panels, inverters and batteries from the JFL Solar warehouse in Dasmariñas, Cavite to Cavite, Laguna, Batangas and Metro Manila, within about 100 km.">
+<x-site-layout title="Delivery Rates" path="/delivery-rates" :reviews-above-footer="false" description="Estimated delivery fees for solar panels, inverters and batteries from the JFL Solar warehouse in Dasmariñas, Cavite to {{ count($areas) }} provinces in Southern Tagalog and Central Luzon, within about {{ DeliveryRates::MAX_KM }} km.">
     <x-slot:head>
         <style>
             .dr-finder { border: 1px solid var(--color-steel-200); border-radius: var(--radius-panel); background: var(--color-steel-50); padding: 1.25rem; }
@@ -28,7 +28,14 @@
             .dr-jump a { display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 .9rem; border: 1px solid var(--color-steel-300); border-radius: 999px; font-weight: 600; font-size: .9rem; color: var(--color-steel-900); text-decoration: none; }
             .dr-jump a:hover, .dr-jump a:focus-visible { border-color: var(--color-gold-500); background: var(--color-gold-50); }
             .dr-prov { scroll-margin-top: 6rem; }
-            .dr-prov h2 { font-size: 1.4rem; font-weight: 800; color: var(--color-steel-950); }
+            .dr-prov { border-bottom: 1px solid var(--color-steel-200); padding: .25rem 0 1rem; }
+            .dr-prov summary { cursor: pointer; list-style: none; display: flex; flex-wrap: wrap; align-items: baseline; gap: .25rem .75rem; padding: .6rem 2rem .2rem 0; position: relative; }
+            .dr-prov summary::-webkit-details-marker { display: none; }
+            .dr-prov summary::after { content: "+"; position: absolute; right: .25rem; top: .45rem; font-size: 1.5rem; font-weight: 700; color: var(--color-gold-700); }
+            .dr-prov[open] summary::after { content: "–"; }
+            .dr-prov summary:focus-visible { outline: 3px solid var(--color-gold-500); outline-offset: 2px; }
+            .dr-prov .p { font-size: 1.3rem; font-weight: 800; color: var(--color-steel-950); }
+            .dr-prov .c { font-size: .9rem; color: var(--color-steel-600); }
             .dr-wrap { position: relative; overflow-x: auto; margin-top: .75rem; border: 1px solid var(--color-steel-200); border-radius: var(--radius-panel); }
             .dr-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
             .dr-table th, .dr-table td { padding: .6rem .8rem; text-align: left; border-bottom: 1px solid var(--color-steel-100); }
@@ -42,7 +49,7 @@
             @media (max-width: 479.98px) { .dr-table th, .dr-table td { padding: .5rem .45rem; font-size: .85rem; } }
         </style>
     </x-slot:head>
-    <x-page-header eyebrow="Delivery" title="Delivery rates" intro="Estimated delivery fees from our warehouse in Dasmariñas, Cavite to towns and cities in Cavite, Laguna, Batangas and Metro Manila, within about {{ DeliveryRates::MAX_KM }} km." />
+    <x-page-header eyebrow="Delivery" title="Delivery rates" intro="Estimated delivery fees from our warehouse in Dasmariñas, Cavite to towns and cities within about {{ DeliveryRates::MAX_KM }} km, from Batangas and Quezon up to Pangasinan." />
     <x-container class="py-10 sm:py-14">
         <div class="max-w-3xl space-y-10 text-steel-800" style="max-width: 56rem">
             <section class="dr-finder" aria-labelledby="dr-find">
@@ -83,10 +90,10 @@
                 </div>
             </section>
 
-            <section aria-labelledby="dr-list" class="space-y-8">
+            <section aria-labelledby="dr-list" class="space-y-2">
                 <div>
                     <h2 id="dr-list" class="text-2xl font-bold text-steel-950">Rates by town and city</h2>
-                    <p class="mt-2">Distances are approximate road distances from our warehouse, nearest first.</p>
+                    <p class="mt-2">Distances are approximate road distances from our warehouse, nearest first. Tap a province to see its towns.</p>
                     <nav aria-label="Provinces" class="dr-jump mt-4">
                         @foreach (array_keys($areas) as $province)
                             <a href="#{{ \Illuminate\Support\Str::slug($province) }}">{{ $province }}</a>
@@ -94,8 +101,8 @@
                     </nav>
                 </div>
                 @foreach ($areas as $province => $towns)
-                    <div class="dr-prov" id="{{ \Illuminate\Support\Str::slug($province) }}">
-                        <h2>{{ $province }}</h2>
+                    <details class="dr-prov" id="{{ \Illuminate\Support\Str::slug($province) }}">
+                        <summary><span class="p">{{ $province }}</span> <span class="c">{{ count($towns) }} towns and cities · {{ $towns[0]['km'] }}–{{ end($towns)['km'] }} km · from {{ $peso($towns[0]['van']) }}</span></summary>
                         <div class="dr-wrap">
                             <table class="dr-table">
                                 <thead>
@@ -108,7 +115,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </details>
                 @endforeach
             </section>
 
@@ -150,8 +157,10 @@
                 document.getElementById('dr-long').textContent = o.dataset.long;
                 box.hidden = false;
                 last = document.getElementById(o.value);
-                if (last) last.classList.add('is-picked');
+                if (last) { last.classList.add('is-picked'); var d = last.closest('details'); if (d) d.open = true; }
             });
+            function openHash() { var t = location.hash && document.getElementById(location.hash.slice(1)); if (t && t.tagName === 'DETAILS') t.open = true; }
+            window.addEventListener('hashchange', openHash); openHash();
         })();
     </script>
 </x-site-layout>
