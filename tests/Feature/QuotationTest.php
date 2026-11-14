@@ -59,6 +59,9 @@ class QuotationTest extends TestCase
         $this->post('/quotation')->assertRedirect('/login?next=%2Fquotation');
         $this->get('/quotation/1')->assertRedirect('/login?next=%2Fquotation%2F1');
         $this->get('/products')->assertSee('href="/quotation"', false);
+        // The gold header button and the phone menu button lead here.
+        $this->get('/')->assertSee('class="hdr-quote', false)->assertDontSee('Get a quote')
+            ->assertSeeInOrder(['href="/quotation"', 'Make a Quotation'], false);
     }
 
     public function test_a_member_builds_customises_and_sends_a_quotation(): void
