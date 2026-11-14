@@ -30,6 +30,7 @@ Route::post('/blog/{slug}/react', [\App\Http\Controllers\BlogCommentController::
 Route::post('/blog/{slug}/comments', [\App\Http\Controllers\BlogCommentController::class, 'comment'])->where('slug', '[a-z0-9-]+')->middleware('throttle:forum');
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
 Route::get('/faq', [PageController::class, 'faq']);
+Route::get('/delivery-rates', [PageController::class, 'deliveryRates']);
 Route::get('/net-metering', [PageController::class, 'netMetering']);
 Route::get('/net-metering/tagalog', [PageController::class, 'netMeteringTagalog']);
 Route::get('/hybrid-pv-system-guide', [PageController::class, 'hybridGuide']);
