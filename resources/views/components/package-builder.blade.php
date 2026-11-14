@@ -1,5 +1,5 @@
 {{-- "Build your package": main parts with their own prices + optional add-ons, live total, Add to Basket. Used on package pages and /packages/build-your-own. --}}
-@props(['lines', 'heading' => 'Build your package', 'intro' => 'Each part has its own price. Choose the options you want, change the quantities (set 0 to leave a part out), add any mounting, cables, protection devices or accessories you need, then add everything to your basket.', 'action'])
+@props(['lines', 'quoteAction' => null, 'heading' => 'Build your package', 'intro' => 'Each part has its own price. Choose the options you want, change the quantities (set 0 to leave a part out), add any mounting, cables, protection devices or accessories you need, then add everything to your basket.', 'action'])
 @php
     use App\Support\Pricing;
     use App\Support\Ui;
@@ -161,7 +161,14 @@
             <div class="flex justify-between gap-4 border-t border-steel-300 text-lg font-extrabold text-steel-950" style="padding-top: .5rem; margin-top: .5rem"><dt>Total</dt><dd class="tabular" data-total>{{ Pricing::formatPhp($buildTotal + $addonTotal) }}</dd></div>
         </dl>
         <p class="mt-2 text-sm text-steel-600">Everything is priced at our current pickup prices and added to your basket as separate items. Installation and delivery are not included.</p>
-        <button type="submit" class="{{ Ui::button('primary', 'lg', 'mt-4 w-full sm:w-auto') }}"><x-icon name="cart" class="size-5" /> Add to Basket</button>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <button type="submit" class="{{ Ui::button('primary', 'lg', 'w-full sm:w-auto') }}"><x-icon name="cart" class="size-5" /> Add to Basket</button>
+            @if ($quoteAction)
+                {{-- Same choices, sent to Make a Quotation instead of the basket. --}}
+                <button type="submit" formaction="{{ $quoteAction }}" class="{{ Ui::button('dark', 'lg', 'w-full sm:w-auto') }}">{{ \App\Support\Quotations::NAME }}</button>
+            @endif
+        </div>
+        @if ($quoteAction)<p class="mt-2 text-sm text-steel-600"><strong>{{ \App\Support\Quotations::NAME }}</strong> turns your choices into a quotation you can keep, change, print and send to us (free for members).</p>@endif
     </form>
     <script>
         (() => {

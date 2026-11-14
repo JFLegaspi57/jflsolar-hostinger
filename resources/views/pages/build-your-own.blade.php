@@ -20,7 +20,7 @@
                     </p>
                 @endif
                 <div class="mt-6">
-                    <x-package-builder :lines="$lines" :action="'/packages/build-your-own/basket'" heading="Your system"
+                    <x-package-builder :lines="$lines" :action="'/packages/build-your-own/basket'" quote-action="/packages/build-your-own/quotation" heading="Your system"
                         :intro="($fromCalc ?? null) ? 'Parts sized from your PV Calculator result. Set a quantity to 0 to leave a part out, then open the add-on groups below for everything else you need.' : 'We start you with a typical small system — change any part, set a quantity to 0 to leave it out, then open the add-on groups below for everything else you need.'" />
                 </div>
                 <p class="mt-4 text-sm text-steel-600">Not sure what size you need? Try our <a href="/pv-calculator" class="font-semibold underline">PV Calculator</a>, or compare our ready-made <a href="/packages?type=materials" class="font-semibold underline">Materials Only</a> and <a href="/packages?type=complete" class="font-semibold underline">Complete Packages</a>.</p>

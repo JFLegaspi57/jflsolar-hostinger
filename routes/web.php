@@ -81,6 +81,8 @@ Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 
 // Make a Quotation: members build quote requests from the catalogue and their own items.
 Route::get('/quotation', [Account\QuotationController::class, 'index']);
 Route::post('/quotation', [Account\QuotationController::class, 'store'])->middleware('throttle:account');
+Route::post('/packages/build-your-own/quotation', [Account\QuotationController::class, 'fromBuild'])->middleware('throttle:account');
+Route::get('/quotation/from-build', [Account\QuotationController::class, 'finishFromBuild']);
 Route::get('/quotation/{id}', [Account\QuotationController::class, 'edit'])->whereNumber('id');
 Route::post('/quotation/{id}', [Account\QuotationController::class, 'update'])->whereNumber('id')->middleware('throttle:quotation');
 Route::get('/quotation/{id}/print', [Account\QuotationController::class, 'print'])->whereNumber('id');

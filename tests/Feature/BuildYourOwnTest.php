@@ -56,4 +56,42 @@ class BuildYourOwnTest extends TestCase
         config(['shop.enabled' => false]);
         $this->get('/packages/build-your-own')->assertOk()->assertSee('Online ordering is not available right now')->assertDontSee('Add to Basket');
     }
+
+    public function test_make_a_quotation_turns_the_build_into_a_quotation(): void
+    {
+        $this->seed();
+        config(['shop.enabled' => true]);
+        Product::query()->update(['availability' => 'on_request']);
+        $inv = $this->product('inverters', 'byo-inv-6', 'BYO Inverter 6kW', 40000);
+        $panel = $this->product('solar-panels', 'byo-panel', 'BYO Panel 620W', 5900);
+        $bat = $this->product('batteries', 'byo-bat', 'BYO Battery 16kWh', 106000);
+        $clamp = $this->product('accessories', 'byo-clamp', 'BYO Clamp', 150);
+        PublicContent::flush();
+        $form = ['product' => [0 => $inv->id, 1 => $panel->id, 2 => $bat->id], 'quantity' => [0 => 1, 1 => 12, 2 => 0], 'addon' => [$clamp->id => 4]];
+
+        $this->get('/packages/build-your-own')->assertSee('formaction="/packages/build-your-own/quotation"', false)->assertSee('Make a Quotation');
+
+        // A visitor signs in first; the choice is kept and becomes the quotation afterwards.
+        $this->post('/packages/build-your-own/quotation', $form)->assertRedirect('/login?next=%2Fquotation%2Ffrom-build')->assertSessionHas('account_status');
+        $m = new \App\Models\Member;
+        $m->forceFill(['name' => 'Maria Santos', 'email' => 'maria@example.com', 'phone' => '0917 123 4567', 'password' => 'sunny days on the roof', 'status' => 'active'])->save();
+        $this->actingAs($m, 'member');
+        $res = $this->get('/quotation/from-build');
+        $q = \App\Models\MemberQuote::query()->firstOrFail();
+        $res->assertRedirect('/quotation/'.$q->id)->assertSessionHas('quote_status');
+        $this->assertSame('Build Your Own package', $q->title);
+        $this->assertSame('0917 123 4567', $q->phone);
+        $this->assertSame([[$inv->id, 1], [$panel->id, 12], [$clamp->id, 4]], array_map(fn ($it) => [$it['product_id'], $it['qty']], $q->items));   // battery left out (0)
+        $this->assertSame(40000.0 + 12 * 5900 + 4 * 150, \App\Support\Quotations::lines($q)['total']);
+        $this->get('/quotation/from-build')->assertRedirect('/quotation');   // used once
+
+        // Signed in already: straight to the new quotation; nothing goes into the basket.
+        $this->post('/packages/build-your-own/quotation', $form)->assertRedirect();
+        $this->assertSame('Build Your Own package 2', \App\Models\MemberQuote::query()->latest('id')->first()->title);
+        $this->assertSame([], Shop::raw());
+
+        // Nothing chosen: back to the builder with a message.
+        $this->post('/packages/build-your-own/quotation', ['product' => [0 => $inv->id], 'quantity' => [0 => 0, 1 => 0, 2 => 0]])
+            ->assertRedirect('/packages/build-your-own#build')->assertSessionHas('pkg_error');
+    }
 }
