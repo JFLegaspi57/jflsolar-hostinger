@@ -257,4 +257,15 @@ class QuotationTest extends TestCase
         $this->post('/quotation/'.$q->id.'/rename', ['title' => 'Hijack'])->assertNotFound();
         $this->assertSame('Warehouse roof 40 kW', $q->refresh()->title);
     }
+
+    public function test_delete_is_offered_in_the_list_and_on_the_quotation(): void
+    {
+        $this->actingAs($this->member(), 'member');
+        $this->post('/quotation');
+        $q = MemberQuote::query()->firstOrFail();
+        $this->get('/quotation')->assertSeeInOrder(['Rename', 'Delete', 'action="/quotation/'.$q->id.'/delete"', 'Yes, delete it'], false);
+        $this->get('/quotation/'.$q->id)->assertSeeInOrder(['Rename', 'Delete', 'action="/quotation/'.$q->id.'/delete"'], false);
+        $this->post('/quotation/'.$q->id.'/delete')->assertRedirect('/quotation')->assertSessionHas('quote_status', 'Deleted “My quotation 1”.');
+        $this->assertSame(0, MemberQuote::query()->count());
+    }
 }
