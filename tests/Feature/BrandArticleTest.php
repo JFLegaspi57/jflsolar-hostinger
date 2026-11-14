@@ -76,5 +76,6 @@ class BrandArticleTest extends TestCase
         $this->get('/brands/seraphim')->assertOk()->assertDontSee('Tier classification');
         $this->get('/brands/dyness')->assertOk()->assertDontSee('Tier classification');
         $this->get('/brands/dyness')->assertSee('distributed in the Philippines by <strong>Photonergy Philippines Inc.</strong>, its main distributor here', false)->assertDontSee('IAN Solar');
+        $this->get('/brands/solis')->assertOk()->assertDontSee('IAN Solar');
     }
 }
