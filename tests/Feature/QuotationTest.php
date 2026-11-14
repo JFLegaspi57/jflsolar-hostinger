@@ -281,4 +281,27 @@ class QuotationTest extends TestCase
         $this->post('/quotation/'.$q->id.'/delete')->assertRedirect('/quotation')->assertSessionHas('quote_status', 'Deleted “My quotation 1”.');
         $this->assertSame(0, MemberQuote::query()->count());
     }
+
+    public function test_own_item_box_suggests_our_product_names(): void
+    {
+        $inv = $this->product('hybrid-6k', 'Hybrid inverter 6 kW', 52000);
+        Product::query()->whereKey($inv->id)->update(['brand' => 'GoodWe', 'model' => 'GW6000-ES']);
+        $ask = $this->product('lugs', 'Battery lugs 95 mm²', 120, 'fixed', 'Pickup price per piece', 'on_request');
+        $this->actingAs($this->member(), 'member');
+        $this->post('/quotation');
+        $q = MemberQuote::query()->firstOrFail();
+        $this->get('/quotation/'.$q->id)->assertSee('list="mq-suggest"', false)
+            ->assertSee('<option value="Hybrid inverter 6 kW">GoodWe · GW6000-ES</option>', false)
+            ->assertDontSee('<option value="Battery lugs 95 mm²">', false); // not available to order: not suggested
+
+        // A suggestion for a product we can sell becomes that product (priced); typing it again adds to the quantity.
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_custom', 'custom_name' => 'hybrid inverter 6 kW', 'custom_qty' => 2]))
+            ->assertSessionHas('quote_status', 'Added “Hybrid inverter 6 kW” from our product list, with its website price.');
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_custom', 'custom_name' => 'Hybrid inverter 6 kW', 'custom_qty' => 1]));
+        $this->assertSame([['kind' => 'product', 'product_id' => $inv->id, 'name' => 'Hybrid inverter 6 kW', 'qty' => 3]], $q->refresh()->items);
+        // Typed anyway, one we can't take orders for stays an own item, to be quoted.
+        $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'add_custom', 'custom_name' => 'Battery lugs 95 mm²', 'custom_qty' => 10, 'custom_unit' => 'pcs']));
+        $this->assertSame('custom', $q->refresh()->items[1]['kind']);
+        $this->assertSame(156000.0, Quotations::lines($q)['total']);
+    }
 }

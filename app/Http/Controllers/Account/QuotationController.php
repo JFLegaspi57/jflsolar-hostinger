@@ -61,6 +61,8 @@ class QuotationController extends Controller
         return view('pages.quotation.edit', [
             'q' => $q, 'sum' => Quotations::lines($q), 'member' => Members::current(),
             // Product list in the shop's category order.
+            // Suggestions for "Add your own item": product names on our product list that are available to order.
+            'suggestions' => $catalogue->values(),
             'groups' => (function () use ($catalogue) {
                 $order = Quotations::categoryOrder();
 
@@ -137,9 +139,21 @@ class QuotationController extends Controller
                 if (mb_strlen($name) < 2) {
                     return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'Type a name for your item, e.g. “Installation labour” or “Ground-mount frame”.')->with('quote_focus', 'custom-name');
                 }
-                $items[] = ['kind' => 'custom', 'name' => $name, 'qty' => Quotations::qty($request->input('custom_qty', 1)),
-                    'unit' => Quotations::clean($request->input('custom_unit'), Quotations::LIMITS['unit'])];
-                $status = 'Added “'.$name.'”.';
+                $qty = Quotations::qty($request->input('custom_qty', 1));
+                // Picked one of our products from the suggestions, and it can be ordered: add it as that product, with its price.
+                $p = Quotations::available()->first(fn ($p) => mb_strtolower($p->name) === mb_strtolower($name));
+                $existing = $p ? collect($items)->search(fn ($it) => ($it['kind'] ?? '') === 'product' && ($it['product_id'] ?? '') === $p->id) : false;
+                if ($p && $existing !== false) {
+                    $items[$existing]['qty'] = Quotations::qty($items[$existing]['qty'] + $qty);
+                    $status = 'Added '.$qty.' more of “'.$p->name.'”.';
+                } elseif ($p) {
+                    $items[] = ['kind' => 'product', 'product_id' => $p->id, 'name' => $p->name, 'qty' => $qty];
+                    $status = 'Added “'.$p->name.'” from our product list, with its website price.';
+                } else {
+                    $items[] = ['kind' => 'custom', 'name' => $name, 'qty' => $qty,
+                        'unit' => Quotations::clean($request->input('custom_unit'), Quotations::LIMITS['unit'])];
+                    $status = 'Added “'.$name.'”.';
+                }
             }
         }
 
