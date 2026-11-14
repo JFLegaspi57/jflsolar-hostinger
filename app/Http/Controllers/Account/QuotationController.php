@@ -60,11 +60,17 @@ class QuotationController extends Controller
 
         return view('pages.quotation.edit', [
             'q' => $q, 'sum' => Quotations::lines($q), 'member' => Members::current(),
-            'groups' => $catalogue->groupBy(fn ($p) => $p->category?->name ?? 'Other')->sortKeys(),
+            // Product list in the shop's category order.
+            'groups' => (function () use ($catalogue) {
+                $order = Quotations::categoryOrder();
+
+                return $catalogue->values()->sortBy(fn ($p, $n) => [$order[$p->category_id] ?? 900, $n])
+                    ->groupBy(fn ($p) => $p->category?->name ?? 'Other products');
+            })(),
         ]);
     }
 
-    /** Save the form; then do the button's action: add a product or own item, remove a line, or send. */
+    /** Save the form; then do the button's action: add a product or own item, remove a line, print or send. */
     public function update(Request $request, int $id): RedirectResponse
     {
         $q = $this->find($id);
@@ -98,13 +104,6 @@ class QuotationController extends Controller
         if (preg_match('/^remove:(\d+)$/', $intent, $m) && isset($items[(int) $m[1]])) {
             $status = 'Removed “'.$items[(int) $m[1]]['name'].'”.';
             array_splice($items, (int) $m[1], 1);
-        } elseif (preg_match('/^(up|down):(\d+)$/', $intent, $m) && isset($items[(int) $m[2]])) {
-            $from = (int) $m[2];
-            $to = $m[1] === 'up' ? $from - 1 : $from + 1;
-            if (isset($items[$to])) {
-                [$items[$from], $items[$to]] = [$items[$to], $items[$from]];
-            }
-            $status = 'Moved.';
         } elseif ($intent === 'add_product' || $intent === 'add_custom') {
             if (count($items) >= Quotations::MAX_LINES) {
                 return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'A quotation can have up to '.Quotations::MAX_LINES.' lines. Start a new quotation for more.');
