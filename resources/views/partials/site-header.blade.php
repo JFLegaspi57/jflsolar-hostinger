@@ -37,9 +37,8 @@
                     .nav-dd-link[aria-current=page] { background: var(--color-gold-50); color: var(--color-steel-950); font-weight: 600; }
                     @media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
                     @media (min-width: 1024px) and (max-width: 1359.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
-                    @media (min-width: 1024px) and (max-width: 1219.98px) { .quote-long { display: none !important; } .quote-short { display: inline !important; } }
                     @media (max-width: 639.98px) { .auth-label { display: none; } header [data-auth-open], header a[href="/account"] { padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
-                    @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } }</style>
+                    @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } .hdr-quote { white-space: normal !important; max-width: 5.6rem; padding-inline: .55rem !important; text-align: center; font-size: .8rem !important; line-height: 1.1; } }</style>
                 <ul class="flex items-center gap-1">
                     @foreach (Site::NAV as $item)
                         @php $active = $isActive($item['href']); $sub = $subMenus[$item['href']] ?? null; $dropdown = (bool) $sub; @endphp
@@ -89,9 +88,8 @@
                     @if ($cartCount)<span aria-hidden="true" class="absolute top-0 rounded-full bg-steel-900 px-1 text-center text-xs leading-5 font-bold text-white tabular" style="right: 0; min-width: 1.25rem; transform: translate(20%, -20%)">{{ $cartCount }}</span>@endif
                 </a>
             @endif
-            <a href="{{ Site::QUOTE_HREF }}" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-gold-500 px-3.5 text-sm font-semibold whitespace-nowrap text-steel-950 hover:bg-gold-400 sm:px-4 sm:text-[0.95rem]">
-                <span class="quote-short sm:hidden">Get a quote</span>
-                <span class="quote-long hidden sm:inline">Request a Quote</span>
+            <a href="/quotation" @if (request()->is('quotation', 'quotation/*')) aria-current="page" @endif class="hdr-quote inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-gold-500 px-3 text-sm font-semibold whitespace-nowrap text-steel-950 hover:bg-gold-400 sm:px-4 sm:text-[0.95rem]">
+                {{ \App\Support\Quotations::NAME }}
             </a>
 
             {{-- Mobile menu: native <dialog>.showModal() — focus moves in, page behind is inert, Escape closes, focus returns. --}}
@@ -136,7 +134,7 @@
                     </nav>
                     <div class="mt-auto space-y-3 border-t border-steel-200 p-4">
                         <a href="{{ $member ? '/account' : '/login' }}" @unless ($member) data-auth-open="login" @endunless data-close-dialog class="flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-steel-300 font-semibold text-steel-950 hover:bg-steel-50"><x-icon name="user" class="size-5" /> {{ $member ? 'Your account' : 'Log in / Create account' }}</a>
-                        <a href="{{ Site::QUOTE_HREF }}" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">Request a Quote</a>
+                        <a href="/quotation" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">{{ \App\Support\Quotations::NAME }}</a>
                         <ul class="space-y-1">
                             @foreach ($menuContacts as $c)
                                 <li>
