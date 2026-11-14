@@ -133,7 +133,13 @@
                             <div class="mq-add-box">
                                 <h3 class="font-bold text-steel-950">Add your own item</h3>
                                 <label for="custom-name" class="mt-2 block text-sm font-semibold text-steel-800">What do you need?</label>
-                                <input id="custom-name" name="custom_name" maxlength="{{ $L['name'] }}" placeholder="e.g. Installation labour, ground-mount frame" class="{{ $input }}" @if ($focus === 'custom-name') autofocus @endif>
+                                <input id="custom-name" name="custom_name" list="mq-suggest" autocomplete="off" maxlength="{{ $L['name'] }}" placeholder="Start typing, e.g. inverter, cable, labour" class="{{ $input }}" @if ($focus === 'custom-name') autofocus @endif>
+                                <datalist id="mq-suggest">
+                                    @foreach ($suggestions as $p)
+                                        <option value="{{ $p->name }}">{{ implode(' · ', array_filter([trim((string) $p->brand), trim((string) $p->model)])) }}</option>
+                                    @endforeach
+                                </datalist>
+                                <p class="mt-1 text-xs text-steel-600">Suggestions come from our product list; choose one and it's added with its website price. Anything else is priced by JFL Solar.</p>
                                 <div class="mq-add-row mt-2">
                                     <div><label for="custom-qty" class="block text-sm font-semibold text-steel-800">Qty</label>
                                         <input id="custom-qty" name="custom_qty" type="number" inputmode="numeric" min="1" max="{{ Quotations::MAX_QTY }}" value="1" class="{{ $input }} tabular"></div>
