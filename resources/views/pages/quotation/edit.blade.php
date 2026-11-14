@@ -13,7 +13,20 @@
         <div class="mt-3 flex flex-wrap items-end justify-between gap-3">
             <div class="min-w-0">
                 <p class="text-sm font-semibold tracking-wide text-steel-600 uppercase">{{ Quotations::NAME }} · {{ $q->reference() }}</p>
-                <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $q->title }}</h1>
+                <div class="mq-titlebar">
+                    <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $q->title }}</h1>
+                    {{-- Rename: the field belongs to the main form below (form="mq-form"). --}}
+                    <details class="mq-rename" @if (session('quote_focus') === 'title') open @endif>
+                        <summary class="mq-rename-btn"><span aria-hidden="true">✎</span> Rename</summary>
+                        <div class="mq-rename-box">
+                            <label for="q-title" class="block text-sm font-semibold text-steel-900">Quotation name</label>
+                            <div class="mq-rename-row">
+                                <input id="q-title" name="title" form="mq-form" value="{{ $q->title }}" maxlength="{{ $L['title'] }}" required class="{{ $input }}" placeholder="e.g. 10 kW hybrid for our house">
+                                <button type="submit" form="mq-form" name="intent" value="rename" class="{{ Ui::button('dark') }}">Save name</button>
+                            </div>
+                        </div>
+                    </details>
+                </div>
                 <p class="mt-2 text-sm text-steel-700">
                     @if ($q->sent_at)
                         <span class="mq-badge mq-sent">Sent {{ $q->sent_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}</span>
@@ -136,8 +149,6 @@
                     <section class="{{ $card }} mt-6" aria-labelledby="mq-details-h">
                         <h2 id="mq-details-h" class="text-xl font-bold text-steel-950">Details</h2>
                         <div class="mt-4 space-y-4">
-                            <div><label for="q-title" class="block font-semibold text-steel-900">Quotation name</label>
-                                <input id="q-title" name="title" value="{{ $q->title }}" maxlength="{{ $L['title'] }}" class="{{ $input }} mt-1" placeholder="e.g. 10 kW hybrid for our house"></div>
                             <div><label for="q-location" class="block font-semibold text-steel-900">City or province</label>
                                 <input id="q-location" name="location" value="{{ $q->location }}" maxlength="{{ $L['location'] }}" autocomplete="address-level2" class="{{ $input }} mt-1" placeholder="Where the items are needed"></div>
                             <div><label for="q-phone" class="block font-semibold text-steel-900">Mobile or phone</label>
@@ -171,6 +182,16 @@
 
     <x-slot:head>
         <style>
+            .mq-titlebar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; }
+            .mq-rename { position: relative; }
+            .mq-rename[open] { flex-basis: 100%; }
+            .mq-rename summary { list-style: none; }
+            .mq-rename summary::-webkit-details-marker { display: none; }
+            .mq-rename-btn { display: inline-flex; align-items: center; gap: .35rem; min-height: 2.75rem; cursor: pointer; border: 1px solid var(--color-steel-300); border-radius: var(--radius-control); background: #fff; padding: 0 .9rem; font-size: .9rem; font-weight: 700; color: var(--color-steel-900); }
+            .mq-rename-btn:hover, .mq-rename[open] .mq-rename-btn { border-color: var(--color-steel-900); }
+            .mq-rename-box { margin-top: .5rem; width: min(34rem, calc(100vw - 2rem)); border: 1px solid var(--color-steel-200); border-radius: var(--radius-control); background: var(--color-steel-50); padding: .9rem; }
+            .mq-rename-row { margin-top: .35rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+            .mq-rename-row input { flex: 1 1 14rem; }
             .mq-default { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
             .mq-grid { margin-top: 1.5rem; display: grid; gap: 1.5rem; align-items: start; }
             @media (min-width: 64rem) { .mq-grid { grid-template-columns: minmax(0, 1fr) 22rem; } .mq-side { position: sticky; top: 6rem; } }

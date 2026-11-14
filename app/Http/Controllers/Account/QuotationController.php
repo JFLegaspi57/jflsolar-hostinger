@@ -78,6 +78,7 @@ class QuotationController extends Controller
         $wasSent = $q->sent_at !== null;
         $before = json_encode([$q->title, $q->location, $q->notes, $q->items]);
 
+        $oldTitle = $q->title;
         $title = Quotations::clean($request->input('title'), Quotations::LIMITS['title']);
         $q->title = $title !== '' ? $title : $q->title;
         $q->location = Quotations::clean($request->input('location'), Quotations::LIMITS['location']) ?: null;
@@ -101,6 +102,12 @@ class QuotationController extends Controller
 
         $intent = Input::str($request, 'intent', 'save');
         $status = 'Saved.';
+        if ($intent === 'rename') {
+            if ($title === '') {
+                return $this->save($q, $items, $wasSent, $before)->with('quote_error', 'Type a name for your quotation.')->with('quote_focus', 'title');
+            }
+            $status = $q->title === $oldTitle ? 'The name is unchanged.' : 'Renamed to “'.$q->title.'”.';
+        }
         if (preg_match('/^remove:(\d+)$/', $intent, $m) && isset($items[(int) $m[1]])) {
             $status = 'Removed “'.$items[(int) $m[1]]['name'].'”.';
             array_splice($items, (int) $m[1], 1);
@@ -143,6 +150,27 @@ class QuotationController extends Controller
             'print' => redirect('/quotation/'.$q->id.'/print'),
             default => $response->with('quote_status', $status),
         };
+    }
+
+    /** Rename a quotation from the list of quotations. */
+    public function rename(Request $request, int $id): RedirectResponse
+    {
+        $q = $this->find($id);
+        $title = Quotations::clean($request->input('title'), Quotations::LIMITS['title']);
+        if ($title === '') {
+            return redirect('/quotation#q-'.$q->id)->with('quote_error', 'Type a name for your quotation.');
+        }
+        if ($title === $q->title) {
+            return redirect('/quotation#q-'.$q->id)->with('quote_status', 'The name is unchanged.');
+        }
+        $old = $q->title;
+        $q->title = $title;
+        if ($q->sent_at) {
+            $q->edited_after_send = true;
+        }
+        $q->save();
+
+        return redirect('/quotation#q-'.$q->id)->with('quote_status', 'Renamed “'.$old.'” to “'.$title.'”.');
     }
 
     public function duplicate(int $id): RedirectResponse
