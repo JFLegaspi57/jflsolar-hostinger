@@ -56,8 +56,8 @@
         <h2 id="philippines">Solis in the Philippines</h2>
         <ul class="dots">
             <li>Solis has a Philippine office at 40 Nadurata St., Grace Park West, Caloocan City, with a local service hotline (+63 2 8372 7945) and a country manager.</li>
-            <li>In January 2025 it launched its Solarator series here; in May 2025 it launched a 125 kW commercial hybrid at Solar &amp; Storage Live Philippines and celebrated its 20th anniversary at a Brand Day with IAN Solar, JA Solar and Dyness.</li>
-            <li>In August 2025 it toured Calapan, Tuguegarao, Kalibo, Naga, Dumaguete and Ozamiz with IAN Solar, demonstrating its 16 kW hybrid with Dyness batteries.</li>
+            <li>In January 2025 it launched its Solarator series here; in May 2025 it launched a 125 kW commercial hybrid at Solar &amp; Storage Live Philippines and celebrated its 20th anniversary at a Brand Day with JA Solar and Dyness.</li>
+            <li>In August 2025 it toured Calapan, Tuguegarao, Kalibo, Naga, Dumaguete and Ozamiz, demonstrating its 16 kW hybrid with Dyness batteries.</li>
         </ul>
     </section>
 
