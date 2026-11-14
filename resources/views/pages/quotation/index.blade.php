@@ -91,6 +91,7 @@
             @endif
         @endif
     </x-container>
+    @include('pages.quotation.confirm-delete')
     <x-slot:head>
         <style>
             .mq-steps { margin-top: 1rem; display: grid; gap: .75rem; counter-reset: mq; }
