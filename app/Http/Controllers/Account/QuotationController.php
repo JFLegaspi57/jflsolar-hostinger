@@ -53,6 +53,59 @@ class QuotationController extends Controller
         return redirect('/quotation/'.$q->id)->with('quote_status', $items ? 'New quotation started with '.$items[0]['name'].'.' : 'New quotation started. Add products and your own items below.');
     }
 
+    /**
+     * "Make a Quotation" on Build Your Own: the parts and add-ons chosen there become a new quotation.
+     * Visitors sign in or sign up first; their choice waits in the session meanwhile.
+     */
+    public function fromBuild(Request $request): RedirectResponse
+    {
+        $back = redirect('/packages/build-your-own#build');
+        $lines = \App\Support\PackageBuilder::customLines();
+        if (! $lines) {
+            return $back->with('pkg_error', 'Sorry, Build Your Own is not available right now. Please start a quotation from our products instead.');
+        }
+        $sel = \App\Support\PackageBuilder::selection($request, $lines);
+        if ($sel['error']) {
+            return $back->withInput()->with('pkg_error', $sel['error']);
+        }
+        $items = [];
+        foreach ($sel['items'] as ['product' => $p, 'qty' => $qty]) {
+            $items[$p->id] = ['kind' => 'product', 'product_id' => $p->id, 'name' => $p->name, 'qty' => Quotations::qty(($items[$p->id]['qty'] ?? 0) + $qty)];
+        }
+        $request->session()->put('quote_from_build', array_values($items));
+        if (! Members::current()) {
+            return redirect('/login?next='.rawurlencode('/quotation/from-build'))
+                ->with('account_status', 'Sign in or create a free account, and your Build Your Own parts become a quotation you can keep, print and send.');
+        }
+
+        return $this->finishFromBuild($request);
+    }
+
+    /** Creates the quotation once the member is signed in (also the "next" page after signing in or up). */
+    public function finishFromBuild(Request $request): RedirectResponse
+    {
+        $member = $this->member();
+        Quotations::ensureTables();
+        $items = (array) $request->session()->pull('quote_from_build', []);
+        if (! $items) {
+            return redirect('/quotation');
+        }
+        if (MemberQuote::query()->where('member_id', $member->id)->count() >= Quotations::MAX_QUOTES) {
+            return redirect('/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need, then use Make a Quotation on Build Your Own again.');
+        }
+        $available = Quotations::available();
+        $items = array_slice(array_values(array_filter($items, fn ($it) => $available->has((string) ($it['product_id'] ?? '')))), 0, Quotations::MAX_LINES);
+        if (! $items) {
+            return redirect('/packages/build-your-own#build')->with('pkg_error', 'Those parts are not available to order right now. Please choose others.');
+        }
+        $n = MemberQuote::query()->where('member_id', $member->id)->where('title', 'like', 'Build Your Own%')->count() + 1;
+        $q = MemberQuote::query()->create([
+            'member_id' => $member->id, 'title' => 'Build Your Own package'.($n > 1 ? ' '.$n : ''), 'phone' => $member->phone, 'items' => $items,
+        ]);
+
+        return redirect('/quotation/'.$q->id)->with('quote_status', 'Your Build Your Own parts are now a quotation ('.count($items).' '.(count($items) === 1 ? 'item' : 'items').'). Change anything you like, then print it or send it to us.');
+    }
+
     public function edit(int $id): View
     {
         $q = $this->find($id);

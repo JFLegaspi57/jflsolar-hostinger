@@ -277,4 +277,39 @@ final class PackageBuilder
     {
         return array_sum(array_map(fn ($l) => (float) $l['options'][0]->price_php * $l['quantity'], $lines));
     }
+
+    /**
+     * What the customer chose in a package builder form: main parts (product[i], quantity[i]) and add-ons (addon[id]).
+     *
+     * @return array{items: list<array{product: \App\Models\Product, qty: int}>, error: ?string}
+     */
+    public static function selection(\Illuminate\Http\Request $request, array $lines): array
+    {
+        $chosen = (array) $request->input('product', []);
+        $quantities = (array) $request->input('quantity', []);
+        $items = [];
+        foreach ($lines as $line) {
+            $i = $line['index'];
+            $qty = Shop::clampQuantity($quantities[$i] ?? 0);
+            if ($qty < 1) {
+                continue;   // the customer left this part out
+            }
+            $product = collect($line['options'])->firstWhere('id', (string) ($chosen[$i] ?? '')) ?? (count($line['options']) === 1 ? $line['options'][0] : null);
+            if (! $product) {
+                return ['items' => [], 'error' => 'Please choose a '.mb_strtolower($line['label']).'.'];
+            }
+            $items[] = ['product' => $product, 'qty' => $qty];
+        }
+        // Optional add-ons (mounting, cables, protection devices, accessories): addon[product id] = quantity.
+        $addonProducts = collect(self::addons($lines))->flatMap(fn ($g) => $g['products'])->keyBy('id');
+        foreach ((array) $request->input('addon', []) as $id => $qty) {
+            $product = $addonProducts->get((string) $id);
+            $qty = Shop::clampQuantity($qty);
+            if ($product && $qty > 0) {
+                $items[] = ['product' => $product, 'qty' => $qty];
+            }
+        }
+
+        return ['items' => $items, 'error' => $items ? null : 'Please set a quantity of at least 1 for one of the parts.'];
+    }
 }
