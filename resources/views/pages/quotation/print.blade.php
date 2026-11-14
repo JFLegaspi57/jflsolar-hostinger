@@ -23,7 +23,8 @@
         .btn { font: bold 15px Arial, Helvetica, sans-serif; padding: 10px 18px; border-radius: 6px; border: 1px solid #111827; background: #111827; color: #fff; cursor: pointer; text-decoration: none; }
         .btn.alt { background: #fff; color: #111827; }
         .num { text-align: right !important; white-space: nowrap; }
-        @media (max-width: 640px) { .sheet { margin: 12px; padding: 16px; } }
+        @media (max-width: 640px) { .sheet { margin: 12px; padding: 16px; } .foot td { display: block; width: auto !important; padding-right: 0 !important; } }
+        .foot { break-inside: avoid; page-break-inside: avoid; }
         @media print { @page { size: A4; margin: 14mm; } body { background: #fff; } .no-print { display: none !important; } .sheet { box-shadow: none; margin: 0; padding: 0; max-width: none; } }
     </style>
 </head>
@@ -87,6 +88,36 @@
                 Prepared with {{ Quotations::NAME }} on {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}. Prices are JFL Solar's website prices on the date above, for reference only;
                 this is not a formal quotation. Final prices, availability and delivery are confirmed by JFL Solar in writing.
             </p>
+
+            {{-- Footer: where to find us and how to reach us (same details as the website footer, from Admin → Settings). --}}
+            @php
+                $footHead = 'margin:0 0 4px;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:#111827;';
+                $footText = 'margin:0;font-size:12px;line-height:1.5;color:#374151;';
+                $channels = \App\Support\Contact::channels($settings);
+            @endphp
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="foot" style="border-collapse:collapse;margin-top:16px;border-top:3px solid #f59e0b;">
+                <tr>
+                    @if ($settings->office_address)
+                        <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;">
+                            <p style="{{ $footHead }}">Office</p>
+                            <p style="{{ $footText }}">{{ $settings->office_address }}</p>
+                        </td>
+                    @endif
+                    @if ($settings->warehouse_address)
+                        <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;">
+                            <p style="{{ $footHead }}">Warehouse</p>
+                            <p style="{{ $footText }}">{{ $settings->warehouse_address }}</p>
+                        </td>
+                    @endif
+                    <td style="padding:12px 0 0;vertical-align:top;">
+                        <p style="{{ $footHead }}">Contact</p>
+                        @foreach ($channels as $c)
+                            <p style="{{ $footText }}"><span style="color:#6b7280;">{{ $c['label'] }}:</span> {{ $c['detail'] }}</p>
+                        @endforeach
+                        <p style="{{ $footText }}"><span style="color:#6b7280;">Website:</span> {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}</p>
+                    </td>
+                </tr>
+            </table>
         </div>
     </main>
 </body>
