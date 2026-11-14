@@ -105,6 +105,11 @@ class QuotationTest extends TestCase
         $this->post('/quotation/'.$q->id, $this->form($q, ['intent' => 'remove:2']))->assertSessionHas('quote_status', 'Removed “Battery 15 kWh”.');
         $this->assertCount(3, $q->refresh()->items);
 
+        // Brand and model show under each product (not under own items).
+        Product::query()->whereKey($inv->id)->update(['brand' => 'GoodWe', 'model' => 'GW8K-ET']);
+        PublicContent::flush();
+        $this->get('/quotation/'.$q->id)->assertSeeInOrder(['Hybrid inverter 8 kW', '<dt>Brand</dt><dd>GoodWe</dd>', '<dt>Model</dt><dd>GW8K-ET</dd>'], false);
+        $this->get('/quotation/'.$q->id.'/print')->assertSee('Brand: GoodWe · Model: GW8K-ET');
         $this->get('/quotation/'.$q->id)->assertSee('Our 8 kW hybrid')->assertSee('₱133,400')->assertSee('+ 1 item to be quoted by JFL Solar')->assertDontSee('Note (optional)');
         $this->get('/quotation/'.$q->id.'/print')->assertOk()->assertSee('Quotation request')->assertSee($q->reference())->assertSee('Installation labour and commissioning')->assertSee('not a formal quotation');
         $this->get('/quotation')->assertSee('Our 8 kW hybrid')->assertSee('Draft');
@@ -116,7 +121,8 @@ class QuotationTest extends TestCase
         $this->assertSame('maria@example.com', $inquiry->email);
         $this->assertSame('Lipa, Batangas', $inquiry->location);
         $this->assertStringContainsString($q->reference(), $inquiry->item_label);
-        $this->assertStringContainsString('PV cable 6 mm² — 40 metres — ₱85 each = ₱3,400', $inquiry->message);
+        $this->assertStringContainsString('PV cable 6 mm² [Brand: B · Model: M] — 40 metres — ₱85 each = ₱3,400', $inquiry->message);
+        $this->assertStringContainsString('Hybrid inverter 8 kW [Brand: GoodWe · Model: GW8K-ET]', $inquiry->message);
         $this->assertStringContainsString('Installation labour and commissioning — 1 lot — to be quoted (own item)', $inquiry->message);
         $this->assertStringContainsString('Delivery in December please.', $inquiry->message);
         $this->assertNotNull($q->refresh()->sent_at);
@@ -205,7 +211,7 @@ class QuotationTest extends TestCase
         $this->assertTrue($sum['lines'][0]['unavailable']);
         $this->assertSame(0.0, $sum['total']);
         $this->get('/quotation/'.$q->id)->assertSee('Currently not available');
-        $this->assertStringContainsString('Inverter in stock (currently not available)', Quotations::message($q));
+        $this->assertStringContainsString('Inverter in stock [Brand: B · Model: M] (currently not available)', Quotations::message($q));
     }
 
     public function test_lines_and_the_product_list_follow_the_shop_category_order(): void

@@ -74,6 +74,12 @@
                                                     @if ($l['slug'])<a href="/products/{{ $l['slug'] }}" class="font-semibold text-steel-950 underline-offset-2 hover:underline" target="_blank" rel="noopener">{{ $l['name'] }}</a>@else<span class="font-semibold text-steel-950">{{ $l['name'] }}</span>@endif
                                                     @if ($l['missing'])<span class="mq-badge mq-changed">No longer listed</span>@endif
                                                     @if ($l['unavailable'])<span class="mq-badge mq-changed">Currently not available</span>@endif
+                                                    @if ($l['brand'] !== '' || $l['model'] !== '')
+                                                        <dl class="mq-bm">
+                                                            @if ($l['brand'] !== '')<div><dt>Brand</dt><dd>{{ $l['brand'] }}</dd></div>@endif
+                                                            @if ($l['model'] !== '')<div><dt>Model</dt><dd>{{ $l['model'] }}</dd></div>@endif
+                                                        </dl>
+                                                    @endif
                                                 @else
                                                     <label class="sr-only" for="it-{{ $i }}-name">Item name</label>
                                                     <input id="it-{{ $i }}-name" name="items[{{ $i }}][name]" value="{{ $l['name'] }}" maxlength="{{ $L['name'] }}" class="{{ $input }} font-semibold">
@@ -209,6 +215,11 @@
             .mq-table td { border-bottom: 1px solid var(--color-steel-200); padding: .75rem .5rem; vertical-align: top; }
             .mq-table .mq-num { text-align: right; white-space: nowrap; }
             .mq-name { min-width: 14rem; }
+            .mq-bm { margin-top: .3rem; display: flex; flex-wrap: wrap; gap: .1rem 1rem; font-size: .85rem; color: var(--color-steel-700); }
+            .mq-bm div { display: flex; gap: .3rem; }
+            .mq-bm dt { font-weight: 600; color: var(--color-steel-600); }
+            .mq-bm dt::after { content: ":"; }
+            .mq-bm dd { margin: 0; color: var(--color-steel-900); }
             .mq-own { display: block; margin-top: .25rem; font-size: .75rem; color: var(--color-steel-600); }
             .mq-qty { display: flex; gap: .35rem; align-items: center; justify-content: flex-end; }
             .mq-qty input[data-qty] { width: 5.5rem; text-align: right; }
