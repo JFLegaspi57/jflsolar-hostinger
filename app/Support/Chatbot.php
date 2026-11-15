@@ -106,7 +106,7 @@ final class Chatbot
                 ]);
             } catch (\Throwable $e) {
                 Log::error('[chatbot] request failed', ['error' => $e::class]);
-                self::noteStatus(false, 'Could not reach Anthropic ('.class_basename($e).').');
+                self::noteStatus(false, 'Request failed ('.class_basename($e).': '.mb_substr(str_replace((string) config('chatbot.api_key'), '[key]', $e->getMessage()), 0, 200).').');
 
                 return ['reply' => $fallback, 'callback' => $callback];
             }
@@ -157,7 +157,7 @@ final class Chatbot
             return [false, 'Not saved: too many requests right now. Ask the customer to call or message us directly.'];
         }
         RateLimiter::hit($key, 3600);
-        $recent = collect($messages)->take(-6)->map(fn ($m) => ($m['role'] === 'user' ? 'Customer: ' : 'Assistant: ').mb_substr(preg_replace('/\s+/', ' ', $m['content']), 0, 300))->implode("\n");
+        $recent = collect($messages)->take(-6)->map(fn ($m) => ($m['role'] === 'user' ? 'Customer: ' : 'Assistant: ').mb_substr((string) preg_replace('/\s+/u', ' ', mb_scrub((string) $m['content'], 'UTF-8')), 0, 300))->implode("\n");
         $inquiry = Inquiry::query()->create([
             'name' => $name,
             'phone' => $mobile,
@@ -200,7 +200,8 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v7', 300, fn () => self::rules()."\n\n".self::knowledge());
+        // Always valid UTF-8, so the request to Anthropic can be encoded.
+        return Cache::remember('chatbot-system-v8', 300, fn () => mb_scrub(self::rules()."\n\n".self::knowledge(), 'UTF-8'));
     }
 
     private static function rules(): string
@@ -339,7 +340,7 @@ TXT;
     {
         $s = PublicContent::snapshot();
         $settings = PublicContent::settings();
-        $one = fn (?string $t) => trim(preg_replace('/\s+/', ' ', (string) $t));
+        $one = fn (?string $t) => trim((string) preg_replace('/\s+/u', ' ', mb_scrub((string) $t, 'UTF-8')));
         $lines = ['Website pages and features (link them with these paths):'];
         $lines[] = '- [PV Calculator](/pv-calculator): enter the monthly bill or a list of appliances; it suggests the system size, parts in stock and savings; free, no sign-up; the result can be printed.';
         $lines[] = '- [Make a Quotation](/quotation): free for registered members; pick catalogue products at today\'s website prices, add own items (labour, mounting), save up to '.Quotations::MAX_QUOTES.' quotations, print, and send to JFL Solar for a formal quotation.';
