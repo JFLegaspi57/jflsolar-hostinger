@@ -40,6 +40,9 @@ final class Site
 
     public const QUOTE_HREF = '/contact#quote';
 
+    /** JF Legaspi's YouTube channel, listed on the contact page. */
+    public const YOUTUBE_URL = 'https://www.youtube.com/@JFLegaspi';
+
     /** Sales mailbox (alias of the main mailbox), shown after the public email in contact lists. */
     public const SALES_EMAIL = 'sales@jflsolar.ph';
 

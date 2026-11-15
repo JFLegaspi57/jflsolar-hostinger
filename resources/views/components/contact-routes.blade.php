@@ -1,7 +1,8 @@
 @props(['settings', 'dark' => false])
 @php
-    $icons = ['phone' => 'phone', 'whatsapp' => 'chat', 'viber' => 'chat', 'messenger' => 'chat', 'facebook' => 'facebook', 'email' => 'mail', 'sales_email' => 'mail'];
-    $all = collect(\App\Support\Contact::channels($settings));
+    $icons = ['phone' => 'phone', 'whatsapp' => 'chat', 'viber' => 'chat', 'messenger' => 'chat', 'facebook' => 'facebook', 'email' => 'mail', 'sales_email' => 'mail', 'youtube' => 'youtube'];
+    $all = collect(\App\Support\Contact::channels($settings))
+        ->push(['key' => 'youtube', 'label' => 'YouTube', 'detail' => 'Subscribe', 'href' => \App\Support\Site::YOUTUBE_URL, 'external' => true]);
     // The main and sales email addresses share one card.
     $emails = $all->whereIn('key', ['email', 'sales_email'])->values();
     $frame = 'flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border px-4 py-2.5 transition-colors '.($dark ? 'border-white/15 bg-white/5' : 'border-steel-200 bg-white');
