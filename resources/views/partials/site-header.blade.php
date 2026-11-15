@@ -44,12 +44,6 @@
                     @media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
                     @media (min-width: 1024px) and (max-width: 1359.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
                     @media (min-width: 1024px) and (max-width: 1199.98px) { .site-nav a { padding-inline: .2rem; font-size: .82rem; } .site-nav a > span { left: .2rem; right: .2rem; } .hdr-quote { padding-inline: .6rem !important; font-size: .84rem !important; } }
-                    .hdr-flag { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; min-height: 2.75rem; padding: 0 .2rem; border-radius: .35rem; opacity: .55; transition: opacity .15s; }
-                    .hdr-flag svg { border-radius: 2px; box-shadow: 0 0 0 1px rgb(0 0 0 / .15); }
-                    .hdr-flag:hover, .hdr-flag:focus-visible { opacity: 1; }
-                    .hdr-flag[aria-current] { opacity: 1; }
-                    .hdr-flag[aria-current] svg { box-shadow: 0 0 0 2px var(--color-gold-500); }
-                    @media (max-width: 399.98px) { .hdr-flag { min-width: 1.6rem; padding: 0 .1rem; } .hdr-flag svg { width: 18px; height: 12px; } }
                     @media (max-width: 639.98px) { .auth-label { display: none; } header [data-auth-open], header a[href="/account"] { padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
                     @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } .hdr-quote { white-space: normal !important; max-width: 5.6rem; padding-inline: .55rem !important; text-align: center; font-size: .8rem !important; line-height: 1.1; } }</style>
                 <ul class="flex items-center gap-1">
@@ -76,18 +70,6 @@
                     @endforeach
                 </ul>
             </nav>
-            {{-- Language: English or Filipino (App\Support\Lang). The current one is highlighted. --}}
-            @php $lang = \App\Support\Lang::current(); @endphp
-            <div class="hdr-lang inline-flex items-center" role="group" aria-label="Language">
-                <a href="{{ \App\Support\Lang::switchUrl('en') }}" hreflang="en" lang="en" title="English" @if ($lang === 'en') aria-current="true" @endif class="hdr-flag">
-                    <svg viewBox="0 0 30 20" width="22" height="15" aria-hidden="true"><rect width="30" height="20" fill="#b22234"/><path d="M0 3.08h30M0 6.15h30M0 9.23h30M0 12.3h30M0 15.38h30M0 18.46h30" stroke="#fff" stroke-width="1.54"/><rect width="13" height="10.77" fill="#3c3b6e"/><g fill="#fff">@foreach ([[2,2],[5,2],[8,2],[11,2],[3.5,4.6],[6.5,4.6],[9.5,4.6],[2,7.2],[5,7.2],[8,7.2],[11,7.2],[3.5,9.4],[6.5,9.4],[9.5,9.4]] as [$sx, $sy])<circle cx="{{ $sx }}" cy="{{ $sy }}" r=".6"/>@endforeach</g></svg>
-                    <span class="sr-only">English</span>
-                </a>
-                <a href="{{ \App\Support\Lang::switchUrl('fil') }}" hreflang="fil" lang="fil" title="Filipino" @if ($lang === 'fil') aria-current="true" @endif class="hdr-flag">
-                    <svg viewBox="0 0 30 20" width="22" height="15" aria-hidden="true"><rect width="30" height="10" fill="#0038a8"/><rect y="10" width="30" height="10" fill="#ce1126"/><path d="M0 0l17.3 10L0 20z" fill="#fff"/><circle cx="5.6" cy="10" r="2.1" fill="#fcd116"/><g fill="#fcd116"><circle cx="1.6" cy="2.7" r=".7"/><circle cx="1.6" cy="17.3" r=".7"/><circle cx="14.2" cy="10" r=".7"/></g></svg>
-                    <span class="sr-only">Filipino</span>
-                </a>
-            </div>
             @if ($member)
                 <a href="/account" aria-label="Your account" @if (request()->is('account')) aria-current="page" @endif
                     style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">

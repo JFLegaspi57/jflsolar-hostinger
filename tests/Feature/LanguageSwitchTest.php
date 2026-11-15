@@ -18,10 +18,9 @@ class LanguageSwitchTest extends TestCase
         PublicContent::flush();
     }
 
-    public function test_header_has_both_flags_and_english_is_the_default(): void
+    public function test_english_is_the_default_and_the_header_has_no_flags(): void
     {
-        $this->get('/')->assertOk()->assertSee('aria-label="Language"', false)
-            ->assertSee('/lang/fil?back=%2F', false)->assertSee('/lang/en?back=%2F', false);
+        $this->get('/')->assertOk()->assertDontSee('aria-label="Language"', false);
         $this->get('/faq')->assertOk()->assertSee('<html lang="en-PH">', false);
     }
 
