@@ -135,7 +135,7 @@
                     <h2 class="text-xl font-bold text-steel-950">Farther than {{ DeliveryRates::MAX_KM }} km?</h2>
                     <p class="mt-2 text-steel-700">We deliver beyond this list too. Tell us your town and what you are ordering, and we will quote the delivery fee.</p>
                     <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-                        <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                        <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                         @if ($settings->phone_e164)
                             <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                         @endif

@@ -61,7 +61,7 @@
                 <h2>Planning a grid-connected system?</h2>
                 <p>Use our free <a href="/pv-calculator" class="inline">PV Calculator</a> for a first estimate based on your monthly bill, read about <a href="/services#system-types" class="inline">on-grid, hybrid and off-grid systems</a>, or talk to us about your plans.</p>
                 <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                     <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                 </div>
             </section>

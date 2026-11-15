@@ -4,7 +4,7 @@
     use App\Support\Site;
     use App\Support\Ui;
 @endphp
-<x-site-layout path="/" :reviews-above-footer="false" description="Solar PV installation, consultancy and equipment distribution for homes, businesses and installers across the Philippines. Request a quote from JFL Solar.">
+<x-site-layout path="/" :reviews-above-footer="false" description="Solar PV installation, consultancy and equipment distribution for homes, businesses and installers across the Philippines. Inquire now with JFL Solar.">
     {{-- Hero — owner-supplied rooftop photo. Mobile/tablet: photo band above the text. Desktop: split, photo fading into the slate panel. --}}
     <section aria-labelledby="hero-title" class="hero-tilt on-dark relative isolate overflow-hidden bg-steel-950 text-white" data-hero-tilt>
         <div class="hero-media relative h-56 sm:h-80 lg:absolute lg:inset-y-0 lg:left-0 lg:-z-20 lg:h-auto lg:w-[62%]">

@@ -221,7 +221,7 @@ TXT;
         if ($settings->general_warranty) {
             $lines[] = '- General warranty note: '.$settings->general_warranty;
         }
-        $lines[] = '- Request a quotation: [Request a Quote](/contact#quote)';
+        $lines[] = '- Request a quotation: [Inquire Now](/contact#quote)';
         $lines[] = '';
         $lines[] = 'Ordering online:';
         if (Shop::visible()) {

@@ -101,7 +101,7 @@ class BlogTest extends TestCase
             ->assertDontSee('The first post is on the way.');
         $this->get('/blog/'.$post->slug)->assertOk()
             ->assertDontSee('By <a href="/about"', false)->assertDontSee('By JF Legaspi')
-            ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertDontSee('>Request a Quote</a>\n            </div>', false)->assertSee('"@type":"BlogPosting"', false)
+            ->assertSee('<h2 class="text-2xl font-extrabold text-steel-950" style="padding-top: .75rem">What you can do</h2>', false)->assertSee('Run the washing machine at noon')->assertDontSee('>Inquire Now</a>\n            </div>', false)->assertSee('"@type":"BlogPosting"', false)
             ->assertSee('alt="Panels on a roof at noon"', false)
             ->assertSee('aria-label="Photos"', false)->assertSee('alt="JF at the airport"', false)
             ->assertSee('<dialog id="photo-viewer"', false)->assertSee('data-photo="0"', false)->assertSee('data-photo="1"', false)

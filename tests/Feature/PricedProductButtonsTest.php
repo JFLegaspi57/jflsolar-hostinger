@@ -23,13 +23,13 @@ class PricedProductButtonsTest extends TestCase
         Product::query()->create($base + ['slug' => 'quote-item', 'name' => 'Quote item', 'pricing_mode' => 'quote', 'price_php' => null, 'price_basis' => '', 'availability' => 'on_request']);
         PublicContent::flush();
 
-        $this->get('/products/priced-item')->assertOk()->assertSee('Add to cart')->assertDontSee('Request a quote')->assertDontSee('Request a Product Quote')
+        $this->get('/products/priced-item')->assertOk()->assertSee('Add to cart')->assertDontSee('Request a quote')->assertDontSee('Inquire Now')
             ->assertDontSee('<x-icon name="phone"', false);
         $priced = $this->get('/products/priced-item')->getContent();
         $box = substr($priced, strpos($priced, 'Add to cart') - 3000, 3500);
         $this->assertStringNotContainsString('> Call</a>', $box);
 
-        $this->get('/products/quote-item')->assertOk()->assertSee('Request a Product Quote')->assertSee('Call')->assertDontSee('Add to cart');
+        $this->get('/products/quote-item')->assertOk()->assertSee('Inquire Now')->assertSee('Call')->assertDontSee('Add to cart');
     }
 
     public function test_image_caption_shows_on_product_page_only_not_on_category_cards(): void

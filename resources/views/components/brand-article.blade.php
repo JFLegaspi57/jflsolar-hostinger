@@ -124,7 +124,7 @@
                 <h2>{{ $cta ?? 'Planning a solar PV system with '.$brand.'?' }}</h2>
                 <p>Tell us your monthly bill and what you want on backup, and we’ll recommend the right inverter, panels, battery and protection.</p>
                 <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                     <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                 </div>
             </section>

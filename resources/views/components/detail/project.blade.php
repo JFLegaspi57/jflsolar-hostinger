@@ -64,7 +64,7 @@
             <aside class="rounded-[var(--radius-panel)] bg-steel-50 p-6">
                 <h2 class="text-lg font-bold text-steel-950">Planning something similar?</h2>
                 <p class="mt-2 text-steel-600">Tell us about your site and we will recommend a system.</p>
-                <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'md', 'mt-4 w-full') }}">Request a Quote</a>
+                <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'md', 'mt-4 w-full') }}">Inquire Now</a>
             </aside>
         </div>
 

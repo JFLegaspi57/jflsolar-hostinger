@@ -257,7 +257,7 @@
                 <h2>Planning a hybrid solar PV system?</h2>
                 <p>Send us your monthly bill and the appliances you want running during brownouts, and we’ll design the array, inverter, battery and protection for your home or business.</p>
                 <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                     <a href="/pv-calculator" class="{{ Ui::button('secondary', 'lg') }}">Try the PV Calculator</a>
                 </div>
             </section>
