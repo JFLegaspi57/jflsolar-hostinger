@@ -34,9 +34,21 @@
             @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } }
             .calc-print-only { display: none; }
             @media print {
-                @page { size: A4; margin: 14mm; }
+                @page { size: A4; margin: 12mm; }
                 header, footer, .calc-noprint, section[aria-labelledby="page-hero-title"], section[aria-labelledby="method-title"], [aria-label="Proposal preview notice"] { display: none !important; }
                 .calc-print-only { display: block !important; }
+                /* Printed estimate: the result only (no calculator inputs), in dark text on white. */
+                .calc-inputs, .calc-results [data-print] { display: none !important; }
+                .calc-grid { display: block !important; }
+                section[aria-labelledby="calc-title"] { padding: 0 !important; }
+                .calc-results { background: #fff !important; color: #111827 !important; border: 1px solid #d1d5db; padding: 16px !important; }
+                .calc-results * { color: #111827 !important; border-color: #d1d5db !important; }
+                .calc-results .text-gold-400 { color: #92400e !important; }
+                .calc-results .bg-white\/5 { background: #f9fafb !important; }
+                .calc-results h2 { font-size: 22px !important; }
+                .calc-results dl { margin-top: 12px !important; padding-top: 10px !important; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+                .calc-results dl > div { margin: 0 !important; }
+                .calc-results .text-xl, .calc-results .text-2xl { font-size: 17px !important; }
                 .calc-print-foot { break-inside: avoid; page-break-inside: avoid; }
             }
         </style>
@@ -52,14 +64,14 @@
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-bottom:3px solid #f59e0b;">
             <tr><td style="padding:0 0 12px;vertical-align:middle;"><img src="/brand/jfl-renewables-logo-272.png" width="190" height="56" alt="{{ Site::NAME }}" style="display:block;width:190px;height:auto;border:0;"></td></tr>
         </table>
-        <h1 style="margin:18px 0 4px;font-size:22px;">PV System Estimate</h1>
+        <h1 style="margin:12px 0 2px;font-size:22px;">PV System Estimate</h1>
         <p style="margin:0;font-size:14px;color:#4b5563;">Date: {{ now()->timezone('Asia/Manila')->format('j F Y') }}</p>
     </div>
 
     <x-section labelledby="calc-title">
         <h2 id="calc-title" class="sr-only">Calculator</h2>
         <form action="/pv-calculator#results" method="get" class="calc-grid grid gap-10" data-calc-form>
-            <div class="min-w-0 space-y-10">
+            <div class="calc-inputs min-w-0 space-y-10">
                 {{-- 1. System type --}}
                 <fieldset>
                     <legend class="{{ $legend }}">1. Choose a system type</legend>
@@ -178,6 +190,11 @@
                     <h2 id="results-title" class="mt-2 text-2xl font-extrabold">We need a bit more</h2>
                     <p class="mt-3 text-steel-300">Enter your monthly bill, or at least one appliance with a quantity and hours, then select Calculate.</p>
                 @else
+                    {{-- Printed estimate: a one-line summary of what was entered (the calculator itself is not printed). --}}
+                    <p class="calc-print-only mt-1 text-sm">
+                        <strong>System type:</strong> {{ Calc::TYPES[$in['type']]['label'] }} — {{ Calc::TYPES[$in['type']]['body'] }}<br>
+                        <strong>Based on:</strong> {{ $in['mode'] === 'appliances' ? 'your appliance list' : 'a monthly bill of ₱'.number_format((float) $in['bill']).' at ₱'.$plain($in['rate']).' per kWh' }}
+                    </p>
                     <h2 id="results-title" class="mt-2 text-3xl font-extrabold"><span class="tabular">{{ $n($r['kwp'], 2) }} kWp</span> {{ Calc::TYPES[$in['type']]['short'] }} system</h2>
                     <p class="mt-2 text-sm text-steel-300">For about <span class="tabular">{{ $n($r['daily']) }} kWh</span> a day (<span class="tabular">{{ $n($r['monthly'], 0) }} kWh</span> a month){{ $in['mode'] === 'appliances' ? ' from your appliance list' : '' }}.</p>
 
@@ -272,10 +289,10 @@
         $footText = 'margin:0;font-size:12px;line-height:1.5;color:#374151;';
     @endphp
     <div class="calc-print-only calc-print-foot" style="font-family:Arial,Helvetica,sans-serif;color:#111827;">
-        <p style="margin:24px 0 0;padding-top:10px;border-top:1px solid #d1d5db;font-size:12px;color:#4b5563;line-height:1.5;">
+        <p style="margin:12px 0 0;padding-top:8px;border-top:1px solid #d1d5db;font-size:11px;color:#4b5563;line-height:1.45;">
             Estimate made with the PV System Calculator on {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}. It is a first estimate only, not a formal quotation. Final system size, prices and availability are confirmed by JFL Solar in writing after reviewing your bill and site.
         </p>
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:16px;border-top:3px solid #f59e0b;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:10px;border-top:3px solid #f59e0b;">
             <tr>
                 @if ($printSettings->office_address)
                     <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;"><p style="{{ $footHead }}">Office</p><p style="{{ $footText }}">{{ $printSettings->office_address }}</p></td>
