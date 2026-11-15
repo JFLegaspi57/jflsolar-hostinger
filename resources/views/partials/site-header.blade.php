@@ -43,6 +43,7 @@
                     .nav-dd-link[aria-current=page] { background: var(--color-gold-50); color: var(--color-steel-950); font-weight: 600; }
                     @media (max-width: 1279.98px) { .site-nav a { padding-inline: .45rem; font-size: .9rem; } .site-nav a > span { left: .45rem; right: .45rem; } }
                     @media (min-width: 1024px) and (max-width: 1359.98px) { .site-nav a { padding-inline: .3rem; font-size: .86rem; } .site-nav a > span { left: .3rem; right: .3rem; } .hdr-actions { gap: .2rem !important; } }
+                    @media (min-width: 1024px) and (max-width: 1199.98px) { .site-nav a { padding-inline: .2rem; font-size: .82rem; } .site-nav a > span { left: .2rem; right: .2rem; } .hdr-quote { padding-inline: .6rem !important; font-size: .84rem !important; } }
                     @media (max-width: 639.98px) { .auth-label { display: none; } header [data-auth-open], header a[href="/account"] { padding-inline: 0 !important; } .hdr-actions { gap: 0 !important; } }
                     @media (max-width: 399.98px) { header .site-logo img { width: 104px !important; } .hdr-quote { white-space: normal !important; max-width: 5.6rem; padding-inline: .55rem !important; text-align: center; font-size: .8rem !important; line-height: 1.1; } }</style>
                 <ul class="flex items-center gap-1">
