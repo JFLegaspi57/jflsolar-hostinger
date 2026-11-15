@@ -233,45 +233,29 @@ class PageController extends Controller
     }
 
     /** Brand articles (/brands/{slug}); the brand logos on /products link here. */
-    /** Our Brands: every brand in the shop, grouped by product category, linking to its article (if any) and products. */
+    /** Our Brands: every brand we carry, grouped by product type, linking to its article and products. */
     public function brands(): View
     {
-        $snap = PublicContent::snapshot();
-        $B = \App\Support\BrandArticles::class;
-        $articles = $B::available();
-        $products = $snap['products']->filter(fn ($p) => filled($p->brand) && ! in_array(mb_strtolower(trim($p->brand)), $B::NOT_BRANDS, true));
+        $products = PublicContent::snapshot()['products'];
+        $available = \App\Support\BrandArticles::available();
         $groups = [];
-        foreach ($snap['categories'] as $cat) {
-            $inCat = $products->filter(fn ($p) => $p->category_id === $cat->id);
-            if ($inCat->isEmpty()) {
-                continue;
-            }
+        foreach (\App\Support\BrandArticles::GROUPS as $key => [$heading, $line]) {
             $items = [];
-            foreach ($inCat->groupBy(fn ($p) => mb_strtolower(trim($p->brand))) as $list) {
-                $name = trim($list->first()->brand);
-                $slug = null;
-                foreach ($articles as $s => $a) {
-                    if (strcasecmp($a['filter'], $name) === 0) {
-                        $slug = $s;
-                    }
+            foreach (\App\Support\BrandArticles::OVERVIEW as $slug => [$group, $summary]) {
+                if ($group !== $key || ! isset($available[$slug])) {
+                    continue;
                 }
-                $tier = $slug ? ($B::TIERS[$slug][0] ?? null) : ($B::NAME_TIERS[$name] ?? null);
-                $fits = ['inverters' => 'inverter', 'solar-panels' => 'panel'][$cat->slug] ?? null;
-                $section = $slug ? ($B::ARTICLE_SECTIONS[$slug][$cat->slug] ?? null) : null;
-                $items[] = [
-                    'name' => $slug ? $articles[$slug]['brand'] : $name,
+                $a = $available[$slug];
+                $items[] = $a + [
                     'slug' => $slug,
-                    'summary' => $slug ? ($B::SUMMARIES[$slug][$cat->slug] ?? $B::SUMMARIES[$slug]['*'] ?? null) : null,
-                    'tier' => $tier && $fits && str_contains($tier, $fits) ? $tier : null,
-                    'article' => $slug ? '/brands/'.$slug.($section ? '#'.$section : '') : null,
-                    'products' => $list->values(),
-                    'productsHref' => '/products?'.http_build_query(['category' => $cat->slug, 'brand' => $name]).'#results',
+                    'summary' => $summary,
+                    'tier' => \App\Support\BrandArticles::TIERS[$slug][0] ?? null,
+                    'count' => \App\Support\BrandArticles::products($products, $slug)->count(),
                 ];
             }
-            // Brands with an article first (in article order), then the rest A to Z.
-            $order = array_flip(array_keys($articles));
-            usort($items, fn ($x, $y) => [$x['slug'] === null, $order[$x['slug']] ?? 0, mb_strtolower($x['name'])] <=> [$y['slug'] === null, $order[$y['slug']] ?? 0, mb_strtolower($y['name'])]);
-            $groups[] = ['key' => $cat->slug, 'heading' => $cat->name, 'line' => $B::GROUP_LINES[$cat->slug] ?? null, 'items' => $items];
+            if ($items) {
+                $groups[] = ['key' => $key, 'heading' => $heading, 'line' => $line, 'items' => $items];
+            }
         }
 
         return view('pages.brands-index', ['settings' => PublicContent::settings(), 'groups' => $groups]);
