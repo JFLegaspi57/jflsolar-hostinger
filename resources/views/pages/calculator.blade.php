@@ -157,11 +157,20 @@
                 <details class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-4" open>
                     <summary class="inline-flex min-h-11 cursor-pointer items-center font-semibold text-steel-900">Advanced settings</summary>
                     <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                        @php
+                            $stock = \App\Support\SolarCalculator::stock();
+                            $list = function (array $v, string $u) {
+                                $v = array_map(fn ($x) => rtrim(rtrim(number_format((float) $x, 1, '.', ''), '0'), '.'), $v);
+                                return (count($v) > 1 ? implode(', ', array_slice($v, 0, -1)).' and '.end($v) : ($v[0] ?? '')).' '.$u;
+                            };
+                            $panelHelp = $stock['panels'] ? 'Panels we have now: '.$list($stock['panels'], 'W').'.' : 'We usually supply 610–650 W panels.';
+                            $unitHelp = $stock['batteries'] ? 'Batteries we have now: '.$list($stock['batteries'], 'kWh').' modules, added one at a time.' : 'Batteries are added one module at a time.';
+                        @endphp
                         @foreach ([
                             'sun' => ['Peak sun hours per day', '4 to 5 hours is typical across the Philippines.', 'any'],
                             'eff' => ['System efficiency (%)', 'Covers heat, dust, wiring and inverter losses.', 1],
-                            'panel' => ['Panel size (watts)', 'We usually supply 610–630 W panels.', 1],
-                            'unit' => ['Battery module size (kWh)', 'Batteries are added one module at a time.', 'any'],
+                            'panel' => ['Panel size (watts)', $panelHelp, 1],
+                            'unit' => ['Battery module size (kWh)', $unitHelp, 'any'],
                             'export' => ['Export credit (₱ per kWh)', 'What the utility credits for solar sent back under net metering.', 'any'],
                             'days' => ['Off-grid backup (days)', 'How many days of full use the off-grid battery should hold.', 'any'],
                         ] as $k => [$text, $help, $step])

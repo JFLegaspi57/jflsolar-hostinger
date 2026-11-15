@@ -37,6 +37,26 @@ class CalculatorBuildTest extends TestCase
         PublicContent::flush();
     }
 
+    public function test_calculator_sizes_follow_the_products_available_now(): void
+    {
+        $this->catalog();
+        Product::query()->where('slug', 'pan-620')->update(['availability' => 'unavailable']);
+        PublicContent::flush();
+
+        $stock = \App\Support\SolarCalculator::stock();
+        $this->assertSame([650], $stock['panels']);                    // 620 W is not available
+        $this->assertSame([16.0, 16.5], $stock['batteries']);
+        $this->assertSame([6.0, 8.0, 12.0], $stock['inverters']['hybrid']);   // off-grid model left out
+        $this->assertSame([12.0], $stock['inverters']['offgrid']);
+
+        $in = \App\Support\SolarCalculator::input(['type' => 'hybrid', 'bill' => '7500']);
+        $this->assertSame(650, $in['panel']);
+        $this->assertSame(16.0, $in['unit']);
+        $r = \App\Support\SolarCalculator::calculate($in);
+        $this->assertContains($r['inverter']['kw'], [6.0, 8.0, 12.0]);
+        $this->get('/pv-calculator')->assertOk()->assertSee('Panels we have now: 650 W.')->assertSee('Batteries we have now: 16 and 16.5 kWh modules');
+    }
+
     public function test_calculator_result_is_matched_to_products_we_sell(): void
     {
         $this->catalog();
