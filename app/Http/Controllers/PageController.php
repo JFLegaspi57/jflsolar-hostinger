@@ -146,7 +146,15 @@ class PageController extends Controller
     {
         $settings = PublicContent::settings();
 
-        return view('pages.faq', ['settings' => $settings, 'items' => \App\Support\Faq::items($settings)]);
+        return view('pages.faq', ['settings' => $settings, 'items' => \App\Support\Faq::items($settings), 'tl' => false]);
+    }
+
+    /** Tagalog version of the FAQ. */
+    public function faqTagalog(): View
+    {
+        $settings = PublicContent::settings();
+
+        return view('pages.faq', ['settings' => $settings, 'items' => \App\Support\FaqTagalog::items($settings), 'tl' => true]);
     }
 
     /** Estimated delivery fees from the warehouse to towns within about 100 km. */
@@ -315,7 +323,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/delivery-rates', '/brands', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/faq/tagalog', '/delivery-rates', '/brands', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);

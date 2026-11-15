@@ -69,6 +69,18 @@ class HelpPagesTest extends TestCase
         $this->get('/faq')->assertOk()->assertSee('WhatsApp/Viber');
     }
 
+    public function test_tagalog_faq_mirrors_the_english_one(): void
+    {
+        $this->assertSame(Faq::COUNT, count(\App\Support\FaqTagalog::QA));
+        $this->assertSame(array_keys(Faq::LINKS), array_keys(\App\Support\FaqTagalog::LINKS));
+        $res = $this->get('/faq/tagalog')->assertOk()->assertSee('<html lang="fil">', false)
+            ->assertSee('Mga madalas itanong')->assertSee('Wala kaming cash on delivery (COD).')->assertSee('"@type":"FAQPage"', false)
+            ->assertSee('href="/faq"', false)->assertDontSee('{order}')->assertDontSee('{phone}')
+            ->assertSee('hreflang="fil" href="https://jflsolar.ph/faq/tagalog"', false);
+        $this->assertSame(Faq::COUNT, substr_count($res->getContent(), 'class="faq-item"'));
+        $this->get('/faq')->assertOk()->assertSee('href="/faq/tagalog"', false)->assertSee('<html lang="en-PH">', false);
+    }
+
     public function test_staff_can_reword_an_answer_in_page_text(): void
     {
         PageTextRow::query()->create(['key' => 'faq.q9.a', 'value' => 'Yes, we deliver within Cavite. Call {phone}.']);
