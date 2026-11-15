@@ -42,11 +42,9 @@
                 <textarea id="notes" name="staff_notes" rows="5" maxlength="4000" aria-describedby="notes-hint" class="mt-2 w-full rounded-[var(--radius-control)] border border-steel-500 px-3 py-2">{{ old('staff_notes', $i->staff_notes) }}</textarea>
                 <button type="submit" class="{{ $btn }} mt-2 border border-steel-300 bg-white text-steel-900 hover:border-steel-900">Save notes</button>
             </form>
-            @if ($i->status === 'archived')
-                <x-admin.confirm :action="'/admin/inquiries/'.$i->id.'/delete'" title="Delete this inquiry permanently?" confirm-label="Delete permanently" label="Delete permanently">
-                    <p>The customer's details and message are removed. Do this when you no longer need them (for example, after the quotation is closed).</p>
-                </x-admin.confirm>
-            @endif
+            <x-admin.confirm :action="'/admin/inquiries/'.$i->id.'/delete'" title="Delete this inquiry permanently?" confirm-label="Delete permanently" label="Delete" :fields="['back' => $i->status]">
+                <p>The inquiry from {{ $i->name }}, with their contact details and message, is removed for good. This can’t be undone.</p>
+            </x-admin.confirm>
         </aside>
     </div>
 </x-admin.layout>
