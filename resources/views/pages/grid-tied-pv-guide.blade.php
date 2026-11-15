@@ -248,7 +248,7 @@
                 <h2>Planning a grid-tied solar PV system?</h2>
                 <p>Send us your monthly bills and when you use the most power during the day, and we’ll size the array and inverter for the fastest payback, with or without net metering.</p>
                 <div class="mt-5 flex flex-col gap-2 sm:flex-row">
-                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                    <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                     <a href="/pv-calculator" class="{{ Ui::button('secondary', 'lg') }}">Try the PV Calculator</a>
                 </div>
             </section>

@@ -98,7 +98,7 @@ class ShopTest extends TestCase
         $p = $this->product();
         config(['shop.enabled' => false]);
         $this->get('/cart')->assertNotFound();
-        $this->get('/products/'.$p->slug)->assertOk()->assertDontSee('Add to cart')->assertSee('Request a Product Quote');
+        $this->get('/products/'.$p->slug)->assertOk()->assertDontSee('Add to cart')->assertSee('Inquire Now');
 
         // Switched on but no way to pay (no PayMongo, pay at pickup off): still hidden.
         config(['shop.enabled' => true, 'shop.paymongo.secret_key' => '', 'shop.pay_in_person' => false]);

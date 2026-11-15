@@ -39,7 +39,7 @@ class BrandArticleTest extends TestCase
         foreach ($available as $slug => $a) {
             $this->assertFileExists(public_path('images/brand-logo-'.$slug.'.webp'));
             $res = $this->get('/brands/'.$slug)->assertOk()->assertSeeInOrder(['class="ba-logo"', 'Brand guide', 'src="data:image/webp;base64,', 'alt="'.$a['brand'].' logo"', '<h1 class="ba-logo-title">'], false)
-                ->assertSee($a['brand'].' products we sell')->assertSee('Request a Quote')->assertSee('Sources:');
+                ->assertSee($a['brand'].' products we sell')->assertSee('Inquire Now')->assertSee('Sources:');
             foreach (array_keys($available) as $other) {
                 if ($other !== $slug) {
                     $res->assertSee('href="/brands/'.$other.'"', false);

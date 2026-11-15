@@ -29,7 +29,7 @@
                     <h2 class="text-xl font-bold text-steel-950">Online ordering is not available right now</h2>
                     <p class="mt-2 text-steel-700">Tell us what you need and we’ll put together a quotation.</p>
                     <div class="mt-4 flex flex-wrap gap-3">
-                        <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Request a Quote</a>
+                        <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
                         <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                     </div>
                 </div>
