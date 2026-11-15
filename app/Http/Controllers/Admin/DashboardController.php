@@ -51,13 +51,13 @@ class DashboardController extends Controller
             $todo[] = ['text' => 'Public email is still the placeholder '.$settings->public_email, 'href' => '/admin/settings'];
         }
 
-        $notify = trim((string) config('site.inquiry.notify'));
+        $notify = implode(', ', \App\Support\Inquiries::notifyTo());
 
         return view('admin.dashboard', [
             'stats' => $stats,
             'todo' => $todo,
             'newInquiries' => Inquiry::query()->where('status', 'new')->count(),
-            'mail' => $notify === '' ? 'off' : (config('mail.default') === 'log' ? 'unconfigured' : 'on'),
+            'mail' => $notify === '' ? 'off' : (\App\Support\Inquiries::mailReady() ? 'on' : 'unconfigured'),
             'notify' => $notify,
         ]);
     }

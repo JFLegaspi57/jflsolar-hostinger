@@ -118,8 +118,8 @@ class ContactController extends Controller
         ]);
 
         // Email alert to the business inbox (optional). A delivery failure never loses the inquiry.
-        $to = array_values(array_filter(array_map('trim', explode(',', (string) config('site.inquiry.notify')))));
-        if ($to && config('mail.default') !== 'log') {
+        $to = Inquiries::notifyTo();
+        if ($to && Inquiries::mailReady()) {
             try {
                 Mail::to($to)->send(new NewInquiry($inquiry));
                 $inquiry->forceFill(['emailed_at' => now()])->save();

@@ -39,7 +39,11 @@ class SmallSystemReplyTest extends TestCase
         $this->send('residential', '3k-5k')->assertRedirect('/contact#quote')->assertSessionHas('inquiry_small', true);
         $this->assertSame(1, Inquiry::query()->count());
         Mail::assertSent(SmallSystemReply::class, fn ($m) => $m->hasTo('ana@example.com'));
-        Mail::assertNotSent(NewInquiry::class);
+        // No INQUIRY_NOTIFY_EMAIL: the alert goes to the public email in Contact & settings.
+        $public = \App\Models\SiteSetting::query()->first()->public_email;
+        Mail::assertSent(NewInquiry::class, fn ($m) => $m->hasTo($public));
+        config(['site.inquiry.notify' => 'staff@example.com, owner@example.com']);
+        $this->assertSame(['staff@example.com', 'owner@example.com'], \App\Support\Inquiries::notifyTo());
 
         $this->withSession(['inquiry_sent' => true, 'inquiry_small' => true])->get('/contact')->assertOk()
             ->assertSee('Options for a smaller system')->assertSee('href="/packages/build-your-own"', false);
