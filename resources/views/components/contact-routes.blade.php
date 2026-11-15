@@ -1,22 +1,42 @@
 @props(['settings', 'dark' => false])
 @php
     $icons = ['phone' => 'phone', 'whatsapp' => 'chat', 'viber' => 'chat', 'messenger' => 'chat', 'facebook' => 'facebook', 'email' => 'mail', 'sales_email' => 'mail'];
+    $all = collect(\App\Support\Contact::channels($settings));
+    // The main and sales email addresses share one card.
+    $emails = $all->whereIn('key', ['email', 'sales_email'])->values();
+    $frame = 'flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border px-4 py-2.5 transition-colors '.($dark ? 'border-white/15 bg-white/5' : 'border-steel-200 bg-white');
+    $hover = $dark ? 'hover:bg-white/10' : 'hover:border-steel-400';
+    $bubble = 'inline-flex size-9 shrink-0 items-center justify-center rounded-full '.($dark ? 'bg-gold-500 text-steel-950' : 'bg-steel-900 text-white');
+    $label = 'block text-xs font-semibold tracking-wide uppercase '.($dark ? 'text-steel-300' : 'text-steel-600');
 @endphp
 {{-- Direct contact routes (always usable, whatever happens to the form). --}}
 <ul class="grid gap-3 sm:grid-cols-2">
-    @foreach (\App\Support\Contact::channels($settings) as $c)
+    @foreach ($all as $c)
+        @continue(in_array($c['key'], ['email', 'sales_email'], true) && $emails->count() > 1)
         <li>
-            <a href="{{ $c['href'] }}" @if ($c['external']) target="_blank" rel="noopener noreferrer" @endif
-                class="flex min-h-14 items-center gap-3 rounded-[var(--radius-control)] border px-4 py-2.5 transition-colors {{ $dark ? 'border-white/15 bg-white/5 hover:bg-white/10' : 'border-steel-200 bg-white hover:border-steel-400' }}">
-                <span class="inline-flex size-9 shrink-0 items-center justify-center rounded-full {{ $dark ? 'bg-gold-500 text-steel-950' : 'bg-steel-900 text-white' }}">
-                    <x-icon :name="$icons[$c['key']]" class="size-[1.1rem]" />
-                </span>
+            <a href="{{ $c['href'] }}" @if ($c['external']) target="_blank" rel="noopener noreferrer" @endif class="{{ $frame }} {{ $hover }}">
+                <span class="{{ $bubble }}"><x-icon :name="$icons[$c['key']]" class="size-[1.1rem]" /></span>
                 <span class="min-w-0">
-                    <span class="block text-xs font-semibold tracking-wide uppercase {{ $dark ? 'text-steel-300' : 'text-steel-600' }}">{{ $c['label'] }}</span>
+                    <span class="{{ $label }}">{{ $c['label'] }}</span>
                     <span class="block font-semibold break-words tabular">{{ $c['detail'] }}</span>
                 </span>
                 @if ($c['external'])<span class="sr-only">(opens in a new tab)</span>@endif
             </a>
         </li>
     @endforeach
+    @if ($emails->count() > 1)
+        <li>
+            <div class="{{ $frame }}">
+                <span class="{{ $bubble }}"><x-icon name="mail" class="size-[1.1rem]" /></span>
+                <span class="min-w-0">
+                    <span class="{{ $label }}">Email</span>
+                    @foreach ($emails as $e)
+                        <a href="{{ $e['href'] }}" class="block font-semibold break-words hover:underline">
+                            @if ($e['key'] === 'sales_email')<span class="font-normal {{ $dark ? 'text-steel-300' : 'text-steel-600' }}">Sales:</span> @endif{{ $e['detail'] }}
+                        </a>
+                    @endforeach
+                </span>
+            </div>
+        </li>
+    @endif
 </ul>

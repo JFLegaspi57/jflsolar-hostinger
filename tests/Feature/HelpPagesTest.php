@@ -42,7 +42,17 @@ class HelpPagesTest extends TestCase
     public function test_sales_email_shows_in_footer_and_on_contact_page(): void
     {
         $this->get('/faq')->assertOk()->assertSee('href="mailto:sales@jflsolar.ph"', false);
-        $this->get('/contact')->assertOk()->assertSee('sales@jflsolar.ph')->assertSee('Sales');
+        $html = $this->get('/contact')->assertOk()->getContent();
+        $this->assertMatchesRegularExpression('#<li>\s*<div[^>]*>(?:(?!</li>).)*mailto:info@jflsolar\.(?:com|ph)(?:(?!</li>).)*mailto:sales@jflsolar\.ph#s', $html);
+    }
+
+    public function test_faq_is_in_the_main_menu_after_projects_and_listed_once_in_the_footer(): void
+    {
+        $html = $this->get('/')->assertOk()->getContent();
+        $nav = substr($html, 0, strpos($html, '</nav>'));
+        $this->assertGreaterThan(strpos($nav, 'href="/projects"'), strpos($nav, 'href="/faq"'));
+        $footer = substr($html, strpos($html, '<footer'));
+        $this->assertSame(1, substr_count($footer, 'href="/faq"'));
     }
 
     public function test_staff_can_reword_an_answer_in_page_text(): void
