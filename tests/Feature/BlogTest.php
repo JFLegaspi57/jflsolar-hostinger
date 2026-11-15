@@ -178,4 +178,13 @@ class BlogTest extends TestCase
             ->assertSessionHasErrors(['title', 'body']);
         $this->assertSame(0, BlogPost::query()->count());
     }
+
+    public function test_step_by_step_posters_are_never_the_blog_banner(): void
+    {
+        $m = fn (string $alt, int $w = 1600) => new MediaAsset(['alt' => $alt, 'width' => $w]);
+        $this->assertTrue(\App\Support\Blog::bannerPhoto($m('JF Legaspi in front of the GoodWe wall')));
+        $this->assertFalse(\App\Support\Blog::bannerPhoto($m('GoodWe battery production line poster – Cell welding (laser)')));
+        $this->assertFalse(\App\Support\Blog::bannerPhoto($m('Step-by-step wiring of the inverter')));
+        $this->assertFalse(\App\Support\Blog::bannerPhoto($m('JF on stage', 600)));   // too small
+    }
 }
