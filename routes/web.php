@@ -37,6 +37,7 @@ Route::get('/hybrid-pv-system-guide', [PageController::class, 'hybridGuide']);
 Route::get('/hybrid-pv-system-guide/tagalog', [PageController::class, 'hybridGuideTagalog']);
 Route::get('/grid-tied-pv-system-guide', [PageController::class, 'gridTiedGuide']);
 Route::get('/grid-tied-pv-system-guide/tagalog', [PageController::class, 'gridTiedGuideTagalog']);
+Route::get('/brands', [PageController::class, 'brands']);
 Route::get('/brands/{slug}', [PageController::class, 'brand'])->where('slug', \App\Support\BrandArticles::slugPattern());
 // Old address: keep shared links working (query string carried over).
 Route::get('/solar-calculator', fn (Request $r) => redirect()->to('/pv-calculator'.(($q = (string) $r->server('QUERY_STRING')) !== '' ? '?'.$q : ''), 301));
