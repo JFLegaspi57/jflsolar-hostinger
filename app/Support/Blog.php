@@ -147,6 +147,27 @@ final class Blog
         return trim((string) $p->author) ?: self::AUTHOR;
     }
 
+    /**
+     * Photos never used as the random /blog banner: step-by-step posters and other pictures of text
+     * (e.g. the GoodWe battery production line steps), matched on their description (alt text).
+     */
+    public const BANNER_EXCLUDE = ['/\bposters?\b/i', '/step[- ]by[- ]step/i'];
+
+    /** A photo that may be picked for the random /blog banner. */
+    public static function bannerPhoto(\App\Models\MediaAsset $m): bool
+    {
+        if ((int) $m->width < self::BANNER_MIN_WIDTH) {
+            return false;
+        }
+        foreach (self::BANNER_EXCLUDE as $re) {
+            if (preg_match($re, (string) $m->alt)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     /** Smallest photo width used for the blog page banner (smaller photos look blurry that large). */
     public const BANNER_MIN_WIDTH = 900;
 
