@@ -38,6 +38,9 @@ final class Site
 
     public const QUOTE_HREF = '/contact#quote';
 
+    /** Sales mailbox (alias of the main mailbox), shown after the public email in contact lists. */
+    public const SALES_EMAIL = 'sales@jflsolar.ph';
+
     /**
      * Search engines may index the public pages: live mode, and either indexing is on or the
      * visitor is on jflsolar.ph itself. SEARCH_INDEXING=false keeps temporary addresses

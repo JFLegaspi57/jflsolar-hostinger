@@ -88,7 +88,7 @@
             @php
                 $footHead = 'margin:0 0 4px;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:#111827;';
                 $footText = 'margin:0;font-size:12px;line-height:1.5;color:#374151;';
-                $channels = collect(\App\Support\Contact::channels($settings))->whereIn('key', ['phone', 'email']);   // printed sheets: phone and email only
+                $channels = collect(\App\Support\Contact::channels($settings))->whereIn('key', ['phone', 'email', 'sales_email']);   // printed sheets: phone and email only
             @endphp
             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="foot" style="border-collapse:collapse;margin-top:16px;border-top:3px solid #f59e0b;">
                 <tr>

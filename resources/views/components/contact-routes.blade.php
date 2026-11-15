@@ -1,6 +1,6 @@
 @props(['settings', 'dark' => false])
 @php
-    $icons = ['phone' => 'phone', 'whatsapp' => 'chat', 'viber' => 'chat', 'messenger' => 'chat', 'facebook' => 'facebook', 'email' => 'mail'];
+    $icons = ['phone' => 'phone', 'whatsapp' => 'chat', 'viber' => 'chat', 'messenger' => 'chat', 'facebook' => 'facebook', 'email' => 'mail', 'sales_email' => 'mail'];
 @endphp
 {{-- Direct contact routes (always usable, whatever happens to the form). --}}
 <ul class="grid gap-3 sm:grid-cols-2">

@@ -30,6 +30,9 @@ final class Contact
         if ($s->public_email) {
             $list[] = ['key' => 'email', 'label' => 'Email', 'detail' => $s->public_email, 'href' => 'mailto:'.$s->public_email, 'external' => false];
         }
+        if (Site::SALES_EMAIL !== '' && strcasecmp(Site::SALES_EMAIL, (string) $s->public_email) !== 0) {
+            $list[] = ['key' => 'sales_email', 'label' => 'Sales', 'detail' => Site::SALES_EMAIL, 'href' => 'mailto:'.Site::SALES_EMAIL, 'external' => false];
+        }
 
         return $list;
     }
