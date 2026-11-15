@@ -190,6 +190,13 @@ Route::prefix('admin')->group(function () {
 
         Route::get('settings', [Admin\SettingsController::class, 'edit']);
         Route::post('settings', [Admin\SettingsController::class, 'update']);
+        Route::post('reload-settings', function () {
+            abort_unless(auth('web')->user()?->isOwner(), 403);
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+
+            return redirect('/admin')->with('status', 'Server settings reloaded from .env.');
+        });
 
         Route::get('blog/comments', [Admin\BlogCommentController::class, 'index']);
         Route::post('blog/comments/{comment}', [Admin\BlogCommentController::class, 'update'])->whereNumber('comment');
