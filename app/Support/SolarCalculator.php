@@ -57,10 +57,70 @@ final class SolarCalculator
     private const ROUND_TRIP = 0.92;      // battery charge/discharge losses
     private const PANEL_AREA = 2.7;       // m² per ~620 W panel, with spacing
 
+    /**
+     * Sizes of the panels, inverters and batteries in the shop right now: products marked
+     * "Available to order" first; if a category has none, those we list as "Ask about
+     * availability" or pre-order; if still none, the standard sizes above. Reads the cached
+     * public snapshot, so it follows the admin as soon as products change.
+     *
+     * @return array{panels: list<int>, batteries: list<float>, inverters: array{grid: list<float>, hybrid: list<float>, offgrid: list<float>}}
+     */
+    public static function stock(): array
+    {
+        try {
+            $snap = PublicContent::snapshot();
+        } catch (\Throwable) {
+            $snap = ['products' => collect(), 'categories' => collect()];
+        }
+        $cats = $snap['categories']->keyBy('slug');
+        $pick = function (string $cat, string $unit) use ($snap, $cats) {
+            $c = $cats->get($cat);
+            $all = $c ? $snap['products']->where('category_id', $c->id) : collect();
+            foreach ([['available'], ['on_request', 'preorder']] as $states) {
+                $rated = $all->whereIn('availability', $states)->map(fn ($p) => [$p, PackageBuilder::rating($p, $unit)])->filter(fn ($x) => $x[1] > 0)->values();
+                if ($rated->isNotEmpty()) {
+                    return $rated;
+                }
+            }
+
+            return collect();
+        };
+        $sizes = fn ($list) => $list->map(fn ($x) => (float) $x[1])->unique()->sort()->values()->all();
+        $inv = $pick('inverters', 'kW');
+        $isOff = fn ($x) => str_contains(mb_strtolower($x[0]->name.' '.$x[0]->model), 'off-grid');
+        $onGrid = $sizes($inv->reject($isOff));
+        $offGrid = $sizes($inv->filter($isOff));
+
+        return [
+            'panels' => array_map('intval', $sizes($pick('solar-panels', 'W'))),
+            'batteries' => $sizes($pick('batteries', 'kWh')),
+            'inverters' => [
+                'grid' => $onGrid ?: self::GRID_INVERTERS,
+                'hybrid' => $onGrid ?: self::HYBRID_INVERTERS,
+                'offgrid' => $offGrid ?: ($onGrid ?: self::HYBRID_INVERTERS),
+            ],
+        ];
+    }
+
+    /** Defaults, with the panel and battery sizes taken from what is in stock. */
+    public static function defaults(): array
+    {
+        $s = self::stock();
+        $d = self::DEFAULTS;
+        if ($s['panels']) {
+            $d['panel'] = max($s['panels']);          // the biggest panel we have
+        }
+        if ($s['batteries']) {
+            $d['unit'] = min($s['batteries']);        // one module at a time, smallest first
+        }
+
+        return $d;
+    }
+
     /** Read and clamp the query string. Unknown or out-of-range values fall back to defaults. */
     public static function input(array $q): array
     {
-        $d = self::DEFAULTS;
+        $d = self::defaults();
         $num = function (string $k, float $min, float $max) use ($q, $d): float {
             $v = $q[$k] ?? null;
             if (is_array($v) || $v === null || ! is_numeric(str_replace(',', '', (string) $v))) {
@@ -159,7 +219,7 @@ final class SolarCalculator
         // Inverter: matched to the array (up to ~130% DC/AC) and, if appliances were listed,
         // to 80% of everything that could run at once.
         $minKw = max($kwp / 1.3, $connected !== null ? $connected * 0.8 : 0, $type === 'grid' ? 0 : 3);
-        $inverter = self::pickInverter($minKw, $type === 'grid' ? self::GRID_INVERTERS : self::HYBRID_INVERTERS);
+        $inverter = self::pickInverter($minKw, self::stock()['inverters'][$type]);
 
         // Daily energy flows → savings.
         $gen = $kwp * $yield;
