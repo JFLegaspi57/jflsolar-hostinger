@@ -58,6 +58,16 @@ class HelpPagesTest extends TestCase
         $this->assertSame(1, substr_count($footer, 'href="/faq"'));
     }
 
+    public function test_contact_labels_and_combined_whatsapp_viber(): void
+    {
+        SiteSetting::query()->update(['messenger_url' => 'https://m.me/jflsolar', 'messenger_enabled' => true, 'facebook_url' => 'https://www.facebook.com/jflsolar', 'facebook_enabled' => true]);
+        PublicContent::flush();
+        $html = $this->get('/contact')->assertOk()->assertSee('Sales')->assertSee('Message Us')->assertSee('Follow Us')
+            ->assertDontSee('Message us on Facebook')->assertDontSee('JFL Solar on Facebook')->getContent();
+        $this->assertStringContainsString('</a>/<a href="viber://chat', $html);   // one card, each app name a link
+        $this->get('/faq')->assertOk()->assertSee('WhatsApp/Viber');
+    }
+
     public function test_staff_can_reword_an_answer_in_page_text(): void
     {
         PageTextRow::query()->create(['key' => 'faq.q9.a', 'value' => 'Yes, we deliver within Cavite. Call {phone}.']);
