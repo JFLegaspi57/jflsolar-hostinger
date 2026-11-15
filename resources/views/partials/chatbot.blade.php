@@ -6,6 +6,8 @@
         #jfl-chat-btn:hover { background: var(--color-steel-800); }
         #jfl-chat-btn:focus-visible, #jfl-chat button:focus-visible, #jfl-chat textarea:focus-visible, #jfl-chat a:focus-visible { outline: 3px solid var(--color-gold-500); outline-offset: 2px; }
         #jfl-chat-btn svg { width: 1.35rem; height: 1.35rem; }
+        #jfl-chat .jc-face { width: 2.4rem; height: 2.4rem; flex: none; border-radius: 999px; background: #e8f2fb; box-shadow: 0 0 0 2px rgb(255 255 255 / .85); margin-left: -.45rem; }
+        #jfl-chat .jc-face-head { margin-left: 0; width: 2.5rem; height: 2.5rem; }
         body:has([data-compare-sticky]:not(.hidden)) #jfl-chat-btn { bottom: 4.75rem; }
         #jfl-chat-panel { position: fixed; right: 1rem; bottom: 1rem; z-index: 46; width: 24rem; max-width: calc(100vw - 2rem); height: min(40rem, calc(100vh - 6.5rem)); display: flex; flex-direction: column; overflow: hidden; border-radius: 1rem; border: 1px solid var(--color-steel-200); background: #fff; box-shadow: 0 16px 48px rgb(0 0 0 / .25); }
         #jfl-chat-panel[hidden] { display: none; }
@@ -39,12 +41,13 @@
         @media print { #jfl-chat { display: none !important; } }
     </style>
     <button type="button" id="jfl-chat-btn" aria-expanded="false" aria-controls="jfl-chat-panel">
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.8 7L4 20l1.1-4.4A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>
+        <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face">
         <span class="jc-label">Chat with Buckny</span>
     </button>
     <section id="jfl-chat-panel" role="dialog" aria-label="Buckny, the JFL Solar chat assistant" hidden>
         <div class="jc-head">
-            <p>Buckny<small>JFL Solar assistant · Ask about prices, packages and ordering</small></p>
+            <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face jc-face-head">
+            <p style="margin-right: auto">Buckny<small>JFL Solar assistant · Ask about prices, packages and ordering</small></p>
             <div>
                 <button type="button" class="jc-icon" data-chat-reset title="Start a new chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="sr-only">Start a new chat</span></button>
                 <button type="button" class="jc-icon" data-chat-close title="Close chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr-only">Close chat</span></button>
