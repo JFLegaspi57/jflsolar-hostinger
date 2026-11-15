@@ -17,7 +17,24 @@ class InquiryController extends Controller
         $inquiries = Inquiry::query()->where('status', $view)->latest('id')->paginate(30)->withQueryString();
         $counts = Inquiry::query()->selectRaw('status, count(*) as n')->groupBy('status')->pluck('n', 'status');
 
-        return view('admin.inquiries.index', ['inquiries' => $inquiries, 'view' => $view, 'counts' => $counts]);
+        return view('admin.inquiries.index', ['inquiries' => $inquiries, 'view' => $view, 'counts' => $counts, 'emailLinked' => \App\Support\InboundMail::configured()]);
+    }
+
+    /** Save (or clear) the Hostinger mail webhook secret that lets emails to info@ arrive here. */
+    public function emailLink(Request $request): RedirectResponse
+    {
+        if ($request->boolean('clear')) {
+            \App\Support\InboundMail::forgetSecret();
+
+            return redirect('/admin/inquiries')->with('status', 'Email link removed. Emails to info@jflsolar.ph no longer arrive here.');
+        }
+        $secret = trim((string) $request->input('secret'));
+        if (! preg_match('/^\S{16,200}$/', $secret)) {
+            return redirect('/admin/inquiries')->with('status_error', 'Paste the webhook secret from Hostinger (one long code, no spaces).');
+        }
+        \App\Support\InboundMail::setSecret($secret);
+
+        return redirect('/admin/inquiries')->with('status', 'Email link saved. Use Test in Hostinger, or send an email to info@jflsolar.ph, to check it.');
     }
 
     public function show(Inquiry $inquiry): View

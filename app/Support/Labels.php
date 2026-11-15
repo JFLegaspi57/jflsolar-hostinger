@@ -63,6 +63,12 @@ final class Labels
         'other' => 'Something else',
     ];
 
+    /** Inquiry types staff see: the form's choices plus emails to info@ (App\Support\InboundMail). */
+    public static function inquiryType(?string $key): string
+    {
+        return self::INQUIRY_TYPES[$key] ?? ($key === \App\Support\InboundMail::TYPE ? \App\Support\InboundMail::TYPE_LABEL : (string) $key);
+    }
+
     public const BILL_RANGES = [
         '' => 'Prefer not to say',
         'under-3k' => 'Below ₱3,000',

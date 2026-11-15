@@ -4,7 +4,31 @@
     $tab = 'inline-flex min-h-11 items-center gap-1.5 rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white';
 @endphp
 <x-admin.layout title="Inquiries">
-    <x-admin.page-title title="Inquiries" intro="Quote requests sent through the website. Reply by phone or email, then mark them as handled." />
+    <x-admin.page-title title="Inquiries" intro="Quote requests sent through the website, and emails to info@jflsolar.ph. Reply by phone or email, then mark them as handled." />
+    <details class="mb-4 rounded-[var(--radius-panel)] border border-steel-200 bg-white px-4 py-3" @unless ($emailLinked) open @endunless>
+        <summary class="inline-flex min-h-11 cursor-pointer items-center gap-2 font-semibold text-steel-900">
+            Emails to info@jflsolar.ph:
+            @if ($emailLinked)<span class="text-ok-700">linked</span>@else<span class="text-danger-700">not linked yet</span>@endif
+        </summary>
+        <div class="mt-2 space-y-3 text-sm text-steel-700">
+            <p>Each email to info@jflsolar.ph (and sales@) is added here as a new inquiry, with the sender, subject and the start of the message. The full email stays in the mailbox.</p>
+            <ol class="list-decimal space-y-1 pl-5">
+                <li>In Hostinger: Emails → jflsolar.ph → Agentic mail → Webhooks → <strong>Add webhook</strong>. Mailbox: info@jflsolar.ph. URL: <code class="rounded bg-steel-100 px-1">{{ \App\Support\Site::url('/webhooks/hostinger-mail') }}</code></li>
+                <li>Copy the <strong>secret</strong> Hostinger shows (it is shown only once) and paste it below.</li>
+                <li>Click <strong>Test</strong> next to the webhook in Hostinger, or send an email to info@jflsolar.ph.</li>
+            </ol>
+            <form method="post" action="/admin/inquiries/email-link" class="flex flex-wrap items-end gap-3">
+                @csrf
+                <label class="grid gap-1 font-semibold text-steel-900">Webhook secret
+                    <input type="password" name="secret" autocomplete="off" spellcheck="false" style="width: 22rem" class="min-h-11 max-w-full rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal">
+                </label>
+                <button type="submit" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-steel-900 px-4 font-semibold text-white">Save secret</button>
+                @if ($emailLinked)
+                    <button type="submit" name="clear" value="1" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-steel-400 px-4 font-semibold text-steel-900">Remove link</button>
+                @endif
+            </form>
+        </div>
+    </details>
     <nav aria-label="Filter inquiries" class="mb-4 flex flex-wrap gap-2">
         @foreach ($tabs as $key => $label)
             <a href="/admin/inquiries{{ $key === 'new' ? '' : '?view='.$key }}" @if ($view === $key) aria-current="page" @endif class="{{ $tab }}">{{ $label }} <span class="tabular">({{ $counts[$key] ?? 0 }})</span></a>
@@ -47,7 +71,7 @@
                         <a href="/admin/inquiries/{{ $i->id }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $i->name }}</a>
                         <span class="text-sm text-steel-600 tabular">{{ $i->created_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}</span>
                     </div>
-                    <p class="text-sm text-steel-700">{{ Labels::INQUIRY_TYPES[$i->inquiry_type] ?? $i->inquiry_type }}@if ($i->item_label) · {{ $i->item_label }}@endif @if ($i->location) · {{ $i->location }}@endif</p>
+                    <p class="text-sm text-steel-700">{{ Labels::inquiryType($i->inquiry_type) }}@if ($i->item_label) · {{ $i->item_label }}@endif @if ($i->location) · {{ $i->location }}@endif</p>
                     <div class="mt-1 flex flex-wrap items-end justify-between gap-3">
                         <p class="line-clamp-2 min-w-0 flex-1 text-steel-700">{{ $i->message }}</p>
                         <x-admin.confirm :action="'/admin/inquiries/'.$i->id.'/delete'" title="Delete this inquiry permanently?" confirm-label="Delete permanently" label="Delete" :sr-label="'inquiry from '.$i->name" :fields="['back' => $view]">
