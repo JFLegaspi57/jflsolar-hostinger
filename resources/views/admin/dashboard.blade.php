@@ -49,6 +49,20 @@
                 @else Email alerts are off.
                 @endif
             </dd>
+            <dt class="font-semibold">Chat assistant</dt>
+            <dd>{{ \App\Support\Chatbot::available() ? 'Buckny is on.' : (config('chatbot.enabled') ? 'Off: no ANTHROPIC_API_KEY in the server settings.' : 'Off: CHATBOT_ENABLED is not true.') }}</dd>
+            @if (auth('web')->user()?->isOwner())
+                @php
+                    $envDir = app()->environmentPath();
+                    $envName = basename($envDir) === basename(base_path()) ? 'public_html (inside the website folder)' : basename($envDir);
+                    $cached = app()->configurationIsCached();
+                @endphp
+                <dt class="font-semibold">Server settings</dt>
+                <dd>
+                    Read from <code class="rounded bg-steel-100 px-1">{{ $envName }}/.env</code>{{ $cached ? ' (a saved copy is in use, so changes to .env wait until you reload)' : '' }}.
+                    <form method="post" action="/admin/reload-settings" class="mt-2">@csrf<button type="submit" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-steel-400 px-4 font-semibold text-steel-900">Reload server settings</button></form>
+                </dd>
+            @endif
         </dl>
     </section>
 </x-admin.layout>
