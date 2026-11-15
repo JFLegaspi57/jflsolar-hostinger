@@ -178,7 +178,7 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v4', 300, fn () => self::rules()."\n\n".self::knowledge());
+        return Cache::remember('chatbot-system-v5', 300, fn () => self::rules()."\n\n".self::knowledge());
     }
 
     private static function rules(): string
@@ -352,10 +352,10 @@ TXT;
         $lines[] = '';
         $lines[] = 'Brands we carry (brand pages explain each one):';
         foreach (BrandArticles::available() as $slug => $a) {
-            $tier = BrandArticles::TIERS[$slug][0] ?? null;
+            $tier = (BrandArticles::TIERS[$slug][1] ?? false) ? BrandArticles::TIERS[$slug][0] : null;   // Tier 1 only
             $lines[] = '- ['.$a['brand'].'](/brands/'.$slug.')'.($tier ? ' — '.$tier : '').' — '.(BrandArticles::OVERVIEW[$slug][1] ?? '');
         }
-        $lines[] = '- "Tier 1" means listed by BloombergNEF and/or S&P Global as bankable; it is about financial strength, not a quality rating.';
+        $lines[] = '- "Tier 1" means listed by BloombergNEF and/or S&P Global as bankable; it is about financial strength, not a quality rating. Only mention Tier 1; never call a brand "Tier 2" or "Tier 3".';
 
         if ($s['projects']->isNotEmpty()) {
             $lines[] = '';

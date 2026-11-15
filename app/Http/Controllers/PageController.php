@@ -274,7 +274,8 @@ class PageController extends Controller
                     'brand' => $a ? $a['brand'] : $key2,
                     'slug' => $a ? $key2 : null,
                     'summary' => $summary,
-                    'tier' => $tier ?? ($a && ! $category ? (\App\Support\BrandArticles::TIERS[$key2][0] ?? null) : null),
+                    // Only Tier 1 is shown (owner's choice); other tier labels stay hidden.
+                    'tier' => $tier ?? ($a && ! $category && (\App\Support\BrandArticles::TIERS[$key2][1] ?? false) ? \App\Support\BrandArticles::TIERS[$key2][0] : null),
                     'count' => $list->count(),
                     'article' => $a ? '/brands/'.$key2.($section ? '#'.$section : '') : null,
                     'productsHref' => '/products?'.http_build_query(array_filter(['brand' => $filter, 'category' => $category])).'#results',
