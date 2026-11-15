@@ -6,8 +6,10 @@
 @endphp
 <x-site-layout :title="Quotations::NAME" path="/quotation" :noindex="(bool) $member" :reviews-above-footer="false"
     description="Make a Quotation: registered JFL Solar members list the solar PV products they need, add their own items, and send the list to JFL Solar for a quotation.">
-    <x-page-header eyebrow="For members" :title="Quotations::NAME"
-        intro="Build your own list of solar PV equipment: pick products from our catalogue with today's website prices, add anything else you need, then send it to JFL Solar for a formal quotation." />
+    <x-page-hero eyebrow="For members" :title="Quotations::NAME"
+        intro="Build your own list of solar PV equipment: pick products from our catalogue with today's website prices, add anything else you need, then send it to JFL Solar for a formal quotation."
+        image="/images/quotation-desk-1280.jpg" srcset="/images/quotation-desk-640.jpg 640w, /images/quotation-desk-960.jpg 960w, /images/quotation-desk-1280.jpg 1280w"
+        imageAlt="Laptop, tablet, phone, notebook and a cup of coffee on a wooden desk" focus="45% 50%" />
 
     <x-container class="py-10 sm:py-14">
         @include('pages.quotation.flash')
