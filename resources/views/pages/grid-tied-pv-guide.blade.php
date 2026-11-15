@@ -15,8 +15,10 @@
         @include('partials.guide-styles')
         @include('partials.guide-hreflang', ['en' => '/grid-tied-pv-system-guide'])
     </x-slot:head>
-    <x-page-header eyebrow="Technical guide" title="How a grid-tied solar PV system works"
-        intro="The simplest and most cost-effective way to cut your electric bill: how the panels, inverter and grid work together, what happens inside the inverter, and why the system switches off during a brownout." />
+    <x-page-hero eyebrow="Technical guide" title="How a grid-tied solar PV system works"
+        intro="The simplest and most cost-effective way to cut your electric bill: how the panels, inverter and grid work together, what happens inside the inverter, and why the system switches off during a brownout."
+        image="/images/guide-grid-tied-1280.jpg" srcset="/images/guide-grid-tied-640.jpg 640w, /images/guide-grid-tied-960.jpg 960w, /images/guide-grid-tied-1280.jpg 1280w"
+        imageAlt="Illustration: solar panels on a house feed a grid-tied inverter that powers the home and sends extra power to the grid" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
             <p class="text-sm"><a href="/grid-tied-pv-system-guide/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
