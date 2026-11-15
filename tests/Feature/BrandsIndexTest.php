@@ -44,6 +44,7 @@ class BrandsIndexTest extends TestCase
         $this->assertStringContainsString('Trina Solar', $section('panels'));
         $this->assertStringContainsString('Tier 1 panel maker', $section('panels'));
         $this->assertStringNotContainsString('CHINT', $html);
+        $this->assertStringNotContainsString('Tier 2', $html);   // only Tier 1 labels are shown
     }
 
     public function test_our_brands_is_in_the_about_menu_after_contact_and_in_the_sitemap(): void
