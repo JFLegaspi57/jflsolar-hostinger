@@ -75,10 +75,10 @@ class HelpPagesTest extends TestCase
         $this->assertSame(array_keys(Faq::LINKS), array_keys(\App\Support\FaqTagalog::LINKS));
         $res = $this->get('/faq/tagalog')->assertOk()->assertSee('<html lang="fil">', false)
             ->assertSee('Mga madalas itanong')->assertSee('Wala kaming cash on delivery (COD).')->assertSee('"@type":"FAQPage"', false)
-            ->assertSee('href="/faq"', false)->assertDontSee('{order}')->assertDontSee('{phone}')
+            ->assertSee('href="/lang/en?back=/faq"', false)->assertDontSee('{order}')->assertDontSee('{phone}')
             ->assertSee('hreflang="fil" href="https://jflsolar.ph/faq/tagalog"', false);
         $this->assertSame(Faq::COUNT, substr_count($res->getContent(), 'class="faq-item"'));
-        $this->get('/faq')->assertOk()->assertSee('href="/faq/tagalog"', false)->assertSee('<html lang="en-PH">', false);
+        $this->get('/faq')->assertOk()->assertSee('href="/lang/fil?back=/faq"', false)->assertSee('<html lang="en-PH">', false);
     }
 
     public function test_staff_can_reword_an_answer_in_page_text(): void

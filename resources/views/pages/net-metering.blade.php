@@ -12,7 +12,7 @@
         imageAlt="Illustration: a house with solar panels sends extra power through a two-way meter to the grid and earns peso credits" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="nm max-w-3xl space-y-10 text-steel-800">
-            <p class="text-sm"><a href="/net-metering/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
+            <p class="text-sm"><a href="/lang/fil?back=/net-metering" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
 
             <section>
                 <h2>What is net metering?</h2>

@@ -31,6 +31,6 @@ class ChatController extends Controller
         RateLimiter::hit($visitor, 3600);
         Cache::increment($day);
 
-        return response()->json(Chatbot::reply($messages, (string) $request->ip()));
+        return response()->json(Chatbot::reply($messages, (string) $request->ip(), \App\Support\Lang::current($request)));
     }
 }

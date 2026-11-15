@@ -13,7 +13,7 @@
         imageAlt="Larawan: bahay na may solar panel na nagpapadala ng sobrang kuryente sa grid sa two-way meter at kumikita ng kredito" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="nm max-w-3xl space-y-10 text-steel-800">
-            <p class="text-sm"><a href="/net-metering" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>
+            <p class="text-sm"><a href="/lang/en?back=/net-metering" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>
 
             <section>
                 <h2>Ano ang net metering?</h2>

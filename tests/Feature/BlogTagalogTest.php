@@ -41,7 +41,7 @@ class BlogTagalogTest extends TestCase
     public function test_the_filipino_version_has_its_own_page_linked_both_ways(): void
     {
         $this->get('/blog/inside-the-factory')->assertOk()
-            ->assertSee('href="/blog/inside-the-factory/tagalog"', false)->assertSee('Basahin sa Filipino')
+            ->assertSee('href="/lang/fil?back=/blog/inside-the-factory"', false)->assertSee('Basahin sa Filipino')
             ->assertSee('hreflang="fil" href="'.\App\Support\Site::url('/blog/inside-the-factory/tagalog').'"', false);
         $this->get('/blog/inside-the-factory/tagalog')->assertOk()
             ->assertSee('<html lang="fil">', false)->assertSee('Sa loob ng pabrika')->assertSee('Panimula sa Filipino.')

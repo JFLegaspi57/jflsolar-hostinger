@@ -67,7 +67,7 @@ final class Chatbot
         return preg_replace('/\b(solar)(\s+)(systems?|sistema)\b/i', '$1$2PV $3', $text);
     }
 
-    public static function reply(array $messages, string $ip): array
+    public static function reply(array $messages, string $ip, string $lang = 'en'): array
     {
         $settings = PublicContent::settings();
         $fallback = 'Sorry, I can’t answer right now. Please call us at '.$settings->phone_display.', or leave your name and mobile number and our Sales team will call you back.';
@@ -81,7 +81,10 @@ final class Chatbot
                 ])->timeout(40)->acceptJson()->post(self::API_URL, [
                     'model' => (string) config('chatbot.model'),
                     'max_tokens' => (int) config('chatbot.max_tokens'),
-                    'system' => [['type' => 'text', 'text' => self::systemPrompt(), 'cache_control' => ['type' => 'ephemeral']]],
+                    'system' => [['type' => 'text', 'text' => self::systemPrompt(), 'cache_control' => ['type' => 'ephemeral']],
+                        ['type' => 'text', 'text' => $lang === 'fil'
+                            ? 'The visitor chose Filipino on the website: reply in Filipino (natural Taglish is fine; keep technical terms in English).'
+                            : 'The visitor chose English on the website: reply in English unless they write in Filipino.']],
                     'tools' => [self::callbackTool()],
                     'messages' => $convo,
                 ]);
@@ -178,7 +181,7 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v5', 300, fn () => self::rules()."\n\n".self::knowledge());
+        return Cache::remember('chatbot-system-v6', 300, fn () => self::rules()."\n\n".self::knowledge());
     }
 
     private static function rules(): string
@@ -190,10 +193,11 @@ You are Buckny, the JFL Solar website assistant, chatting with visitors on jflso
 
 How to answer:
 - Help with JFL Solar's products, packages, prices, ordering, pickup, delivery, payment, warranty, services and general solar questions. Politely decline anything unrelated.
-- SITE FACTS below is the live content of jflsolar.ph (pages, FAQ, features, brands, products, packages, projects, blog). Answer from it; when a page covers the topic, link it. If the site doesn't say, don't guess: say Sales will confirm and offer a callback.
-- Use ONLY the facts in "SITE FACTS" for prices, availability, specs, warranties, addresses, hours and contact details. Never invent or estimate a price, discount, stock level, delivery fee, warranty, schedule or claim; for delivery fees use only the DELIVERY RATES list (they are estimates). If a fact is missing, say Sales will confirm it and offer a callback.
+- SITE FACTS below is the live content of jflsolar.ph (pages, FAQ, features, brands, products, packages, projects, blog). Answer from it; when a page covers the topic, link it. When the site has no answer, never guess: suggest calling our Sales or technical support team and offer a callback.
+- Use ONLY the facts in "SITE FACTS" for prices, availability, specs, warranties, addresses, hours and contact details. Never invent or estimate a price, discount, stock level, delivery fee, warranty, schedule or claim; for delivery fees use only the DELIVERY RATES list (they are estimates). If a fact is missing, our Sales team confirms it: give the number and offer a callback.
 - Prices are pickup prices in Philippine pesos (₱). "Price on request" items need a quotation. "Available to order" means it can be ordered on the website; it does not promise a stock count.
 - Always say "solar PV system" (Filipino: "solar PV system" too), never "solar system".
+- Never write "I don't know", "I'm not sure", "I don't have that information" or similar, and avoid "don't" in general; phrase things positively (e.g. "Cash on delivery is not available" → "We accept cash, GCash, bank transfer, check or card when you pick up"). When the answer is not in SITE FACTS or needs an expert, say our Sales or technical support team can give the details, give the Sales number and offer a callback.
 - Keep replies short and friendly (usually under 120 words). Mix plain words with technical terms; don't over-explain. Reply in the customer's language (English, Filipino or Taglish).
 - Link to pages with Markdown links using the site paths given, e.g. [6kW Trio Package Combo](/packages/6kw-trio-package-combo). Use **bold** sparingly. No tables, no headings.
 - For system sizing, give general guidance only, then suggest the [PV Calculator](/pv-calculator) or a site assessment. Never promise savings or payback.
@@ -212,7 +216,7 @@ TXT;
             '- Two vehicles: small van (cargo about 2.1 m) for orders WITHOUT solar panels, '.DeliveryRates::peso($r['van'][0]).' to '.DeliveryRates::peso($r['van'][1]).'; long van (3 m cargo) when the order has solar panels (panels are about 2.3–2.4 m long) or a complete system, '.DeliveryRates::peso($r['long_van'][0]).' to '.DeliveryRates::peso($r['long_van'][1]).'.',
             '- Fees are estimates for one trip to one address, one way. Expressway tolls, extra helpers, long waiting time and extra drop-offs are charged separately. Courier rates change with fuel prices, so Sales confirms the final fee in the quotation before dispatch.',
             '- Online shop orders are for pickup by default; to have one delivered, the customer calls our Sales team ('.PublicContent::settings()->phone_display.'). Farther than '.DeliveryRates::MAX_KM.' km: we still deliver; Sales quotes the fee.',
-            '- We do NOT offer cash on delivery (COD).',
+            '- Cash on delivery (COD) is not available: customers pay by cash, GCash, bank transfer, check or card (see ordering above).',
             '',
             'DELIVERY RATES (estimated one-way fee from our warehouse: town — road km — small van / long van):',
         ];

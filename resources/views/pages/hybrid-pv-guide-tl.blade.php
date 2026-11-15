@@ -21,7 +21,7 @@
         imageAlt="Larawan: solar panel sa bahay na konektado sa hybrid inverter at battery, na nagpapatakbo ng bahay at konektado sa grid" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
-            <p class="text-sm"><a href="/hybrid-pv-system-guide" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>
+            <p class="text-sm"><a href="/lang/en?back=/hybrid-pv-system-guide" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>
 
             <nav aria-label="Sa pahinang ito" class="hg-toc hg-note">
                 <p class="font-bold text-steel-950">Sa pahinang ito</p>

@@ -16,9 +16,9 @@ class ChatbotDeliveryTest extends TestCase
     {
         $this->seed();
         PublicContent::flush();
-        cache()->forget('chatbot-system-v5');
+        cache()->forget('chatbot-system-v6');
         $prompt = Chatbot::systemPrompt();
-        $this->assertStringContainsString('We do NOT offer cash on delivery (COD).', $prompt);
+        $this->assertStringContainsString('Cash on delivery (COD) is not available', $prompt);
         $this->assertStringContainsString('[Delivery Rates](/delivery-rates)', $prompt);
         $this->assertStringContainsString('Batangas City 89 km '.DeliveryRates::peso(DeliveryRates::vanFee(89)).' / '.DeliveryRates::peso(DeliveryRates::longVanFee(89)), $prompt);
         $this->assertStringNotContainsString('delivery is not included', $prompt);

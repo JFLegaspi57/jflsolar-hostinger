@@ -40,12 +40,12 @@ class HybridGuideTest extends TestCase
             ->assertSee('Paano gumagana ang hybrid solar PV system')
             ->assertSee('Sa loob ng hybrid inverter')->assertSee('Ano ang nangyayari kapag brownout')
             ->assertSee('<svg viewBox="0 0 760 430" role="img"', false)
-            ->assertSee('href="/hybrid-pv-system-guide" hreflang="en"', false)
+            ->assertSee('href="/lang/en?back=/hybrid-pv-system-guide" hreflang="en"', false)
             ->assertSee('hreflang="fil" href="', false)
             ->assertDontSee('solar system');
         $this->get('/hybrid-pv-system-guide')->assertOk()
             ->assertSee('<html lang="en-PH">', false)
-            ->assertSee('href="/hybrid-pv-system-guide/tagalog" hreflang="fil"', false);
+            ->assertSee('href="/lang/fil?back=/hybrid-pv-system-guide" hreflang="fil"', false);
         $this->get('/sitemap.xml')->assertOk()->assertSee('/hybrid-pv-system-guide/tagalog');
     }
 
@@ -56,21 +56,21 @@ class HybridGuideTest extends TestCase
             ->assertSee('<html lang="fil">', false)
             ->assertSee('Paano gumagana ang grid-tied solar PV system')->assertSee('Bakit ito namamatay kapag brownout')
             ->assertSee('<svg viewBox="0 0 760 380" role="img"', false)
-            ->assertSee('href="/grid-tied-pv-system-guide" hreflang="en"', false)
+            ->assertSee('href="/lang/en?back=/grid-tied-pv-system-guide" hreflang="en"', false)
             ->assertSee('href="/hybrid-pv-system-guide/tagalog"', false)->assertSee('href="/net-metering/tagalog"', false)
             ->assertDontSee('solar system');
         $this->get('/grid-tied-pv-system-guide')->assertOk()
-            ->assertSee('href="/grid-tied-pv-system-guide/tagalog" hreflang="fil"', false);
+            ->assertSee('href="/lang/fil?back=/grid-tied-pv-system-guide" hreflang="fil"', false);
         $this->get('/hybrid-pv-system-guide/tagalog')->assertOk()
             ->assertSee('href="/grid-tied-pv-system-guide/tagalog"', false)->assertDontSee('(sa Ingles)');
 
         $this->get('/net-metering/tagalog')->assertOk()
             ->assertSee('<html lang="fil">', false)
             ->assertSee('Net metering sa Pilipinas')->assertSee('Sino ang puwedeng mag-apply?')
-            ->assertSee('href="/net-metering" hreflang="en"', false)
+            ->assertSee('href="/lang/en?back=/net-metering" hreflang="en"', false)
             ->assertDontSee('solar system');
         $this->get('/net-metering')->assertOk()
-            ->assertSee('href="/net-metering/tagalog" hreflang="fil"', false)
+            ->assertSee('href="/lang/fil?back=/net-metering" hreflang="fil"', false)
             ->assertSee('<link rel="alternate" hreflang="fil"', false);
 
         $this->get('/sitemap.xml')->assertOk()

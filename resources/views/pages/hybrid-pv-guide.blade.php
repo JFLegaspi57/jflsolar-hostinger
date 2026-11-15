@@ -20,7 +20,7 @@
         imageAlt="Illustration: solar panels on a house feed a hybrid inverter with a battery, which powers the home and connects to the grid" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
-            <p class="text-sm"><a href="/hybrid-pv-system-guide/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
+            <p class="text-sm"><a href="/lang/fil?back=/hybrid-pv-system-guide" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
 
             <nav aria-label="On this page" class="hg-toc hg-note">
                 <p class="font-bold text-steel-950">On this page</p>
