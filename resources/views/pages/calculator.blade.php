@@ -35,7 +35,7 @@
             .calc-print-only { display: none; }
             @media print {
                 @page { size: A4; margin: 14mm; }
-                header, footer, .calc-noprint, section[aria-labelledby="page-hero-title"], [aria-label="Proposal preview notice"] { display: none !important; }
+                header, footer, .calc-noprint, section[aria-labelledby="page-hero-title"], section[aria-labelledby="method-title"], [aria-label="Proposal preview notice"] { display: none !important; }
                 .calc-print-only { display: block !important; }
                 .calc-print-foot { break-inside: avoid; page-break-inside: avoid; }
             }
