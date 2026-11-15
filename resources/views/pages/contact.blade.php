@@ -35,7 +35,22 @@
                     <p class="mt-4"><a href="/contact" class="font-semibold text-steel-900 underline">Send another inquiry</a></p>
                 </div>
             @else
-                <p class="mt-1 mb-6 text-steel-600">Fields marked required must be filled in. Everything else is optional.</p>
+                {{-- Before the form: point people to the self-service tools that often answer their question faster. --}}
+                <div class="mt-4 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-5" aria-labelledby="before-title">
+                    <h3 id="before-title" class="font-bold text-steel-950">Before you send an inquiry</h3>
+                    <p class="mt-1 text-sm text-steel-700">These may already have what you need, with today’s prices:</p>
+                    <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+                        <li class="rounded-[var(--radius-control)] border border-steel-200 bg-white p-4">
+                            <a href="/quotation" class="font-semibold text-steel-950 underline underline-offset-2">{{ \App\Support\Quotations::NAME }}</a>
+                            <p class="mt-1 text-sm text-steel-700">List the equipment you need with our website prices, add your own items, then save, print or send it to us for a formal quotation. Free for members.</p>
+                        </li>
+                        <li class="rounded-[var(--radius-control)] border border-steel-200 bg-white p-4">
+                            <a href="/packages" class="font-semibold text-steel-950 underline underline-offset-2">Packages</a>
+                            <p class="mt-1 text-sm text-steel-700">Ready-made solar PV systems: Materials Only bundles, Build Your Own with a price for every part, and complete packages with installation.</p>
+                        </li>
+                    </ul>
+                </div>
+                <p class="mt-6 mb-6 text-steel-600">Fields marked required must be filled in. Everything else is optional.</p>
                 @if ($stale)
                     <p role="status" class="mb-4 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 px-4 py-3 text-warn-800">The item you selected is no longer available. You can still send us a general inquiry.</p>
                 @endif
