@@ -93,6 +93,8 @@
                 el.append(document.createTextNode(text.slice(last)));
             };
             const bubble = (role, text) => { const d = document.createElement('div'); d.className = 'jc-msg ' + (role === 'user' ? 'jc-me' : 'jc-bot'); render(d, text); log.append(d); log.scrollTop = log.scrollHeight; return d; };
+            // Scroll so the visitor's question sits at the top, with the start of Buckny's reply below it.
+            const showFrom = (el) => { if (el) log.scrollTop += el.getBoundingClientRect().top - log.getBoundingClientRect().top - 8; };
             const note = (text) => { const p = document.createElement('p'); p.className = 'jc-note'; p.textContent = text; log.append(p); log.scrollTop = log.scrollHeight; };
             const draw = () => {
                 log.textContent = '';
@@ -102,7 +104,9 @@
                     starters.forEach((s) => { const c = document.createElement('button'); c.type = 'button'; c.className = 'jc-chip'; c.textContent = s; c.addEventListener('click', () => ask(s)); chips.append(c); });
                     log.append(chips);
                 }
-                messages.forEach((m) => bubble(m.role, m.content));
+                let lastQ = null;
+                messages.forEach((m) => { const d = bubble(m.role, m.content); if (m.role === 'user') lastQ = d; });
+                showFrom(lastQ);
             };
             const open = (yes) => {
                 panel.hidden = !yes; btn.hidden = yes; btn.setAttribute('aria-expanded', String(yes));
@@ -114,7 +118,7 @@
                 busy = true; send.disabled = true;
                 root.querySelector('.jc-chips')?.remove();
                 messages.push({ role: 'user', content: text }); save();
-                bubble('user', text);
+                const question = bubble('user', text);
                 const typing = document.createElement('div'); typing.className = 'jc-msg jc-bot'; typing.innerHTML = '<span class="jc-dots" aria-label="Typing"><i></i><i></i><i></i></span>'; log.append(typing); log.scrollTop = log.scrollHeight;
                 try {
                     const r = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': root.dataset.csrf }, body: JSON.stringify({ messages }) });
@@ -124,6 +128,7 @@
                     if (!r.ok || !data.reply) { messages.pop(); save(); note(data.error || 'Sorry, something went wrong. Please try again, or call {{ $chatPhone }}.'); return; }
                     messages.push({ role: 'assistant', content: data.reply }); save();
                     bubble('assistant', data.reply);
+                    showFrom(question);
                 } catch (e) {
                     typing.remove(); messages.pop(); save();
                     note('You seem to be offline. Please check your connection and try again.');
