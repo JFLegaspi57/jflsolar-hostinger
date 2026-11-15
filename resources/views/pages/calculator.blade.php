@@ -32,7 +32,13 @@
             .calc-grid { grid-template-columns: minmax(0, 1fr); }
             .calc-grid fieldset { min-width: 0; }
             @media (min-width: 1024px) { .calc-grid { grid-template-columns: minmax(0, 1fr) 20rem; } }
-            @media print { header, footer, .calc-noprint { display: none !important; } }
+            .calc-print-only { display: none; }
+            @media print {
+                @page { size: A4; margin: 14mm; }
+                header, footer, .calc-noprint, section[aria-labelledby="page-hero-title"], [aria-label="Proposal preview notice"] { display: none !important; }
+                .calc-print-only { display: block !important; }
+                .calc-print-foot { break-inside: avoid; page-break-inside: avoid; }
+            }
         </style>
     </x-slot:head>
 
@@ -40,6 +46,15 @@
         intro="Start from your monthly electricity bill or your list of appliances. We'll estimate the panels, inverter and battery for your home or business, and how much you could save."
         image="/images/calculator-crew-1280.jpg" srcset="/images/calculator-crew-640.jpg 640w, /images/calculator-crew-960.jpg 960w, /images/calculator-crew-1280.jpg 1280w"
         imageAlt="Two JFL Solar technicians in hard hats installing solar panels on a metal rooftop at sunset" focus="55% 45%" :flip="true" />
+
+    {{-- Printed estimate only: logo header (the photo banner is hidden when printing), like the Make a Quotation print. --}}
+    <div class="calc-print-only" style="font-family:Arial,Helvetica,sans-serif;color:#111827;padding:0 0 4px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-bottom:3px solid #f59e0b;">
+            <tr><td style="padding:0 0 12px;vertical-align:middle;"><img src="/brand/jfl-renewables-logo-272.png" width="190" height="56" alt="{{ Site::NAME }}" style="display:block;width:190px;height:auto;border:0;"></td></tr>
+        </table>
+        <h1 style="margin:18px 0 4px;font-size:22px;">PV System Estimate</h1>
+        <p style="margin:0;font-size:14px;color:#4b5563;">Date: {{ now()->timezone('Asia/Manila')->format('j F Y') }}</p>
+    </div>
 
     <x-section labelledby="calc-title">
         <h2 id="calc-title" class="sr-only">Calculator</h2>
@@ -249,6 +264,35 @@
         </div>
         <p class="mt-8 max-w-3xl text-sm text-steel-600">Results are estimates for planning only and are not a binding offer. Actual production depends on roof orientation, shading, weather and the equipment chosen.</p>
     </x-section>
+
+    {{-- Printed estimate only: company addresses and contact details, same as the Make a Quotation print footer. --}}
+    @php
+        $printSettings = \App\Support\PublicContent::settings();
+        $footHead = 'margin:0 0 4px;font-size:11px;font-weight:bold;letter-spacing:.06em;text-transform:uppercase;color:#111827;';
+        $footText = 'margin:0;font-size:12px;line-height:1.5;color:#374151;';
+    @endphp
+    <div class="calc-print-only calc-print-foot" style="font-family:Arial,Helvetica,sans-serif;color:#111827;">
+        <p style="margin:24px 0 0;padding-top:10px;border-top:1px solid #d1d5db;font-size:12px;color:#4b5563;line-height:1.5;">
+            Estimate made with the PV System Calculator on {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}. It is a first estimate only, not a formal quotation. Final system size, prices and availability are confirmed by JFL Solar in writing after reviewing your bill and site.
+        </p>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin-top:16px;border-top:3px solid #f59e0b;">
+            <tr>
+                @if ($printSettings->office_address)
+                    <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;"><p style="{{ $footHead }}">Office</p><p style="{{ $footText }}">{{ $printSettings->office_address }}</p></td>
+                @endif
+                @if ($printSettings->warehouse_address)
+                    <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;"><p style="{{ $footHead }}">Warehouse</p><p style="{{ $footText }}">{{ $printSettings->warehouse_address }}</p></td>
+                @endif
+                <td style="padding:12px 0 0;vertical-align:top;">
+                    <p style="{{ $footHead }}">Contact</p>
+                    @foreach (\App\Support\Contact::channels($printSettings) as $c)
+                        <p style="{{ $footText }}"><span style="color:#6b7280;">{{ $c['label'] }}:</span> {{ $c['detail'] }}</p>
+                    @endforeach
+                    <p style="{{ $footText }}"><span style="color:#6b7280;">Website:</span> {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}</p>
+                </td>
+            </tr>
+        </table>
+    </div>
 
     <script>
         (function () {
