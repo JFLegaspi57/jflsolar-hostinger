@@ -352,6 +352,9 @@ class MembersTest extends TestCase
         $this->assertNotNull($m->photo);
         $file = \App\Support\Members::photoDir($m).'/'.$m->photo;
         $this->assertSame([320, 320], array_slice(getimagesize($file), 0, 2));   // square crop
+        $fullFile = \App\Support\Members::photoDir($m).'/'.\App\Support\Members::fullName($m->photo);
+        $this->assertSame([800, 600], array_slice(getimagesize($fullFile), 0, 2));   // whole photo kept for the pop-up
+        $this->get(\App\Support\Members::photoFullUrl($m))->assertOk()->assertHeader('Content-Type', 'image/webp');
         $url = \App\Support\Members::photoUrl($m);
         $this->get('/account')->assertSee($url, false);
         $this->get('/')->assertSee($url, false);   // small avatar in the header
@@ -365,6 +368,10 @@ class MembersTest extends TestCase
         $staff = $this->staff();
         $this->actingAs($staff, 'web')->get($url)->assertOk();
         $this->actingAs($staff, 'web')->get('/admin/members')->assertSee($url, false);
+        $this->actingAs($staff, 'web')->get('/admin/members')->assertSee('data-photo-zoom="'.\App\Support\Members::photoFullUrl($m).'"', false);
+        $this->actingAs($staff, 'web')->get(\App\Support\Members::photoFullUrl($m))->assertOk();
+        @unlink($fullFile);   // older uploads have no full photo: the square one is served instead
+        $this->actingAs($staff, 'web')->get(\App\Support\Members::photoFullUrl($m))->assertOk();
         auth('web')->logout();
 
         // Replace, then remove: old files are deleted.

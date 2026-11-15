@@ -113,7 +113,7 @@ class AccountController extends Controller
         $photo = $member->photo;
         if ($request->hasFile('photo')) {
             $name = \Illuminate\Support\Str::random(24).'.webp';
-            $result = \App\Support\ImageProcessor::avatar($request->file('photo'), Members::photoDir($member).'/'.$name);
+            $result = \App\Support\ImageProcessor::avatar($request->file('photo'), Members::photoDir($member).'/'.$name, fullFile: Members::photoDir($member).'/'.Members::fullName($name));
             if (isset($result['error'])) {
                 return $back->withInput($request->only(array_keys(Members::SOCIALS)))->withErrors(['photo' => $result['error']]);
             }
@@ -126,6 +126,7 @@ class AccountController extends Controller
         $member->forceFill($links + ['photo' => $photo])->save();
         if (! empty($old) && $old !== $photo) {
             @unlink(Members::photoDir($member).'/'.basename($old));
+            @unlink(Members::photoDir($member).'/'.basename(Members::fullName($old)));
         }
 
         return $back->with('account_status', 'Your profile was saved.');
@@ -138,8 +139,11 @@ class AccountController extends Controller
         $staff = auth('web')->user();
         abort_unless(($me && $me->id === $member) || ($staff && $staff->active), 404);
         $m = $me && $me->id === $member ? $me : \App\Models\Member::query()->find($member);
-        abort_unless($m && $m->photo === $file, 404);
+        abort_unless($m && $m->photo && ($m->photo === $file || Members::fullName($m->photo) === $file), 404);
         $path = Members::photoDir($m).'/'.basename($file);
+        if (! is_file($path) && $file !== $m->photo) {
+            $path = Members::photoDir($m).'/'.basename($m->photo);   // older uploads: only the square photo exists
+        }
         abort_unless(is_file($path), 404);
 
         return response()->file($path, ['Content-Type' => 'image/webp', 'Cache-Control' => 'private, max-age=86400', 'X-Content-Type-Options' => 'nosniff']);

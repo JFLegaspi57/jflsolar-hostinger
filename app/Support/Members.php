@@ -193,6 +193,18 @@ final class Members
         return $member->photo ? '/account/photo/'.$member->id.'/'.$member->photo : null;
     }
 
+    /** The whole (uncropped) photo, kept for uploads since November 2026; the route falls back to the square one. */
+    public static function photoFullUrl(Member $member): ?string
+    {
+        return $member->photo ? '/account/photo/'.$member->id.'/'.self::fullName($member->photo) : null;
+    }
+
+    /** "abc.webp" → "abc-full.webp" */
+    public static function fullName(string $photo): string
+    {
+        return preg_replace('/\.webp$/', '-full.webp', $photo);
+    }
+
     /** Removes the member's photo files (all of them). */
     public static function deletePhotos(Member $member): void
     {

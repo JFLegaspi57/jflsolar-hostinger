@@ -130,7 +130,7 @@
                         @csrf
                         <div class="flex items-center gap-4">
                             @if ($photo = \App\Support\Members::photoUrl($member))
-                                <img src="{{ $photo }}" alt="Your profile photo" width="80" height="80" style="width: 5rem; height: 5rem" class="shrink-0 rounded-full border border-steel-200 object-cover">
+                                <x-photo-zoom :full="\App\Support\Members::photoFullUrl($member)" :small="$photo" alt="Your profile photo" label="View your full photo"><img src="{{ $photo }}" alt="Your profile photo" width="80" height="80" style="width: 5rem; height: 5rem" class="shrink-0 rounded-full border border-steel-200 object-cover"></x-photo-zoom>
                             @else
                                 <span style="width: 5rem; height: 5rem" class="inline-flex shrink-0 items-center justify-center rounded-full bg-steel-100 text-steel-600"><x-icon name="user" class="size-10" /></span>
                             @endif
