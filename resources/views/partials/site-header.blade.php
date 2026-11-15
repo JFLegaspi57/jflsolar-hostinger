@@ -24,7 +24,7 @@
         ['/packages/build-your-own', 'Build Your Own', request()->is('packages/build-your-own')],
         ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
     ]];
-    $subMenus['/faq'] = ['FAQ and guides', ['/faq', 'FAQ', request()->is('faq')], [
+    $subMenus['/faq'] = ['FAQ and guides', ['/faq', 'Frequently Asked Questions', request()->is('faq')], [
         ['/net-metering', 'Net metering guide', request()->is('net-metering', 'net-metering/*')],
         ['/hybrid-pv-system-guide', 'How hybrid PV systems work', request()->is('hybrid-pv-system-guide', 'hybrid-pv-system-guide/*')],
         ['/grid-tied-pv-system-guide', 'How grid-tied PV systems work', request()->is('grid-tied-pv-system-guide', 'grid-tied-pv-system-guide/*')],
