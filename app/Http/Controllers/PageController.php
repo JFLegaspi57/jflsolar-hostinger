@@ -233,6 +233,34 @@ class PageController extends Controller
     }
 
     /** Brand articles (/brands/{slug}); the brand logos on /products link here. */
+    /** Our Brands: every brand we carry, grouped by product type, linking to its article and products. */
+    public function brands(): View
+    {
+        $products = PublicContent::snapshot()['products'];
+        $available = \App\Support\BrandArticles::available();
+        $groups = [];
+        foreach (\App\Support\BrandArticles::GROUPS as $key => [$heading, $line]) {
+            $items = [];
+            foreach (\App\Support\BrandArticles::OVERVIEW as $slug => [$group, $summary]) {
+                if ($group !== $key || ! isset($available[$slug])) {
+                    continue;
+                }
+                $a = $available[$slug];
+                $items[] = $a + [
+                    'slug' => $slug,
+                    'summary' => $summary,
+                    'tier' => \App\Support\BrandArticles::TIERS[$slug][0] ?? null,
+                    'count' => \App\Support\BrandArticles::products($products, $slug)->count(),
+                ];
+            }
+            if ($items) {
+                $groups[] = ['key' => $key, 'heading' => $heading, 'line' => $line, 'items' => $items];
+            }
+        }
+
+        return view('pages.brands-index', ['settings' => PublicContent::settings(), 'groups' => $groups]);
+    }
+
     public function brand(string $slug): View
     {
         $a = \App\Support\BrandArticles::available()[$slug] ?? abort(404);
@@ -268,7 +296,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/delivery-rates', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/delivery-rates', '/brands', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);

@@ -22,6 +22,27 @@ final class BrandArticles
         'projoy' => ['brand' => 'Projoy Electric', 'filter' => 'Projoy'],
     ];
 
+    /** Our Brands page (/brands): group => [heading, short line], then each brand's group and one-line summary. */
+    public const GROUPS = [
+        'inverters' => ['Inverters', 'The heart of the solar PV system: it turns solar DC power into AC power for your home and manages the battery.'],
+        'panels' => ['Solar panels', 'N-type bifacial panels that make more power from the same roof space.'],
+        'batteries' => ['Batteries', 'LiFePO4 home batteries that store solar power for the night and for brownouts.'],
+        'protection' => ['Safety and protection', 'Rapid shutdown and surge protection for a safer rooftop system.'],
+    ];
+
+    public const OVERVIEW = [
+        'goodwe' => ['inverters', 'Hybrid inverters and Lynx batteries from one of the world’s largest inverter makers, with a strong support team in the Philippines.'],
+        'solis' => ['inverters', 'Hybrid and grid-tie inverters for homes and businesses, with a local office and service in the Philippines.'],
+        'sungrow' => ['inverters', 'One of the most trusted inverter makers in the world. We carry the MG RL single-phase hybrid inverters.'],
+        'luxpower' => ['inverters', 'Practical hybrid and off-grid inverters with generator and smart-load ports, popular with installers.'],
+        'jinko-solar' => ['panels', 'Tiger Neo N-type TOPCon bifacial panels from one of the biggest panel makers in the world.'],
+        'ae-solar' => ['panels', 'German-brand N-type bifacial panels with strong independent test results.'],
+        'seraphim' => ['panels', 'N-type bifacial panels, a repeat Kiwa PVEL Top Performer, with large projects in the Philippines.'],
+        'dyness' => ['batteries', 'PowerBrick LiFePO4 home batteries that work with GoodWe, Luxpower and Solis inverters.'],
+        'alltopelec' => ['batteries', 'A 16.5 kWh LiFePO4 home battery with local presence in the Philippines.'],
+        'projoy' => ['protection', 'Rapid shutdown (firefighter safety) switches and AC surge protectors.'],
+    ];
+
     /**
      * Tier classification of the inverter and solar panel brands (checked November 2026).
      * "Tier 1" here means listed by BloombergNEF and/or S&P Global; it measures bankability, not product quality.

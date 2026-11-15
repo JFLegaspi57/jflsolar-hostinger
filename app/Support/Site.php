@@ -24,6 +24,7 @@ final class Site
     public const ABOUT_MENU = [
         ['href' => '/about', 'label' => 'About Us'],
         ['href' => '/contact', 'label' => 'Contact'],
+        ['href' => '/brands', 'label' => 'Our Brands'],
         ['href' => '/blog', 'label' => 'Blog Posts'],
     ];
 
