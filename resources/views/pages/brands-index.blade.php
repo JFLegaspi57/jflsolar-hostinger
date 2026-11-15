@@ -20,8 +20,10 @@
             @media (prefers-reduced-motion: reduce) { .ob-card, .ob-card:hover { transition: none; transform: none; } }
         </style>
     </x-slot:head>
-    <x-page-header eyebrow="About" title="Our brands"
-        intro="We carry trusted solar PV brands that we install and test ourselves. Every brand below has its own page that explains who they are, what we carry and how to choose." />
+    <x-page-hero eyebrow="About" title="Our brands"
+        intro="We carry trusted solar PV brands that we install and test ourselves. Every brand below has its own page that explains who they are, what we carry and how to choose."
+        image="/images/brands-banner-1280.jpg" srcset="/images/brands-banner-640.jpg 640w, /images/brands-banner-960.jpg 960w, /images/brands-banner-1280.jpg 1280w"
+        imageAlt="Illustration: solar panels, an inverter, a battery and a breaker box lined up under a glowing sun" focus="75% 65%" flip />
     <x-container class="space-y-10 py-10 sm:py-14">
         @foreach ($groups as $g)
             <section aria-labelledby="ob-{{ $g['key'] }}">
