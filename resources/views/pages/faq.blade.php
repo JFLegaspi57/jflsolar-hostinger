@@ -22,8 +22,8 @@
         </style>
     </x-slot:head>
     <x-page-hero eyebrow="Help" :title="PageText::get('faq.header.title')" :intro="PageText::get('faq.header.intro')"
-        image="/images/faq-question-marks-1280.jpg" srcset="/images/faq-question-marks-640.jpg 640w, /images/faq-question-marks-960.jpg 960w, /images/faq-question-marks-1280.jpg 1280w"
-        imageAlt="Dark 3D question marks on a dark floor, with two glowing orange question marks among them" focus="35% 60%" />
+        image="/images/faq-banner-1280.jpg" srcset="/images/faq-banner-640.jpg 640w, /images/faq-banner-960.jpg 960w, /images/faq-banner-1280.jpg 1280w"
+        imageAlt="Glowing turquoise question marks on a dark blue background" focus="80% 50%" flip />
     <x-container class="grid gap-12 py-10 sm:py-14 lg:grid-cols-[1.25fr_1fr]">
         <div class="border-t border-steel-200">
             @foreach ($items as $i => $it)
@@ -40,7 +40,6 @@
                     </div>
                 </details>
             @endforeach
-            <p class="mt-6 text-sm text-steel-600">Banner photo: Laurin Steffens on Unsplash.</p>
         </div>
         <aside aria-labelledby="faq-contact" style="align-self: start" class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-6">
             <h2 id="faq-contact" class="text-xl font-bold text-steel-950">Still have a question?</h2>
