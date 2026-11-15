@@ -113,6 +113,11 @@
                 <textarea id="notes" name="staff_notes" rows="5" maxlength="4000" aria-describedby="notes-hint" class="mt-2 w-full rounded-[var(--radius-control)] border border-steel-500 px-3 py-2">{{ old('staff_notes', $o->staff_notes) }}</textarea>
                 <button type="submit" class="{{ $btn }} mt-2 border border-steel-300 bg-white text-steel-900 hover:border-steel-900">Save notes</button>
             </form>
+            @if (in_array($o->status, \App\Http\Controllers\Admin\OrderController::DELETABLE, true))
+                <x-admin.confirm :action="'/admin/orders/'.$o->id.'/delete'" :title="'Delete order '.$o->reference.'?'" confirm-label="Delete permanently" label="Delete order">
+                    <p>The order from {{ $o->customer_name }} is removed for good, with its items and customer details. Paid orders lose their payment record too, so keep any records you need for your accounts first. This can’t be undone.</p>
+                </x-admin.confirm>
+            @endif
         </aside>
     </div>
 </x-admin.layout>

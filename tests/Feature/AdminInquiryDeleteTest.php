@@ -45,10 +45,33 @@ class AdminInquiryDeleteTest extends TestCase
         $this->assertDatabaseHas('inquiries', ['id' => $keep->id]);
     }
 
+    public function test_bulk_delete_selected_or_a_whole_list(): void
+    {
+        $staff = $this->staff();
+        $a = $this->inquiry('Alpha', 'handled');
+        $b = $this->inquiry('Bravo', 'handled');
+        $c = $this->inquiry('Charlie', 'handled');
+        $n = $this->inquiry('Newbie', 'new');
+
+        $this->actingAs($staff, 'web')->get('/admin/inquiries?view=handled')->assertSee('Delete selected')->assertSee('Delete all handled (3)')
+            ->assertSee('name="ids[]" value="'.$a->id.'" form="inq-bulk"', false);
+
+        $this->actingAs($staff, 'web')->post('/admin/inquiries/delete', ['ids' => [$a->id, $b->id], 'back' => 'handled'])
+            ->assertRedirect('/admin/inquiries?view=handled')->assertSessionHas('status', '2 inquiries permanently deleted.');
+        $this->assertDatabaseHas('inquiries', ['id' => $c->id]);
+
+        $this->actingAs($staff, 'web')->post('/admin/inquiries/delete', ['back' => 'handled'])->assertSessionHas('status_error');
+
+        $this->actingAs($staff, 'web')->post('/admin/inquiries/delete', ['all' => 'handled', 'back' => 'handled'])->assertSessionHas('status', '1 inquiry permanently deleted.');
+        $this->assertDatabaseMissing('inquiries', ['id' => $c->id]);
+        $this->assertDatabaseHas('inquiries', ['id' => $n->id]);
+    }
+
     public function test_signed_out_visitors_cannot_delete(): void
     {
         $i = $this->inquiry('Safe', 'new');
         $this->post('/admin/inquiries/'.$i->id.'/delete')->assertRedirect('/admin/login');
+        $this->post('/admin/inquiries/delete', ['all' => 'new'])->assertRedirect('/admin/login');
         $this->assertDatabaseHas('inquiries', ['id' => $i->id]);
     }
 }

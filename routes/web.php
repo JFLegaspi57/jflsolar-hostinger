@@ -200,10 +200,13 @@ Route::prefix('admin')->group(function () {
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);
         Route::get('orders', [Admin\OrderController::class, 'index']);
+        Route::post('orders/delete', [Admin\OrderController::class, 'destroyMany']);
         Route::get('orders/{order}', [Admin\OrderController::class, 'show'])->whereNumber('order');
+        Route::post('orders/{order}/delete', [Admin\OrderController::class, 'destroy'])->whereNumber('order');
         Route::post('orders/{order}', [Admin\OrderController::class, 'update'])->whereNumber('order');
 
         Route::get('inquiries', [Admin\InquiryController::class, 'index']);
+        Route::post('inquiries/delete', [Admin\InquiryController::class, 'destroyMany']);
         Route::get('inquiries/{inquiry}', [Admin\InquiryController::class, 'show'])->whereNumber('inquiry');
         Route::post('inquiries/{inquiry}', [Admin\InquiryController::class, 'update'])->whereNumber('inquiry');
         Route::post('inquiries/{inquiry}/delete', [Admin\InquiryController::class, 'destroy'])->whereNumber('inquiry');
