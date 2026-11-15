@@ -65,6 +65,7 @@ class HelpPagesTest extends TestCase
         $html = $this->get('/contact')->assertOk()->assertSee('Sales')->assertSee('Message Us')->assertSee('Follow Us')
             ->assertDontSee('Message us on Facebook')->assertDontSee('JFL Solar on Facebook')->getContent();
         $this->assertStringContainsString('</a>/<a href="viber://chat', $html);   // one card, each app name a link
+        $this->assertStringContainsString('href="https://www.youtube.com/@JFLegaspi"', $html);
         $this->get('/faq')->assertOk()->assertSee('WhatsApp/Viber');
     }
 
