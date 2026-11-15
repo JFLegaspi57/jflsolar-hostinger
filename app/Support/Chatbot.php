@@ -138,8 +138,8 @@ final class Chatbot
             'location' => null,
             'message' => "Callback requested through the website chat.\n".($notes !== '' ? "Customer's request: {$notes}\n" : '')."\nRecent chat:\n{$recent}",
         ]);
-        $to = array_values(array_filter(array_map('trim', explode(',', (string) config('site.inquiry.notify')))));
-        if ($to && config('mail.default') !== 'log') {
+        $to = Inquiries::notifyTo();
+        if ($to && Inquiries::mailReady()) {
             try {
                 Mail::to($to)->send(new NewInquiry($inquiry));
                 $inquiry->forceFill(['emailed_at' => now()])->save();
