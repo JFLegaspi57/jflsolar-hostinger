@@ -30,11 +30,11 @@
                 <ul class="ob-grid mt-6">
                     @foreach ($g['items'] as $b)
                         <li class="ob-card">
-                            <a href="/brands/{{ $b['slug'] }}" class="ob-logo" tabindex="-1" aria-hidden="true">
-                                @if (is_file(public_path('images/brand-logo-'.$b['slug'].'.webp')))
+                            <a href="{{ $b['article'] ?? $b['productsHref'] }}" class="ob-logo" tabindex="-1" aria-hidden="true">
+                                @if ($b['slug'] && is_file(public_path('images/brand-logo-'.$b['slug'].'.webp')))
                                     <img src="/images/brand-logo-{{ $b['slug'] }}.webp" alt="" loading="lazy" decoding="async">
                                 @else
-                                    <span class="text-2xl font-bold text-steel-900">{{ $b['brand'] }}</span>
+                                    <span class="text-2xl font-extrabold text-steel-900">{{ $b['brand'] }}</span>
                                 @endif
                             </a>
                             <div class="ob-body">
@@ -42,9 +42,9 @@
                                 @if ($b['tier'])<p><span class="ob-tier">{{ $b['tier'] }}</span></p>@endif
                                 <p class="mt-3 text-steel-700">{{ $b['summary'] }}</p>
                                 <p class="ob-links">
-                                    <a href="/brands/{{ $b['slug'] }}">About {{ $b['brand'] }} <span aria-hidden="true">→</span></a>
+                                    @if ($b['article'])<a href="{{ $b['article'] }}">About {{ $b['brand'] }} <span aria-hidden="true">→</span></a>@endif
                                     @if ($b['count'] > 0)
-                                        <a href="/products?brand={{ urlencode($b['filter']) }}#results">{{ $b['count'] }} {{ $b['count'] === 1 ? 'product' : 'products' }}</a>
+                                        <a href="{{ $b['productsHref'] }}">{{ $b['count'] }} {{ $b['count'] === 1 ? 'product' : 'products' }}</a>
                                     @endif
                                 </p>
                             </div>

@@ -241,16 +241,34 @@ class PageController extends Controller
         $groups = [];
         foreach (\App\Support\BrandArticles::GROUPS as $key => [$heading, $line]) {
             $items = [];
+            $entries = [];
             foreach (\App\Support\BrandArticles::OVERVIEW as $slug => [$group, $summary]) {
-                if ($group !== $key || ! isset($available[$slug])) {
+                $entries[] = [$slug, $group, $summary, null, null, null];
+            }
+            foreach ([...$entries, ...\App\Support\BrandArticles::OVERVIEW_EXTRA] as [$key2, $group, $summary, $category, $section, $tier]) {
+                if ($group !== $key) {
                     continue;
                 }
-                $a = $available[$slug];
-                $items[] = $a + [
-                    'slug' => $slug,
+                $a = $available[$key2] ?? null;
+                if (! $a && isset(\App\Support\BrandArticles::ARTICLES[$key2])) {
+                    continue;   // article not written yet
+                }
+                $filter = $a ? $a['filter'] : $key2;
+                $list = $products->filter(fn ($p) => strcasecmp((string) $p->brand, $filter) === 0);
+                if ($category) {
+                    $list = $list->filter(fn ($p) => $p->category?->slug === $category);
+                }
+                if (! $a && $list->isEmpty()) {
+                    continue;   // brand without an article is shown only while it has products
+                }
+                $items[] = [
+                    'brand' => $a ? $a['brand'] : $key2,
+                    'slug' => $a ? $key2 : null,
                     'summary' => $summary,
-                    'tier' => \App\Support\BrandArticles::TIERS[$slug][0] ?? null,
-                    'count' => \App\Support\BrandArticles::products($products, $slug)->count(),
+                    'tier' => $tier ?? ($a && ! $category ? (\App\Support\BrandArticles::TIERS[$key2][0] ?? null) : null),
+                    'count' => $list->count(),
+                    'article' => $a ? '/brands/'.$key2.($section ? '#'.$section : '') : null,
+                    'productsHref' => '/products?'.http_build_query(array_filter(['brand' => $filter, 'category' => $category])).'#results',
                 ];
             }
             if ($items) {

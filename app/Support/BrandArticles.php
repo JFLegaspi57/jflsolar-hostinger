@@ -44,6 +44,16 @@ final class BrandArticles
     ];
 
     /**
+     * Extra Our Brands cards: an article slug shown in a second group, or a brand without an article (by its /products brand name).
+     * [slug or brand name, group, summary, product category slug or null, article section or null, tier or null]
+     */
+    public const OVERVIEW_EXTRA = [
+        ['goodwe', 'batteries', 'The Lynx A G4, a 16 kWh LiFePO4 battery made for GoodWe ES-C10 hybrid inverters.', 'batteries', 'lynx', null],
+        // Trina: BloombergNEF Tier 1 PV modules (Q1 2026) and S&P Global Tier 1 PV modules (2026).
+        ['Trina Solar', 'panels', 'Vertex N i-TOPCon bifacial panels from one of the world’s largest panel makers.', 'solar-panels', null, 'Tier 1 panel maker'],
+    ];
+
+    /**
      * Tier classification of the inverter and solar panel brands (checked November 2026).
      * "Tier 1" here means listed by BloombergNEF and/or S&P Global; it measures bankability, not product quality.
      * [tier label, is Tier 1, list of [listing, period], sources [label => url], badge (optional)]
