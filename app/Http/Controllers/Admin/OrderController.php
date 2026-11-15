@@ -21,6 +21,9 @@ class OrderController extends Controller
         'cancelled' => ['cancelled'],
     ];
 
+    /** Orders staff may delete: finished or cancelled ones (ready for pickup, picked up, cancelled). */
+    public const DELETABLE = ['ready', 'completed', 'cancelled'];
+
     public function index(Request $request): View
     {
         $this->guard();
@@ -105,6 +108,67 @@ class OrderController extends Controller
         };
 
         return $back->with('status', $message);
+    }
+
+    /** Permanently deletes one order (and its items), from the order page, an order list or a member page. */
+    public function destroy(Request $request, int $order): RedirectResponse
+    {
+        $this->guard();
+        $o = Order::query()->findOrFail($order);
+        if (! in_array($o->status, self::DELETABLE, true)) {
+            return redirect('/admin/orders/'.$o->id)->with('status_error', 'Only orders that are ready for pickup, picked up or cancelled can be deleted.');
+        }
+        self::deleteOrders([$o->id]);
+
+        return redirect($this->backUrl($request, $o->status))->with('status', 'Order '.$o->reference.' permanently deleted.');
+    }
+
+    /** Permanently deletes the ticked orders (ids[]), or every order in one deletable list (all=ready|completed|cancelled). */
+    public function destroyMany(Request $request): RedirectResponse
+    {
+        $this->guard();
+        $all = (string) $request->input('all', '');
+        $query = Order::query()->whereIn('status', self::DELETABLE);
+        if (in_array($all, self::DELETABLE, true)) {
+            $query->where('status', $all);
+        } else {
+            $ids = array_values(array_unique(array_filter(array_map('intval', (array) $request->input('ids', [])))));
+            if ($ids === []) {
+                return redirect($this->backUrl($request, null))->with('status_error', 'Tick at least one order to delete.');
+            }
+            $query->whereIn('id', array_slice($ids, 0, 500));
+        }
+        $count = self::deleteOrders($query->pluck('id')->all());
+
+        return redirect($this->backUrl($request, null))->with('status', $count === 1 ? '1 order permanently deleted.' : $count.' orders permanently deleted.');
+    }
+
+    /** @param  list<int>  $ids */
+    private static function deleteOrders(array $ids): int
+    {
+        if ($ids === []) {
+            return 0;
+        }
+
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($ids) {
+            \Illuminate\Support\Facades\DB::table('order_items')->whereIn('order_id', $ids)->delete();
+
+            return Order::query()->whereIn('id', $ids)->delete();
+        });
+    }
+
+    /** Where to go after deleting: back to the member page or order list the request came from. */
+    private function backUrl(Request $request, ?string $status): string
+    {
+        $back = (string) $request->input('back', '');
+        if (preg_match('/^member:(\d+)$/', $back, $m)) {
+            return '/admin/members/'.$m[1];
+        }
+        if (! array_key_exists($back, self::VIEWS)) {
+            $back = collect(self::VIEWS)->search(fn ($statuses) => in_array($status, $statuses, true)) ?: 'paid';
+        }
+
+        return '/admin/orders'.($back === 'paid' ? '' : '?view='.$back);
     }
 
     /** Orders exist only once the shop has been switched on; until then this page does not either. */

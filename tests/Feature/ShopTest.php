@@ -257,6 +257,40 @@ class ShopTest extends TestCase
         $this->assertSame('ready', $order->refresh()->status);
     }
 
+    public function test_staff_delete_finished_orders_only(): void
+    {
+        $staff = User::query()->create(['name' => 'Owner', 'email' => 'owner2@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $open = $this->placeOrder();                       // pending_payment: never deletable
+        $ready = $this->placeOrder();
+        $done = $this->placeOrder();
+        $gone = $this->placeOrder();
+        $ready->forceFill(['status' => 'ready'])->save();
+        $done->forceFill(['status' => 'completed'])->save();
+        $gone->forceFill(['status' => 'cancelled'])->save();
+
+        // Delete buttons appear only on the deletable lists.
+        $this->actingAs($staff)->get('/admin/orders?view=completed')->assertSee('action="/admin/orders/'.$done->id.'/delete"', false)->assertSee('Delete selected');
+        $this->actingAs($staff)->get('/admin/orders?view=unpaid')->assertDontSee('Delete selected')->assertDontSee('/delete"', false);
+        $this->actingAs($staff)->get('/admin/orders/'.$done->id)->assertSee('Delete order');
+
+        // Single delete, back to the list it came from; items go too.
+        $this->actingAs($staff)->post('/admin/orders/'.$ready->id.'/delete', ['back' => 'ready'])->assertRedirect('/admin/orders?view=ready');
+        $this->assertDatabaseMissing('orders', ['id' => $ready->id]);
+        $this->assertDatabaseMissing('order_items', ['order_id' => $ready->id]);
+
+        // An open order is refused, singly and in bulk.
+        $this->actingAs($staff)->post('/admin/orders/'.$open->id.'/delete')->assertSessionHas('status_error');
+        $this->actingAs($staff)->post('/admin/orders/delete', ['ids' => [$open->id, $done->id], 'back' => 'member:7'])->assertRedirect('/admin/members/7');
+        $this->assertDatabaseHas('orders', ['id' => $open->id]);
+        $this->assertDatabaseMissing('orders', ['id' => $done->id]);
+
+        // "Delete all" empties one list only.
+        $this->actingAs($staff)->post('/admin/orders/delete', ['all' => 'cancelled', 'back' => 'cancelled'])->assertRedirect('/admin/orders?view=cancelled')->assertSessionHas('status', '1 order permanently deleted.');
+        $this->assertDatabaseMissing('orders', ['id' => $gone->id]);
+        $this->assertDatabaseHas('orders', ['id' => $open->id]);
+        $this->assertDatabaseMissing('orders', ['id' => -1]);
+    }
+
     public function test_payment_after_staff_cancelled_is_recorded_and_flagged(): void
     {
         Mail::fake();

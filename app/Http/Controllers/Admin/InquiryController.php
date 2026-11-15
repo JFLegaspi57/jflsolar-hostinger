@@ -45,6 +45,29 @@ class InquiryController extends Controller
         return redirect('/admin/inquiries/'.$inquiry->id)->with('status', $messages[$data['status'] ?? ''] ?? 'Notes saved.');
     }
 
+    /**
+     * Permanently deletes several inquiries at once: the ticked ones (ids[]), or every
+     * inquiry in one list (all=new|handled|archived). Both go through a confirmation dialog.
+     */
+    public function destroyMany(Request $request): RedirectResponse
+    {
+        $statuses = ['new', 'handled', 'archived'];
+        $back = in_array($request->input('back'), $statuses, true) ? $request->input('back') : 'new';
+        $url = '/admin/inquiries'.($back === 'new' ? '' : '?view='.$back);
+
+        if (in_array($request->input('all'), $statuses, true)) {
+            $count = Inquiry::query()->where('status', $request->input('all'))->delete();
+        } else {
+            $ids = array_values(array_unique(array_filter(array_map('intval', (array) $request->input('ids', [])))));
+            if ($ids === []) {
+                return redirect($url)->with('status_error', 'Tick at least one inquiry to delete.');
+            }
+            $count = Inquiry::query()->whereIn('id', array_slice($ids, 0, 500))->delete();
+        }
+
+        return redirect($url)->with('status', $count === 1 ? '1 inquiry permanently deleted.' : $count.' inquiries permanently deleted.');
+    }
+
     /** Permanently deletes an inquiry from any list (new, handled or archived), after a confirmation dialog. */
     public function destroy(Request $request, Inquiry $inquiry): RedirectResponse
     {

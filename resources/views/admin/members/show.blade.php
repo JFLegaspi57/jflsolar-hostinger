@@ -59,9 +59,15 @@
             @else
                 <ul class="mt-3 divide-y divide-steel-200 text-sm">
                     @foreach ($orders as $o)
-                        <li class="flex flex-wrap justify-between gap-2 py-2">
+                        <li class="flex flex-wrap items-center justify-between gap-2 py-2">
                             <a href="/admin/orders/{{ $o->id }}" class="font-mono font-semibold underline">{{ $o->reference }}</a>
-                            <span class="text-steel-700">{{ $o->created_at->timezone('Asia/Manila')->format('j M Y') }} · {{ $o->statusLabel() }} · <span class="tabular">{{ Pricing::formatPhp($o->total_php) }}</span></span>
+                            <span class="flex flex-wrap items-center gap-2 text-steel-700">{{ $o->created_at->timezone('Asia/Manila')->format('j M Y') }} · {{ $o->statusLabel() }} · <span class="tabular">{{ Pricing::formatPhp($o->total_php) }}</span>
+                                @if (in_array($o->status, \App\Http\Controllers\Admin\OrderController::DELETABLE, true))
+                                    <x-admin.confirm :action="'/admin/orders/'.$o->id.'/delete'" :title="'Delete order '.$o->reference.'?'" confirm-label="Delete permanently" label="Delete" :sr-label="'order '.$o->reference" :fields="['back' => 'member:'.$m->id]">
+                                        <p>This order is removed for good, with its items. Paid orders lose their payment record too, so keep any records you need for your accounts first. This can’t be undone.</p>
+                                    </x-admin.confirm>
+                                @endif
+                            </span>
                         </li>
                     @endforeach
                 </ul>
