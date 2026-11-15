@@ -119,7 +119,11 @@ final class Chatbot
             $content = (array) $res->json('content', []);
             $text = trim(implode("\n\n", array_map(fn ($b) => (string) ($b['text'] ?? ''), array_filter($content, fn ($b) => ($b['type'] ?? '') === 'text'))));
             $uses = array_values(array_filter($content, fn ($b) => ($b['type'] ?? '') === 'tool_use'));
-            self::noteStatus(true);
+            if ($text === '' && ! $uses) {
+                self::noteStatus(false, 'Empty answer (stop_reason '.$res->json('stop_reason').', blocks: '.implode(',', array_map(fn ($b) => (string) ($b['type'] ?? '?'), $content)).').');
+            } else {
+                self::noteStatus(true);
+            }
             if ($res->json('stop_reason') !== 'tool_use' || ! $uses) {
                 return ['reply' => $text !== '' ? self::pvWording($text) : $fallback, 'callback' => $callback];
             }
