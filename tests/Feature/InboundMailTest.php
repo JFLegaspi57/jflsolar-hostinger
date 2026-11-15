@@ -34,6 +34,30 @@ class InboundMailTest extends TestCase
         $this->assertSame(1, Inquiry::query()->count());
     }
 
+    public function test_hostinger_payload_to_sales_with_full_body_and_attachments(): void
+    {
+        InboundMail::setSecret(self::SECRET);
+        \Illuminate\Support\Facades\Http::fake(['download.example/*' => \Illuminate\Support\Facades\Http::response("MIME-Version: 1.0\nContent-Type: multipart/alternative; boundary=\"b1\"\n\n--b1\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: quoted-printable\n\nGood day! I need a 12 kW hybrid system for our resort in Batangas, with=\n batteries.\n--b1\nContent-Type: text/html\n\n<p>html</p>\n--b1--\n", 200, ['Content-Type' => 'message/rfc822'])]);
+        $payload = ['id' => '82470320-5364-57eb-8c8e-8004ec3c9573', 'event' => 'message.received', 'timestamp' => '2026-11-16T00:43:00Z',
+            'data' => ['mailboxAddress' => 'info@jflsolar.ph', 'subject' => 'Resort project', 'from' => 'Ana Reyes <ana@example.com>', 'to' => ['Sales <sales@jflsolar.ph>'],
+                'plainBody' => 'Good day! I need a 12 kW hybrid', 'htmlBody' => '', 'bodyUrl' => 'https://download.example/body/1',
+                'attachments' => [['contentType' => 'application/pdf', 'filename' => 'bill.pdf', 'sizeBytes' => 1234, 'fileUrl' => 'https://download.example/a']]]];
+        $this->hook($payload)->assertOk();
+        $this->hook($payload)->assertOk();   // retry with the same id
+        $i = Inquiry::query()->sole();
+        $this->assertSame(['Ana Reyes', 'ana@example.com'], [$i->name, $i->email]);
+        $this->assertStringStartsWith("To: sales@jflsolar.ph\nSubject: Resort project\n\nGood day! I need a 12 kW hybrid system for our resort in Batangas, with batteries.", $i->message);
+        $this->assertStringContainsString('Attachments (open them in the inbox): bill.pdf', $i->message);
+    }
+
+    public function test_short_body_is_used_when_the_full_body_cannot_be_fetched(): void
+    {
+        InboundMail::setSecret(self::SECRET);
+        \Illuminate\Support\Facades\Http::fake(['*' => \Illuminate\Support\Facades\Http::response('', 403)]);
+        $this->hook(['id' => 'x1', 'data' => ['from' => 'b@example.com', 'to' => ['info@jflsolar.ph'], 'subject' => 'Hi', 'plainBody' => 'Short text', 'bodyUrl' => 'https://download.example/2']])->assertOk();
+        $this->assertSame("Subject: Hi\n\nShort text", Inquiry::query()->sole()->message);
+    }
+
     public function test_wrong_or_missing_secret_is_refused(): void
     {
         $this->hook(['message' => ['from' => 'a@b.com']])->assertStatus(401);   // not linked yet
