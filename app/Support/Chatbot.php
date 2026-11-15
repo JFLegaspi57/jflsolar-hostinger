@@ -61,6 +61,12 @@ final class Chatbot
      * @param  list<array{role: string, content: string}>  $messages
      * @return array{reply: string, callback: bool}
      */
+    /** House style: never "solar system", always "solar PV system" (also in Filipino replies). */
+    public static function pvWording(string $text): string
+    {
+        return preg_replace('/\b(solar)(\s+)(systems?|sistema)\b/i', '$1$2PV $3', $text);
+    }
+
     public static function reply(array $messages, string $ip): array
     {
         $settings = PublicContent::settings();
@@ -93,7 +99,7 @@ final class Chatbot
             $text = trim(implode("\n\n", array_map(fn ($b) => (string) ($b['text'] ?? ''), array_filter($content, fn ($b) => ($b['type'] ?? '') === 'text'))));
             $uses = array_values(array_filter($content, fn ($b) => ($b['type'] ?? '') === 'tool_use'));
             if ($res->json('stop_reason') !== 'tool_use' || ! $uses) {
-                return ['reply' => $text !== '' ? $text : $fallback, 'callback' => $callback];
+                return ['reply' => $text !== '' ? self::pvWording($text) : $fallback, 'callback' => $callback];
             }
             $results = [];
             foreach ($uses as $use) {
@@ -172,7 +178,7 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v3', 300, fn () => self::rules()."\n\n".self::knowledge());
+        return Cache::remember('chatbot-system-v4', 300, fn () => self::rules()."\n\n".self::knowledge());
     }
 
     private static function rules(): string
@@ -187,6 +193,7 @@ How to answer:
 - SITE FACTS below is the live content of jflsolar.ph (pages, FAQ, features, brands, products, packages, projects, blog). Answer from it; when a page covers the topic, link it. If the site doesn't say, don't guess: say Sales will confirm and offer a callback.
 - Use ONLY the facts in "SITE FACTS" for prices, availability, specs, warranties, addresses, hours and contact details. Never invent or estimate a price, discount, stock level, delivery fee, warranty, schedule or claim; for delivery fees use only the DELIVERY RATES list (they are estimates). If a fact is missing, say Sales will confirm it and offer a callback.
 - Prices are pickup prices in Philippine pesos (₱). "Price on request" items need a quotation. "Available to order" means it can be ordered on the website; it does not promise a stock count.
+- Always say "solar PV system" (Filipino: "solar PV system" too), never "solar system".
 - Keep replies short and friendly (usually under 120 words). Mix plain words with technical terms; don't over-explain. Reply in the customer's language (English, Filipino or Taglish).
 - Link to pages with Markdown links using the site paths given, e.g. [6kW Trio Package Combo](/packages/6kw-trio-package-combo). Use **bold** sparingly. No tables, no headings.
 - For system sizing, give general guidance only, then suggest the [PV Calculator](/pv-calculator) or a site assessment. Never promise savings or payback.

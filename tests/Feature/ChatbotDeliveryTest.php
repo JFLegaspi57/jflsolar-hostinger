@@ -16,7 +16,7 @@ class ChatbotDeliveryTest extends TestCase
     {
         $this->seed();
         PublicContent::flush();
-        cache()->forget('chatbot-system-v3');
+        cache()->forget('chatbot-system-v4');
         $prompt = Chatbot::systemPrompt();
         $this->assertStringContainsString('We do NOT offer cash on delivery (COD).', $prompt);
         $this->assertStringContainsString('[Delivery Rates](/delivery-rates)', $prompt);
@@ -26,5 +26,11 @@ class ChatbotDeliveryTest extends TestCase
         $this->assertStringContainsString('[Make a Quotation](/quotation)', $prompt);
         $this->assertStringContainsString('Q: What does JFL Solar do?', $prompt);
         $this->assertStringContainsString('(/brands/trina-solar)', $prompt);
+    }
+
+    public function test_replies_say_solar_pv_system(): void
+    {
+        $this->assertSame('A 6 kW hybrid solar PV system and two Solar PV Systems; ang solar PV sistema mo', Chatbot::pvWording('A 6 kW hybrid solar system and two Solar Systems; ang solar sistema mo'));
+        $this->assertSame('Your solar PV system is fine.', Chatbot::pvWording('Your solar PV system is fine.'));
     }
 }
