@@ -71,6 +71,18 @@ final class Chatbot
         return preg_replace('/\b(batter(?:y|ies)|baterya)(\s+(?:is|are|ay)?\s*)48\s*-?\s*(?:V|volts?)\b/i', '$1${2}51.2V', $text);
     }
 
+    /** Last answer or error, for the admin dashboard (no message content is kept). */
+    public static function noteStatus(bool $ok, string $detail = ''): void
+    {
+        Cache::put($ok ? 'chatbot-last-ok' : 'chatbot-last-error', ['at' => now()->toIso8601String(), 'detail' => $detail], now()->addDays(14));
+    }
+
+    /** @return array{ok: ?array, error: ?array} */
+    public static function status(): array
+    {
+        return ['ok' => Cache::get('chatbot-last-ok'), 'error' => Cache::get('chatbot-last-error')];
+    }
+
     public static function reply(array $messages, string $ip, string $lang = 'en'): array
     {
         $settings = PublicContent::settings();
@@ -94,17 +106,20 @@ final class Chatbot
                 ]);
             } catch (\Throwable $e) {
                 Log::error('[chatbot] request failed', ['error' => $e::class]);
+                self::noteStatus(false, 'Could not reach Anthropic ('.class_basename($e).').');
 
                 return ['reply' => $fallback, 'callback' => $callback];
             }
             if (! $res->successful()) {
                 Log::error('[chatbot] API error', ['status' => $res->status(), 'type' => $res->json('error.type')]);
+                self::noteStatus(false, 'Anthropic said '.$res->status().' '.$res->json('error.type').': '.mb_substr((string) $res->json('error.message'), 0, 200));
 
                 return ['reply' => $fallback, 'callback' => $callback];
             }
             $content = (array) $res->json('content', []);
             $text = trim(implode("\n\n", array_map(fn ($b) => (string) ($b['text'] ?? ''), array_filter($content, fn ($b) => ($b['type'] ?? '') === 'text'))));
             $uses = array_values(array_filter($content, fn ($b) => ($b['type'] ?? '') === 'tool_use'));
+            self::noteStatus(true);
             if ($res->json('stop_reason') !== 'tool_use' || ! $uses) {
                 return ['reply' => $text !== '' ? self::pvWording($text) : $fallback, 'callback' => $callback];
             }
