@@ -285,7 +285,7 @@
                 @endif
                 <td style="padding:12px 0 0;vertical-align:top;">
                     <p style="{{ $footHead }}">Contact</p>
-                    @foreach (\App\Support\Contact::channels($printSettings) as $c)
+                    @foreach (collect(\App\Support\Contact::channels($printSettings))->whereIn('key', ['phone', 'email']) as $c)
                         <p style="{{ $footText }}"><span style="color:#6b7280;">{{ $c['label'] }}:</span> {{ $c['detail'] }}</p>
                     @endforeach
                     <p style="{{ $footText }}"><span style="color:#6b7280;">Website:</span> {{ preg_replace('#^https?://|/$#', '', Site::publicUrl()) }}</p>
