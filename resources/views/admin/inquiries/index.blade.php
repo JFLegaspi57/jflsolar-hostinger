@@ -21,7 +21,12 @@
                         <span class="text-sm text-steel-600 tabular">{{ $i->created_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}</span>
                     </div>
                     <p class="text-sm text-steel-700">{{ Labels::INQUIRY_TYPES[$i->inquiry_type] ?? $i->inquiry_type }}@if ($i->item_label) · {{ $i->item_label }}@endif @if ($i->location) · {{ $i->location }}@endif</p>
-                    <p class="mt-1 line-clamp-2 text-steel-700">{{ $i->message }}</p>
+                    <div class="mt-1 flex flex-wrap items-end justify-between gap-3">
+                        <p class="line-clamp-2 min-w-0 flex-1 text-steel-700">{{ $i->message }}</p>
+                        <x-admin.confirm :action="'/admin/inquiries/'.$i->id.'/delete'" title="Delete this inquiry permanently?" confirm-label="Delete permanently" label="Delete" :sr-label="'inquiry from '.$i->name" :fields="['back' => $view]">
+                            <p>The inquiry from {{ $i->name }}, with their contact details and message, is removed for good. This can’t be undone.</p>
+                        </x-admin.confirm>
+                    </div>
                 </li>
             @endforeach
         </ul>

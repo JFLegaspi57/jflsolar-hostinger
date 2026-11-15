@@ -45,10 +45,13 @@ class InquiryController extends Controller
         return redirect('/admin/inquiries/'.$inquiry->id)->with('status', $messages[$data['status'] ?? ''] ?? 'Notes saved.');
     }
 
-    public function destroy(Inquiry $inquiry): RedirectResponse
+    /** Permanently deletes an inquiry from any list (new, handled or archived), after a confirmation dialog. */
+    public function destroy(Request $request, Inquiry $inquiry): RedirectResponse
     {
+        $name = $inquiry->name;
+        $view = in_array($request->input('back'), ['new', 'handled', 'archived'], true) ? $request->input('back') : $inquiry->status;
         $inquiry->delete();
 
-        return redirect('/admin/inquiries?view=archived')->with('status', 'Inquiry permanently deleted.');
+        return redirect('/admin/inquiries'.($view === 'new' ? '' : '?view='.$view))->with('status', 'Inquiry from '.$name.' permanently deleted.');
     }
 }
