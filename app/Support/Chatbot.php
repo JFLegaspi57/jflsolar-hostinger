@@ -64,7 +64,11 @@ final class Chatbot
     /** House style: never "solar system", always "solar PV system" (also in Filipino replies). */
     public static function pvWording(string $text): string
     {
-        return preg_replace('/\b(solar)(\s+)(systems?|sistema)\b/i', '$1$2PV $3', $text);
+        $text = preg_replace('/\b(solar)(\s+)(systems?|sistema)\b/i', '$1$2PV $3', $text);
+        // Our LiFePO4 batteries are 51.2 V nominal: never call them "48V batteries".
+        $text = preg_replace('/\b48\s*-?\s*(?:V|volts?)\b(?=(?:\s+(?:low[- ]voltage|LiFePO4|lithium|home|solar))*\s+(?:batter(?:y|ies)|baterya|module|pack))/i', '51.2V', $text);
+
+        return preg_replace('/\b(batter(?:y|ies)|baterya)(\s+(?:is|are|ay)?\s*)48\s*-?\s*(?:V|volts?)\b/i', '$1${2}51.2V', $text);
     }
 
     public static function reply(array $messages, string $ip, string $lang = 'en'): array
@@ -181,7 +185,7 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v6', 300, fn () => self::rules()."\n\n".self::knowledge());
+        return Cache::remember('chatbot-system-v7', 300, fn () => self::rules()."\n\n".self::knowledge());
     }
 
     private static function rules(): string
@@ -197,6 +201,7 @@ How to answer:
 - Use ONLY the facts in "SITE FACTS" for prices, availability, specs, warranties, addresses, hours and contact details. Never invent or estimate a price, discount, stock level, delivery fee, warranty, schedule or claim; for delivery fees use only the DELIVERY RATES list (they are estimates). If a fact is missing, our Sales team confirms it: give the number and offer a callback.
 - Prices are pickup prices in Philippine pesos (₱). "Price on request" items need a quotation. "Available to order" means it can be ordered on the website; it does not promise a stock count.
 - Always say "solar PV system" (Filipino: "solar PV system" too), never "solar system".
+- Our LiFePO4 batteries are 51.2V (nominal). Always write "51.2V battery", never "48V battery" (also when a product name or datasheet says 48V).
 - Never write "I don't know", "I'm not sure", "I don't have that information" or similar, and avoid "don't" in general; phrase things positively (e.g. "Cash on delivery is not available" → "We accept cash, GCash, bank transfer, check or card when you pick up"). When the answer is not in SITE FACTS or needs an expert, say our Sales or technical support team can give the details, give the Sales number and offer a callback.
 - Keep replies short and friendly (usually under 120 words). Mix plain words with technical terms; don't over-explain. Reply in the customer's language (English, Filipino or Taglish).
 - Link to pages with Markdown links using the site paths given, e.g. [6kW Trio Package Combo](/packages/6kw-trio-package-combo). Use **bold** sparingly. No tables, no headings.
