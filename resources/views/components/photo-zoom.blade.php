@@ -6,7 +6,7 @@
     <style>
         .photo-zoom-btn { padding: 0; border: 0; background: none; border-radius: 9999px; cursor: zoom-in; line-height: 0; }
         .photo-zoom-btn:focus-visible { outline: 3px solid var(--color-gold-500); outline-offset: 2px; }
-        #photo-zoom { padding: 0; border: 0; background: transparent; max-width: min(92vw, 1000px); max-height: 92vh; overflow: visible; }
+        #photo-zoom { position: fixed; inset: 0; margin: auto; padding: 0; border: 0; background: transparent; width: fit-content; height: fit-content; max-width: min(92vw, 1000px); max-height: 92vh; overflow: visible; }
         #photo-zoom::backdrop { background: rgba(10, 15, 25, .82); }
         #photo-zoom img { display: block; max-width: min(92vw, 1000px); max-height: 86vh; width: auto; height: auto; border-radius: .75rem; background: #fff; box-shadow: 0 20px 50px rgba(0, 0, 0, .45); }
         #photo-zoom .pz-close { position: absolute; top: -.9rem; right: -.9rem; width: 2.75rem; height: 2.75rem; border-radius: 9999px; border: 0; background: #fff; color: #111827; font-size: 1.5rem; line-height: 1; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, .3); }
