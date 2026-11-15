@@ -50,7 +50,7 @@
                 @endif
             </dd>
             <dt class="font-semibold">Chat assistant</dt>
-            <dd>{{ \App\Support\Chatbot::available() ? 'Buckny is on.' : (config('chatbot.enabled') ? 'Off: no ANTHROPIC_API_KEY in the server settings.' : 'Off: CHATBOT_ENABLED is not true.') }}</dd>
+            <dd>{{ \App\Support\Chatbot::available() ? 'Buckny is on: up to '.config('chatbot.per_visitor_hourly').' messages per visitor per hour, '.config('chatbot.daily_cap').' per day in total.' : (config('chatbot.enabled') ? 'Off: no ANTHROPIC_API_KEY in the server settings.' : 'Off: CHATBOT_ENABLED is not true.') }}</dd>
             @if (auth('web')->user()?->isOwner())
                 @php
                     $envDir = app()->environmentPath();
