@@ -27,6 +27,11 @@ class HelpPagesTest extends TestCase
             ->assertSee('Frequently asked questions')
             ->assertSee('Which system do I need: on-grid, hybrid or off-grid?')
             ->assertSee('Read our net metering guide')
+            ->assertSee('What is Make a Quotation?')
+            ->assertSee('href="/quotation"', false)
+            ->assertSee('href="/delivery-rates"', false)
+            ->assertSee('href="/forum"', false)
+            ->assertSee('We do not offer cash on delivery (COD).')
             ->assertSee('"@type":"FAQPage"', false)
             ->assertDontSee('{order}')
             ->assertDontSee('{phone}');
@@ -36,12 +41,12 @@ class HelpPagesTest extends TestCase
 
     public function test_staff_can_reword_an_answer_in_page_text(): void
     {
-        PageTextRow::query()->create(['key' => 'faq.q6.a', 'value' => 'Yes, we deliver within Cavite. Call {phone}.']);
+        PageTextRow::query()->create(['key' => 'faq.q9.a', 'value' => 'Yes, we deliver within Cavite. Call {phone}.']);
         PublicContent::flush();
         $this->get('/faq')->assertOk()->assertSee('Yes, we deliver within Cavite. Call '.SiteSetting::query()->first()->phone_display.'.');
         $this->get('/admin/text/faq')->assertRedirect(); // staff only
         $staff = \App\Models\User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
-        $this->actingAs($staff)->get('/admin/text/faq')->assertOk()->assertSee('Answer 6')->assertSee('{order}');
+        $this->actingAs($staff)->get('/admin/text/faq')->assertOk()->assertSee('Answer 18')->assertSee('{order}');
     }
 
     public function test_net_metering_guide_and_links(): void

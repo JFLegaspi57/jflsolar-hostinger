@@ -7,16 +7,23 @@ use App\Models\SiteSetting;
 /** Frequently asked questions (wording editable in Admin → Page text → FAQ). */
 final class Faq
 {
-    public const COUNT = 12;
+    public const COUNT = 18;
 
     /** Question number => page linked under the answer. */
     public const LINKS = [
         2 => ['/services#system-types', 'Compare system types'],
         3 => ['/pv-calculator', 'Open the PV Calculator'],
         4 => ['/packages?type=materials', 'See Materials Only bundles'],
-        9 => ['/services', 'How our support works'],
-        10 => ['/net-metering', 'Read our net metering guide'],
-        12 => ['/contact#quote', 'Request a Quote'],
+        5 => ['/quotation', 'Open Make a Quotation'],
+        6 => ['/contact#quote', 'Send an inquiry'],
+        8 => ['/products', 'Browse products'],
+        9 => ['/delivery-rates', 'See delivery rates'],
+        11 => ['/signup', 'Sign up free'],
+        12 => ['/forum', 'Visit the forum'],
+        13 => ['/hybrid-pv-system-guide', 'Start with the hybrid PV system guide'],
+        14 => ['/projects', 'See our projects'],
+        16 => ['/services', 'How our support works'],
+        17 => ['/net-metering', 'Read our net metering guide'],
     ];
 
     /** @return list<array{q: string, a: string, link: ?array{0: string, 1: string}}> */
