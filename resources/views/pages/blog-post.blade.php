@@ -112,9 +112,9 @@
             <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-1">
                 <p class="text-sm font-semibold text-steel-600"><time datetime="{{ $post->published_at?->timezone('Asia/Manila')->toDateString() }}">{{ $tagalog ? Blog::dateTl($post) : Blog::date($post) }}</time></p>
                 @if ($tagalog)
-                    <a href="{{ $enPath }}" class="bp-lang" hreflang="en" lang="en"><span aria-hidden="true">🌐</span> Read in English</a>
+                    <a href="/lang/en?back={{ $enPath }}" class="bp-lang" hreflang="en" lang="en"><span aria-hidden="true">🌐</span> Read in English</a>
                 @elseif ($tl)
-                    <a href="{{ $enPath }}/tagalog" class="bp-lang" hreflang="fil" lang="fil"><span aria-hidden="true">🌐</span> Basahin sa Filipino</a>
+                    <a href="/lang/fil?back={{ $enPath }}" class="bp-lang" hreflang="fil" lang="fil"><span aria-hidden="true">🌐</span> Basahin sa Filipino</a>
                 @endif
             </div>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif

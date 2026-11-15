@@ -21,7 +21,7 @@
         imageAlt="Illustration: solar panels on a house feed a grid-tied inverter that powers the home and sends extra power to the grid" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
-            <p class="text-sm"><a href="/grid-tied-pv-system-guide/tagalog" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
+            <p class="text-sm"><a href="/lang/fil?back=/grid-tied-pv-system-guide" hreflang="fil" lang="fil" class="inline">Basahin ang gabay na ito sa Tagalog</a></p>
 
             <nav aria-label="On this page" class="hg-toc hg-note">
                 <p class="font-bold text-steel-950">On this page</p>

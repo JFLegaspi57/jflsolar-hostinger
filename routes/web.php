@@ -29,6 +29,10 @@ Route::get('/blog/{slug}/tagalog', [PageController::class, 'blogPostTagalog'])->
 Route::post('/blog/{slug}/react', [\App\Http\Controllers\BlogCommentController::class, 'react'])->where('slug', '[a-z0-9-]+')->middleware('throttle:forum');
 Route::post('/blog/{slug}/comments', [\App\Http\Controllers\BlogCommentController::class, 'comment'])->where('slug', '[a-z0-9-]+')->middleware('throttle:forum');
 Route::get('/pv-calculator', [PageController::class, 'calculator']);
+Route::get('/lang/{lang}', function (\Illuminate\Http\Request $request, string $lang) {
+    return redirect(\App\Support\Lang::target($lang, (string) $request->query('back', '/')))
+        ->withCookie(cookie(\App\Support\Lang::COOKIE, $lang, 60 * 24 * 365, httpOnly: false));
+})->whereIn('lang', ['en', 'fil']);
 Route::get('/faq', [PageController::class, 'faq']);
 Route::get('/faq/tagalog', [PageController::class, 'faqTagalog']);
 Route::get('/delivery-rates', [PageController::class, 'deliveryRates']);

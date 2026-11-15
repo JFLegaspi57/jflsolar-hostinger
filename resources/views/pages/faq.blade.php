@@ -29,9 +29,9 @@
     <x-container class="grid gap-12 py-10 sm:py-14 lg:grid-cols-[1.25fr_1fr]">
         <div>
             @if ($tl)
-                <p class="mb-4 text-sm"><a href="/faq" hreflang="en" lang="en" class="font-semibold text-steel-900 underline underline-offset-2">Read the FAQ in English</a></p>
+                <p class="mb-4 text-sm"><a href="/lang/en?back=/faq" hreflang="en" lang="en" class="font-semibold text-steel-900 underline underline-offset-2">Read the FAQ in English</a></p>
             @else
-                <p class="mb-4 text-sm"><a href="/faq/tagalog" hreflang="fil" lang="fil" class="font-semibold text-steel-900 underline underline-offset-2">Basahin ang FAQ sa Tagalog</a></p>
+                <p class="mb-4 text-sm"><a href="/lang/fil?back=/faq" hreflang="fil" lang="fil" class="font-semibold text-steel-900 underline underline-offset-2">Basahin ang FAQ sa Tagalog</a></p>
             @endif
         <div class="border-t border-steel-200">
             @foreach ($items as $i => $it)
