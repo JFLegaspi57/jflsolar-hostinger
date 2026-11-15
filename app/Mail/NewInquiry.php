@@ -17,7 +17,7 @@ class NewInquiry extends Mailable
 
     public function envelope(): Envelope
     {
-        $type = Labels::INQUIRY_TYPES[$this->inquiry->inquiry_type] ?? $this->inquiry->inquiry_type;
+        $type = Labels::inquiryType($this->inquiry->inquiry_type);
         $item = $this->inquiry->item_label ? ' — '.$this->inquiry->item_label : '';
 
         return new Envelope(
@@ -33,7 +33,7 @@ class NewInquiry extends Mailable
             'Name' => $i->name,
             'Phone' => $i->phone ?: '—',
             'Email' => $i->email ?: '—',
-            'Inquiry type' => Labels::INQUIRY_TYPES[$i->inquiry_type] ?? $i->inquiry_type,
+            'Inquiry type' => Labels::inquiryType($i->inquiry_type),
             'Selected item' => $i->item_label,
             'Location' => $i->location ?: '—',
             'Monthly bill' => $i->bill_range ? (Labels::BILL_RANGES[$i->bill_range] ?? null) : null,

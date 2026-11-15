@@ -117,6 +117,7 @@ Route::get('/checkout/preview/print', [Shop\CheckoutController::class, 'previewP
 Route::get('/orders/{reference}/print', [Shop\CheckoutController::class, 'print'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:orders');
 Route::get('/orders/{reference}', [Shop\CheckoutController::class, 'status'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:orders');
 // PayMongo → site, verified by signature instead of a CSRF token (bootstrap/app.php).
+Route::post('/webhooks/hostinger-mail', \App\Http\Controllers\HostingerMailWebhookController::class)->middleware('throttle:webhook');
 Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middleware('throttle:webhook');
 Route::get('/privacy', [PageController::class, 'privacy']);
 Route::get('/terms', [PageController::class, 'terms']);
@@ -209,6 +210,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('inquiries', [Admin\InquiryController::class, 'index']);
         Route::post('inquiries/delete', [Admin\InquiryController::class, 'destroyMany']);
+        Route::post('inquiries/email-link', [Admin\InquiryController::class, 'emailLink']);
         Route::get('inquiries/{inquiry}', [Admin\InquiryController::class, 'show'])->whereNumber('inquiry');
         Route::post('inquiries/{inquiry}', [Admin\InquiryController::class, 'update'])->whereNumber('inquiry');
         Route::post('inquiries/{inquiry}/delete', [Admin\InquiryController::class, 'destroy'])->whereNumber('inquiry');

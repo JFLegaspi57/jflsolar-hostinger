@@ -12,7 +12,7 @@
             <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-[max-content_1fr]">
                 <dt class="font-semibold">Phone</dt><dd>@if ($i->phone)<a href="tel:{{ $digits }}" class="underline tabular">{{ $i->phone }}</a>@else — @endif</dd>
                 <dt class="font-semibold">Email</dt><dd>@if ($i->email)<a href="mailto:{{ $i->email }}" class="underline break-all">{{ $i->email }}</a>@else — @endif</dd>
-                <dt class="font-semibold">About</dt><dd>{{ Labels::INQUIRY_TYPES[$i->inquiry_type] ?? $i->inquiry_type }}</dd>
+                <dt class="font-semibold">About</dt><dd>{{ Labels::inquiryType($i->inquiry_type) }}</dd>
                 @if ($i->item_label)<dt class="font-semibold">Selected item</dt><dd>{{ $i->item_label }}</dd>@endif
                 <dt class="font-semibold">Location</dt><dd>{{ $i->location ?: '—' }}</dd>
                 @if ($i->bill_range)<dt class="font-semibold">Monthly bill</dt><dd>{{ Labels::BILL_RANGES[$i->bill_range] ?? $i->bill_range }}</dd>@endif
