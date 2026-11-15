@@ -26,7 +26,7 @@
                     <li class="flex flex-wrap items-center justify-between gap-3 py-3">
                         <div class="flex min-w-0 items-center gap-3">
                             @if ($photo = \App\Support\Members::photoUrl($o))
-                                <img src="{{ $photo }}" alt="" width="40" height="40" class="size-10 shrink-0 rounded-full object-cover">
+                                <x-photo-zoom :full="\App\Support\Members::photoFullUrl($o)" :small="$photo" :alt="$o->name" :label="'View '.$o->name.'’s full photo'"><img src="{{ $photo }}" alt="" width="40" height="40" class="size-10 shrink-0 rounded-full object-cover"></x-photo-zoom>
                             @else
                                 <span aria-hidden="true" class="flex size-10 shrink-0 items-center justify-center rounded-full bg-steel-900 font-bold text-gold-400">{{ mb_strtoupper(mb_substr($o->name, 0, 1)) }}</span>
                             @endif
@@ -63,7 +63,7 @@
                 <li class="flex flex-wrap items-center justify-between gap-3 p-4">
                     <div class="flex min-w-0 items-start gap-3">
                     @if ($photo = \App\Support\Members::photoUrl($m))
-                        <img src="{{ $photo }}" alt="" width="48" height="48" loading="lazy" style="width: 3rem; height: 3rem" class="shrink-0 rounded-full border border-steel-200 object-cover">
+                        <x-photo-zoom :full="\App\Support\Members::photoFullUrl($m)" :small="$photo" :alt="$m->name" :label="'View '.$m->name.'’s full photo'"><img src="{{ $photo }}" alt="" width="48" height="48" loading="lazy" style="width: 3rem; height: 3rem" class="shrink-0 rounded-full border border-steel-200 object-cover"></x-photo-zoom>
                     @else
                         <span style="width: 3rem; height: 3rem" class="inline-flex shrink-0 items-center justify-center rounded-full bg-steel-100 text-steel-600"><x-icon name="user" class="size-6" /></span>
                     @endif

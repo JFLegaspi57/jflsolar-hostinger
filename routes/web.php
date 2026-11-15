@@ -79,7 +79,7 @@ Route::post('/account', [Account\AccountController::class, 'update']);
 Route::post('/account/password', [Account\AccountController::class, 'password'])->middleware('throttle:account');
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
 Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
-Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}\.webp');
+Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}(-full)?\.webp');
 
 // Make a Quotation: members build quote requests from the catalogue and their own items.
 Route::get('/quotation', [Account\QuotationController::class, 'index']);

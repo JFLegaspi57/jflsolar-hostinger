@@ -13,7 +13,7 @@
     <div class="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div class="flex items-center gap-4">
             @if ($photo = Members::photoUrl($m))
-                <img src="{{ $photo }}" alt="" width="80" height="80" style="width: 5rem; height: 5rem" class="shrink-0 rounded-full border border-steel-200 object-cover">
+                <x-photo-zoom :full="Members::photoFullUrl($m)" :small="$photo" :alt="$m->name" :label="'View '.$m->name.'’s full photo'"><img src="{{ $photo }}" alt="" width="80" height="80" style="width: 5rem; height: 5rem" class="shrink-0 rounded-full border border-steel-200 object-cover"></x-photo-zoom>
             @else
                 <span style="width: 5rem; height: 5rem" class="inline-flex shrink-0 items-center justify-center rounded-full bg-steel-100 text-steel-600"><x-icon name="user" class="size-10" /></span>
             @endif

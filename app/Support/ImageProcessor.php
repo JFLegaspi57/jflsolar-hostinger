@@ -93,7 +93,7 @@ final class ImageProcessor
      *
      * @return array{bytes:int}|array{error:string}
      */
-    public static function avatar(?UploadedFile $file, string $outFile, int $size = 320): array
+    public static function avatar(?UploadedFile $file, string $outFile, int $size = 320, ?string $fullFile = null, int $fullMax = 1600): array
     {
         if (! $file || ! $file->isValid() || $file->getSize() === 0) {
             return ['error' => 'Choose a photo.'];
@@ -119,6 +119,18 @@ final class ImageProcessor
         imagepalettetotruecolor($img);
         $w = imagesx($img);
         $h = imagesy($img);
+        // Also keep the whole photo (not cropped), up to $fullMax px on its long side, for the "view full photo" pop-up.
+        if ($fullFile) {
+            $scale = min(1, $fullMax / max($w, $h));
+            $full = $scale < 1 ? self::resize($img, max(1, (int) round($w * $scale)), max(1, (int) round($h * $scale))) : $img;
+            $fdir = dirname($fullFile);
+            if ($full && (is_dir($fdir) || @mkdir($fdir, 0775, true))) {
+                @imagewebp($full, $fullFile, self::QUALITY);
+            }
+            if ($full && $full !== $img) {
+                imagedestroy($full);
+            }
+        }
         $side = min($w, $h);
         $out = @imagecreatetruecolor($size, $size);
         $ok = $out && imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255))
