@@ -39,6 +39,12 @@ class HelpPagesTest extends TestCase
         $res->assertSee(SiteSetting::query()->first()->phone_display);
     }
 
+    public function test_sales_email_shows_in_footer_and_on_contact_page(): void
+    {
+        $this->get('/faq')->assertOk()->assertSee('href="mailto:sales@jflsolar.ph"', false);
+        $this->get('/contact')->assertOk()->assertSee('sales@jflsolar.ph')->assertSee('Sales');
+    }
+
     public function test_staff_can_reword_an_answer_in_page_text(): void
     {
         PageTextRow::query()->create(['key' => 'faq.q9.a', 'value' => 'Yes, we deliver within Cavite. Call {phone}.']);
