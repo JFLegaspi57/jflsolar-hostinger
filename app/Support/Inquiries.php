@@ -7,6 +7,34 @@ use Illuminate\Support\Facades\Crypt;
 /** Inquiry form rules shared by the form view and the controller. */
 final class Inquiries
 {
+    /**
+     * Where new-inquiry email alerts go: INQUIRY_NOTIFY_EMAIL if set (comma-separated),
+     * otherwise the public email in Contact & settings (info@jflsolar.ph).
+     *
+     * @return list<string>
+     */
+    public static function notifyTo(): array
+    {
+        $list = array_values(array_filter(array_map('trim', explode(',', (string) config('site.inquiry.notify')))));
+        if (! $list) {
+            $public = trim((string) PublicContent::settings()->public_email);
+            $list = filter_var($public, FILTER_VALIDATE_EMAIL) ? [$public] : [];
+        }
+
+        return $list;
+    }
+
+    /** The site can send email: a real mailer, and for SMTP a username and password in the server settings. */
+    public static function mailReady(): bool
+    {
+        $mailer = (string) config('mail.default');
+        if ($mailer === 'log') {
+            return false;
+        }
+
+        return $mailer !== 'smtp' || (filled(config('mail.mailers.smtp.username')) && filled(config('mail.mailers.smtp.password')));
+    }
+
     public const LIMITS = ['name' => 100, 'email' => 254, 'phone' => 30, 'message' => 3000, 'location' => 120];
 
     public const MESSAGE_MIN = 10;
