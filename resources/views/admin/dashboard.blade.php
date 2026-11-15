@@ -50,7 +50,17 @@
                 @endif
             </dd>
             <dt class="font-semibold">Chat assistant</dt>
-            <dd>{{ \App\Support\Chatbot::available() ? 'Buckny is on: up to '.config('chatbot.per_visitor_hourly').' messages per visitor per hour, '.config('chatbot.daily_cap').' per day in total.' : (config('chatbot.enabled') ? 'Off: no ANTHROPIC_API_KEY in the server settings.' : 'Off: CHATBOT_ENABLED is not true.') }}</dd>
+            @php
+                $chat = \App\Support\Chatbot::status();
+                $fmt = fn ($a) => $a ? \Illuminate\Support\Carbon::parse($a['at'])->setTimezone('Asia/Manila')->format('M j, g:i A') : null;
+                $chatDay = (int) \Illuminate\Support\Facades\Cache::get('chat-day|'.now('Asia/Manila')->toDateString(), 0);
+            @endphp
+            <dd>{{ \App\Support\Chatbot::available() ? 'Buckny is on: up to '.config('chatbot.per_visitor_hourly').' messages per visitor per hour, '.config('chatbot.daily_cap').' per day in total.' : (config('chatbot.enabled') ? 'Off: no ANTHROPIC_API_KEY in the server settings.' : 'Off: CHATBOT_ENABLED is not true.') }}
+                <br><span class="text-sm text-steel-700">Messages today: {{ $chatDay }}.
+                    @if ($chat['ok']) Last answer: {{ $fmt($chat['ok']) }}. @endif
+                    @if ($chat['error'] && (! $chat['ok'] || $chat['error']['at'] > $chat['ok']['at']))<strong class="text-danger-700">Last error ({{ $fmt($chat['error']) }}): {{ $chat['error']['detail'] }}</strong>@endif
+                </span>
+            </dd>
             @if (auth('web')->user()?->isOwner())
                 @php
                     $envDir = app()->environmentPath();
