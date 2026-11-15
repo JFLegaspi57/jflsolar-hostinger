@@ -172,7 +172,7 @@ final class Chatbot
     /** Instructions + the live site facts. Cached briefly; changes to products or prices show within minutes. */
     public static function systemPrompt(): string
     {
-        return Cache::remember('chatbot-system-v2', 300, fn () => self::rules()."\n\n".self::knowledge());
+        return Cache::remember('chatbot-system-v3', 300, fn () => self::rules()."\n\n".self::knowledge());
     }
 
     private static function rules(): string
@@ -184,6 +184,7 @@ You are Buckny, the JFL Solar website assistant, chatting with visitors on jflso
 
 How to answer:
 - Help with JFL Solar's products, packages, prices, ordering, pickup, delivery, payment, warranty, services and general solar questions. Politely decline anything unrelated.
+- SITE FACTS below is the live content of jflsolar.ph (pages, FAQ, features, brands, products, packages, projects, blog). Answer from it; when a page covers the topic, link it. If the site doesn't say, don't guess: say Sales will confirm and offer a callback.
 - Use ONLY the facts in "SITE FACTS" for prices, availability, specs, warranties, addresses, hours and contact details. Never invent or estimate a price, discount, stock level, delivery fee, warranty, schedule or claim; for delivery fees use only the DELIVERY RATES list (they are estimates). If a fact is missing, say Sales will confirm it and offer a callback.
 - Prices are pickup prices in Philippine pesos (₱). "Price on request" items need a quotation. "Available to order" means it can be ordered on the website; it does not promise a stock count.
 - Keep replies short and friendly (usually under 120 words). Mix plain words with technical terms; don't over-explain. Reply in the customer's language (English, Filipino or Taglish).
@@ -296,6 +297,82 @@ TXT;
             }
         }
 
+        $lines[] = '';
+        $lines = array_merge($lines, self::siteContent());
+
         return implode("\n", $lines);
+    }
+
+    /** Everything else on the website: page wording, FAQ, features, guides, brands, projects and blog posts. */
+    private static function siteContent(): array
+    {
+        $s = PublicContent::snapshot();
+        $settings = PublicContent::settings();
+        $one = fn (?string $t) => trim(preg_replace('/\s+/', ' ', (string) $t));
+        $lines = ['Website pages and features (link them with these paths):'];
+        $lines[] = '- [PV Calculator](/pv-calculator): enter the monthly bill or a list of appliances; it suggests the system size, parts in stock and savings; free, no sign-up; the result can be printed.';
+        $lines[] = '- [Make a Quotation](/quotation): free for registered members; pick catalogue products at today\'s website prices, add own items (labour, mounting), save up to '.Quotations::MAX_QUOTES.' quotations, print, and send to JFL Solar for a formal quotation.';
+        $lines[] = '- [Packages](/packages): Materials Only bundles, [Build Your Own](/packages/build-your-own) with a price per part, Complete Packages with installation; [Compare packages](/packages/compare).';
+        $lines[] = '- [Products](/products): search by brand, model or category. [Our Brands](/brands): every brand we carry.';
+        $lines[] = '- [Delivery Rates](/delivery-rates), [FAQ](/faq) (Tagalog: /faq/tagalog), [Contact](/contact#quote) (inquiry form), [Projects](/projects), [Blog](/blog), [Forum](/forum).';
+        $lines[] = '- Guides (free, English and Tagalog — add /tagalog to the path): [Net metering](/net-metering), [How hybrid PV systems work](/hybrid-pv-system-guide), [How grid-tied PV systems work](/grid-tied-pv-system-guide).';
+        $lines[] = '- Free account ([Sign up](/signup), [Sign in](/login)): Make a Quotation, posting in the forum, seeing own orders, reading full blog posts (visitors see the first paragraphs), optional promos and news by email (can unsubscribe any time).';
+        $lines[] = '- [Forum](/forum): anyone can read; members ask questions about panels, inverters, batteries, wiring and net metering; other owners and the JFL Solar team answer; a member\'s first post is checked before it appears.';
+        $lines[] = '- Chat: you (Buckny). Social: Facebook (Follow Us), YouTube channel of JF Legaspi: '.Site::YOUTUBE_URL.' (Subscribe). Sales email: '.Site::SALES_EMAIL.'.';
+
+        // Page wording as edited in Admin → Page text (home, services, about).
+        $lines[] = '';
+        $lines[] = 'Page wording (home, services and about pages):';
+        foreach (array_keys(PageTextData::DEFAULTS) as $key) {
+            if (str_starts_with($key, 'faq.') || preg_match('/\.(eyebrow|button\d?|link|count)$/', $key)) {
+                continue;
+            }
+            $v = $one(PageText::get($key));
+            if ($v !== '') {
+                $lines[] = '- '.$key.': '.$v;
+            }
+        }
+        foreach ($s['blocks'] as $b) {
+            $lines[] = '- '.$b->section.' / '.$one($b->title).($b->subtitle ? ' ('.$one($b->subtitle).')' : '').': '.mb_substr($one($b->body), 0, 600);
+        }
+
+        $lines[] = '';
+        $lines[] = 'FAQ (from /faq):';
+        foreach (Faq::items($settings) as $it) {
+            $lines[] = '- Q: '.$it['q'].' A: '.$one($it['a']).($it['link'] ? ' ['.$it['link'][1].']('.$it['link'][0].')' : '');
+        }
+
+        $lines[] = '';
+        $lines[] = 'Brands we carry (brand pages explain each one):';
+        foreach (BrandArticles::available() as $slug => $a) {
+            $tier = BrandArticles::TIERS[$slug][0] ?? null;
+            $lines[] = '- ['.$a['brand'].'](/brands/'.$slug.')'.($tier ? ' — '.$tier : '').' — '.(BrandArticles::OVERVIEW[$slug][1] ?? '');
+        }
+        $lines[] = '- "Tier 1" means listed by BloombergNEF and/or S&P Global as bankable; it is about financial strength, not a quality rating.';
+
+        if ($s['projects']->isNotEmpty()) {
+            $lines[] = '';
+            $lines[] = 'Projects we have done (/projects):';
+            foreach ($s['projects'] as $p) {
+                $lines[] = '- ['.$one($p->title).'](/projects/'.$p->slug.') — '.ucfirst((string) $p->project_type).($p->location ? ', '.$one($p->location) : '')
+                    .($p->system_size_kwp && $p->system_size_confirmed ? ', '.rtrim(rtrim(number_format((float) $p->system_size_kwp, 2, '.', ''), '0'), '.').' kWp' : '')
+                    .($p->summary ? ' — '.$one($p->summary) : '');
+            }
+        }
+
+        try {
+            $posts = Blog::published();
+        } catch (\Throwable) {
+            $posts = collect();
+        }
+        if ($posts->isNotEmpty()) {
+            $lines[] = '';
+            $lines[] = 'Blog posts by JF Legaspi (/blog; full text for members):';
+            foreach ($posts as $post) {
+                $lines[] = '- ['.$one($post->title).'](/blog/'.$post->slug.')'.($post->published_at ? ' ('.$post->published_at->format('M j, Y').')' : '').($post->excerpt ? ' — '.mb_substr($one($post->excerpt), 0, 220) : '');
+            }
+        }
+
+        return $lines;
     }
 }
