@@ -49,7 +49,9 @@
             @media (max-width: 479.98px) { .dr-table th, .dr-table td { padding: .5rem .45rem; font-size: .85rem; } }
         </style>
     </x-slot:head>
-    <x-page-header eyebrow="Delivery" title="Delivery rates" intro="Estimated delivery fees from our warehouse in Dasmariñas, Cavite to towns and cities within about {{ DeliveryRates::MAX_KM }} km, from Batangas and Quezon up to Pangasinan." />
+    <x-page-hero eyebrow="Delivery" title="Delivery rates" intro="Estimated delivery fees from our warehouse in Dasmariñas, Cavite to towns and cities within about {{ DeliveryRates::MAX_KM }} km, from Batangas and Quezon up to Pangasinan."
+        image="/images/delivery-truck-1280.jpg" srcset="/images/delivery-truck-640.jpg 640w, /images/delivery-truck-960.jpg 960w, /images/delivery-truck-1280.jpg 1280w"
+        imageAlt="White light cargo truck with a closed box body driving past green rice fields" focus="40% 60%" />
     <x-container class="py-10 sm:py-14">
         <div class="max-w-3xl space-y-10 text-steel-800" style="max-width: 56rem">
             <section class="dr-finder" aria-labelledby="dr-find">
@@ -141,7 +143,7 @@
                 </div>
             </section>
 
-            <p class="border-t border-steel-200 pt-4 text-sm text-steel-600">Pickup point: {{ $from }}. Fees are based on courier truck rates checked {{ DeliveryRates::CHECKED }} and are rounded up to the nearest ₱{{ DeliveryRates::ROUND_TO }}.</p>
+            <p class="border-t border-steel-200 pt-4 text-sm text-steel-600">Pickup point: {{ $from }}. Fees are based on courier truck rates checked {{ DeliveryRates::CHECKED }} and are rounded up to the nearest ₱{{ DeliveryRates::ROUND_TO }}. Banner photo: aboodi vesakaran on Unsplash.</p>
         </div>
     </x-container>
     <script>
