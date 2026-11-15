@@ -8,7 +8,9 @@
         @include('partials.net-metering-styles')
         @include('partials.guide-hreflang', ['en' => '/net-metering'])
     </x-slot:head>
-    <x-page-header eyebrow="Gabay" title="Net metering sa Pilipinas" intro="Paano kumita ng kredito sa bill mula sa solar na hindi mo nagagamit, at paano sukatin ang sistema mo para pinakamalaki ang matipid." />
+    <x-page-hero eyebrow="Gabay" title="Net metering sa Pilipinas" intro="Paano kumita ng kredito sa bill mula sa solar na hindi mo nagagamit, at paano sukatin ang sistema mo para pinakamalaki ang matipid."
+        image="/images/guide-net-metering-1280.jpg" srcset="/images/guide-net-metering-640.jpg 640w, /images/guide-net-metering-960.jpg 960w, /images/guide-net-metering-1280.jpg 1280w"
+        imageAlt="Larawan: bahay na may solar panel na nagpapadala ng sobrang kuryente sa grid sa two-way meter at kumikita ng kredito" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="nm max-w-3xl space-y-10 text-steel-800">
             <p class="text-sm"><a href="/net-metering" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>

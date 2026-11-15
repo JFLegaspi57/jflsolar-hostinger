@@ -15,8 +15,10 @@
         @include('partials.guide-styles')
         @include('partials.guide-hreflang', ['en' => '/hybrid-pv-system-guide'])
     </x-slot:head>
-    <x-page-header eyebrow="Teknikal na gabay" title="Paano gumagana ang hybrid solar PV system"
-        intro="Mula sa sikat ng araw hanggang sa saksakan: ano ang ginagawa ng bawat bahagi, ano ang nangyayari sa loob ng hybrid inverter, paano hinahati ang kuryente sa bahay mo, sa battery at sa grid, at paano nananatiling may ilaw kapag brownout." />
+    <x-page-hero eyebrow="Teknikal na gabay" title="Paano gumagana ang hybrid solar PV system"
+        intro="Mula sa sikat ng araw hanggang sa saksakan: ano ang ginagawa ng bawat bahagi, ano ang nangyayari sa loob ng hybrid inverter, paano hinahati ang kuryente sa bahay mo, sa battery at sa grid, at paano nananatiling may ilaw kapag brownout."
+        image="/images/guide-hybrid-1280.jpg" srcset="/images/guide-hybrid-640.jpg 640w, /images/guide-hybrid-960.jpg 960w, /images/guide-hybrid-1280.jpg 1280w"
+        imageAlt="Larawan: solar panel sa bahay na konektado sa hybrid inverter at battery, na nagpapatakbo ng bahay at konektado sa grid" focus="75% 60%" flip />
     <x-container class="py-10 sm:py-14">
         <div class="hg space-y-10 text-steel-800" style="max-width: 48rem">
             <p class="text-sm"><a href="/hybrid-pv-system-guide" hreflang="en" lang="en" class="inline">Read this guide in English</a></p>
