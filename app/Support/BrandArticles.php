@@ -20,6 +20,7 @@ final class BrandArticles
         'dyness' => ['brand' => 'Dyness', 'filter' => 'Dyness'],
         'alltopelec' => ['brand' => 'Alltopelec (ATE)', 'filter' => 'Alltopelec (ATE)'],
         'projoy' => ['brand' => 'Projoy Electric', 'filter' => 'Projoy'],
+        'trina-solar' => ['brand' => 'Trina Solar', 'filter' => 'Trina Solar'],
     ];
 
     /** Our Brands page (/brands): group => [heading, short line], then each brand's group and one-line summary. */
@@ -41,6 +42,7 @@ final class BrandArticles
         'dyness' => ['batteries', 'PowerBrick LiFePO4 home batteries that work with GoodWe, Luxpower and Solis inverters.'],
         'alltopelec' => ['batteries', 'A 16.5 kWh LiFePO4 home battery with local presence in the Philippines.'],
         'projoy' => ['protection', 'Rapid shutdown (firefighter safety) switches and AC surge protectors.'],
+        'trina-solar' => ['panels', 'Vertex N i-TOPCon bifacial panels from one of the world’s oldest and largest panel makers.'],
     ];
 
     /**
@@ -49,8 +51,6 @@ final class BrandArticles
      */
     public const OVERVIEW_EXTRA = [
         ['goodwe', 'batteries', 'The Lynx A G4, a 16 kWh LiFePO4 battery made for GoodWe ES-C10 hybrid inverters.', 'batteries', 'lynx', null],
-        // Trina: BloombergNEF Tier 1 PV modules (Q1 2026) and S&P Global Tier 1 PV modules (2026).
-        ['Trina Solar', 'panels', 'Vertex N i-TOPCon bifacial panels from one of the world’s largest panel makers.', 'solar-panels', null, 'Tier 1 panel maker'],
     ];
 
     /**
@@ -87,6 +87,10 @@ final class BrandArticles
             ['Makes its own panels in China and abroad (about 13 GW a year), which fits the industry’s informal “Tier 2” description', '2024'],
             ['Kiwa PVEL Top Performer in independent reliability testing, sixth time', '2025'],
         ], ['BloombergNEF Tier 1 module list, Q3 2026 (Vico Export)' => 'https://www.vicoexport.com/en/68446/tier-1-list-of-solar-panel-manufacturers-q3-2026/', 'Kiwa PVEL Top Performer 2025 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/seraphim-awarded-top-performer-in-kiwa-pvels-2025-pv-module-reliability-scorecard-for-sixth-time', 'BloombergNEF tier methodology' => 'https://www.solarchoice.net.au/wp-content/uploads/BNEF-tier-ranking-explanation.pdf', 'Tier 1, 2 and 3 explained (Sunhub)' => 'https://www.sunhub.com/blog/what-tier-1-solar-panels-means'], 'Tier 2'],
+        'trina-solar' => ['Tier 1 panel maker', true, [
+            ['BloombergNEF Tier 1 PV module manufacturer', 'Q1 2026'],
+            ['S&P Global Energy Tier 1 PV module supplier', '2026'],
+        ], ['BloombergNEF Tier 1 module list, Q1 2026 (Vico Export)' => 'https://www.vicoexport.com/en/65510/tier-1-list-of-solar-panel-manufacturers-q1-2026/', 'S&P Global Tier 1 list 2026 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/trinasolar-retains-tier-1-status-for-both-pv-modules-and-energy-storage-systems-on-sp-global-cleantech-companies-list-2026/']],
     ];
 
     /** Articles that are written (a view exists), so unfinished ones never show up or get linked. */

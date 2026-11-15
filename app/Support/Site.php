@@ -17,13 +17,13 @@ final class Site
         ['href' => '/products', 'label' => 'Products'],
         ['href' => '/projects', 'label' => 'Projects'],
         ['href' => '/faq', 'label' => 'FAQ'],
-        ['href' => '/about', 'label' => 'About'],
+        ['href' => '/about', 'label' => 'About Us'],
     ];
 
     /** Drop-down under "About" in the main menu (Contact lives here, not as a separate menu item). */
     public const ABOUT_MENU = [
-        ['href' => '/about', 'label' => 'About Us'],
-        ['href' => '/contact', 'label' => 'Contact'],
+        ['href' => '/about', 'label' => 'Who We Are'],
+        ['href' => '/contact', 'label' => 'Contact Us'],
         ['href' => '/brands', 'label' => 'Our Brands'],
         ['href' => '/blog', 'label' => 'Blog Posts'],
     ];
