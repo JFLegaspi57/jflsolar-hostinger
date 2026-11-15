@@ -13,6 +13,19 @@
 <ul class="grid gap-3 sm:grid-cols-2">
     @foreach ($all as $c)
         @continue(in_array($c['key'], ['email', 'sales_email'], true) && $emails->count() > 1)
+        @if (! empty($c['alt']))
+            {{-- One number for two apps: each app name is its own link. --}}
+            <li>
+                <div class="{{ $frame }}">
+                    <span class="{{ $bubble }}"><x-icon :name="$icons[$c['key']]" class="size-[1.1rem]" /></span>
+                    <span class="min-w-0">
+                        <span class="{{ $label }}">@foreach ($c['alt'] as $app => $href)@if (! $loop->first)/@endif<a href="{{ $href }}" @if ($app === 'WhatsApp') target="_blank" rel="noopener noreferrer" @endif class="underline-offset-2 hover:underline">{{ $app }}@if ($app === 'WhatsApp')<span class="sr-only"> (opens in a new tab)</span>@endif</a>@endforeach</span>
+                        <a href="{{ $c['href'] }}" target="_blank" rel="noopener noreferrer" class="block font-semibold break-words tabular hover:underline">{{ $c['detail'] }}<span class="sr-only"> on WhatsApp (opens in a new tab)</span></a>
+                    </span>
+                </div>
+            </li>
+            @continue
+        @endif
         <li>
             <a href="{{ $c['href'] }}" @if ($c['external']) target="_blank" rel="noopener noreferrer" @endif class="{{ $frame }} {{ $hover }}">
                 <span class="{{ $bubble }}"><x-icon :name="$icons[$c['key']]" class="size-[1.1rem]" /></span>
