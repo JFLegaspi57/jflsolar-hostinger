@@ -51,6 +51,9 @@ class HelpPagesTest extends TestCase
         $html = $this->get('/')->assertOk()->getContent();
         $nav = substr($html, 0, strpos($html, '</nav>'));
         $this->assertGreaterThan(strpos($nav, 'href="/projects"'), strpos($nav, 'href="/faq"'));
+        foreach (['/net-metering', '/hybrid-pv-system-guide', '/grid-tied-pv-system-guide'] as $guide) {
+            $this->assertGreaterThan(strpos($nav, 'href="/faq"'), strpos($nav, 'href="'.$guide.'"'));
+        }
         $footer = substr($html, strpos($html, '<footer'));
         $this->assertSame(1, substr_count($footer, 'href="/faq"'));
     }

@@ -24,6 +24,11 @@
         ['/packages/build-your-own', 'Build Your Own', request()->is('packages/build-your-own')],
         ['/packages?type=complete', 'Complete Packages', $currentPackageType === 'complete'],
     ]];
+    $subMenus['/faq'] = ['FAQ and guides', ['/faq', 'FAQ', request()->is('faq')], [
+        ['/net-metering', 'Net metering guide', request()->is('net-metering', 'net-metering/*')],
+        ['/hybrid-pv-system-guide', 'How hybrid PV systems work', request()->is('hybrid-pv-system-guide', 'hybrid-pv-system-guide/*')],
+        ['/grid-tied-pv-system-guide', 'How grid-tied PV systems work', request()->is('grid-tied-pv-system-guide', 'grid-tied-pv-system-guide/*')],
+    ]];
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
     <div class="mx-auto flex h-[4.5rem] max-w-[76rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-20 lg:px-8">
