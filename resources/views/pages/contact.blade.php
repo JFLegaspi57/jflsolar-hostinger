@@ -40,6 +40,10 @@
                     <h3 id="before-title" class="font-bold text-steel-950">Before you send an inquiry</h3>
                     <p class="mt-1 text-sm text-steel-700">These may already have what you need, with today’s prices:</p>
                     <ul class="mt-3 grid gap-3 sm:grid-cols-2">
+                        <li class="rounded-[var(--radius-control)] border border-steel-200 bg-white p-4 sm:col-span-2">
+                            <a href="/pv-calculator" class="font-semibold text-steel-950 underline underline-offset-2">PV Calculator</a>
+                            <p class="mt-1 text-sm text-steel-700">Enter your monthly bill or your appliances to see the system size you need, the parts we have now and what you could save. Free, no sign-up.</p>
+                        </li>
                         <li class="rounded-[var(--radius-control)] border border-steel-200 bg-white p-4">
                             <a href="/quotation" class="font-semibold text-steel-950 underline underline-offset-2">{{ \App\Support\Quotations::NAME }}</a>
                             <p class="mt-1 text-sm text-steel-700">List the equipment you need with our website prices, add your own items, then save, print or send it to us for a formal quotation. Free for members.</p>

@@ -31,9 +31,7 @@
                 <span class="min-w-0">
                     <span class="{{ $label }}">Email</span>
                     @foreach ($emails as $e)
-                        <a href="{{ $e['href'] }}" class="block font-semibold break-words hover:underline">
-                            @if ($e['key'] === 'sales_email')<span class="font-normal {{ $dark ? 'text-steel-300' : 'text-steel-600' }}">Sales:</span> @endif{{ $e['detail'] }}
-                        </a>
+                        <a href="{{ $e['href'] }}" class="block font-semibold break-words hover:underline">{{ $e['detail'] }}</a>
                     @endforeach
                 </span>
             </div>
