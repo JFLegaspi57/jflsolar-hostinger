@@ -5,8 +5,10 @@
     use App\Support\Ui;
     $channels = collect(Contact::channels($settings))->whereIn('key', ['phone', 'whatsapp', 'viber']);
 @endphp
-<x-site-layout title="Frequently Asked Questions" path="/faq" :reviews-above-footer="false" description="Answers about solar PV systems, sizing, Make a Quotation, equipment-only orders, payment and pickup, delivery rates, the forum, warranty, technical support and net metering at JFL Solar.">
+<x-site-layout :title="$tl ? 'Mga Madalas Itanong' : 'Frequently Asked Questions'" :path="$tl ? '/faq/tagalog' : '/faq'" :lang="$tl ? 'fil' : 'en-PH'" :reviews-above-footer="false"
+    :description="$tl ? 'Mga sagot tungkol sa solar PV system, laki ng sistema, Make a Quotation, pagbili ng equipment lang, bayad at pickup, delivery rates, forum, warranty, technical support at net metering sa JFL Solar.' : 'Answers about solar PV systems, sizing, Make a Quotation, equipment-only orders, payment and pickup, delivery rates, the forum, warranty, technical support and net metering at JFL Solar.'">
     <x-slot:head>
+        @include('partials.guide-hreflang', ['en' => '/faq'])
         <script type="application/ld+json">{!! \App\Support\Faq::jsonLd($items) !!}</script>
         <style>
             .faq-item { border-bottom: 1px solid var(--color-steel-200); }
@@ -21,10 +23,16 @@
             .faq-link:hover, .faq-link:focus-visible { color: var(--color-gold-800); text-decoration: underline; }
         </style>
     </x-slot:head>
-    <x-page-hero eyebrow="Help" :title="PageText::get('faq.header.title')" :intro="PageText::get('faq.header.intro')"
+    <x-page-hero :eyebrow="$tl ? 'Tulong' : 'Help'" :title="$tl ? \App\Support\FaqTagalog::TITLE : PageText::get('faq.header.title')" :intro="$tl ? \App\Support\FaqTagalog::INTRO : PageText::get('faq.header.intro')"
         image="/images/faq-banner-1280.jpg" srcset="/images/faq-banner-640.jpg 640w, /images/faq-banner-960.jpg 960w, /images/faq-banner-1280.jpg 1280w"
-        imageAlt="Glowing turquoise question marks on a dark blue background" focus="80% 50%" flip />
+        :image-alt="$tl ? 'Kumikinang na turquoise na tandang pananong sa madilim na asul na background' : 'Glowing turquoise question marks on a dark blue background'" focus="80% 50%" flip />
     <x-container class="grid gap-12 py-10 sm:py-14 lg:grid-cols-[1.25fr_1fr]">
+        <div>
+            @if ($tl)
+                <p class="mb-4 text-sm"><a href="/faq" hreflang="en" lang="en" class="font-semibold text-steel-900 underline underline-offset-2">Read the FAQ in English</a></p>
+            @else
+                <p class="mb-4 text-sm"><a href="/faq/tagalog" hreflang="fil" lang="fil" class="font-semibold text-steel-900 underline underline-offset-2">Basahin ang FAQ sa Tagalog</a></p>
+            @endif
         <div class="border-t border-steel-200">
             @foreach ($items as $i => $it)
                 <details class="faq-item" id="q{{ $i + 1 }}" @if ($i === 0) open @endif>
@@ -41,9 +49,10 @@
                 </details>
             @endforeach
         </div>
+        </div>
         <aside aria-labelledby="faq-contact" style="align-self: start" class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-6">
-            <h2 id="faq-contact" class="text-xl font-bold text-steel-950">Still have a question?</h2>
-            <p class="mt-2 text-steel-700">Talk to our team. {{ $settings->business_hours ? 'We are open '.$settings->business_hours.'.' : '' }}</p>
+            <h2 id="faq-contact" class="text-xl font-bold text-steel-950">{{ $tl ? 'May tanong ka pa?' : 'Still have a question?' }}</h2>
+            <p class="mt-2 text-steel-700">{{ $tl ? 'Kausapin ang team namin.' : 'Talk to our team.' }} {{ $settings->business_hours ? ($tl ? 'Bukas kami '.$settings->business_hours.'.' : 'We are open '.$settings->business_hours.'.') : '' }}</p>
             <ul class="mt-4 space-y-2">
                 @foreach ($channels as $c)
                     <li>
