@@ -30,30 +30,35 @@
             @endforeach
         </dl>
 
-        <figure class="mt-8 overflow-hidden rounded-[var(--radius-panel)] border border-steel-200">
-            <div class="aspect-[16/9] bg-steel-100" @if ($project->cover) data-lightbox @endif>
-                @if ($project->cover)
-                    <x-media-image :asset="$project->cover" :admin="$admin" sizes="(min-width: 1216px) 1152px, 100vw" priority />
-                @else
-                    <x-placeholder-image :label="$project->is_sample ? 'Sample — placeholder image' : 'Project photo pending'" />
-                @endif
-            </div>
-            @if ($project->cover?->caption)<figcaption class="px-4 py-2 text-sm text-steel-600">{{ $project->cover->caption }}</figcaption>@endif
-        </figure>
+        @php
+            $firstVideo = $videos[0] ?? null;
+            $moreVideos = array_slice($videos, 1);
+            $videoBox = fn (array $v, int $i) => '<div class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: '.($v['vertical'] ? '9 / 16; max-width: 22rem; margin-inline: auto;' : '16 / 9;').'">'
+                .'<iframe src="'.e($v['src']).'" title="'.e($project->title.' — video '.($i + 1).' ('.$v['service'].')').'" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe></div>';
+        @endphp
+        {{-- With a video: cover photo and the first video side by side (stacked on phones). Without: the cover photo full width. --}}
+        <div class="mt-8 grid gap-6 {{ $firstVideo ? ($firstVideo['vertical'] ? 'lg:grid-cols-[1fr_20rem]' : 'lg:grid-cols-2') : '' }}">
+            <figure class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200">
+                <div class="aspect-[16/9] bg-steel-100" @if ($project->cover) data-lightbox @endif>
+                    @if ($project->cover)
+                        <x-media-image :asset="$project->cover" :admin="$admin" :sizes="$firstVideo ? '(min-width: 1216px) 568px, (min-width: 1024px) 50vw, 100vw' : '(min-width: 1216px) 1152px, 100vw'" priority />
+                    @else
+                        <x-placeholder-image :label="$project->is_sample ? 'Sample — placeholder image' : 'Project photo pending'" />
+                    @endif
+                </div>
+                @if ($project->cover?->caption)<figcaption class="px-4 py-2 text-sm text-steel-600">{{ $project->cover->caption }}</figcaption>@endif
+            </figure>
+            @if ($firstVideo)
+                <section aria-label="Project video">{!! $videoBox($firstVideo, 0) !!}</section>
+            @endif
+        </div>
 
-        @if ($videos)
-            <section aria-labelledby="videos-title" class="mt-12" @if (count($videos) === 1 && ! $videos[0]['vertical']) style="max-width: 42rem; margin-inline: auto;" @endif>
-                <h2 id="videos-title" class="text-xl font-bold text-steel-950">{{ count($videos) === 1 ? 'Video' : 'Videos' }}</h2>
-                <ul class="mt-4 grid gap-6 {{ count($videos) > 1 ? 'lg:grid-cols-2' : '' }}">
-                    @foreach ($videos as $i => $v)
-                        <li>
-                            <div class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950"
-                                style="aspect-ratio: {{ $v['vertical'] ? '9 / 16' : '16 / 9' }}; {{ $v['vertical'] ? 'max-width: 22rem; margin-inline: auto;' : '' }}">
-                                <iframe src="{{ $v['src'] }}" title="{{ $project->title }} — video {{ $i + 1 }} ({{ $v['service'] }})" loading="lazy"
-                                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen
-                                    referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe>
-                            </div>
-                        </li>
+        @if ($moreVideos)
+            <section aria-labelledby="videos-title" class="mt-12">
+                <h2 id="videos-title" class="text-xl font-bold text-steel-950">More videos</h2>
+                <ul class="mt-4 grid gap-6 lg:grid-cols-2">
+                    @foreach ($moreVideos as $i => $v)
+                        <li>{!! $videoBox($v, $i + 1) !!}</li>
                     @endforeach
                 </ul>
             </section>
