@@ -26,7 +26,6 @@ final class Site
         ['href' => '/contact', 'label' => 'Contact Us'],
         ['href' => '/brands', 'label' => 'Our Brands'],
         ['href' => '/blog', 'label' => 'Blog Posts'],
-        ['href' => '/courses/solar-pv-system-design', 'label' => 'Online Course'],
     ];
 
     /** Pages listed in the footer only (not in the main menu). The forum stays open at /forum. */
