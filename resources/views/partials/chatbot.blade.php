@@ -82,13 +82,8 @@
             const btn = root.querySelector('#jfl-chat-btn'), panel = root.querySelector('#jfl-chat-panel'), log = root.querySelector('[data-chat-log]');
             const form = root.querySelector('[data-chat-form]'), input = root.querySelector('#jfl-chat-input'), send = root.querySelector('.jc-send');
             const KEY = 'jfl-chat-v1';
-            @if (\App\Support\Lang::current() === 'fil')
-            const greeting = 'Hi! Ako si Buckny, ang assistant ng JFL Solar. Magtanong tungkol sa solar panel, inverter, battery, package, presyo, delivery at bayad. 😊';
-            const starters = ['Magkano ang 6kW Trio Package?', 'Anong battery ang bagay sa akin?', 'Paano mag-order at mag-pick up?', 'Gusto kong makausap ang tao'];
-            @else
-            const greeting = 'Hi! I’m Buckny, the JFL Solar assistant. Ask me about our solar panels, inverters, batteries, packages, prices, delivery and payment. Puwede rin sa Tagalog! 😊';
-            const starters = ['How much is the 6kW Trio Package?', 'Which battery should I choose?', 'How do I order and pick up?', 'Talk to a person'];
-            @endif
+            const greeting = 'Hi! I’m Buckny, the JFL Solar assistant. Ask me about our solar panels, inverters, batteries, packages, prices, delivery and payment. Puwede rin tayong mag-usap sa Filipino! 😊';
+            const starters = ['How much is the 6kW Trio Package?', 'Which battery should I choose?', 'How do I order and pick up?', 'Talk to a person', 'Mag-Filipino tayo'];
             let messages = [], busy = false;
             try { const saved = JSON.parse(sessionStorage.getItem(KEY) || '[]'); if (Array.isArray(saved)) messages = saved.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string').slice(-24); } catch (e) {}
             const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(messages.slice(-24))); } catch (e) {} };
