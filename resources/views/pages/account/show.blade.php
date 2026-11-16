@@ -61,7 +61,7 @@
                 <p class="mt-4"><a href="/quotation" class="{{ Ui::button('secondary') }}">{{ ($quoteCount ?? 0) > 0 ? 'Open your quotations' : 'Make a quotation' }}</a></p>
             </section>
             <section aria-labelledby="course-h" class="{{ $card }}">
-                <h2 id="course-h" class="text-xl font-bold text-steel-950">Free online course: {{ \App\Support\Course::TITLE }}</h2>
+                <h2 id="course-h" class="text-xl font-bold text-steel-950">Solar PV System Designing</h2>
                 <p class="mt-3 text-steel-700">Learn to design solar PV systems with JF Legaspi. Free for members, in English and Tagalog.</p>
                 <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">Open the course</a></p>
             </section>

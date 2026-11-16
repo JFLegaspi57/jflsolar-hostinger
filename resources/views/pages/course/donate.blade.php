@@ -26,7 +26,7 @@
                         <input name="reference" required inputmode="numeric" autocomplete="off" placeholder="e.g. 1234 567 890123" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 13rem">
                     </label>
                     <label class="grid gap-1 text-sm font-semibold text-steel-900">{{ $tl ? 'Halaga (₱, opsyonal)' : 'Amount (₱, optional)' }}
-                        <input name="amount" inputmode="decimal" autocomplete="off" placeholder="200" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 7rem">
+                        <input name="amount" inputmode="decimal" autocomplete="off" placeholder="2,000" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 7rem">
                     </label>
                     <button type="submit" class="{{ \App\Support\Ui::button('primary') }}">{{ $tl ? 'Naipadala ko na' : "I've sent my donation" }}</button>
                 </form>

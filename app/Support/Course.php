@@ -179,7 +179,7 @@ final class Course
         }
         $amount = trim(str_replace([',', '₱', ' '], '', $amount));
         if ($amount !== '' && (! is_numeric($amount) || (float) $amount <= 0 || (float) $amount > 1000000)) {
-            return 'Enter the amount in pesos, e.g. 200.';
+            return 'Enter the amount in pesos, e.g. 2,000.';
         }
         if (DB::table('course_donations')->where('reference', $reference)->exists()) {
             return 'This reference number was already sent. Thank you!';
