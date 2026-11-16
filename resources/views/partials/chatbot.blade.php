@@ -69,7 +69,7 @@
     <span class="jc-say" aria-hidden="true">Hello, I’m Buckny. How may I help you today?</span>
     <section id="jfl-chat-panel" role="dialog" aria-label="Buckny, the JFL Solar chat assistant" hidden>
         <div class="jc-head">
-            <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face jc-face-head">
+            <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face jc-face-head" title="Click me to say hello">
             <p style="margin-right: auto">Buckny<small>Happy to serve!</small></p>
             <span class="jc-say jc-say-head" aria-hidden="true">Hello, I’m Buckny. How may I help you today?</span>
             <div>
@@ -138,15 +138,32 @@
             };
             // Buckny says hello (speech bubble + talking face) when the chat opens or his face is clicked.
             const sayBubble = root.querySelector('.jc-say-head'); let sayTimer = 0;
-            const say = () => {
+            // His voice: the browser's own speech engine (no sound file to download). Browsers only allow it after a click,
+            // so he speaks the first time the chat is opened in a visit and whenever his face is clicked.
+            const HELLO = 'Hello, I’m Buckny. How may I help you today?';
+            const speak = () => {
+                try {
+                    const synth = window.speechSynthesis; if (!synth) return;
+                    synth.cancel();
+                    const u = new SpeechSynthesisUtterance(HELLO.replace('’', "'"));
+                    const voices = synth.getVoices().filter((v) => /^en[-_]/i.test(v.lang));
+                    const pick = ['Google US English', 'Samantha', 'Microsoft Aria', 'Microsoft Jenny', 'Microsoft Guy', 'Karen', 'Daniel'];
+                    u.voice = pick.map((n) => voices.find((v) => v.name.includes(n))).find(Boolean) || voices.find((v) => /en[-_]US/i.test(v.lang)) || voices[0] || null;
+                    u.lang = u.voice ? u.voice.lang : 'en-US'; u.pitch = 1.35; u.rate = 1.02; u.volume = 1;
+                    synth.speak(u);
+                } catch (e) {}
+            };
+            if (window.speechSynthesis) { window.speechSynthesis.getVoices(); window.speechSynthesis.addEventListener?.('voiceschanged', () => window.speechSynthesis.getVoices()); }
+            const say = (voice) => {
+                if (voice) speak();
                 clearTimeout(sayTimer); panel.classList.remove('is-saying'); void panel.offsetWidth;
                 panel.classList.add('is-saying'); sayBubble.classList.add('is-on');
                 sayTimer = setTimeout(() => { panel.classList.remove('is-saying'); sayBubble.classList.remove('is-on'); }, 2600);
             };
-            root.querySelector('.jc-face-head').addEventListener('click', say);
+            root.querySelector('.jc-face-head').addEventListener('click', () => say(true));
             const open = (yes) => {
                 panel.hidden = !yes; btn.hidden = yes; btn.setAttribute('aria-expanded', String(yes));
-                if (yes) { draw(); setTimeout(() => input.focus(), 30); say(); } else { btn.focus(); }
+                if (yes) { draw(); setTimeout(() => input.focus(), 30); let first = true; try { first = !sessionStorage.getItem(KEY + '-hello'); sessionStorage.setItem(KEY + '-hello', '1'); } catch (e) {} say(first); } else { btn.focus(); try { window.speechSynthesis?.cancel(); } catch (e) {} }
             };
             const ask = async (text) => {
                 text = text.trim();
