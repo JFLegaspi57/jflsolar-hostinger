@@ -25,7 +25,12 @@
             .course-slide img { display: block; width: 100%; height: auto; pointer-events: none; }
             .course-wm { position: absolute; right: .6rem; bottom: .45rem; padding: .1rem .45rem; border-radius: .3rem; background: rgb(255 255 255 / .55); color: rgb(15 23 42 / .55); font-size: .7rem; font-weight: 600; pointer-events: none; }
             .course-slide figcaption { margin-top: .4rem; font-size: .9rem; color: var(--color-steel-600); }
-            @media print { .lesson-protected { display: none !important; } .lesson-print-note { display: block !important; } }
+            @media print { .lesson-protected, .hero-media, img { display: none !important; } .lesson-print-note { display: block !important; } }
+            /* Copy protection: no selecting, dragging or long-press saving of the lesson text and images. */
+            .lesson-protected, .lesson-protected * { -webkit-user-select: none; -moz-user-select: none; user-select: none; -webkit-touch-callout: none; }
+            .lesson-protected img, .lesson-protected svg { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
+            .lesson-protected { position: relative; }
+            .lesson-wm { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-repeat: repeat; opacity: .07; }
         </style>
     </x-slot:head>
     @php
@@ -43,7 +48,12 @@
             @if ($staffPreview)
                 <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}.</p>
             @endif
-            <article class="lesson-body lesson-protected" oncontextmenu="return false">
+            @php
+                $wmText = \App\Support\Members::current()?->email ?? (\App\Support\Forum::staff()?->email ?? 'JFL Solar');
+                $wmSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="200"><text x="0" y="120" transform="rotate(-25 180 100)" font-family="Arial" font-size="15" fill="#0f172a">'.e($wmText).' · JFL Solar</text></svg>';
+            @endphp
+            <article class="lesson-body lesson-protected" oncontextmenu="return false" ondragstart="return false">
+                <span class="lesson-wm" aria-hidden="true" style="background-image: url('data:image/svg+xml;base64,{{ base64_encode($wmSvg) }}')"></span>
                 {!! $body !!}
                 @if (! str_contains((string) $lesson->body, '[[slide:') && $slides->isNotEmpty())
                     @foreach ($slides as $s)
@@ -51,6 +61,25 @@
                     @endforeach
                 @endif
             </article>
+            <script>
+                (function () {
+                    // Paid-member lessons: block copying, saving, printing and viewing the source from the keyboard and mouse.
+                    var stop = function (e) { e.preventDefault(); return false; };
+                    ['copy', 'cut', 'contextmenu', 'dragstart', 'selectstart'].forEach(function (t) {
+                        document.addEventListener(t, function (e) { if (!e.target.closest || !e.target.closest('input, textarea, #jfl-chat')) stop(e); }, true);
+                    });
+                    document.addEventListener('keydown', function (e) {
+                        var k = (e.key || '').toLowerCase(), mod = e.ctrlKey || e.metaKey;
+                        if (e.target.closest && e.target.closest('input, textarea')) return;
+                        if ((mod && ['c', 'x', 'a', 's', 'p', 'u'].indexOf(k) > -1) || (mod && e.shiftKey && ['i', 'j', 'c', 's'].indexOf(k) > -1) || k === 'f12' || k === 'printscreen') {
+                            stop(e);
+                            if (k === 'printscreen' && navigator.clipboard) { navigator.clipboard.writeText('').catch(function () {}); }
+                        }
+                    }, true);
+                    window.addEventListener('beforeprint', function () { document.body.style.visibility = 'hidden'; });
+                    window.addEventListener('afterprint', function () { document.body.style.visibility = ''; });
+                })();
+            </script>
             <p class="lesson-print-note" style="display: none">This lesson is for JFL Solar paid members and cannot be printed.</p>
             <nav aria-label="Lessons" class="mt-12 flex flex-wrap justify-between gap-3 border-t border-steel-200 pt-6">
                 @if ($prev)<a href="{{ Course::PATH }}/{{ $prev->slug }}" class="{{ Ui::button('secondary') }}">← {{ $prev->title }}</a>@else<span></span>@endif
