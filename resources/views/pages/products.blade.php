@@ -19,14 +19,14 @@
         $logos = [
             ['GoodWe', 'GoodWe', 29, 89, 449, 140], ['Jinko Solar', 'Jinko Solar', 500, 89, 309, 140], ['Solis', 'Solis', 831, 89, 291, 140],
             ['Luxpower Tek', 'LuxPower', 1144, 89, 425, 140], ['Seraphim', 'Seraphim', 1591, 89, 431, 140], ['Trina Solar', 'Trina Solar', 2044, 89, 326, 140],
-            ['AESOLAR', 'AE Solar', 227, 295, 474, 129], ['Sungrow', 'Sungrow', 723, 295, 490, 129], ['Dyness', 'Dyness', 1235, 295, 388, 129],
-            ['ATE', 'Alltopelec (ATE)', 1645, 295, 211, 129], ['Projoy Electric', 'Projoy', 1878, 295, 294, 129],
+            ['AESOLAR', 'AE Solar', 24, 295, 474, 129], ['Sungrow', 'Sungrow', 520, 295, 490, 129], ['Dyness', 'Dyness', 1032, 295, 388, 129],
+            ['ATE', 'Alltopelec (ATE)', 1442, 295, 211, 129], ['Projoy Electric', 'Projoy', 1675, 295, 294, 129], ['TCL Solar', 'TCL Solar', 1991, 295, 385, 129],
         ];
     @endphp
     <section aria-label="Brands we carry" class="border-b border-steel-200 bg-white">
         <x-container>
             <div class="brand-strip relative">
-                <img src="/images/brand-logos-v4-2400.webp" srcset="/images/brand-logos-v4-1200.webp 1200w, /images/brand-logos-v4-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
+                <img src="/images/brand-logos-v5-2400.webp" srcset="/images/brand-logos-v5-1200.webp 1200w, /images/brand-logos-v5-2400.webp 2400w" sizes="(min-width: 1280px) 1216px, 100vw"
                     width="2400" height="520" loading="lazy" decoding="async" class="block h-auto w-full" alt="">
                 <ul class="m-0 list-none p-0">
                     @foreach ($logos as $logo)
@@ -45,7 +45,7 @@
         </x-container>
     </section>
     <style>
-        .brand-strip .brand-logo { position: absolute; display: block; border-radius: 0.75rem; background-color: #fff; background-image: url('/images/brand-logos-v4-2400.webp'); background-repeat: no-repeat;
+        .brand-strip .brand-logo { position: absolute; display: block; border-radius: 0.75rem; background-color: #fff; background-image: url('/images/brand-logos-v5-2400.webp'); background-repeat: no-repeat;
             transition: transform 0.25s ease, box-shadow 0.25s ease; }
         .brand-strip .brand-logo:hover, .brand-strip .brand-logo:focus-visible { transform: translateY(-4px) scale(1.07); box-shadow: 0 10px 24px -8px rgba(31, 41, 55, 0.35), 0 0 0 1px rgba(31, 41, 55, 0.08); z-index: 1; }
         .brand-strip .brand-logo:focus-visible { outline: 3px solid #f5b400; outline-offset: 2px; }
