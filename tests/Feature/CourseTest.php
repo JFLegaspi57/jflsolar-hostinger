@@ -82,7 +82,7 @@ class CourseTest extends TestCase
         $this->assertStringContainsString('no-store', (string) $res->headers->get('Cache-Control'));
         $this->assertStringContainsString('noindex', (string) $res->headers->get('X-Robots-Tag'));
         $this->get('/courses/slide/'.$slide->id)->assertOk()->assertHeader('Content-Type', 'image/webp');
-        $this->get('/account')->assertSee('Free online course');
+        $this->get('/account')->assertSee('Solar PV System Designing');
 
         // A disabled account: locked.
         $m->forceFill(['status' => 'disabled'])->save();
