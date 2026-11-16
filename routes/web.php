@@ -111,6 +111,12 @@ Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'un
 Route::get('/cart', [Shop\CartController::class, 'show']);
 Route::post('/cart', [Shop\CartController::class, 'update']);
 Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'send'])->middleware('throttle:chat');
+Route::get('/courses/solar-pv-system-design', [\App\Http\Controllers\CourseController::class, 'show']);
+Route::get('/courses/solar-pv-system-design/{slug}', [\App\Http\Controllers\CourseController::class, 'lesson'])->where('slug', '[a-z0-9-]{1,80}');
+Route::get('/courses/slide/{id}', [\App\Http\Controllers\CourseController::class, 'slide'])->whereNumber('id');
+Route::post('/courses/join', [\App\Http\Controllers\CourseController::class, 'join'])->middleware('throttle:checkout');
+Route::redirect('/courses', '/courses/solar-pv-system-design');
+Route::redirect('/course', '/courses/solar-pv-system-design');
 Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');
 Route::post('/packages/{slug}/basket', [Shop\PackageBasketController::class, 'add'])->where('slug', '[a-z0-9-]+')->middleware('throttle:cart');
 Route::get('/checkout', [Shop\CheckoutController::class, 'show']);
@@ -222,6 +228,15 @@ Route::prefix('admin')->group(function () {
 
         Route::get('inventory', [Admin\InventoryController::class, 'index']);
         Route::post('inventory/link', [Admin\InventoryController::class, 'link']);
+        Route::get('course', [Admin\CourseController::class, 'index']);
+        Route::post('course/price', [Admin\CourseController::class, 'price']);
+        Route::post('course/member', [Admin\CourseController::class, 'member']);
+        Route::post('course/lessons', [Admin\CourseController::class, 'createLesson']);
+        Route::get('course/lessons/{id}', [Admin\CourseController::class, 'editLesson'])->whereNumber('id');
+        Route::post('course/lessons/{id}', [Admin\CourseController::class, 'updateLesson'])->whereNumber('id');
+        Route::post('course/lessons/{id}/delete', [Admin\CourseController::class, 'deleteLesson'])->whereNumber('id');
+        Route::post('course/lessons/{id}/slides', [Admin\CourseController::class, 'uploadSlides'])->whereNumber('id');
+        Route::post('course/slides/{id}', [Admin\CourseController::class, 'slideOp'])->whereNumber('id');
         Route::get('chats', [Admin\ChatLogController::class, 'index']);
         Route::get('chats/{id}', [Admin\ChatLogController::class, 'show'])->whereNumber('id');
         Route::post('chats/{id}/delete', [Admin\ChatLogController::class, 'destroy'])->whereNumber('id');
