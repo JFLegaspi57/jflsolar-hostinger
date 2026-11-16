@@ -7,10 +7,25 @@
     $d = fn ($t) => $t ? Carbon::parse($t)->timezone('Asia/Manila')->format('j M Y') : '—';
 @endphp
 <x-admin.layout title="Online course">
-    <x-admin.page-title title="Online course" :intro="Course::TITLE.' — lessons for paid members only. Paid membership lasts 1 year and is bought online (PayMongo), or set by hand below.'">
+    <x-admin.page-title title="Online course" :intro="Course::TITLE.' — free for every signed-in member, with optional GCash donations.'">
         <x-slot:action><a href="{{ Course::PATH }}" target="_blank" rel="noopener" class="{{ $btn }} border border-steel-400 text-steel-900">View course page</a></x-slot:action>
     </x-admin.page-title>
 
+    <section class="{{ $box }}" aria-labelledby="gcash-h">
+        <h2 id="gcash-h" class="text-lg font-bold text-steel-950">GCash donations</h2>
+        <p class="mt-1 text-sm text-steel-700">Shown on the course page and at the top of every lesson, before the lesson starts.</p>
+        @php $gc = Course::gcash(); @endphp
+        @if ($gc && $gc['qr'])<img src="{{ $gc['qr'] }}" alt="" class="mt-3 rounded border border-steel-200" style="width: 160px">@endif
+        <form method="post" action="/admin/course/gcash" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-3">
+            @csrf
+            <label class="grid gap-1 font-semibold text-steel-900">GCash QR code <input type="file" name="qr" accept="image/jpeg,image/png,image/webp" class="font-normal"></label>
+            <label class="grid gap-1 font-semibold text-steel-900">GCash number <input name="number" value="{{ $gc['number'] ?? '' }}" placeholder="09XX XXX XXXX" class="{{ $field }} font-normal" style="width: 12rem"></label>
+            <label class="grid gap-1 font-semibold text-steel-900">Account name <input name="name" value="{{ $gc['name'] ?? '' }}" placeholder="e.g. J. F. L." class="{{ $field }} font-normal" style="width: 12rem"></label>
+            <button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save</button>
+        </form>
+        @if ($gc && $gc['qr'])<form method="post" action="/admin/course/gcash" class="mt-2">@csrf<input type="hidden" name="remove_qr" value="1"><button class="text-sm text-danger-700 underline">Remove QR code</button></form>@endif
+    </section>
+    @unless (Course::FREE)
     <section class="{{ $box }}" aria-labelledby="price-h">
         <h2 id="price-h" class="text-lg font-bold text-steel-950">Membership price (1 year)</h2>
         <p class="mt-1 text-sm text-steel-700">
@@ -24,6 +39,7 @@
             <button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save price</button>
         </form>
     </section>
+    @endunless
 
     <section class="{{ $box }}" aria-labelledby="banner-h">
         <h2 id="banner-h" class="text-lg font-bold text-steel-950">Course page banner</h2>
@@ -60,6 +76,7 @@
         </form>
     </section>
 
+    @unless (Course::FREE)
     <section class="{{ $box }}" aria-labelledby="members-h">
         <h2 id="members-h" class="text-lg font-bold text-steel-950">Paid members</h2>
         <p class="mt-1 text-sm text-steel-700">Online payments unlock the course automatically. To give or extend access by hand (for example, paid at the office), enter the member's email. Leave the date empty to add 1 year.</p>
@@ -102,4 +119,5 @@
             </table>
         @endif
     </section>
+    @endunless
 </x-admin.layout>

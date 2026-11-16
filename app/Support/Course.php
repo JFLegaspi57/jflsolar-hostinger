@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * The online course "Solar PV System Design", for paid members only.
+ * The online course "Solar PV System Design". FREE for signed-in members (since November 2026),
+ * with optional GCash donations; the paid-membership code below stays for later use.
  *
  * Paid membership lasts one year (MEMBERSHIP_MONTHS) and is bought online through PayMongo
  * (GCash, Maya, card, QR Ph); the signed PayMongo webhook unlocks it, and staff can also set
@@ -29,6 +30,9 @@ final class Course
     public const PATH = '/courses/'.self::SLUG;
 
     public const MEMBERSHIP_MONTHS = 12;
+
+    /** The course is free for every signed-in member; donations by GCash are welcome. */
+    public const FREE = true;
 
     /** Membership payment references look like MEM-261116-AB12 (orders use JFL-…). */
     public const REF_PREFIX = 'MEM-';
@@ -131,10 +135,67 @@ final class Course
         return $until !== null && $until->isFuture() && $member->isActive();
     }
 
-    /** Paid members, and signed-in staff (to check the lessons). */
+    /** Signed-in members (the course is free) or paid members, and signed-in staff. */
     public static function canView(): bool
     {
-        return Forum::staff() !== null || self::isPaid(Members::current());
+        $member = Members::current();
+
+        return Forum::staff() !== null || (self::FREE ? ($member !== null && $member->isActive()) : self::isPaid($member));
+    }
+
+    // --- GCash donations ------------------------------------------------------------------
+
+    public static function gcashQrFile(): string
+    {
+        return self::dir().'/gcash-qr.jpg';
+    }
+
+    /** @return array{qr: ?string, number: string, name: string}|null  null when nothing is set up */
+    public static function gcash(): ?array
+    {
+        self::ensureTables();
+        $get = fn ($k) => (string) DB::table('app_secrets')->where('key', $k)->value('value');
+        $qr = is_file(self::gcashQrFile()) ? '/courses/gcash-qr.jpg?v='.filemtime(self::gcashQrFile()) : null;
+        $number = $get('gcash_number');
+        $name = $get('gcash_name');
+
+        return $qr || $number !== '' ? ['qr' => $qr, 'number' => $number, 'name' => $name] : null;
+    }
+
+    public static function setGcash(string $number, string $name): void
+    {
+        self::ensureTables();
+        foreach (['gcash_number' => $number, 'gcash_name' => $name] as $k => $v) {
+            $v = trim($v) === '' ? null : mb_substr(trim($v), 0, 80);
+            $v === null
+                ? DB::table('app_secrets')->where('key', $k)->delete()
+                : DB::table('app_secrets')->updateOrInsert(['key' => $k], ['value' => $v, 'updated_at' => now(), 'created_at' => now()]);
+        }
+    }
+
+    /** Saves the GCash QR picture (resized to at most 900 px). Returns an error or null. */
+    public static function saveGcashQr(?\Illuminate\Http\UploadedFile $file): ?string
+    {
+        if (! $file || ! $file->isValid() || $file->getSize() > 8 * 1024 * 1024) {
+            return 'Upload the QR code as a JPG, PNG or WebP picture under 8 MB.';
+        }
+        $img = @imagecreatefromstring((string) file_get_contents($file->getRealPath()));
+        if (! $img) {
+            return 'Upload the QR code as a JPG, PNG or WebP picture.';
+        }
+        if (! is_dir(self::dir()) && ! @mkdir(self::dir(), 0775, true)) {
+            return 'The picture could not be stored.';
+        }
+        [$w, $h] = [imagesx($img), imagesy($img)];
+        $s = min(1, 900 / max($w, $h));
+        $out = imagecreatetruecolor((int) round($w * $s), (int) round($h * $s));
+        imagefill($out, 0, 0, imagecolorallocate($out, 255, 255, 255));
+        imagecopyresampled($out, $img, 0, 0, 0, 0, imagesx($out), imagesy($out), $w, $h);
+        imagejpeg($out, self::gcashQrFile(), 92);
+        imagedestroy($img);
+        imagedestroy($out);
+
+        return null;
     }
 
     /** Adds one membership period, counted from today or from the current end date if later. */

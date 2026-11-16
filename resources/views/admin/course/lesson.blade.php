@@ -16,7 +16,7 @@
         <label class="grid gap-1 font-semibold text-steel-900">Order <input name="position" type="number" value="{{ $lesson->position }}" class="{{ $field }}"></label>
         <label class="grid gap-1 font-semibold text-steel-900 sm:col-span-2">Short summary <span class="text-sm font-normal text-steel-600">Shown to everyone in the lesson list.</span>
             <textarea name="summary" rows="2" maxlength="400" class="{{ $field }} py-2">{{ $lesson->summary }}</textarea></label>
-        <label class="grid gap-1 font-semibold text-steel-900 sm:col-span-2">Lesson text (paid members only)
+        <label class="grid gap-1 font-semibold text-steel-900 sm:col-span-2">Lesson text (signed-in members only)
             <span class="text-sm font-normal text-steel-600">HTML: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;table&gt;, &lt;div class="calc"&gt; for calculations, &lt;div class="key"&gt; for key points. Put a slide where you want it with [[slide:1]], [[slide:2]] … (numbers as listed below). Without any [[slide:…]], all slides show after the text.</span>
             <textarea name="body" rows="22" class="{{ $field }} py-2 font-mono text-sm">{{ $lesson->body }}</textarea></label>
         <details class="sm:col-span-2 rounded-[var(--radius-control)] border border-steel-200 p-3" @if ($lesson->body_tl) open @endif>

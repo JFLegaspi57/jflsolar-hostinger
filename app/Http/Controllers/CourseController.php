@@ -50,8 +50,8 @@ class CourseController extends Controller
         }
         if (! Course::canView()) {
             return redirect(Course::PATH)->with('status_error', Members::current()
-                ? 'This lesson is for paid members. Join below to unlock the course.'
-                : 'Please sign in. Lessons are for paid members.');
+                ? (Course::FREE ? 'Your account is not active. Please contact us.' : 'This lesson is for paid members. Join below to unlock the course.')
+                : (Course::FREE ? 'Please sign in or create a free account to open the lessons.' : 'Please sign in. Lessons are for paid members.'));
         }
         $member = Members::current();
         $slides = Course::slides($lesson->id);
@@ -68,7 +68,7 @@ class CourseController extends Controller
             'next' => $i !== false ? ($all[$i + 1] ?? null) : null,
             'position' => $i === false ? null : $i + 1,
             'total' => $all->count(),
-            'staffPreview' => $staff !== null && ! Course::isPaid($member),
+            'staffPreview' => $staff !== null && ! $member,
         ])->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
@@ -87,6 +87,13 @@ class CourseController extends Controller
             'X-Robots-Tag' => 'noindex, nofollow',
             'Content-Disposition' => 'inline',
         ]);
+    }
+
+    public function gcashQr(): Response
+    {
+        abort_unless(is_file(Course::gcashQrFile()), 404);
+
+        return response()->file(Course::gcashQrFile(), ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'public, max-age=86400']);
     }
 
     /** Banner photos are public (the course page shows them to everyone). */

@@ -9,7 +9,7 @@
     $name = fn ($l) => $tl ? ($l->title_tl ?: $l->title) : $l->title;
 @endphp
 <x-site-layout :title="$title.' — '.Course::TITLE" :path="$base.($tl ? '/tagalog' : '')" :lang="$tl ? 'fil' : 'en-PH'" :noindex="true" :reviews-above-footer="false"
-    description="A lesson of the JFL Solar online course for paid members.">
+    description="A lesson of the free JFL Solar online course for members.">
     <x-slot:head>
         <style>
             .lesson-body { color: var(--color-steel-800); font-size: 1.0625rem; line-height: 1.7; }
@@ -58,6 +58,7 @@
                     <a href="{{ $base }}/tagalog" hreflang="fil" lang="fil" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Basahin ang araling ito sa Tagalog</a>
                 @endif
             </div>
+            @include('pages.course.donate', ['tl' => $tl, 'class' => 'mb-8'])
             @if ($staffPreview)
                 <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}{{ $tl ? ' · Tagalog version' : '' }}.</p>
             @endif
@@ -93,12 +94,12 @@
                     window.addEventListener('afterprint', function () { document.body.style.visibility = ''; });
                 })();
             </script>
-            <p class="lesson-print-note" style="display: none">This lesson is for JFL Solar paid members and cannot be printed.</p>
+            <p class="lesson-print-note" style="display: none">This lesson cannot be printed.</p>
             <nav aria-label="Lessons" class="mt-12 flex flex-wrap justify-between gap-3 border-t border-steel-200 pt-6">
                 @if ($prev)<a href="{{ $link($prev) }}" class="{{ Ui::button('secondary') }}">← {{ $name($prev) }}</a>@else<span></span>@endif
                 @if ($next)<a href="{{ $link($next) }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Susunod' : 'Next' }}: {{ $name($next) }} →</a>@else<a href="{{ Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Bumalik sa kurso' : 'Back to the course' }}</a>@endif
             </nav>
-            <p class="mt-6 text-xs text-steel-500">{{ $tl ? 'Ang kursong ito ay para sa sarili mong pag-aaral bilang paid member ng JFL Solar. Huwag kopyahin, i-share o i-record ang mga aralin at slide.' : 'This course is for your own learning as a JFL Solar paid member. Please don\'t copy, share or record the lessons or slides.' }}</p>
+            <p class="mt-6 text-xs text-steel-500">{{ $tl ? 'Ang kursong ito ay para sa sarili mong pag-aaral bilang member ng JFL Solar. Huwag kopyahin, i-share o i-record ang mga aralin at slide.' : 'This course is for your own learning as a JFL Solar member. Please don\'t copy, share or record the lessons or slides.' }}</p>
         </div>
     </x-container>
 </x-site-layout>

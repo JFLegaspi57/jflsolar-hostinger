@@ -203,7 +203,7 @@ final class Chatbot
     public static function systemPrompt(): string
     {
         // Always valid UTF-8, so the request to Anthropic can be encoded.
-        return Cache::remember('chatbot-system-v12', 300, fn () => mb_scrub(self::rules()."\n\n".self::knowledge(), 'UTF-8'));
+        return Cache::remember('chatbot-system-v13', 300, fn () => mb_scrub(self::rules()."\n\n".self::knowledge(), 'UTF-8'));
     }
 
     private static function rules(): string
@@ -358,8 +358,7 @@ TXT;
         $lines[] = '- [Packages](/packages): Materials Only bundles, [Build Your Own](/packages/build-your-own) with a price per part, Complete Packages with installation; [Compare packages](/packages/compare).';
         $lines[] = '- [Products](/products): search by brand, model or category. [Our Brands](/brands): every brand we carry.';
         $lines[] = '- [Delivery Rates](/delivery-rates), [FAQ](/faq) (Tagalog: /faq/tagalog), [Contact](/contact#quote) (inquiry form), [Projects](/projects), [Blog](/blog), [Forum](/forum).';
-        $coursePrice = \App\Support\Course::price();
-        $lines[] = '- [Online course: '.\App\Support\Course::TITLE.']('.\App\Support\Course::PATH.') by JF Legaspi, for paid members only (1-year paid membership'.($coursePrice ? ', ₱'.number_format($coursePrice).', paid online with GCash, Maya, card or QR Ph' : '; online enrolment opens soon').'). Lesson 1: Understanding Solar Energy. Never reveal lesson content.';
+        $lines[] = '- [Online course: '.\App\Support\Course::TITLE.']('.\App\Support\Course::PATH.') by JF Legaspi: FREE for everyone with a free JFL Solar account (sign up, then open the lessons). Donations by GCash are welcome (details on the course page). Lessons: Understanding Solar Energy, Types of Solar PV Systems, Tools and Equipment, How Solar Panels Work, Temperature Coefficients and more; each in English and Tagalog. Never reveal lesson content.';
         $lines[] = '- Guides (free, English and Tagalog — add /tagalog to the path): [Net metering](/net-metering), [How hybrid PV systems work](/hybrid-pv-system-guide), [How grid-tied PV systems work](/grid-tied-pv-system-guide).';
         $lines[] = '- Free account ([Sign up](/signup), [Sign in](/login)): Make a Quotation, posting in the forum, seeing own orders, reading full blog posts (visitors see the first paragraphs), optional promos and news by email (can unsubscribe any time).';
         $lines[] = '- [Forum](/forum): anyone can read; members ask questions about panels, inverters, batteries, wiring and net metering; other owners and the JFL Solar team answer; a member\'s first post is checked before it appears.';
