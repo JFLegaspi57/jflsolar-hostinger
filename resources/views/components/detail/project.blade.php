@@ -42,7 +42,7 @@
         </figure>
 
         @if ($videos)
-            <section aria-labelledby="videos-title" class="mt-12">
+            <section aria-labelledby="videos-title" class="mt-12" @if (count($videos) === 1 && ! $videos[0]['vertical']) style="max-width: 42rem; margin-inline: auto;" @endif>
                 <h2 id="videos-title" class="text-xl font-bold text-steel-950">{{ count($videos) === 1 ? 'Video' : 'Videos' }}</h2>
                 <ul class="mt-4 grid gap-6 {{ count($videos) > 1 ? 'lg:grid-cols-2' : '' }}">
                     @foreach ($videos as $i => $v)
