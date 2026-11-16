@@ -94,6 +94,24 @@ class CourseTest extends TestCase
         $this->get($url)->assertRedirect(Course::PATH);
     }
 
+    public function test_tagalog_version_of_a_lesson(): void
+    {
+        $lesson = $this->lesson();
+        $m = $this->member();
+        $this->actingAs($m, 'member');
+        Course::extend($m->id);
+        $url = Course::PATH.'/'.$lesson->slug;
+        $this->get($url.'/tagalog')->assertRedirect($url);                 // no Tagalog yet
+        $this->get($url)->assertDontSee('Basahin ang araling ito sa Tagalog');
+        DB::table('course_lessons')->where('id', $lesson->id)->update(['title_tl' => 'Pag-unawa sa Enerhiya ng Araw', 'body_tl' => '<p>Lihim na tala</p>[[slide:1]]']);
+        $this->get($url)->assertSee('Basahin ang araling ito sa Tagalog');
+        $this->get($url.'/tagalog')->assertOk()->assertSee('Pag-unawa sa Enerhiya ng Araw')->assertSee('Lihim na tala')->assertSee('/courses/slide/', false)->assertSee('Read this lesson in English');
+        // Chose Filipino: the English address opens the Tagalog version.
+        $this->withCookie('lang', 'fil')->get($url)->assertRedirect($url.'/tagalog');
+        auth('member')->logout();
+        $this->get($url.'/tagalog')->assertRedirect(Course::PATH);       // still paid members only
+    }
+
     public function test_staff_can_preview_drafts(): void
     {
         $lesson = $this->lesson('draft');

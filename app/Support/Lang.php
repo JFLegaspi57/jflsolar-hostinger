@@ -31,6 +31,13 @@ final class Lang
         if (in_array($path, self::TAGALOG_PAGES, true)) {
             return $path.'/tagalog';
         }
+        if (preg_match('#^/courses/'.Course::SLUG.'/([a-z0-9-]+)$#', $path, $m)) {
+            try {
+                return Course::hasTagalog(Course::lesson($m[1], true)) ? $path.'/tagalog' : null;
+            } catch (\Throwable) {
+                return null;
+            }
+        }
         if (preg_match('#^/blog/([a-z0-9-]+)$#', $path, $m)) {
             try {
                 $post = Blog::find($m[1]);
