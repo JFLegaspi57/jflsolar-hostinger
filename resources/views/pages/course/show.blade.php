@@ -51,7 +51,12 @@
 
             <section class="{{ $card }}" aria-labelledby="lessons-h">
                 <h2 id="lessons-h" class="text-xl font-bold text-steel-950">Lessons</h2>
-                @if ($lessons->isEmpty())
+                @if (! $canView)
+                    {{-- Visitors who are not signed in never see the lessons themselves, only what the course covers. --}}
+                    <p class="mt-3 text-steel-800">The course goes step by step: from how solar energy and solar panels work, to the types of solar PV systems, the tools and equipment, reading panel datasheets and temperature data, and on to sizing and designing complete solar PV systems.</p>
+                    <p class="mt-3 text-steel-800">Every lesson is in <strong>English and Tagalog</strong>, with slides, clear notes, worked calculations and questions to check your understanding. New lessons are added regularly.</p>
+                    <p class="mt-3 font-semibold text-steel-950">Sign in or create a free account to see the lessons.</p>
+                @elseif ($lessons->isEmpty())
                     <p class="mt-3 text-steel-700">The first lesson is being prepared.</p>
                 @else
                     <ol class="mt-4 divide-y divide-steel-200">
@@ -59,11 +64,7 @@
                             <li class="flex gap-4 py-4">
                                 <span class="grid size-9 shrink-0 place-items-center rounded-full bg-steel-900 font-bold text-white">{{ $loop->iteration }}</span>
                                 <div class="min-w-0 flex-1">
-                                    @if ($canView)
-                                        <a href="{{ Course::PATH }}/{{ $l->slug }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $l->title }}</a>
-                                    @else
-                                        <p class="text-lg font-bold text-steel-950">{{ $l->title }} <span class="ml-1 inline-flex items-center rounded-full border border-steel-300 px-2 text-xs font-semibold text-steel-700">Sign in to open</span></p>
-                                    @endif
+                                    <a href="{{ Course::PATH }}/{{ $l->slug }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $l->title }}</a>
                                     @if ($l->summary)<p class="mt-1 text-steel-700">{{ $l->summary }}</p>@endif
                                 </div>
                             </li>

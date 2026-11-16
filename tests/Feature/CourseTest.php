@@ -70,14 +70,14 @@ class CourseTest extends TestCase
         $url = Course::PATH.'/'.$lesson->slug;
 
         // Visitors see the course page and lesson titles, never the lesson text or slides.
-        $this->get(Course::PATH)->assertOk()->assertSee('Free for JFL Solar members')->assertSee('Understanding Solar Energy')->assertDontSee('Secret notes')->assertSee('Create a free account');
+        $this->get(Course::PATH)->assertOk()->assertSee('Free for JFL Solar members')->assertDontSee('Understanding Solar Energy')->assertDontSee($lesson->slug, false)->assertDontSee('Secret notes')->assertSee('Sign in or create a free account to see the lessons')->assertSee('Create a free account');
         $this->get($url)->assertRedirect(Course::PATH);
         $this->get('/courses/slide/'.$slide->id)->assertForbidden();
 
         // Any signed-in member: full lesson, watermark, no script, not cached.
         $m = $this->member();
         $this->actingAs($m, 'member');
-        $this->get(Course::PATH)->assertSee('all lessons are open');
+        $this->get(Course::PATH)->assertSee('all lessons are open')->assertSee('Understanding Solar Energy');
         $res = $this->get($url)->assertOk()->assertSee('Secret notes')->assertSee('/courses/slide/'.$slide->id, false)->assertSee('maria@example.com')->assertDontSee('alert(1)', false);
         $this->assertStringContainsString('no-store', (string) $res->headers->get('Cache-Control'));
         $this->assertStringContainsString('noindex', (string) $res->headers->get('X-Robots-Tag'));
