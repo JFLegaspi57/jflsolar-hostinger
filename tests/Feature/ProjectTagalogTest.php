@@ -44,6 +44,13 @@ class ProjectTagalogTest extends TestCase
         $this->get('/lang/en?back='.rawurlencode('/projects/home-system/tagalog'))->assertRedirect('/projects/home-system');
     }
 
+    public function test_admin_form_shows_and_keeps_the_filipino_text(): void
+    {
+        $p = $this->project(['title_tl' => 'Sistema sa bahay', 'summary_tl' => 'Buod.', 'description_tl' => 'Kuwento sa Filipino.']);
+        $owner = \App\Models\User::query()->create(['name' => 'Owner', 'email' => 'owner-tl@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($owner, 'web')->get('/admin/projects/'.$p->id)->assertOk()->assertSee('Kuwento sa Filipino.')->assertSee('Sistema sa bahay');
+    }
+
     public function test_project_without_filipino_text_stays_english(): void
     {
         $this->project();
