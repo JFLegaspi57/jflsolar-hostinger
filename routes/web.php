@@ -219,6 +219,9 @@ Route::prefix('admin')->group(function () {
         Route::post('orders/{order}/delete', [Admin\OrderController::class, 'destroy'])->whereNumber('order');
         Route::post('orders/{order}', [Admin\OrderController::class, 'update'])->whereNumber('order');
 
+        Route::get('chats', [Admin\ChatLogController::class, 'index']);
+        Route::get('chats/{id}', [Admin\ChatLogController::class, 'show'])->whereNumber('id');
+        Route::post('chats/{id}/delete', [Admin\ChatLogController::class, 'destroy'])->whereNumber('id');
         Route::get('inquiries', [Admin\InquiryController::class, 'index']);
         Route::post('inquiries/delete', [Admin\InquiryController::class, 'destroyMany']);
         Route::post('inquiries/email-link', [Admin\InquiryController::class, 'emailLink']);

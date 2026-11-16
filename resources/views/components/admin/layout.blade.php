@@ -5,6 +5,7 @@
         ['/admin', 'Overview', false],
         ['/admin/visitors', 'Visitors', false],
         ['/admin/inquiries', 'Inquiries', false],
+        ['/admin/chats', 'Buckny chats', false],
         ['/admin/orders', 'Orders', false],
         ['/admin/forum', 'Forum', false],
         ['/admin/members', 'Members', false],

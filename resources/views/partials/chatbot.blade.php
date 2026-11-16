@@ -72,7 +72,7 @@
             <textarea id="jfl-chat-input" rows="1" maxlength="1000" placeholder="Type your question…" autocomplete="off"></textarea>
             <button type="submit" class="jc-send">Send</button>
         </form>
-        <p class="jc-foot">Answers are by AI and may be wrong — Sales confirms prices and stock. Don’t share card numbers or passwords. <a href="/privacy#chat">Privacy</a></p>
+        <p class="jc-foot">Answers are by AI and may be wrong — Sales confirms prices and stock. Chats are saved for 90 days. Don’t share card numbers or passwords. <a href="/privacy#chat">Privacy</a></p>
     </section>
     <script>
         (() => {
@@ -87,6 +87,10 @@
             let messages = [], busy = false;
             try { const saved = JSON.parse(sessionStorage.getItem(KEY) || '[]'); if (Array.isArray(saved)) messages = saved.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string').slice(-24); } catch (e) {}
             const save = () => { try { sessionStorage.setItem(KEY, JSON.stringify(messages.slice(-24))); } catch (e) {} };
+            const newId = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+            let cid = ''; try { cid = sessionStorage.getItem(KEY + '-id') || ''; } catch (e) {}
+            const setId = (id) => { cid = id; try { sessionStorage.setItem(KEY + '-id', id); } catch (e) {} };
+            if (!/^[A-Za-z0-9-]{8,64}$/.test(cid) || !messages.length) setId(newId());
 
             // Safe rendering: text nodes only; **bold** and [label](/site-path | tel: | https://jflsolar.ph…) links.
             const linkOk = (u) => /^\/(?!\/)/.test(u) || /^tel:\+?[0-9]+$/.test(u) || /^https:\/\/(www\.)?jflsolar\.ph(\/|$)/.test(u) || /^https:\/\/(wa\.me|m\.me|www\.facebook\.com|viber\.me)\//.test(u);
@@ -134,7 +138,7 @@
                 const question = bubble('user', text);
                 const typing = document.createElement('div'); typing.className = 'jc-msg jc-bot'; typing.innerHTML = '<span class="jc-dots" aria-label="Typing"><i></i><i></i><i></i></span>'; log.append(typing); log.scrollTop = log.scrollHeight;
                 try {
-                    const r = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': root.dataset.csrf }, body: JSON.stringify({ messages }) });
+                    const r = await fetch('/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', Accept: 'application/json', 'X-CSRF-TOKEN': root.dataset.csrf }, body: JSON.stringify({ messages, cid, page: location.pathname }) });
                     typing.remove();
                     if (r.status === 419) { messages.pop(); save(); note('This page has been open a while. Please reload the page and ask again.'); return; }
                     const data = await r.json().catch(() => ({}));
@@ -149,7 +153,7 @@
             };
             btn.addEventListener('click', () => open(true));
             root.querySelector('[data-chat-close]').addEventListener('click', () => open(false));
-            root.querySelector('[data-chat-reset]').addEventListener('click', () => { messages = []; save(); draw(); input.focus(); });
+            root.querySelector('[data-chat-reset]').addEventListener('click', () => { messages = []; save(); setId(newId()); draw(); input.focus(); });
             panel.addEventListener('keydown', (e) => { if (e.key === 'Escape') open(false); });
             form.addEventListener('submit', (e) => { e.preventDefault(); const t = input.value; input.value = ''; input.style.height = ''; ask(t); });
             input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
