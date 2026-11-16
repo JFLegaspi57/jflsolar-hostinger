@@ -16,6 +16,7 @@
         ['/admin/categories', 'Categories', false],
         ['/admin/projects', 'Projects', false],
         ['/admin/blog', 'Blog', false],
+        ['/admin/course', 'Online course', false],
         ['/admin/text', 'Page text', false],
         ['/admin/content', 'Site content', false],
         ['/admin/settings', 'Contact & settings', false],

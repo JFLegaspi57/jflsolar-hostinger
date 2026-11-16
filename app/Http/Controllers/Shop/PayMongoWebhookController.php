@@ -19,7 +19,6 @@ class PayMongoWebhookController extends Controller
 {
     public function __invoke(Request $request): Response
     {
-        abort_unless(Shop::ordersVisible(), 404);
         $raw = $request->getContent();
         if (! PayMongo::signatureValid($raw, (string) $request->header('Paymongo-Signature', ''))) {
             Log::warning('[shop] PayMongo webhook with an invalid signature was ignored');
@@ -28,7 +27,11 @@ class PayMongoWebhookController extends Controller
         }
         $event = PayMongo::parseEvent((array) json_decode($raw, true));
         if ($event['type'] === 'checkout_session.payment.paid') {
-            OrderPayments::record($event['reference'], $event['session_id'], $event['payments']);
+            if (str_starts_with($event['reference'], \App\Support\Course::REF_PREFIX)) {
+                \App\Support\Course::recordPayment($event['reference'], $event['session_id'], $event['payments']);   // paid membership (online course)
+            } elseif (Shop::ordersVisible()) {
+                OrderPayments::record($event['reference'], $event['session_id'], $event['payments']);
+            }
         }
 
         return response('ok', 200);
