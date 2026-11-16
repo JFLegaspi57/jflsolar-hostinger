@@ -16,7 +16,7 @@ class ChatbotDeliveryTest extends TestCase
     {
         $this->seed();
         PublicContent::flush();
-        cache()->forget('chatbot-system-v8');
+        cache()->forget('chatbot-system-v9');
         $prompt = Chatbot::systemPrompt();
         $this->assertStringContainsString('Cash on delivery (COD) is not available', $prompt);
         $this->assertStringContainsString('[Delivery Rates](/delivery-rates)', $prompt);
@@ -24,6 +24,7 @@ class ChatbotDeliveryTest extends TestCase
         $this->assertStringNotContainsString('delivery is not included', $prompt);
         $this->assertLessThan(90000, mb_strlen($prompt));   // keep the prompt a sensible size
         $this->assertStringContainsString('[Make a Quotation](/quotation)', $prompt);
+        $this->assertStringContainsString('years ≈ rated cycle life ÷ (cycles per day × 365)', $prompt);
         $this->assertStringContainsString('Q: What does JFL Solar do?', $prompt);
         $this->assertStringContainsString('(/brands/trina-solar)', $prompt);
     }
