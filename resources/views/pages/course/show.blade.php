@@ -6,8 +6,8 @@
     $phone = $settings->phone_display ?? '';
 @endphp
 <x-site-layout :title="'Online course: '.Course::TITLE" :path="Course::PATH"
-    description="Learn to design solar PV systems the right way with JF Legaspi, in an online course for JFL Solar paid members.">
-    @php $banner = Course::banner('course'); $heroIntro = 'Learn from the best... learn it the right way! A step-by-step online course by JF Legaspi, for JFL Solar paid members.'; @endphp
+    description="Learn to design solar PV systems the right way with JF Legaspi, in a free online course for JFL Solar members.">
+    @php $banner = Course::banner('course'); $heroIntro = 'Learn from the best... learn it the right way! A free step-by-step online course by JF Legaspi, for JFL Solar members.'; @endphp
     @if ($banner)
         <x-page-hero eyebrow="Online course" :title="Course::TITLE" :intro="$heroIntro" :image="$banner['src']" :srcset="$banner['srcset']" imageAlt="Solar technicians installing solar panels on a large roof under a clear sky" focus="50% 40%" />
     @else
@@ -26,29 +26,21 @@
 
             <section class="{{ $card }}" aria-labelledby="access-h">
                 <h2 id="access-h" class="text-xl font-bold text-steel-950">
-                    @if ($canView && $paidUntil && $paidUntil->isFuture()) Your paid membership is active @elseif ($canView) Staff preview @else Paid members only @endif
+                    @if ($member && $canView) You're in: all lessons are open @elseif ($canView) Staff preview @else Free for JFL Solar members @endif
                 </h2>
-                @if ($canView && $paidUntil && $paidUntil->isFuture())
-                    <p class="mt-2 text-steel-700">You have full access to every lesson until <strong>{{ $paidUntil->timezone('Asia/Manila')->format('j F Y') }}</strong>.</p>
+                @if ($member && $canView)
+                    <p class="mt-2 text-steel-700">The course is free. Start with Lesson 1 below and go at your own pace. Each lesson is in English and Tagalog.</p>
                 @elseif ($canView)
                     <p class="mt-2 text-steel-700">You are signed in as staff, so you can open the lessons (also drafts) to check them.</p>
                 @else
-                    <p class="mt-2 text-steel-700">The lessons, slides and notes are open only to JFL Solar <strong>paid members</strong>. A paid membership gives you one year of access to the whole course, including new lessons added during that year.</p>
-                    @if ($price)<p class="mt-3 text-2xl font-extrabold text-steel-950">{{ $peso($price) }} <span class="text-base font-semibold text-steel-600">for 1 year</span></p>@endif
+                    <p class="mt-2 text-steel-700">The whole course is <strong>free</strong>. Sign in, or create a free JFL Solar account in a minute, to open the lessons, slides and notes.</p>
                     <div class="mt-5 flex flex-wrap items-center gap-3">
-                        @if (! $member)
-                            <a href="/login?next={{ rawurlencode(Course::PATH) }}" class="{{ Ui::button('primary') }}">Sign in to join</a>
-                            <a href="/signup?next={{ rawurlencode(Course::PATH) }}" class="{{ Ui::button('secondary') }}">Create an account</a>
-                        @elseif ($canBuy)
-                            <form method="post" action="/courses/join">@csrf<button type="submit" class="{{ Ui::button('primary') }}">Join as a paid member</button></form>
-                            <span class="text-sm text-steel-600">Pay securely with GCash, Maya, card or QR Ph through PayMongo. The course unlocks as soon as the payment is confirmed.</span>
-                        @else
-                            <p class="text-steel-700">Online enrolment opens soon. To join now, call or message our Sales team{{ $phone ? ' at '.$phone : '' }}.</p>
-                        @endif
+                        <a href="/signup?next={{ rawurlencode(Course::PATH) }}" class="{{ Ui::button('primary') }}">Create a free account</a>
+                        <a href="/login?next={{ rawurlencode(Course::PATH) }}" class="{{ Ui::button('secondary') }}">Sign in</a>
                     </div>
-                    @if ($member && $paidUntil && $paidUntil->isPast())<p class="mt-3 text-sm text-steel-600">Your previous membership ended on {{ $paidUntil->timezone('Asia/Manila')->format('j F Y') }}.</p>@endif
                 @endif
             </section>
+            @include('pages.course.donate')
 
             <section class="{{ $card }}" aria-labelledby="about-h">
                 <h2 id="about-h" class="text-xl font-bold text-steel-950">About this course</h2>
@@ -70,7 +62,7 @@
                                     @if ($canView)
                                         <a href="{{ Course::PATH }}/{{ $l->slug }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $l->title }}</a>
                                     @else
-                                        <p class="text-lg font-bold text-steel-950">{{ $l->title }} <span class="ml-1 inline-flex items-center rounded-full border border-steel-300 px-2 text-xs font-semibold text-steel-700">Paid members</span></p>
+                                        <p class="text-lg font-bold text-steel-950">{{ $l->title }} <span class="ml-1 inline-flex items-center rounded-full border border-steel-300 px-2 text-xs font-semibold text-steel-700">Sign in to open</span></p>
                                     @endif
                                     @if ($l->summary)<p class="mt-1 text-steel-700">{{ $l->summary }}</p>@endif
                                 </div>

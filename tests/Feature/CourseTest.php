@@ -63,35 +63,47 @@ class CourseTest extends TestCase
         return $this->call('POST', '/webhooks/paymongo', [], [], [], ['CONTENT_TYPE' => 'application/json', 'HTTP_PAYMONGO_SIGNATURE' => "t={$t},te={$sig},li="], $raw);
     }
 
-    public function test_lessons_are_for_paid_members_only(): void
+    public function test_lessons_are_free_for_signed_in_members(): void
     {
         $lesson = $this->lesson();
         $slide = DB::table('course_slides')->first();
         $url = Course::PATH.'/'.$lesson->slug;
 
-        // Everyone sees the course page and lesson titles, never the lesson text or slides.
-        $this->get(Course::PATH)->assertOk()->assertSee('Paid members only')->assertSee('Understanding Solar Energy')->assertDontSee('Secret notes')->assertSee('Sign in to join');
+        // Visitors see the course page and lesson titles, never the lesson text or slides.
+        $this->get(Course::PATH)->assertOk()->assertSee('Free for JFL Solar members')->assertSee('Understanding Solar Energy')->assertDontSee('Secret notes')->assertSee('Create a free account');
         $this->get($url)->assertRedirect(Course::PATH);
         $this->get('/courses/slide/'.$slide->id)->assertForbidden();
 
-        // A free member: still locked.
+        // Any signed-in member: full lesson, watermark, no script, not cached.
         $m = $this->member();
         $this->actingAs($m, 'member');
-        $this->get($url)->assertRedirect(Course::PATH);
-        $this->get('/courses/slide/'.$slide->id)->assertForbidden();
-        $this->get(Course::PATH)->assertSee('Online enrolment opens soon');
-
-        // Paid member: full lesson, slide with watermark, no script, not cached.
-        Course::extend($m->id);
+        $this->get(Course::PATH)->assertSee('all lessons are open');
         $res = $this->get($url)->assertOk()->assertSee('Secret notes')->assertSee('/courses/slide/'.$slide->id, false)->assertSee('maria@example.com')->assertDontSee('alert(1)', false);
         $this->assertStringContainsString('no-store', (string) $res->headers->get('Cache-Control'));
         $this->assertStringContainsString('noindex', (string) $res->headers->get('X-Robots-Tag'));
         $this->get('/courses/slide/'.$slide->id)->assertOk()->assertHeader('Content-Type', 'image/webp');
-        $this->get('/account')->assertSee('Your paid membership is active until');
+        $this->get('/account')->assertSee('Free online course');
 
-        // Expired: locked again.
-        Course::setUntil($m->id, now()->subDay());
-        $this->get($url)->assertRedirect(Course::PATH);
+        // A disabled account: locked.
+        $m->forceFill(['status' => 'disabled'])->save();
+        $this->get($url)->assertRedirect();
+    }
+
+    public function test_gcash_donation_box_before_the_lesson(): void
+    {
+        $lesson = $this->lesson();
+        $this->actingAs($this->owner(), 'web');
+        $img = imagecreatetruecolor(300, 300);
+        $tmp = tempnam(sys_get_temp_dir(), 'qr').'.png';
+        imagepng($img, $tmp);
+        $this->post('/admin/course/gcash', ['number' => '0917 123 4567', 'name' => 'J. Legaspi', 'qr' => new UploadedFile($tmp, 'qr.png', 'image/png', null, true)])->assertRedirect();
+        auth('web')->logout();
+        $this->get(Course::PATH)->assertSee('This course is free. Support it with GCash')->assertSee('0917 123 4567')->assertSee('/courses/gcash-qr.jpg', false);
+        $this->get('/courses/gcash-qr.jpg')->assertOk();
+        $this->actingAs($this->member(), 'member');
+        $page = $this->get(Course::PATH.'/'.$lesson->slug)->assertOk()->getContent();
+        $this->assertLessThan(strpos($page, 'Secret notes'), strpos($page, 'Support it with GCash'));   // donation box comes before the lesson
+        @unlink(Course::gcashQrFile());
     }
 
     public function test_tagalog_version_of_a_lesson(): void
@@ -127,7 +139,6 @@ class CourseTest extends TestCase
         $m = $this->member();
         $this->actingAs($m, 'member');
         Http::fake(['api.paymongo.com/*' => Http::response(['data' => ['id' => 'cs_mem_1', 'attributes' => ['checkout_url' => 'https://checkout.paymongo.com/cs_mem_1']]], 200)]);
-        $this->get(Course::PATH)->assertSee('₱4,999')->assertSee('Join as a paid member');
         $this->post('/courses/join')->assertRedirect('https://checkout.paymongo.com/cs_mem_1');
         $ref = DB::table('membership_payments')->value('reference');
         $this->assertMatchesRegularExpression('/^MEM-\d{6}-[A-Z0-9]{4}$/', $ref);
@@ -145,7 +156,7 @@ class CourseTest extends TestCase
     public function test_admin_manages_price_lessons_and_members(): void
     {
         $this->actingAs($this->owner(), 'web');
-        $this->get('/admin/course')->assertOk()->assertSee('Online enrolment');
+        $this->get('/admin/course')->assertOk()->assertSee('GCash donations');
         $this->post('/admin/course/price', ['price' => '₱5,500'])->assertRedirect();
         $this->assertSame(5500.0, Course::price());
         $this->post('/admin/course/lessons', ['title' => 'Understanding Solar Energy'])->assertRedirect();

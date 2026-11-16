@@ -45,6 +45,22 @@ class CourseController extends Controller
         return back()->with('status', 'Membership price saved: ₱'.number_format((float) $raw, 2).' for 1 year.');
     }
 
+    /** GCash donation details shown on the course page and at the end of each lesson. */
+    public function gcash(Request $request): RedirectResponse
+    {
+        if ($request->boolean('remove_qr')) {
+            @unlink(Course::gcashQrFile());
+
+            return back()->with('status', 'GCash QR removed.');
+        }
+        Course::setGcash((string) $request->input('number'), (string) $request->input('name'));
+        if ($request->hasFile('qr') && ($error = Course::saveGcashQr($request->file('qr')))) {
+            return back()->with('status_error', $error);
+        }
+
+        return back()->with('status', 'GCash donation details saved.');
+    }
+
     /** Upload or remove the banner photo of the course page (lesson = 0) or of one lesson. */
     public function banner(Request $request): RedirectResponse
     {

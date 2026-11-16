@@ -60,16 +60,10 @@
                 </p>
                 <p class="mt-4"><a href="/quotation" class="{{ Ui::button('secondary') }}">{{ ($quoteCount ?? 0) > 0 ? 'Open your quotations' : 'Make a quotation' }}</a></p>
             </section>
-            @php $paidUntil = \App\Support\Course::paidUntil($member); @endphp
             <section aria-labelledby="course-h" class="{{ $card }}">
-                <h2 id="course-h" class="text-xl font-bold text-steel-950">Online course: {{ \App\Support\Course::TITLE }}</h2>
-                @if ($paidUntil && $paidUntil->isFuture())
-                    <p class="mt-3 text-steel-700">Your paid membership is active until <strong>{{ $paidUntil->timezone('Asia/Manila')->format('j F Y') }}</strong>.</p>
-                    <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">Open the course</a></p>
-                @else
-                    <p class="mt-3 text-steel-700">{{ $paidUntil ? 'Your paid membership ended on '.$paidUntil->timezone('Asia/Manila')->format('j F Y').'.' : 'Learn to design solar PV systems with JF Legaspi. The lessons are for paid members.' }}</p>
-                    <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('secondary') }}">{{ $paidUntil ? 'Renew paid membership' : 'See the course' }}</a></p>
-                @endif
+                <h2 id="course-h" class="text-xl font-bold text-steel-950">Free online course: {{ \App\Support\Course::TITLE }}</h2>
+                <p class="mt-3 text-steel-700">Learn to design solar PV systems with JF Legaspi. Free for members, in English and Tagalog.</p>
+                <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">Open the course</a></p>
             </section>
             <section aria-labelledby="orders-h" class="{{ $card }}">
                 <h2 id="orders-h" class="text-xl font-bold text-steel-950">Your orders</h2>
