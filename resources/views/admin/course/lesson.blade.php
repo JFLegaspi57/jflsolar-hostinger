@@ -24,6 +24,20 @@
         <div class="flex items-end"><button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save lesson</button></div>
     </form>
 
+    <section class="{{ $box }}" aria-labelledby="lbanner-h">
+        <h2 id="lbanner-h" class="text-lg font-bold text-steel-950">Lesson banner</h2>
+        @php $lb = Course::banner('lesson-'.$lesson->id); @endphp
+        @if ($lb)<img src="{{ $lb['src'] }}" alt="" class="mt-3 w-full max-w-xl rounded-[var(--radius-control)] border border-steel-200">@else<p class="mt-1 text-sm text-steel-700">No banner of its own: the course banner is used.</p>@endif
+        <form method="post" action="/admin/course/banner" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-3">
+            @csrf
+            <input type="hidden" name="lesson" value="{{ $lesson->id }}">
+            <label class="grid gap-1 font-semibold text-steel-900">Photo (landscape) <input type="file" name="file" accept="image/jpeg,image/png,image/webp" class="font-normal"></label>
+            <label class="grid gap-1 font-semibold text-steel-900">Focus point <input name="focus" value="{{ $lesson->banner_focus ?? '50% 50%' }}" placeholder="50% 50%" class="min-h-11 rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal" style="width: 8rem"></label>
+            <button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save banner</button>
+        </form>
+        @if ($lb)<form method="post" action="/admin/course/banner" class="mt-2">@csrf<input type="hidden" name="lesson" value="{{ $lesson->id }}"><input type="hidden" name="remove" value="1"><button class="text-sm text-danger-700 underline">Remove banner</button></form>@endif
+    </section>
+
     <section class="{{ $box }}" aria-labelledby="slides-h">
         <h2 id="slides-h" class="text-lg font-bold text-steel-950">Slides ({{ $slides->count() }})</h2>
         <p class="mt-1 text-sm text-steel-700">Upload slide images (in PowerPoint: File → Export → PNG, all slides). They are stored privately and shown only to paid members, with their email as a small watermark.</p>

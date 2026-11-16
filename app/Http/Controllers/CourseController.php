@@ -80,6 +80,16 @@ class CourseController extends Controller
         ]);
     }
 
+    /** Banner photos are public (the course page shows them to everyone). */
+    public function banner(string $file): Response
+    {
+        abort_unless(preg_match('/^(course|lesson-\d+)-(\d+)\.jpg$/', $file, $m) && in_array((int) $m[2], Course::BANNER_WIDTHS, true), 404);
+        $path = Course::bannerFile($m[1], (int) $m[2]);
+        abort_unless(is_file($path), 404);
+
+        return response()->file($path, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'public, max-age=2592000']);
+    }
+
     public function join(): RedirectResponse
     {
         $member = Members::current();
