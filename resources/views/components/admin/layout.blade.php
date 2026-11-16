@@ -12,6 +12,7 @@
         ['/admin/subscribers', 'Subscribers', false],
         ['/admin/packages', 'Packages', false],
         ['/admin/products', 'Products', false],
+        ['/admin/inventory', 'Inventory sync', false],
         ['/admin/categories', 'Categories', false],
         ['/admin/projects', 'Projects', false],
         ['/admin/blog', 'Blog', false],

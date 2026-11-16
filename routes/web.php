@@ -122,6 +122,7 @@ Route::get('/orders/{reference}/print', [Shop\CheckoutController::class, 'print'
 Route::get('/orders/{reference}', [Shop\CheckoutController::class, 'status'])->where('reference', 'JFL-[0-9]{6}-[A-Z0-9]{4}')->middleware('throttle:orders');
 // PayMongo → site, verified by signature instead of a CSRF token (bootstrap/app.php).
 Route::post('/webhooks/hostinger-mail', \App\Http\Controllers\HostingerMailWebhookController::class)->middleware('throttle:webhook');
+Route::post('/webhooks/inventory', \App\Http\Controllers\InventoryWebhookController::class)->middleware('throttle:webhook');
 Route::post('/webhooks/paymongo', Shop\PayMongoWebhookController::class)->middleware('throttle:webhook');
 Route::get('/privacy', [PageController::class, 'privacy']);
 Route::get('/terms', [PageController::class, 'terms']);
@@ -219,6 +220,8 @@ Route::prefix('admin')->group(function () {
         Route::post('orders/{order}/delete', [Admin\OrderController::class, 'destroy'])->whereNumber('order');
         Route::post('orders/{order}', [Admin\OrderController::class, 'update'])->whereNumber('order');
 
+        Route::get('inventory', [Admin\InventoryController::class, 'index']);
+        Route::post('inventory/link', [Admin\InventoryController::class, 'link']);
         Route::get('chats', [Admin\ChatLogController::class, 'index']);
         Route::get('chats/{id}', [Admin\ChatLogController::class, 'show'])->whereNumber('id');
         Route::post('chats/{id}/delete', [Admin\ChatLogController::class, 'destroy'])->whereNumber('id');
@@ -230,6 +233,8 @@ Route::prefix('admin')->group(function () {
         Route::post('inquiries/{inquiry}/delete', [Admin\InquiryController::class, 'destroy'])->whereNumber('inquiry');
 
         Route::middleware(EnsureStaff::class.':owner')->group(function () {
+            Route::post('inventory/connect', [Admin\InventoryController::class, 'connect']);
+            Route::post('inventory/disconnect', [Admin\InventoryController::class, 'disconnect']);
             Route::get('staff', [Admin\StaffController::class, 'index']);
             Route::post('staff', [Admin\StaffController::class, 'store']);
             Route::post('staff/{user}/role', [Admin\StaffController::class, 'role'])->whereNumber('user');
