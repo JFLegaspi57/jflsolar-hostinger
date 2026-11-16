@@ -54,7 +54,7 @@
     </style>
     <button type="button" id="jfl-chat-btn" aria-expanded="false" aria-controls="jfl-chat-panel">
         <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face">
-        <span class="jc-label">Chat with Buckny</span>
+        <span class="jc-label">Ask Buckny</span>
     </button>
     <section id="jfl-chat-panel" role="dialog" aria-label="Buckny, the JFL Solar chat assistant" hidden>
         <div class="jc-head">
