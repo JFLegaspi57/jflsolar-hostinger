@@ -35,7 +35,7 @@
     </div>
     <main class="sheet">
         <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-bottom:3px solid #f59e0b;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;border-bottom:1.5px solid #f59e0b;">
                 <tr>
                     {{-- Logo only; the company's addresses and contact details are in the footer. --}}
                     <td style="padding:0 0 12px;vertical-align:middle;"><img src="/brand/jfl-renewables-logo-272.png" width="190" height="56" alt="{{ Site::NAME }}" style="display:block;width:190px;height:auto;border:0;"></td>
@@ -90,7 +90,7 @@
                 $footText = 'margin:0;font-size:12px;line-height:1.5;color:#374151;';
                 $channels = collect(\App\Support\Contact::channels($settings))->whereIn('key', ['phone', 'email', 'sales_email']);   // printed sheets: phone and email only
             @endphp
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="foot" style="border-collapse:collapse;margin-top:16px;border-top:3px solid #f59e0b;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" class="foot" style="border-collapse:collapse;margin-top:16px;border-top:1.5px solid #f59e0b;">
                 <tr>
                     @if ($settings->office_address)
                         <td style="padding:12px 14px 0 0;vertical-align:top;width:33%;">
