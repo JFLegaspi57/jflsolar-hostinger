@@ -19,7 +19,16 @@
         #jfl-chat-panel .jc-face-head { animation: jc-bob 3s ease-in-out infinite; cursor: pointer; }
         #jfl-chat-panel .jc-face-head:hover { animation: jc-wave .7s ease-in-out; }
         #jfl-chat-panel.is-thinking .jc-face-head { animation: jc-talk .55s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) { #jfl-chat .jc-face, #jfl-chat-panel .jc-face-head, #jfl-chat-panel.is-thinking .jc-face-head { animation: none !important; } }
+        /* Buckny says hello: a speech bubble above the button on hover/focus, and above his face in the chat when it opens or he is clicked. */
+        .jc-say { position: fixed; right: 1rem; bottom: 4.6rem; z-index: 45; max-width: min(16rem, calc(100vw - 2rem)); padding: .6rem .8rem; border-radius: .9rem .9rem .2rem .9rem; background: #fff; color: var(--color-steel-950); font-size: .9rem; font-weight: 600; line-height: 1.35; box-shadow: 0 8px 24px rgb(15 23 42 / .22), 0 0 0 1px rgb(15 23 42 / .08); opacity: 0; transform: translateY(6px) scale(.96); transform-origin: 90% 100%; transition: opacity .18s ease, transform .18s ease; pointer-events: none; }
+        #jfl-chat-btn:hover + .jc-say, #jfl-chat-btn:focus-visible + .jc-say, .jc-say.is-on { opacity: 1; transform: none; }
+        #jfl-chat-btn[hidden] + .jc-say { display: none; }
+        body:has([data-compare-sticky]:not(.hidden)) #jfl-chat-btn + .jc-say { bottom: 8.35rem; }
+        #jfl-chat-btn:hover .jc-face, #jfl-chat-btn:focus-visible .jc-face { animation: jc-wave .7s ease-in-out, jc-talk .32s ease-in-out .7s 5; }
+        .jc-head { position: relative; }
+        .jc-say-head { position: absolute; left: .6rem; top: calc(100% + .4rem); right: auto; bottom: auto; z-index: 3; border-radius: .2rem .9rem .9rem .9rem; transform-origin: 10% 0; }
+        #jfl-chat-panel.is-saying .jc-face-head { animation: jc-talk .32s ease-in-out 6; }
+        @media (prefers-reduced-motion: reduce) { #jfl-chat .jc-face, #jfl-chat-panel .jc-face-head, #jfl-chat-panel.is-thinking .jc-face-head, #jfl-chat-panel.is-saying .jc-face-head { animation: none !important; } .jc-say { transition: none; } }
         body:has([data-compare-sticky]:not(.hidden)) #jfl-chat-btn { bottom: 4.75rem; }
         #jfl-chat-panel { position: fixed; right: 1rem; bottom: 1rem; z-index: 46; width: 24rem; max-width: calc(100vw - 2rem); height: min(40rem, calc(100vh - 6.5rem)); display: flex; flex-direction: column; overflow: hidden; border-radius: 1rem; border: 1px solid var(--color-steel-200); background: #fff; box-shadow: 0 16px 48px rgb(0 0 0 / .25); }
         #jfl-chat-panel[hidden] { display: none; }
@@ -57,10 +66,12 @@
         <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face">
         <span class="jc-label">Ask Buckny</span>
     </button>
+    <span class="jc-say" aria-hidden="true">Hello, I’m Buckny. How may I help you today?</span>
     <section id="jfl-chat-panel" role="dialog" aria-label="Buckny, the JFL Solar chat assistant" hidden>
         <div class="jc-head">
             <img src="/images/buckny.svg" alt="" width="40" height="40" class="jc-face jc-face-head">
             <p style="margin-right: auto">Buckny<small>Happy to serve!</small></p>
+            <span class="jc-say jc-say-head" aria-hidden="true">Hello, I’m Buckny. How may I help you today?</span>
             <div>
                 <button type="button" class="jc-icon" data-chat-reset title="Start a new chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span class="sr-only">Start a new chat</span></button>
                 <button type="button" class="jc-icon" data-chat-close title="Close chat"><svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="sr-only">Close chat</span></button>
@@ -82,7 +93,7 @@
             const btn = root.querySelector('#jfl-chat-btn'), panel = root.querySelector('#jfl-chat-panel'), log = root.querySelector('[data-chat-log]');
             const form = root.querySelector('[data-chat-form]'), input = root.querySelector('#jfl-chat-input'), send = root.querySelector('.jc-send');
             const KEY = 'jfl-chat-v1';
-            const greeting = 'Hi! I’m Buckny, the JFL Solar assistant. Ask me about our solar panels, inverters, batteries, packages, prices, delivery and payment. Puwede rin tayong mag-usap sa Filipino! 😊';
+            const greeting = 'Hello, I’m Buckny, the JFL Solar assistant. How may I help you today? Ask me about our solar panels, inverters, batteries, packages, prices, delivery and payment. Puwede rin tayong mag-usap sa Filipino! 😊';
             const starters = ['How much is the 6kW Trio Package?', 'Which battery should I choose?', 'How do I order and pick up?', 'Talk to a person', 'Mag-Filipino tayo'];
             let messages = [], busy = false;
             try { const saved = JSON.parse(sessionStorage.getItem(KEY) || '[]'); if (Array.isArray(saved)) messages = saved.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string').slice(-24); } catch (e) {}
@@ -125,9 +136,17 @@
                 messages.forEach((m) => { const d = bubble(m.role, m.content); if (m.role === 'user') lastQ = d; });
                 showFrom(lastQ);
             };
+            // Buckny says hello (speech bubble + talking face) when the chat opens or his face is clicked.
+            const sayBubble = root.querySelector('.jc-say-head'); let sayTimer = 0;
+            const say = () => {
+                clearTimeout(sayTimer); panel.classList.remove('is-saying'); void panel.offsetWidth;
+                panel.classList.add('is-saying'); sayBubble.classList.add('is-on');
+                sayTimer = setTimeout(() => { panel.classList.remove('is-saying'); sayBubble.classList.remove('is-on'); }, 2600);
+            };
+            root.querySelector('.jc-face-head').addEventListener('click', say);
             const open = (yes) => {
                 panel.hidden = !yes; btn.hidden = yes; btn.setAttribute('aria-expanded', String(yes));
-                if (yes) { draw(); setTimeout(() => input.focus(), 30); } else { btn.focus(); }
+                if (yes) { draw(); setTimeout(() => input.focus(), 30); say(); } else { btn.focus(); }
             };
             const ask = async (text) => {
                 text = text.trim();
