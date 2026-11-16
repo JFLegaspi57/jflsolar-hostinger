@@ -15,7 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 /** The online course: an open course page, lessons for paid members only, and paying online. */
 class CourseController extends Controller
 {
-    public function show(Request $request): \Illuminate\View\View
+    public function show(Request $request): Response
     {
         $member = Members::current();
         $paidNote = null;
@@ -23,7 +23,8 @@ class CourseController extends Controller
             $paidNote = Course::confirmPending($request->query('paid'), $member->id) ? 'paid' : 'pending';
         }
 
-        return view('pages.course.show', [
+        // Not linked from the public menus: members reach the course from their account page.
+        return response()->view('pages.course.show', [
             'settings' => PublicContent::settings(),
             'member' => $member,
             'paidUntil' => Course::paidUntil($member),
@@ -33,7 +34,7 @@ class CourseController extends Controller
             'canBuy' => Course::canBuy(),
             'paidNote' => $paidNote,
             'cancelled' => $request->boolean('cancelled'),
-        ]);
+        ])->header('X-Robots-Tag', 'noindex');
     }
 
     public function lessonTagalog(string $slug): Response
