@@ -45,6 +45,31 @@ class CourseController extends Controller
         return back()->with('status', 'Membership price saved: ₱'.number_format((float) $raw, 2).' for 1 year.');
     }
 
+    /** Upload or remove the banner photo of the course page (lesson = 0) or of one lesson. */
+    public function banner(Request $request): RedirectResponse
+    {
+        Course::ensureTables();
+        $lesson = (int) $request->input('lesson', 0);
+        if ($lesson && ! DB::table('course_lessons')->where('id', $lesson)->exists()) {
+            abort(404);
+        }
+        $key = $lesson ? 'lesson-'.$lesson : 'course';
+        if ($request->boolean('remove')) {
+            Course::deleteBanner($key);
+
+            return back()->with('status', 'Banner removed.');
+        }
+        if ($lesson && preg_match('/^\d{1,3}% \d{1,3}%$/', (string) $request->input('focus'))) {
+            DB::table('course_lessons')->where('id', $lesson)->update(['banner_focus' => $request->input('focus')]);
+        }
+        if (! $request->hasFile('file')) {
+            return back()->with('status', 'Banner settings saved.');
+        }
+        $error = Course::saveBanner($key, $request->file('file'));
+
+        return back()->with($error ? 'status_error' : 'status', $error ?? 'Banner saved.');
+    }
+
     public function createLesson(Request $request): RedirectResponse
     {
         $title = trim(mb_substr((string) $request->input('title'), 0, 160));

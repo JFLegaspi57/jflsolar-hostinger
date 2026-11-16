@@ -138,6 +138,20 @@ class CourseTest extends TestCase
         $this->post('/admin/course/member', ['email' => 'juan@example.com', 'action' => 'give'])->assertRedirect();
         $this->assertTrue(Course::isPaid(Member::query()->where('email', 'juan@example.com')->first()));
         $this->post('/admin/course/member', ['email' => 'juan@example.com', 'action' => 'end']);
+
+        // Banners: course page and a lesson, public image URLs in all widths.
+        $img = imagecreatetruecolor(2000, 900);
+        $tmp = tempnam(sys_get_temp_dir(), 'bn').'.jpg';
+        imagejpeg($img, $tmp);
+        $this->post('/admin/course/banner', ['file' => new UploadedFile($tmp, 'banner.jpg', 'image/jpeg', null, true)])->assertRedirect();
+        $this->post('/admin/course/banner', ['lesson' => $id, 'focus' => '40% 60%', 'file' => new UploadedFile($tmp, 'banner.jpg', 'image/jpeg', null, true)])->assertRedirect();
+        $this->assertTrue(Course::hasBanner('course') && Course::hasBanner('lesson-'.$id));
+        auth('web')->logout();
+        $this->get(Course::PATH)->assertSee('/courses/banners/course-1280.jpg', false);
+        $this->get('/courses/banners/lesson-'.$id.'-640.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
+        $this->get('/courses/banners/../x-640.jpg')->assertNotFound();
+        Course::deleteBanner('course');
+        Course::deleteBanner('lesson-'.$id);
         $this->assertFalse(Course::isPaid(Member::query()->where('email', 'juan@example.com')->first()));
     }
 }

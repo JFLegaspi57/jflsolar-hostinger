@@ -28,7 +28,15 @@
             @media print { .lesson-protected { display: none !important; } .lesson-print-note { display: block !important; } }
         </style>
     </x-slot:head>
-    <x-page-header :eyebrow="Course::TITLE.($position ? ' · Lesson '.$position.' of '.$total : '')" :title="$lesson->title" :intro="$lesson->summary ?: null" />
+    @php
+        $eyebrow = Course::TITLE.($position ? ' · Lesson '.$position.' of '.$total : '');
+        $banner = Course::banner('lesson-'.$lesson->id) ?? Course::banner('course');
+    @endphp
+    @if ($banner)
+        <x-page-hero :eyebrow="$eyebrow" :title="$lesson->title" :intro="$lesson->summary ?: null" :image="$banner['src']" :srcset="$banner['srcset']" imageAlt="" :focus="$lesson->banner_focus ?? '50% 50%'" protect />
+    @else
+        <x-page-header :eyebrow="$eyebrow" :title="$lesson->title" :intro="$lesson->summary ?: null" />
+    @endif
     <x-container class="py-10 sm:py-14">
         <div class="mx-auto max-w-3xl">
             <p class="mb-6"><a href="{{ Course::PATH }}" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← All lessons</a></p>

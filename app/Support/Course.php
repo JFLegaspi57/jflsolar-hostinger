@@ -33,7 +33,10 @@ final class Course
     /** Membership payment references look like MEM-261116-AB12 (orders use JFL-…). */
     public const REF_PREFIX = 'MEM-';
 
-    private const TABLES_KEY = 'course-tables-v1';
+    private const TABLES_KEY = 'course-tables-v2';
+
+    /** Banner photo widths (JPEG), for the course page (key "course") and each lesson ("lesson-ID"). */
+    public const BANNER_WIDTHS = [640, 960, 1280, 1920];
 
     // --- tables (created on first use; Hostinger runs no migrations) ---------------------
 
@@ -85,6 +88,11 @@ final class Course
                 $t->string('method', 30)->nullable();
                 $t->timestamp('paid_at')->nullable();
                 $t->timestamps();
+            });
+        }
+        if (! Schema::hasColumn('course_lessons', 'banner_focus')) {
+            Schema::table('course_lessons', function (Blueprint $t) {
+                $t->string('banner_focus', 20)->nullable();
             });
         }
         Members::flushState();
@@ -283,6 +291,66 @@ final class Course
 
             return view('pages.course.slide', ['slide' => $s, 'number' => (int) $m[1], 'watermark' => $watermark])->render();
         }, $html);
+    }
+
+    // --- banner photos (not secret: free stock or own photos, served to everyone) ----------
+
+    public static function bannerFile(string $key, int $w): string
+    {
+        return self::dir().'/banners/'.$key.'-'.$w.'.jpg';
+    }
+
+    public static function hasBanner(string $key): bool
+    {
+        return is_file(self::bannerFile($key, 1280));
+    }
+
+    /** @return array{src: string, srcset: string}|null */
+    public static function banner(string $key): ?array
+    {
+        if (! self::hasBanner($key)) {
+            return null;
+        }
+        $v = (string) @filemtime(self::bannerFile($key, 1280));
+        $url = fn ($w) => '/courses/banners/'.$key.'-'.$w.'.jpg?v='.$v;
+
+        return ['src' => $url(1280), 'srcset' => implode(', ', array_map(fn ($w) => $url($w).' '.$w.'w', self::BANNER_WIDTHS))];
+    }
+
+    /** Saves a banner photo in all widths. Returns an error message, or null. */
+    public static function saveBanner(string $key, ?\Illuminate\Http\UploadedFile $file): ?string
+    {
+        if (! $file || ! $file->isValid() || $file->getSize() > 15 * 1024 * 1024) {
+            return 'Upload a JPG, PNG or WebP photo under 15 MB.';
+        }
+        $img = @imagecreatefromstring((string) file_get_contents($file->getRealPath()));
+        if (! $img) {
+            return 'Upload a JPG, PNG or WebP photo.';
+        }
+        $dir = self::dir().'/banners';
+        if (! is_dir($dir) && ! @mkdir($dir, 0775, true)) {
+            return 'The photo could not be stored.';
+        }
+        [$w0, $h0] = [imagesx($img), imagesy($img)];
+        foreach (self::BANNER_WIDTHS as $w) {
+            $w2 = min($w, $w0);
+            $h2 = (int) round($h0 * $w2 / $w0);
+            $out = imagecreatetruecolor($w2, $h2);
+            imagecopyresampled($out, $img, 0, 0, 0, 0, $w2, $h2, $w0, $h0);
+            imageinterlace($out, true);
+            imagejpeg($out, self::bannerFile($key, $w), 82);
+            imagedestroy($out);
+        }
+        imagedestroy($img);
+
+        return null;
+    }
+
+    public static function deleteBanner(string $key): void
+    {
+        foreach (self::BANNER_WIDTHS as $w) {
+            @unlink(self::bannerFile($key, $w));
+        }
     }
 
     // --- paying online (PayMongo) ----------------------------------------------------------

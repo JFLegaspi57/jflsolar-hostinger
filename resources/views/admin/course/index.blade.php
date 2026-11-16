@@ -25,6 +25,18 @@
         </form>
     </section>
 
+    <section class="{{ $box }}" aria-labelledby="banner-h">
+        <h2 id="banner-h" class="text-lg font-bold text-steel-950">Course page banner</h2>
+        @php $cb = Course::banner('course'); @endphp
+        @if ($cb)<img src="{{ $cb['src'] }}" alt="" class="mt-3 w-full max-w-xl rounded-[var(--radius-control)] border border-steel-200">@else<p class="mt-1 text-sm text-steel-700">No banner yet. Lessons without their own banner also use this one.</p>@endif
+        <form method="post" action="/admin/course/banner" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-3">
+            @csrf
+            <label class="grid gap-1 font-semibold text-steel-900">Photo (landscape) <input type="file" name="file" accept="image/jpeg,image/png,image/webp" required class="font-normal"></label>
+            <button type="submit" class="{{ $btn }} bg-steel-900 text-white">Upload banner</button>
+        </form>
+        @if ($cb)<form method="post" action="/admin/course/banner" class="mt-2">@csrf<input type="hidden" name="remove" value="1"><button class="text-sm text-danger-700 underline">Remove banner</button></form>@endif
+    </section>
+
     <section class="{{ $box }}" aria-labelledby="lessons-h">
         <h2 id="lessons-h" class="text-lg font-bold text-steel-950">Lessons</h2>
         @if ($lessons->isEmpty())

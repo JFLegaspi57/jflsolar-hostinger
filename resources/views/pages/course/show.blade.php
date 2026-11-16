@@ -7,7 +7,12 @@
 @endphp
 <x-site-layout :title="'Online course: '.Course::TITLE" :path="Course::PATH"
     description="Learn to design solar PV systems the right way with JF Legaspi, in an online course for JFL Solar paid members.">
-    <x-page-header eyebrow="Online course" :title="Course::TITLE" intro="Learn from the best... learn it the right way! A step-by-step online course by JF Legaspi, for JFL Solar paid members." />
+    @php $banner = Course::banner('course'); $heroIntro = 'Learn from the best... learn it the right way! A step-by-step online course by JF Legaspi, for JFL Solar paid members.'; @endphp
+    @if ($banner)
+        <x-page-hero eyebrow="Online course" :title="Course::TITLE" :intro="$heroIntro" :image="$banner['src']" :srcset="$banner['srcset']" imageAlt="Solar technicians installing solar panels on a large roof under a clear sky" focus="50% 40%" />
+    @else
+        <x-page-header eyebrow="Online course" :title="Course::TITLE" :intro="$heroIntro" />
+    @endif
     <x-container class="py-10 sm:py-14">
         <div class="mx-auto max-w-4xl space-y-8">
             @include('partials.account-flash')
