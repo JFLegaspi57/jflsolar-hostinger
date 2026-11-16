@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\RateLimiter;
 /**
  * Website chat assistant. Answers customers with Claude (Anthropic API) using ONLY the
  * live site content (products, prices, packages, contact and ordering rules), and can save
- * a callback request as an inquiry for the Sales team. Nothing else from the chat is stored.
+ * a callback request as an inquiry for the Sales team. Transcripts are kept for staff by ChatLog.
  */
 final class Chatbot
 {
