@@ -46,7 +46,6 @@ final class Values
             'installation_terms' => self::s($p->installation_terms), 'fulfillment' => $p->fulfillment, 'fulfillment_notes' => self::s($p->fulfillment_notes),
             'promo_label' => self::s($p->promo_label), 'promo_start' => self::s($p->promoStart()), 'promo_end' => self::s($p->promoEnd()), 'hide_when_expired' => self::b($p->hide_when_expired),
             'warranty_terms' => self::s($p->warranty_terms), 'admin_notes' => self::s($p->admin_notes), 'featured' => self::b($p->featured), 'is_sample' => self::b($p->is_sample),
-            'title_tl' => self::s($p->title_tl ?? null), 'summary_tl' => self::s($p->summary_tl ?? null), 'description_tl' => self::s($p->description_tl ?? null),
         ];
     }
 
@@ -77,6 +76,7 @@ final class Values
             'system_size_kwp' => self::s($p->system_size_kwp), 'system_size_confirmed' => self::b($p->system_size_confirmed), 'scope' => self::s($p->scope),
             'summary' => $p->summary, 'description' => $p->description, 'video_urls' => self::s($p->video_urls ?? null), 'admin_notes' => self::s($p->admin_notes),
             'featured' => self::b($p->featured), 'is_sample' => self::b($p->is_sample),
+            'title_tl' => self::s($p->title_tl ?? null), 'summary_tl' => self::s($p->summary_tl ?? null), 'description_tl' => self::s($p->description_tl ?? null),
         ];
     }
 
