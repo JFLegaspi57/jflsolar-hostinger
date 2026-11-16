@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 
 /**
  * English / Filipino choice from the flags in the header (cookie "lang", one year).
- * Pages with a Filipino version (FAQ, the three guides, translated blog posts) open in
+ * Pages with a Filipino version (FAQ, the three guides, translated blog posts and projects) open in
  * Filipino when it is chosen; every other page stays in English. Buckny replies in the
  * chosen language.
  */
@@ -37,6 +37,16 @@ final class Lang
             } catch (\Throwable) {
                 return null;
             }
+        }
+        if (preg_match('#^/projects/([a-z0-9-]+)$#', $path, $m)) {
+            try {
+                ProjectTl::ensureColumns();
+                $project = PublicContent::project($m[1]);
+            } catch (\Throwable) {
+                return null;
+            }
+
+            return $project && ProjectTl::tagalog($project) ? $path.'/tagalog' : null;
         }
         if (preg_match('#^/blog/([a-z0-9-]+)$#', $path, $m)) {
             try {

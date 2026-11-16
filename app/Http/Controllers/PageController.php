@@ -137,9 +137,23 @@ class PageController extends Controller
 
     public function project(string $slug): View
     {
-        $project = PublicContent::project($slug) ?? abort(404);
+        return $this->projectView($slug, false);
+    }
 
-        return view('pages.project', ['project' => $project]);
+    /** Filipino version of a project page: same photos and videos as the English one. */
+    public function projectTagalog(string $slug): View
+    {
+        return $this->projectView($slug, true);
+    }
+
+    private function projectView(string $slug, bool $tagalog): View
+    {
+        \App\Support\ProjectTl::ensureColumns();
+        $project = PublicContent::project($slug) ?? abort(404);
+        $tl = \App\Support\ProjectTl::tagalog($project);
+        abort_if($tagalog && ! $tl, 404);
+
+        return view('pages.project', ['project' => $project, 'tagalog' => $tagalog, 'tl' => $tl]);
     }
 
     public function faq(): View

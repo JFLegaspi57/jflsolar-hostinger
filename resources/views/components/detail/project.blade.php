@@ -1,4 +1,4 @@
-@props(['project', 'admin' => false])
+@props(['project', 'admin' => false, 'tagalog' => false, 'tl' => null])
 @php
     use App\Support\Labels;
     use App\Support\Pricing;
@@ -7,20 +7,30 @@
     $size = $project->system_size_confirmed ? Pricing::formatCapacity($project->system_size_kwp, 'kWp') : null;
     $videos = \App\Support\VideoEmbed::all($project->video_urls ?? null);
     $others = $project->photos->reject(fn ($p) => $project->cover && $p->id === $project->cover->id)->values();
+    // Filipino version (/projects/{slug}/tagalog): same photos and videos, Filipino text and labels.
+    $t = fn (string $en, string $fil) => $tagalog ? $fil : $en;
+    $title = $tagalog ? $tl['title'] : $project->title;
+    $body = $tagalog ? $tl['description'] : ($project->description ?: $project->summary);
+    $enPath = '/projects/'.$project->slug;
     $facts = [
-        ['Type', Labels::PROJECT_TYPE[$project->project_type], false],
-        ['Location', $project->location ?? '—', false],
-        ['System size', $size ?? 'To be confirmed', false],
-        ['Scope', $project->scope ?? '—', true],
+        [$t('Type', 'Uri'), $tagalog ? (\App\Support\ProjectTl::TYPE[$project->project_type] ?? Labels::PROJECT_TYPE[$project->project_type]) : Labels::PROJECT_TYPE[$project->project_type], false],
+        [$t('Location', 'Lokasyon'), $project->location ?? '—', false],
+        [$t('System size', 'Laki ng sistema'), $size ?? $t('To be confirmed', 'Kukumpirmahin pa'), false],
+        [$t('Scope', 'Saklaw ng trabaho'), $project->scope ?? '—', true],
     ];
 @endphp
 <article aria-labelledby="project-title">
     <x-container class="py-8 sm:py-10">
-        <x-breadcrumbs :items="[['href' => '/', 'label' => 'Home'], ['href' => '/projects', 'label' => 'Projects'], ['label' => $project->title]]" />
+        <x-breadcrumbs :items="[['href' => '/', 'label' => 'Home'], ['href' => '/projects', 'label' => $t('Projects', 'Mga Proyekto')], ['label' => $title]]" />
         @if ($project->is_sample && ! Site::isProduction())
             <p role="note" class="mt-6 rounded-[var(--radius-control)] border border-dashed border-steel-400 bg-steel-50 px-4 py-3 text-steel-800"><strong>Sample project.</strong> This entry is not a completed JFL Solar installation. It demonstrates how projects will be presented.</p>
         @endif
-        <h1 id="project-title" class="mt-6 max-w-3xl text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $project->title }}</h1>
+        <h1 id="project-title" class="mt-6 max-w-3xl text-3xl font-extrabold text-steel-950 sm:text-4xl" @if ($tagalog) lang="fil" @endif>{{ $title }}</h1>
+        @if ($tagalog)
+            <p class="mt-3"><a href="/lang/en?back={{ $enPath }}" class="inline-flex min-h-11 items-center gap-1.5 font-bold text-steel-900 underline underline-offset-4" hreflang="en" lang="en"><span aria-hidden="true">🌐</span> Read in English</a></p>
+        @elseif ($tl)
+            <p class="mt-3"><a href="/lang/fil?back={{ $enPath }}" class="inline-flex min-h-11 items-center gap-1.5 font-bold text-steel-900 underline underline-offset-4" hreflang="fil" lang="fil"><span aria-hidden="true">🌐</span> Basahin sa Filipino</a></p>
+        @endif
         <dl class="mt-5 grid max-w-3xl grid-cols-2 gap-4 border-y border-steel-200 py-4 sm:grid-cols-4">
             @foreach ($facts as [$label, $value, $wide])
                 <div class="{{ $wide ? 'col-span-2 sm:col-span-1' : '' }}">
@@ -59,7 +69,7 @@
 
         @if ($moreVideos)
             <section aria-labelledby="videos-title" class="mt-12">
-                <h2 id="videos-title" class="text-xl font-bold text-steel-950">More videos</h2>
+                <h2 id="videos-title" class="text-xl font-bold text-steel-950">{{ $t('More videos', 'Iba pang video') }}</h2>
                 <ul class="mt-4 grid gap-6 lg:grid-cols-2">
                     @foreach ($moreVideos as $i => $v)
                         <li>{!! $videoBox($v, $i + 1) !!}</li>
@@ -69,17 +79,17 @@
         @endif
 
         <div class="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem]">
-            <x-paragraphs :text="$project->description ?: $project->summary" class="max-w-2xl text-lg text-steel-700" />
+            <x-paragraphs :text="$body" class="max-w-2xl text-lg text-steel-700" :lang="$tagalog ? 'fil' : null" />
             <aside class="rounded-[var(--radius-panel)] bg-steel-50 p-6">
-                <h2 class="text-lg font-bold text-steel-950">Planning something similar?</h2>
-                <p class="mt-2 text-steel-600">Tell us about your site and we will recommend a system.</p>
-                <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'md', 'mt-4 w-full') }}">Inquire Now</a>
+                <h2 class="text-lg font-bold text-steel-950">{{ $t('Planning something similar?', 'May balak kang ganito rin?') }}</h2>
+                <p class="mt-2 text-steel-600">{{ $t('Tell us about your site and we will recommend a system.', 'Sabihin sa amin ang tungkol sa inyong lugar at irerekomenda namin ang tamang sistema.') }}</p>
+                <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'md', 'mt-4 w-full') }}">{{ $t('Inquire Now', 'Magtanong Ngayon') }}</a>
             </aside>
         </div>
 
         @if ($others->isNotEmpty())
             <section aria-labelledby="gallery-title" class="mt-12">
-                <h2 id="gallery-title" class="text-xl font-bold text-steel-950">Photos</h2>
+                <h2 id="gallery-title" class="text-xl font-bold text-steel-950">{{ $t('Photos', 'Mga Larawan') }}</h2>
                 <ul class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     @foreach ($others as $photo)
                         <li>

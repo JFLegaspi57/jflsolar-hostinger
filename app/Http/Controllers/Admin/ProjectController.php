@@ -30,11 +30,13 @@ class ProjectController extends Controller
 
     public function create(Request $request): View
     {
+        \App\Support\ProjectTl::ensureColumns();
         return view('admin.projects.edit', ['project' => null, 'form' => new FormState(Values::project(null), $request->session()->get('errors'))]);
     }
 
     public function edit(Request $request, string $id): View
     {
+        \App\Support\ProjectTl::ensureColumns();
         $project = Entities::find('projects', $id);
         $project->photos = $project->media()->where('kind', 'image')->get();
         $project->cover = $project->photos->firstWhere('is_cover', true) ?? $project->photos->first();
@@ -75,6 +77,11 @@ class ProjectController extends Controller
             'featured' => $p->bool('featured'),
             'is_sample' => $p->bool('is_sample'),
         ];
+        if (\App\Support\ProjectTl::hasColumns()) {
+            $row['title_tl'] = $p->text('title_tl', 'Filipino title', 160) ?: null;
+            $row['summary_tl'] = $p->body('summary_tl', 'Filipino summary', 300) ?: null;
+            $row['description_tl'] = $p->body('description_tl', 'Filipino description', 9000) ?: null;
+        }
         // Video links need the 2026-10-29 database update; until it is imported the box is hidden and skipped.
         if (self::hasVideoColumn()) {
             $videos = $p->text('video_urls', 'Video links', 2000);

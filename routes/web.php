@@ -23,6 +23,7 @@ Route::get('/products', [PageController::class, 'products']);
 Route::get('/products/{slug}', [PageController::class, 'product'])->where('slug', '[a-z0-9-]+');
 Route::get('/projects', [PageController::class, 'projects']);
 Route::get('/projects/{slug}', [PageController::class, 'project'])->where('slug', '[a-z0-9-]+');
+Route::get('/projects/{slug}/tagalog', [PageController::class, 'projectTagalog'])->where('slug', '[a-z0-9-]+');
 Route::get('/blog', [PageController::class, 'blog']);
 Route::get('/blog/{slug}', [PageController::class, 'blogPost'])->where('slug', '[a-z0-9-]+');
 Route::get('/blog/{slug}/tagalog', [PageController::class, 'blogPostTagalog'])->where('slug', '[a-z0-9-]+');
