@@ -53,9 +53,9 @@
             <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
                 <a href="{{ Course::PATH }}" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← {{ $tl ? 'Lahat ng aralin' : 'All lessons' }}</a>
                 @if ($tl)
-                    <a href="/lang/en?back={{ rawurlencode($base) }}" hreflang="en" lang="en" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Read this lesson in English</a>
+                    <a href="{{ $base }}" hreflang="en" lang="en" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Read this lesson in English</a>
                 @elseif (Course::hasTagalog($lesson))
-                    <a href="/lang/fil?back={{ rawurlencode($base) }}" hreflang="fil" lang="fil" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Basahin ang araling ito sa Tagalog</a>
+                    <a href="{{ $base }}/tagalog" hreflang="fil" lang="fil" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Basahin ang araling ito sa Tagalog</a>
                 @endif
             </div>
             @if ($staffPreview)

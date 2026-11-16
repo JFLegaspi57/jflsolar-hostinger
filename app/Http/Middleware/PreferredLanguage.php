@@ -12,7 +12,8 @@ class PreferredLanguage
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->isMethod('GET') && ! $request->ajax() && Lang::current($request) === 'fil'
+        // Course lessons always open in English; the Tagalog version is one click away on the lesson.
+        if ($request->isMethod('GET') && ! $request->ajax() && Lang::current($request) === 'fil' && ! $request->is('courses/*')
             && ($to = Lang::tagalogPath('/'.$request->path())) !== null) {
             return redirect($to.($request->getQueryString() ? '?'.$request->getQueryString() : ''));
         }
