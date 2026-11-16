@@ -23,6 +23,9 @@ class CourseController extends Controller
             'price' => Course::price(),
             'online' => \App\Support\Shop::onlinePayment(),
             'members' => DB::table('members')->whereNotNull('paid_until')->orderByDesc('paid_until')->limit(200)->get(['id', 'name', 'email', 'paid_until', 'status']),
+            'donations' => DB::table('course_donations')->join('members', 'members.id', '=', 'course_donations.member_id')
+                ->orderByDesc('course_donations.id')->limit(100)
+                ->get(['course_donations.*', 'members.name', 'members.email']),
             'payments' => DB::table('membership_payments')->join('members', 'members.id', '=', 'membership_payments.member_id')
                 ->orderByDesc('membership_payments.id')->limit(30)
                 ->get(['membership_payments.*', 'members.name', 'members.email']),
@@ -43,6 +46,16 @@ class CourseController extends Controller
         Course::setPrice((float) $raw);
 
         return back()->with('status', 'Membership price saved: ₱'.number_format((float) $raw, 2).' for 1 year.');
+    }
+
+    /** Confirm a reported donation (checked in the GCash app), or reject it: the box shows again for that member. */
+    public function donation(Request $request, int $id): RedirectResponse
+    {
+        Course::ensureTables();
+        $status = in_array($request->input('status'), ['confirmed', 'rejected', 'reported'], true) ? $request->input('status') : 'reported';
+        DB::table('course_donations')->where('id', $id)->update(['status' => $status, 'updated_at' => now()]);
+
+        return back()->with('status', 'Donation marked as '.$status.'.');
     }
 
     /** GCash donation details shown on the course page and at the end of each lesson. */
