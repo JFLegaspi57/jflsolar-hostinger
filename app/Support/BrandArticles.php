@@ -21,6 +21,7 @@ final class BrandArticles
         'alltopelec' => ['brand' => 'Alltopelec (ATE)', 'filter' => 'Alltopelec (ATE)'],
         'projoy' => ['brand' => 'Projoy Electric', 'filter' => 'Projoy'],
         'trina-solar' => ['brand' => 'Trina Solar', 'filter' => 'Trina Solar'],
+        'tcl-solar' => ['brand' => 'TCL Solar', 'filter' => 'TCL Solar'],
     ];
 
     /** Our Brands page (/brands): group => [heading, short line], then each brand's group and one-line summary. */
@@ -43,6 +44,7 @@ final class BrandArticles
         'alltopelec' => ['batteries', 'A 16.5 kWh LiFePO4 home battery with local presence in the Philippines.'],
         'projoy' => ['protection', 'Rapid shutdown (firefighter safety) switches and AC surge protectors.'],
         'trina-solar' => ['panels', 'Vertex N i-TOPCon bifacial panels from one of the world’s oldest and largest panel makers.'],
+        'tcl-solar' => ['panels', 'N-type TOPCon bifacial panels, including 725 W shingled panels, from one of the world’s biggest solar wafer makers.'],
     ];
 
     /**
@@ -91,6 +93,9 @@ final class BrandArticles
             ['BloombergNEF Tier 1 PV module manufacturer', 'Q1 2026'],
             ['S&P Global Energy Tier 1 PV module supplier', '2026'],
         ], ['BloombergNEF Tier 1 module list, Q1 2026 (Vico Export)' => 'https://www.vicoexport.com/en/65510/tier-1-list-of-solar-panel-manufacturers-q1-2026/', 'S&P Global Tier 1 list 2026 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/trinasolar-retains-tier-1-status-for-both-pv-modules-and-energy-storage-systems-on-sp-global-cleantech-companies-list-2026/']],
+        'tcl-solar' => ['Tier 1 panel maker', true, [
+            ['BloombergNEF Tier 1 PV module manufacturer', 'Q3 2025 and Q1 2026'],
+        ], ['BloombergNEF Tier 1, Q3 2025 (pv magazine)' => 'https://www.pv-magazine.com/press-releases/tcl-solar-rated-as-bnef-tier-1-module-manufacturer-global-competitiveness-gains-authoritative-recognition', 'BloombergNEF Tier 1, Q1 2026 (SolarBe Global)' => 'https://www.solarbeglobal.com/?p=61480']],
     ];
 
     /** Articles that are written (a view exists), so unfinished ones never show up or get linked. */
