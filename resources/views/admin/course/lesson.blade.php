@@ -19,6 +19,15 @@
         <label class="grid gap-1 font-semibold text-steel-900 sm:col-span-2">Lesson text (paid members only)
             <span class="text-sm font-normal text-steel-600">HTML: &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;table&gt;, &lt;div class="calc"&gt; for calculations, &lt;div class="key"&gt; for key points. Put a slide where you want it with [[slide:1]], [[slide:2]] … (numbers as listed below). Without any [[slide:…]], all slides show after the text.</span>
             <textarea name="body" rows="22" class="{{ $field }} py-2 font-mono text-sm">{{ $lesson->body }}</textarea></label>
+        <details class="sm:col-span-2 rounded-[var(--radius-control)] border border-steel-200 p-3" @if ($lesson->body_tl) open @endif>
+            <summary class="cursor-pointer font-semibold text-steel-900">Tagalog version {{ $lesson->body_tl ? '(added)' : '(none yet)' }}</summary>
+            <div class="mt-3 grid gap-4">
+                <label class="grid gap-1 font-semibold text-steel-900">Title (Tagalog) <input name="title_tl" value="{{ $lesson->title_tl }}" maxlength="160" class="{{ $field }}"></label>
+                <label class="grid gap-1 font-semibold text-steel-900">Short summary (Tagalog) <textarea name="summary_tl" rows="2" maxlength="400" class="{{ $field }} py-2">{{ $lesson->summary_tl }}</textarea></label>
+                <label class="grid gap-1 font-semibold text-steel-900">Lesson text (Tagalog) <span class="text-sm font-normal text-steel-600">Same format and [[slide:N]] numbers as the English text. Leave empty for no Tagalog version.</span>
+                    <textarea name="body_tl" rows="16" class="{{ $field }} py-2 font-mono text-sm">{{ $lesson->body_tl }}</textarea></label>
+            </div>
+        </details>
         <label class="grid gap-1 font-semibold text-steel-900">Status
             <select name="status" class="{{ $field }}"><option value="draft" @selected($lesson->status !== 'published')>Draft (staff only)</option><option value="published" @selected($lesson->status === 'published')>Published (paid members)</option></select></label>
         <div class="flex items-end"><button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save lesson</button></div>

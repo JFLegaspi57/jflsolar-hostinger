@@ -36,10 +36,18 @@ class CourseController extends Controller
         ]);
     }
 
-    public function lesson(string $slug): Response
+    public function lessonTagalog(string $slug): Response
+    {
+        return $this->lesson($slug, true);
+    }
+
+    public function lesson(string $slug, bool $tagalog = false): Response
     {
         $staff = Forum::staff();
         $lesson = Course::lesson($slug, $staff !== null) ?? abort(404);
+        if ($tagalog && ! Course::hasTagalog($lesson)) {
+            return redirect(Course::PATH.'/'.$lesson->slug);
+        }
         if (! Course::canView()) {
             return redirect(Course::PATH)->with('status_error', Members::current()
                 ? 'This lesson is for paid members. Join below to unlock the course.'
@@ -54,7 +62,8 @@ class CourseController extends Controller
             'settings' => PublicContent::settings(),
             'lesson' => $lesson,
             'slides' => $slides,
-            'body' => Course::renderBody($lesson, $slides, $member?->email ?? ($staff?->email ?? '')),
+            'body' => Course::renderBody($lesson, $slides, $member?->email ?? ($staff?->email ?? ''), $tagalog),
+            'tl' => $tagalog,
             'prev' => $i !== false && $i > 0 ? $all[$i - 1] : null,
             'next' => $i !== false ? ($all[$i + 1] ?? null) : null,
             'position' => $i === false ? null : $i + 1,

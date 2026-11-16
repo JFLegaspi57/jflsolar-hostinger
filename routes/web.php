@@ -113,6 +113,7 @@ Route::post('/cart', [Shop\CartController::class, 'update']);
 Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'send'])->middleware('throttle:chat');
 Route::get('/courses/solar-pv-system-design', [\App\Http\Controllers\CourseController::class, 'show']);
 Route::get('/courses/solar-pv-system-design/{slug}', [\App\Http\Controllers\CourseController::class, 'lesson'])->where('slug', '[a-z0-9-]{1,80}');
+Route::get('/courses/solar-pv-system-design/{slug}/tagalog', [\App\Http\Controllers\CourseController::class, 'lessonTagalog'])->where('slug', '[a-z0-9-]{1,80}');
 Route::get('/courses/banners/{file}', [\App\Http\Controllers\CourseController::class, 'banner'])->where('file', '[a-z0-9-]+\.jpg');
 Route::get('/courses/slide/{id}', [\App\Http\Controllers\CourseController::class, 'slide'])->whereNumber('id');
 Route::post('/courses/join', [\App\Http\Controllers\CourseController::class, 'join'])->middleware('throttle:checkout');

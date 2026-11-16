@@ -1,8 +1,14 @@
 @php
     use App\Support\Course;
     use App\Support\Ui;
+    $tl = $tl ?? false;
+    $title = $tl ? ($lesson->title_tl ?: $lesson->title) : $lesson->title;
+    $summary = $tl ? ($lesson->summary_tl ?: $lesson->summary) : $lesson->summary;
+    $base = Course::PATH.'/'.$lesson->slug;
+    $link = fn ($l) => Course::PATH.'/'.$l->slug.($tl && ! empty($l->has_tl) ? '/tagalog' : '');
+    $name = fn ($l) => $tl ? ($l->title_tl ?: $l->title) : $l->title;
 @endphp
-<x-site-layout :title="$lesson->title.' — '.Course::TITLE" :path="Course::PATH.'/'.$lesson->slug" :noindex="true" :reviews-above-footer="false"
+<x-site-layout :title="$title.' — '.Course::TITLE" :path="$base.($tl ? '/tagalog' : '')" :lang="$tl ? 'fil' : 'en-PH'" :noindex="true" :reviews-above-footer="false"
     description="A lesson of the JFL Solar online course for paid members.">
     <x-slot:head>
         <style>
@@ -34,19 +40,26 @@
         </style>
     </x-slot:head>
     @php
-        $eyebrow = Course::TITLE.($position ? ' · Lesson '.$position.' of '.$total : '');
+        $eyebrow = Course::TITLE.($position ? ($tl ? ' · Aralin '.$position.' ng '.$total : ' · Lesson '.$position.' of '.$total) : '');
         $banner = Course::banner('lesson-'.$lesson->id) ?? Course::banner('course');
     @endphp
     @if ($banner)
-        <x-page-hero :eyebrow="$eyebrow" :title="$lesson->title" :intro="$lesson->summary ?: null" :image="$banner['src']" :srcset="$banner['srcset']" imageAlt="" :focus="$lesson->banner_focus ?? '50% 50%'" protect />
+        <x-page-hero :eyebrow="$eyebrow" :title="$title" :intro="$summary ?: null" :image="$banner['src']" :srcset="$banner['srcset']" imageAlt="" :focus="$lesson->banner_focus ?? '50% 50%'" protect />
     @else
-        <x-page-header :eyebrow="$eyebrow" :title="$lesson->title" :intro="$lesson->summary ?: null" />
+        <x-page-header :eyebrow="$eyebrow" :title="$title" :intro="$summary ?: null" />
     @endif
     <x-container class="py-10 sm:py-14">
         <div class="mx-auto max-w-3xl">
-            <p class="mb-6"><a href="{{ Course::PATH }}" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← All lessons</a></p>
+            <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+                <a href="{{ Course::PATH }}" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← {{ $tl ? 'Lahat ng aralin' : 'All lessons' }}</a>
+                @if ($tl)
+                    <a href="/lang/en?back={{ rawurlencode($base) }}" hreflang="en" lang="en" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Read this lesson in English</a>
+                @elseif (Course::hasTagalog($lesson))
+                    <a href="/lang/fil?back={{ rawurlencode($base) }}" hreflang="fil" lang="fil" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Basahin ang araling ito sa Tagalog</a>
+                @endif
+            </div>
             @if ($staffPreview)
-                <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}.</p>
+                <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}{{ $tl ? ' · Tagalog version' : '' }}.</p>
             @endif
             @php
                 $wmText = \App\Support\Members::current()?->email ?? (\App\Support\Forum::staff()?->email ?? 'JFL Solar');
@@ -82,10 +95,10 @@
             </script>
             <p class="lesson-print-note" style="display: none">This lesson is for JFL Solar paid members and cannot be printed.</p>
             <nav aria-label="Lessons" class="mt-12 flex flex-wrap justify-between gap-3 border-t border-steel-200 pt-6">
-                @if ($prev)<a href="{{ Course::PATH }}/{{ $prev->slug }}" class="{{ Ui::button('secondary') }}">← {{ $prev->title }}</a>@else<span></span>@endif
-                @if ($next)<a href="{{ Course::PATH }}/{{ $next->slug }}" class="{{ Ui::button('primary') }}">Next: {{ $next->title }} →</a>@else<a href="{{ Course::PATH }}" class="{{ Ui::button('primary') }}">Back to the course</a>@endif
+                @if ($prev)<a href="{{ $link($prev) }}" class="{{ Ui::button('secondary') }}">← {{ $name($prev) }}</a>@else<span></span>@endif
+                @if ($next)<a href="{{ $link($next) }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Susunod' : 'Next' }}: {{ $name($next) }} →</a>@else<a href="{{ Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Bumalik sa kurso' : 'Back to the course' }}</a>@endif
             </nav>
-            <p class="mt-6 text-xs text-steel-500">This course is for your own learning as a JFL Solar paid member. Please don't copy, share or record the lessons or slides.</p>
+            <p class="mt-6 text-xs text-steel-500">{{ $tl ? 'Ang kursong ito ay para sa sarili mong pag-aaral bilang paid member ng JFL Solar. Huwag kopyahin, i-share o i-record ang mga aralin at slide.' : 'This course is for your own learning as a JFL Solar paid member. Please don\'t copy, share or record the lessons or slides.' }}</p>
         </div>
     </x-container>
 </x-site-layout>

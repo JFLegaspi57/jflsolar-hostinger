@@ -33,7 +33,7 @@ final class Course
     /** Membership payment references look like MEM-261116-AB12 (orders use JFL-…). */
     public const REF_PREFIX = 'MEM-';
 
-    private const TABLES_KEY = 'course-tables-v2';
+    private const TABLES_KEY = 'course-tables-v3';
 
     /** Banner photo widths (JPEG), for the course page (key "course") and each lesson ("lesson-ID"). */
     public const BANNER_WIDTHS = [640, 960, 1280, 1920];
@@ -93,6 +93,13 @@ final class Course
         if (! Schema::hasColumn('course_lessons', 'banner_focus')) {
             Schema::table('course_lessons', function (Blueprint $t) {
                 $t->string('banner_focus', 20)->nullable();
+            });
+        }
+        if (! Schema::hasColumn('course_lessons', 'body_tl')) {
+            Schema::table('course_lessons', function (Blueprint $t) {
+                $t->string('title_tl', 160)->nullable();
+                $t->string('summary_tl', 400)->nullable();
+                $t->longText('body_tl')->nullable();   // Filipino version, at /courses/…/{slug}/tagalog
             });
         }
         Members::flushState();
@@ -185,7 +192,13 @@ final class Course
             $q->where('status', 'published');
         }
 
-        return $q->get(['id', 'slug', 'title', 'summary', 'position', 'status', 'updated_at']);
+        return $q->get(['id', 'slug', 'title', 'summary', 'position', 'status', 'updated_at', 'title_tl', 'summary_tl', DB::raw("CASE WHEN body_tl IS NULL OR body_tl = '' THEN 0 ELSE 1 END as has_tl")]);
+    }
+
+    /** The lesson has a Filipino version. */
+    public static function hasTagalog(?object $lesson): bool
+    {
+        return $lesson !== null && trim((string) ($lesson->body_tl ?? '')) !== '';
     }
 
     public static function lesson(string $slug, bool $withDrafts = false): ?object
@@ -278,9 +291,9 @@ final class Course
     }
 
     /** Puts slide images in the lesson text where it says [[slide:N]] (N = slide number). */
-    public static function renderBody(object $lesson, \Illuminate\Support\Collection $slides, string $watermark): string
+    public static function renderBody(object $lesson, \Illuminate\Support\Collection $slides, string $watermark, bool $tagalog = false): string
     {
-        $html = self::cleanHtml($lesson->body);
+        $html = self::cleanHtml($tagalog ? $lesson->body_tl : $lesson->body);
         $list = $slides->values();
 
         return (string) preg_replace_callback('/\[\[slide:(\d+)\]\]/', function ($m) use ($list, $watermark) {
