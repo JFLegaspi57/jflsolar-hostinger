@@ -33,11 +33,15 @@
         @php
             $firstVideo = $videos[0] ?? null;
             $moreVideos = array_slice($videos, 1);
-            $videoBox = fn (array $v, int $i) => '<div class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: '.($v['vertical'] ? '9 / 16; max-width: 22rem; margin-inline: auto;' : '16 / 9;').'">'
+            $videoBox = fn (array $v, int $i) => '<div class="pv-video overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: '.($v['vertical'] ? '9 / 16; max-width: 22rem; margin-inline: auto;' : '16 / 9;').'">'
                 .'<iframe src="'.e($v['src']).'" title="'.e($project->title.' — video '.($i + 1).' ('.$v['service'].')').'" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe></div>';
         @endphp
         {{-- With a video: cover photo and the first video side by side (stacked on phones). Without: the cover photo full width. --}}
-        <div class="mt-8 grid gap-6 {{ $firstVideo ? ($firstVideo['vertical'] ? 'lg:grid-cols-[1fr_20rem]' : 'lg:grid-cols-2') : '' }}">
+        {{-- A portrait video (reel/short) gets a column sized so it is exactly as tall as the 16:9 cover photo: 16:9 width 256 and 9:16 width 81 share one height. --}}
+        @if ($firstVideo && $firstVideo['vertical'])
+            <style>@media (min-width: 40rem) { .pv-media-portrait { grid-template-columns: 256fr 81fr } .pv-media-portrait .pv-video { max-width: none !important; margin: 0 !important } }</style>
+        @endif
+        <div class="mt-8 grid gap-6 {{ $firstVideo ? ($firstVideo['vertical'] ? 'pv-media-portrait' : 'lg:grid-cols-2') : '' }}">
             <figure class="overflow-hidden rounded-[var(--radius-panel)] border border-steel-200">
                 <div class="aspect-[16/9] bg-steel-100" @if ($project->cover) data-lightbox @endif>
                     @if ($project->cover)
