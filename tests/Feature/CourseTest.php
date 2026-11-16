@@ -92,7 +92,8 @@ class CourseTest extends TestCase
     public function test_gcash_donation_box_before_the_lesson(): void
     {
         $lesson = $this->lesson();
-        $this->actingAs($this->owner(), 'web');
+        $owner = $this->owner();
+        $this->actingAs($owner, 'web');
         $img = imagecreatetruecolor(300, 300);
         $tmp = tempnam(sys_get_temp_dir(), 'qr').'.png';
         imagepng($img, $tmp);
@@ -103,6 +104,21 @@ class CourseTest extends TestCase
         $this->actingAs($this->member(), 'member');
         $page = $this->get(Course::PATH.'/'.$lesson->slug)->assertOk()->getContent();
         $this->assertLessThan(strpos($page, 'Secret notes'), strpos($page, 'Support it with GCash'));   // donation box comes before the lesson
+
+        // The member reports the donation: the box disappears from the lessons; staff can reject it.
+        $this->post('/courses/donated', ['reference' => '12'])->assertSessionHas('status_error');
+        $this->post('/courses/donated', ['reference' => '1234 567 890123', 'amount' => '200'])->assertSessionHas('account_status');
+        $this->get(Course::PATH.'/'.$lesson->slug)->assertOk()->assertDontSee('Support it with GCash')->assertSee('Secret notes');
+        $this->get(Course::PATH)->assertSee('Thank you for your donation');
+        $d = DB::table('course_donations')->first();
+        $this->assertSame('1234567890123', $d->reference);
+        auth('member')->logout();
+        $this->actingAs($owner, 'web');
+        $this->get('/admin/course')->assertSee('1234567890123')->assertSee('₱200.00');
+        $this->post('/admin/course/donations/'.$d->id, ['status' => 'rejected'])->assertRedirect();
+        auth('web')->logout();
+        $this->actingAs(\App\Models\Member::find($d->member_id), 'member');
+        $this->get(Course::PATH.'/'.$lesson->slug)->assertSee('Support it with GCash');
         @unlink(Course::gcashQrFile());
     }
 

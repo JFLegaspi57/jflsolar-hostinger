@@ -114,6 +114,7 @@ Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'send'])->mid
 Route::get('/courses/solar-pv-system-design', [\App\Http\Controllers\CourseController::class, 'show']);
 Route::get('/courses/solar-pv-system-design/{slug}', [\App\Http\Controllers\CourseController::class, 'lesson'])->where('slug', '[a-z0-9-]{1,80}');
 Route::get('/courses/solar-pv-system-design/{slug}/tagalog', [\App\Http\Controllers\CourseController::class, 'lessonTagalog'])->where('slug', '[a-z0-9-]{1,80}');
+Route::post('/courses/donated', [\App\Http\Controllers\CourseController::class, 'donated'])->middleware('throttle:10,1');
 Route::get('/courses/gcash-qr.jpg', [\App\Http\Controllers\CourseController::class, 'gcashQr']);
 Route::get('/courses/banners/{file}', [\App\Http\Controllers\CourseController::class, 'banner'])->where('file', '[a-z0-9-]+\.jpg');
 Route::get('/courses/slide/{id}', [\App\Http\Controllers\CourseController::class, 'slide'])->whereNumber('id');
@@ -235,6 +236,7 @@ Route::prefix('admin')->group(function () {
         Route::post('course/price', [Admin\CourseController::class, 'price']);
         Route::post('course/banner', [Admin\CourseController::class, 'banner']);
         Route::post('course/gcash', [Admin\CourseController::class, 'gcash']);
+        Route::post('course/donations/{id}', [Admin\CourseController::class, 'donation']);
         Route::post('course/member', [Admin\CourseController::class, 'member']);
         Route::post('course/lessons', [Admin\CourseController::class, 'createLesson']);
         Route::get('course/lessons/{id}', [Admin\CourseController::class, 'editLesson'])->whereNumber('id');

@@ -58,7 +58,8 @@
                     <a href="{{ $base }}/tagalog" hreflang="fil" lang="fil" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">Basahin ang araling ito sa Tagalog</a>
                 @endif
             </div>
-            @include('pages.course.donate', ['tl' => $tl, 'class' => 'mb-8'])
+            @if (session('account_status') || session('status_error'))<div class="mb-4">@include('partials.account-flash')</div>@endif
+            @include('pages.course.donate', ['tl' => $tl, 'class' => 'mb-8', 'inLesson' => true])
             @if ($staffPreview)
                 <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}{{ $tl ? ' · Tagalog version' : '' }}.</p>
             @endif

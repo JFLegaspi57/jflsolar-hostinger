@@ -37,7 +37,7 @@ final class Course
     /** Membership payment references look like MEM-261116-AB12 (orders use JFL-…). */
     public const REF_PREFIX = 'MEM-';
 
-    private const TABLES_KEY = 'course-tables-v3';
+    private const TABLES_KEY = 'course-tables-v4';
 
     /** Banner photo widths (JPEG), for the course page (key "course") and each lesson ("lesson-ID"). */
     public const BANNER_WIDTHS = [640, 960, 1280, 1920];
@@ -106,6 +106,16 @@ final class Course
                 $t->longText('body_tl')->nullable();   // Filipino version, at /courses/…/{slug}/tagalog
             });
         }
+        if (! Schema::hasTable('course_donations')) {
+            Schema::create('course_donations', function (Blueprint $t) {
+                $t->id();
+                $t->unsignedBigInteger('member_id')->index();
+                $t->decimal('amount_php', 12, 2)->nullable();
+                $t->string('reference', 40)->default('');            // GCash reference number, as typed by the member
+                $t->string('status', 10)->default('reported');       // reported | confirmed | rejected
+                $t->timestamps();
+            });
+        }
         Members::flushState();
         Cache::forever(self::TABLES_KEY, true);
     }
@@ -144,6 +154,43 @@ final class Course
     }
 
     // --- GCash donations ------------------------------------------------------------------
+
+    /**
+     * A member who reported a GCash donation (and whose report was not rejected by staff)
+     * no longer sees the donation box in the lessons.
+     */
+    public static function hasDonated(?Member $member): bool
+    {
+        if (! $member) {
+            return false;
+        }
+        self::ensureTables();
+
+        return DB::table('course_donations')->where('member_id', $member->id)->where('status', '!=', 'rejected')->exists();
+    }
+
+    /** Records a member's report that they sent a GCash donation. Returns an error or null. */
+    public static function reportDonation(Member $member, string $reference, string $amount): ?string
+    {
+        self::ensureTables();
+        $reference = preg_replace('/\s+/', '', $reference);
+        if (! preg_match('/^\d{6,20}$/', $reference)) {
+            return 'Enter the GCash reference number from your receipt (numbers only).';
+        }
+        $amount = trim(str_replace([',', '₱', ' '], '', $amount));
+        if ($amount !== '' && (! is_numeric($amount) || (float) $amount <= 0 || (float) $amount > 1000000)) {
+            return 'Enter the amount in pesos, e.g. 200.';
+        }
+        if (DB::table('course_donations')->where('reference', $reference)->exists()) {
+            return 'This reference number was already sent. Thank you!';
+        }
+        DB::table('course_donations')->insert([
+            'member_id' => $member->id, 'reference' => $reference, 'amount_php' => $amount === '' ? null : round((float) $amount, 2),
+            'status' => 'reported', 'created_at' => now(), 'updated_at' => now(),
+        ]);
+
+        return null;
+    }
 
     public static function gcashQrFile(): string
     {

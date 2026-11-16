@@ -25,6 +25,31 @@
         </form>
         @if ($gc && $gc['qr'])<form method="post" action="/admin/course/gcash" class="mt-2">@csrf<input type="hidden" name="remove_qr" value="1"><button class="text-sm text-danger-700 underline">Remove QR code</button></form>@endif
     </section>
+    <section class="{{ $box }}" aria-labelledby="don-h">
+        <h2 id="don-h" class="text-lg font-bold text-steel-950">Donations reported by members</h2>
+        <p class="mt-1 text-sm text-steel-700">When a member taps "I've sent my donation" with the GCash reference number, the GCash box disappears from their lessons. Check the reference in your GCash app, then confirm it. If no money arrived, reject it and the box shows again for that member.</p>
+        @if ($donations->isEmpty())
+            <p class="mt-3 text-steel-600">No donations reported yet.</p>
+        @else
+            <div class="mt-3 overflow-x-auto"><table class="w-full text-sm">
+                <tr class="text-left text-steel-600"><th class="py-1 pr-3">Date</th><th class="pr-3">Member</th><th class="pr-3">GCash ref.</th><th class="pr-3">Amount</th><th class="pr-3">Status</th><th></th></tr>
+                @foreach ($donations as $d)
+                    <tr class="border-t border-steel-200">
+                        <td class="py-2 pr-3 whitespace-nowrap">{{ \Illuminate\Support\Carbon::parse($d->created_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}</td>
+                        <td class="pr-3">{{ $d->name }}<br><span class="text-steel-600">{{ $d->email }}</span></td>
+                        <td class="pr-3 tabular">{{ $d->reference }}</td>
+                        <td class="pr-3 tabular">{{ $d->amount_php !== null ? '₱'.number_format((float) $d->amount_php, 2) : '—' }}</td>
+                        <td class="pr-3 font-semibold {{ $d->status === 'confirmed' ? 'text-ok-700' : ($d->status === 'rejected' ? 'text-danger-700' : 'text-warn-800') }}">{{ ucfirst($d->status) }}</td>
+                        <td class="whitespace-nowrap">
+                            @foreach (['confirmed' => 'Confirm', 'rejected' => 'Reject'] as $st => $lbl)
+                                @if ($d->status !== $st)<form method="post" action="/admin/course/donations/{{ $d->id }}" class="inline">@csrf<input type="hidden" name="status" value="{{ $st }}"><button class="mr-2 underline">{{ $lbl }}</button></form>@endif
+                            @endforeach
+                        </td>
+                    </tr>
+                @endforeach
+            </table></div>
+        @endif
+    </section>
     @unless (Course::FREE)
     <section class="{{ $box }}" aria-labelledby="price-h">
         <h2 id="price-h" class="text-lg font-bold text-steel-950">Membership price (1 year)</h2>
