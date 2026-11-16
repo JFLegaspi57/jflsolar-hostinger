@@ -26,6 +26,14 @@
                     hint="Paste a YouTube or Facebook video link — one per line, up to 5. The video must be public (or “Unlisted” on YouTube). Videos play on the project page." />
             @endif
         </x-admin.fieldset>
+        @if (\App\Support\ProjectTl::hasColumns())
+            <x-admin.fieldset legend="Filipino version (optional)">
+                <p class="text-sm text-steel-600 sm:col-span-2">Shown at /projects/{{ $project?->slug ?: 'your-slug' }}/tagalog, with a “Basahin sa Filipino” link on the English page. Same photos and videos. Leave the Filipino description blank for no Filipino version.</p>
+                <x-admin.text :form="$form" name="title_tl" label="Filipino title" maxlength="160" class="sm:col-span-2" />
+                <x-admin.textarea :form="$form" name="summary_tl" label="Filipino summary" maxlength="300" rows="2" class="sm:col-span-2" />
+                <x-admin.textarea :form="$form" name="description_tl" label="Filipino description" maxlength="9000" rows="8" class="sm:col-span-2" />
+            </x-admin.fieldset>
+        @endif
         <x-admin.fieldset legend="Display and internal">
             <x-admin.checkbox :form="$form" name="featured" label="Show on the home page" />
             <x-admin.checkbox :form="$form" name="is_sample" label="Sample / demonstration project" hint="Sample projects are labelled in preview and hidden on the live site. Untick only for a real, approved JFL Solar project." />
