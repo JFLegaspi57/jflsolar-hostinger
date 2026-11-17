@@ -1,5 +1,6 @@
 @php $tab = 'inline-flex min-h-11 items-center gap-1.5 rounded-full border border-steel-300 px-4 text-sm font-semibold text-steel-800 aria-[current=page]:border-steel-900 aria-[current=page]:bg-steel-900 aria-[current=page]:text-white'; @endphp
 <x-admin.layout title="Subscribers">
+    @if (session('status'))<p role="status" class="mb-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 px-3 py-2 text-sm font-semibold text-ok-700">{{ session('status') }}</p>@endif
     <x-admin.page-title title="Subscribers" intro="People who asked for JFL Solar promos and news (ticked at account sign-up or on their account page). Download the list and send your emails from your usual email or newsletter tool. Include each person’s unsubscribe link (it is in the download)." />
     <dl class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Subscriber totals">
         @foreach ([['Total subscribers', $counts['active']], ['Unsubscribed', $counts['left']], ['All sign-ups', $counts['active'] + $counts['left']], ['Joined in the last 30 days', $counts['new30']]] as $i => [$label, $value])
@@ -9,6 +10,17 @@
             </div>
         @endforeach
     </dl>
+    <section aria-labelledby="welcome-h" class="mb-5 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .75rem">
+        <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email</h2>
+        @if ($welcome['ready'])
+            <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from the website’s mailbox. Sent automatically so far: <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
+            @if ($welcome['pending'])
+                <form method="post" action="/admin/subscribers/welcome" class="mt-3">@csrf<button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Send it to {{ $welcome['pending'] }} waiting {{ $welcome['pending'] === 1 ? 'member' : 'members' }}</button></form>
+            @endif
+        @else
+            <p class="mt-1">The welcome email is ready, but the website’s mail server is not set up, so it can’t be sent yet.</p>
+        @endif
+    </section>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">
             <a href="/admin/subscribers" @if ($show === 'active') aria-current="page" @endif class="{{ $tab }}">Subscribed <span class="tabular">({{ $counts['active'] }})</span></a>

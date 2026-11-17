@@ -1,0 +1,74 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Mail\MemberWelcome;
+use App\Models\Member;
+use App\Models\User;
+use App\Support\WelcomeEmail;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Mail;
+use Tests\TestCase;
+
+class WelcomeEmailTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+        Cache::flush();
+        config(['mail.default' => 'array']);
+    }
+
+    private function signup(string $email, bool $promos = true): void
+    {
+        $this->post('/signup', ['name' => 'Juan Dela Cruz', 'email' => $email, 'phone' => '', 'password' => 'a long test password 123', 'password_confirmation' => 'a long test password 123', 'agree' => '1', 'newsletter' => $promos ? '1' : '']);
+    }
+
+    public function test_new_members_get_the_welcome_email_once(): void
+    {
+        Mail::fake();
+        $this->signup('juan@example.com');
+
+        Mail::assertSent(MemberWelcome::class, fn ($m) => $m->hasTo('juan@example.com'));
+        $member = Member::query()->where('email', 'juan@example.com')->first();
+        $this->assertNotNull($member->fresh()->welcome_sent_at);
+
+        // Never twice.
+        $this->assertFalse(WelcomeEmail::send($member->fresh()));
+        Mail::assertSentCount(1);
+    }
+
+    public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
+    {
+        $this->signup('ana@example.com');
+        $member = Member::query()->where('email', 'ana@example.com')->first();
+        $html = (new MemberWelcome($member))->render();
+        $this->assertStringContainsString('Hello Juan,', $html);
+        $this->assertStringContainsString('quick tour of everything you can do', $html);
+        $this->assertStringContainsString('/courses/solar-pv-system-design', $html);
+        $this->assertStringContainsString('we also deliver via Lalamove', $html);
+        $this->assertStringContainsString('0969 471 2098', $html);
+        $this->assertStringContainsString('/newsletter/unsubscribe/', $html);
+        $this->assertStringNotContainsString('solar system', str_replace('solar PV system', '', $html));
+    }
+
+    public function test_staff_can_send_it_to_members_still_waiting(): void
+    {
+        Mail::fake();
+        WelcomeEmail::ensureColumn();
+        $m = Member::query()->create(['name' => 'Waiting Member', 'email' => 'wait@example.com', 'password' => 'a long test password', 'status' => 'active']);
+        $this->assertSame(1, WelcomeEmail::pendingCount());
+
+        $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($owner, 'web');
+        $this->get('/admin/subscribers')->assertOk()->assertSee('Automatic welcome email')->assertSee('Send it to 1 waiting member');
+        $this->post('/admin/subscribers/welcome')->assertRedirect('/admin/subscribers');
+        Mail::assertSent(MemberWelcome::class, fn ($x) => $x->hasTo('wait@example.com'));
+        $this->assertSame(0, WelcomeEmail::pendingCount());
+        $this->get('/admin/subscribers')->assertDontSee('waiting member');
+    }
+}
