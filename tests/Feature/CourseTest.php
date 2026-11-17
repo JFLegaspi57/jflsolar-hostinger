@@ -159,8 +159,10 @@ class CourseTest extends TestCase
         $this->actingAs($this->member(), 'member');
         $page = $this->get(Course::PATH.'/'.$lesson->slug)->assertOk()->getContent();
         $this->assertLessThan(strpos($page, 'Secret notes'), strpos($page, 'Support it with GCash'));   // donation box comes before the lesson
+        $this->assertStringContainsString('data-donate-slot', $page);   // floats while scrolling
 
         // The member reports the donation: the box disappears from the lessons; staff can reject it.
+        $this->postJson('/courses/donated', ['reference' => '12'])->assertStatus(422)->assertJsonStructure(['error']);
         $this->post('/courses/donated', ['reference' => '12'])->assertSessionHas('status_error');
         $this->post('/courses/donated', ['reference' => '1234 567 890123', 'amount' => '200'])->assertSessionHas('account_status');
         $this->get(Course::PATH.'/'.$lesson->slug)->assertOk()->assertDontSee('Support it with GCash')->assertSee('Secret notes');

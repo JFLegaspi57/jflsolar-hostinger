@@ -121,15 +121,19 @@ class CourseController extends Controller
     }
 
     /** A signed-in member tells us they sent a GCash donation: the box disappears from their lessons. */
-    public function donated(Request $request): RedirectResponse
+    public function donated(Request $request): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $member = Members::current();
         if (! $member) {
-            return redirect(Course::PATH)->with('status_error', 'Please sign in first.');
+            return $request->expectsJson() ? response()->json(['error' => 'Please sign in first.'], 403) : redirect(Course::PATH)->with('status_error', 'Please sign in first.');
         }
         $error = Course::reportDonation($member, (string) $request->input('reference'), (string) $request->input('amount'));
+        $thanks = 'Thank you for your donation! It helps us keep making new lessons.';
+        if ($request->expectsJson()) {
+            return $error ? response()->json(['error' => $error], 422) : response()->json(['message' => $thanks]);
+        }
 
-        return back()->with($error ? 'status_error' : 'account_status', $error ?? 'Thank you for your donation! It helps us keep making new lessons.');
+        return back()->with($error ? 'status_error' : 'account_status', $error ?? $thanks);
     }
 
     public function gcashQr(): Response
