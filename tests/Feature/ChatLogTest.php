@@ -53,10 +53,15 @@ class ChatLogTest extends TestCase
         $this->get('/admin/chats')->assertOk()->assertSee('Do you have 650W panels?')->assertSee('2 questions')->assertSee('Filipino');
         $this->get('/admin/chats?q=Meron')->assertOk()->assertSee('Do you have 650W panels?');
         $this->get('/admin/chats?q=inverter')->assertOk()->assertSee('No chats with');
+        // New chat: badge in the menu, highlighted in the list, and in the pop-up check; opening it marks it read.
+        $this->get('/admin/chats')->assertSee('data-new-chats', false)->assertSee('Mark all as read (1)');
+        $this->getJson('/admin/chats/new-count')->assertOk()->assertJson(['count' => 1, 'latest' => ['id' => $row->id, 'text' => 'Meron po ba kayo ngayon?']]);
         $this->get('/admin/chats/'.$row->id)->assertOk()
             ->assertSee('Opo, available po.')
             ->assertSee('<a href="/products/jinko-solar-650w-bifacial-panel"', false)
             ->assertSee('<strong>₱6,300</strong>', false);
+        $this->getJson('/admin/chats/new-count')->assertJson(['count' => 0]);
+        $this->get('/admin/chats')->assertDontSee('Mark all as read');
         $this->get('/admin')->assertSee('View Buckny chats');
 
         $this->post('/admin/chats/'.$row->id.'/delete')->assertRedirect('/admin/chats');

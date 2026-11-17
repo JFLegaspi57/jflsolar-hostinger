@@ -250,6 +250,8 @@ Route::prefix('admin')->group(function () {
         Route::post('course/lessons/{id}/slides', [Admin\CourseController::class, 'uploadSlides'])->whereNumber('id');
         Route::post('course/slides/{id}', [Admin\CourseController::class, 'slideOp'])->whereNumber('id');
         Route::get('chats', [Admin\ChatLogController::class, 'index']);
+        Route::get('chats/new-count', [Admin\ChatLogController::class, 'newCount']);
+        Route::post('chats/seen', [Admin\ChatLogController::class, 'seenAll']);
         Route::get('chats/{id}', [Admin\ChatLogController::class, 'show'])->whereNumber('id');
         Route::post('chats/{id}/delete', [Admin\ChatLogController::class, 'destroy'])->whereNumber('id');
         Route::get('inquiries', [Admin\InquiryController::class, 'index']);
