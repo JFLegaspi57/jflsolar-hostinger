@@ -37,6 +37,27 @@ class CourseController extends Controller
         ])->header('X-Robots-Tag', 'noindex');
     }
 
+    /** Checks a student's answer to one "Check your understanding" question (the model answer never leaves the server). */
+    public function checkAnswer(\Illuminate\Http\Request $request): \Illuminate\Http\JsonResponse
+    {
+        abort_unless(Course::canView(), 403);
+        $lesson = Course::lesson((string) $request->input('lesson'), Forum::staff() !== null) ?? abort(404);
+        $tl = $request->boolean('tl') && Course::hasTagalog($lesson);
+        $answer = trim(mb_substr((string) $request->input('answer'), 0, 1500));
+        if ($answer === '') {
+            return response()->json(['error' => $tl ? 'Isulat muna ang sagot mo.' : 'Write your answer first.'], 422);
+        }
+        $q = \App\Support\CourseQuiz::questions((string) ($tl ? $lesson->body_tl : $lesson->body))[(int) $request->input('q', -1)] ?? abort(404);
+        $who = Members::current()?->id ?? Forum::staff()?->id ?? $request->ip();
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts('course-quiz:'.$who, 60)) {
+            return response()->json(['error' => $tl ? 'Masyadong maraming pagsusuri. Subukan ulit pagkalipas ng isang oras.' : 'Too many checks for now. Please try again in an hour.'], 429);
+        }
+        \Illuminate\Support\Facades\RateLimiter::hit('course-quiz:'.$who, 3600);
+        $r = \App\Support\CourseQuiz::check($q['q'], $q['a'], $answer, $tl);
+
+        return response()->json($r, isset($r['error']) ? 503 : 200);
+    }
+
     public function lessonTagalog(string $slug): Response
     {
         return $this->lesson($slug, true);
@@ -63,7 +84,7 @@ class CourseController extends Controller
             'settings' => PublicContent::settings(),
             'lesson' => $lesson,
             'slides' => $slides,
-            'body' => Course::renderBody($lesson, $slides, $member?->email ?? ($staff?->email ?? ''), $tagalog),
+            'body' => \App\Support\CourseQuiz::stripAnswers(Course::renderBody($lesson, $slides, $member?->email ?? ($staff?->email ?? ''), $tagalog)),
             'tl' => $tagalog,
             'prev' => $i !== false && $i > 0 ? $all[$i - 1] : null,
             'next' => $i !== false ? ($all[$i + 1] ?? null) : null,

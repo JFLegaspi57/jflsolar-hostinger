@@ -115,6 +115,7 @@ Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'send'])->mid
 Route::get('/courses/solar-pv-system-design', [\App\Http\Controllers\CourseController::class, 'show']);
 Route::get('/courses/solar-pv-system-design/{slug}', [\App\Http\Controllers\CourseController::class, 'lesson'])->where('slug', '[a-z0-9-]{1,80}');
 Route::get('/courses/solar-pv-system-design/{slug}/tagalog', [\App\Http\Controllers\CourseController::class, 'lessonTagalog'])->where('slug', '[a-z0-9-]{1,80}');
+Route::post('/courses/check-answer', [\App\Http\Controllers\CourseController::class, 'checkAnswer'])->middleware('throttle:30,1');
 Route::post('/courses/donated', [\App\Http\Controllers\CourseController::class, 'donated'])->middleware('throttle:10,1');
 Route::get('/courses/gcash-qr.jpg', [\App\Http\Controllers\CourseController::class, 'gcashQr']);
 Route::get('/courses/banners/{file}', [\App\Http\Controllers\CourseController::class, 'banner'])->where('file', '[a-z0-9-]+\.jpg');

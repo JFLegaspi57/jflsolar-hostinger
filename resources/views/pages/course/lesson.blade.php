@@ -43,9 +43,15 @@
             .quiz-q textarea { display: block; width: 100%; min-height: 6rem; padding: .6rem .75rem; border: 1px solid var(--color-steel-400); border-radius: .5rem; background: var(--color-steel-50); font: inherit; font-size: 1rem; line-height: 1.5; color: var(--color-steel-900); resize: vertical; -webkit-user-select: text; -moz-user-select: text; user-select: text; }
             .quiz-q textarea:focus { outline: 3px solid var(--color-gold-500); outline-offset: 1px; background: #fff; }
             .quiz-q .quiz-saved { margin-top: .3rem; font-size: .8rem; color: var(--color-steel-500); min-height: 1em; }
-            .quiz-q details { margin-top: .6rem; }
-            .quiz-q details summary { display: inline-flex; min-height: 2.75rem; align-items: center; cursor: pointer; font-weight: 700; color: var(--color-steel-900); text-decoration: underline; text-underline-offset: .2em; }
-            .quiz-q details[open] summary { margin-bottom: .25rem; }
+            .quiz-q .quiz-btn { margin-top: .5rem; display: inline-flex; min-height: 2.75rem; align-items: center; padding: 0 1.1rem; border: 0; border-radius: .5rem; background: var(--color-steel-900); color: #fff; font-weight: 700; cursor: pointer; }
+            .quiz-q .quiz-btn:hover { background: var(--color-steel-800); }
+            .quiz-q .quiz-btn:focus-visible { outline: 3px solid var(--color-gold-500); outline-offset: 2px; }
+            .quiz-q .quiz-btn[disabled] { opacity: .6; cursor: wait; }
+            .quiz-q .quiz-result:empty { display: none; }
+            .quiz-q .quiz-result { margin-top: .75rem; padding: .75rem 1rem; border-radius: .5rem; border: 1px solid var(--color-steel-200); background: var(--color-steel-50); }
+            .quiz-q .quiz-result.is-correct { background: #ecfdf3; border-color: #86efac; }
+            .quiz-q .quiz-result.is-partly { background: #fff8e1; border-color: #f5d77a; }
+            .quiz-q .quiz-result.is-wrong { background: #fef2f2; border-color: #fca5a5; }
         </style>
     </x-slot:head>
     @php
@@ -106,26 +112,38 @@
             </script>
             <script>
                 (function () {
-                    // Turn each "Check your understanding" question into: question, an answer box for the student, then "Show answer".
-                    // What the student writes is kept in this browser only (not sent anywhere).
-                    var showLabel = @json($tl ? 'Ipakita ang sagot' : 'Show answer');
-                    var boxLabel = @json($tl ? 'Ang sagot mo' : 'Your answer');
-                    var placeholder = @json($tl ? 'Isulat dito ang sagot mo bago tingnan ang sagot…' : 'Write your answer here before you look at the answer…');
-                    var savedText = @json($tl ? 'Naka-save sa browser na ito' : 'Saved in this browser');
-                    var keyBase = 'jfl-course-answer:' + @json($lesson->slug) + ':';
+                    // "Check your understanding": the student writes an answer and the website checks it (right / partly / not quite) without showing the model answer.
+                    // The text is also kept in this browser so it is still there next time.
+                    var tl = @json((bool) $tl);
+                    var t = tl ? { box: 'Ang sagot mo', ph: 'Isulat dito ang sagot mo…', btn: 'Suriin ang sagot ko', busy: 'Sinusuri…', ok: '✅ Tama!', part: '🟡 Halos tama', no: '❌ Hindi pa tama', saved: 'Naka-save sa browser na ito', err: 'Hindi masuri ang sagot ngayon. Subukan ulit mamaya.' }
+                               : { box: 'Your answer', ph: 'Write your answer here…', btn: 'Check my answer', busy: 'Checking…', ok: '✅ Correct!', part: '🟡 Partly correct', no: '❌ Not quite', saved: 'Saved in this browser', err: 'Your answer can\'t be checked right now. Please try again later.' };
+                    var slug = @json($lesson->slug), csrf = @json(csrf_token());
                     var store = { get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
-                    document.querySelectorAll('.lesson-body details').forEach(function (d, i) {
-                        var summary = d.querySelector('summary');
-                        if (!summary || d.closest('.quiz-q')) return;
-                        var wrap = document.createElement('div'); wrap.className = 'quiz-q';
-                        var q = document.createElement('p'); q.className = 'quiz-question'; q.id = 'quiz-q-' + i; q.innerHTML = summary.innerHTML;
-                        var ta = document.createElement('textarea'); ta.id = 'quiz-a-' + i; ta.placeholder = placeholder; ta.setAttribute('aria-label', boxLabel); ta.setAttribute('aria-describedby', q.id);
-                        var note = document.createElement('p'); note.className = 'quiz-saved'; note.setAttribute('aria-live', 'polite');
-                        var key = keyBase + i; ta.value = store.get(key);
-                        var t; ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { if (store.set(key, ta.value)) { note.textContent = ta.value ? savedText : ''; } }, 400); });
-                        d.parentNode.insertBefore(wrap, d);
-                        summary.textContent = showLabel;
-                        wrap.appendChild(q); wrap.appendChild(ta); wrap.appendChild(note); wrap.appendChild(d);
+                    document.querySelectorAll('.lesson-body .quiz-q[data-q]').forEach(function (box) {
+                        var i = box.getAttribute('data-q'), key = 'jfl-course-answer:' + slug + ':' + i;
+                        var q = box.querySelector('.quiz-question'); q.id = 'quiz-q-' + i;
+                        var ta = document.createElement('textarea'); ta.placeholder = t.ph; ta.setAttribute('aria-label', t.box); ta.setAttribute('aria-describedby', q.id); ta.value = store.get(key);
+                        var note = document.createElement('p'); note.className = 'quiz-saved';
+                        var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'quiz-btn'; btn.textContent = t.btn;
+                        var out = document.createElement('div'); out.className = 'quiz-result'; out.setAttribute('aria-live', 'polite');
+                        var timer; ta.addEventListener('input', function () { clearTimeout(timer); timer = setTimeout(function () { if (store.set(key, ta.value)) note.textContent = ta.value ? t.saved : ''; }, 400); });
+                        btn.addEventListener('click', function () {
+                            if (!ta.value.trim()) { ta.focus(); return; }
+                            btn.disabled = true; btn.textContent = t.busy; out.className = 'quiz-result'; out.textContent = '';
+                            fetch('/courses/check-answer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                                body: JSON.stringify({ lesson: slug, q: Number(i), tl: tl, answer: ta.value }) })
+                                .then(function (r) { return r.json().catch(function () { return {}; }); })
+                                .then(function (d) {
+                                    if (!d || !d.verdict) { out.className = 'quiz-result is-err'; out.textContent = (d && d.error) || t.err; return; }
+                                    out.className = 'quiz-result is-' + d.verdict;
+                                    var head = document.createElement('strong'); head.textContent = d.verdict === 'correct' ? t.ok : (d.verdict === 'partly' ? t.part : t.no);
+                                    var p = document.createElement('span'); p.textContent = ' ' + (d.feedback || '');
+                                    out.appendChild(head); out.appendChild(p);
+                                })
+                                .catch(function () { out.className = 'quiz-result is-err'; out.textContent = t.err; })
+                                .finally(function () { btn.disabled = false; btn.textContent = t.btn; });
+                        });
+                        box.appendChild(ta); box.appendChild(note); box.appendChild(btn); box.appendChild(out);
                     });
                 })();
             </script>

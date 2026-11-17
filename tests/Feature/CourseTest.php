@@ -89,6 +89,24 @@ class CourseTest extends TestCase
         $this->get($url)->assertRedirect();
     }
 
+    public function test_quiz_answers_are_hidden_and_checked_on_the_server(): void
+    {
+        Course::ensureTables();
+        DB::table('course_lessons')->insert(['slug' => 'quiz-lesson', 'title' => 'Quiz lesson', 'summary' => 's', 'position' => 1, 'status' => 'published', 'created_at' => now(), 'updated_at' => now(),
+            'body' => '<h2>Check your understanding</h2><details><summary><strong>1. What is 2 + 2?</strong></summary><p>Secret model answer: four.</p></details>']);
+        config(['chatbot.api_key' => 'test-key']);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"correct","feedback":"Yes, the sum is right."}']]])]);
+
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => 'four'])->assertForbidden();
+
+        $this->actingAs($this->member(), 'member');
+        $this->get(Course::PATH.'/quiz-lesson')->assertOk()->assertSee('What is 2 + 2?')->assertDontSee('Secret model answer')->assertSee('data-q="0"', false);
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => 'four'])->assertOk()->assertJson(['verdict' => 'correct', 'feedback' => 'Yes, the sum is right.']);
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 5, 'answer' => 'x'])->assertNotFound();
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => ' '])->assertStatus(422);
+        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains(json_encode($r->data()), 'Secret model answer'));
+    }
+
     public function test_gcash_donation_box_before_the_lesson(): void
     {
         $lesson = $this->lesson();
