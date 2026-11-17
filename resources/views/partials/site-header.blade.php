@@ -8,15 +8,14 @@
     $member = \App\Support\Members::current();
     $productCategories = PublicContent::snapshot()['categories'];
     $currentCategory = request()->is('products') ? (string) request()->query('category', '') : '';
-    $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*') || ($href === '/about' && request()->is('contact', 'blog', 'blog/*'));
+    $isActive = fn (string $href) => request()->is(ltrim($href, '/')) || request()->is(ltrim($href, '/').'/*') || ($href === '/about' && request()->is('contact', 'blog', 'blog/*', 'payment-methods', 'delivery-rates'));
     $currentPackageType = request()->is('packages') ? (string) request()->query('type', '') : '';
     // Drop-down sub-menus under a main menu item: [aria label, "all" link or null, items].
     $subMenus = [];
     if ($productCategories->isNotEmpty()) {
         $subMenus['/products'] = ['Product categories', ['/products', 'All Products', request()->is('products') && $currentCategory === ''],
             [...$productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all(),
-                ['/quotation', \App\Support\Quotations::NAME, request()->is('quotation', 'quotation/*')],
-                ['/delivery-rates', 'Delivery Rates', request()->is('delivery-rates')]]];
+                ['/quotation', \App\Support\Quotations::NAME, request()->is('quotation', 'quotation/*')]]];
     }
     $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'), ltrim($i['href'], '/').'/*')], Site::ABOUT_MENU)];
     $subMenus['/packages'] = ['Package types', null, [
