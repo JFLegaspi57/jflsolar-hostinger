@@ -31,7 +31,7 @@
                 @if ($member && $canView)
                     <p class="mt-2 text-steel-700">The course is free. <strong>DO NOT RUSH</strong>, take it easy. Start with Lesson 1 below and go at your own pace. Each lesson is in English and Tagalog.</p>
                     @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-4'])
-                    <p class="mt-4 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .6rem"><span aria-hidden="true">🎓 </span><strong>Certificate of completion:</strong> available on request. It is issued after an assessment of your learning and a number of on-the-job training (OJT) sessions with the JFL Solar technical team.</p>
+                    <p class="mt-4 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .6rem"><span aria-hidden="true">🎓 </span><strong>Certificate of completion:</strong> available on request, provided that you have completed the whole course. It is issued after an assessment of your learning and a number of on-the-job training (OJT) sessions as your hands-on training with the JFL Solar technical team.</p>
                 @elseif ($canView)
                     <p class="mt-2 text-steel-700">You are signed in as staff, so you can open the lessons (also drafts) to check them.</p>
                 @else
