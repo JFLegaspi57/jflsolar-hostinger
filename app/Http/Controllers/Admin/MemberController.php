@@ -116,7 +116,7 @@ class MemberController extends Controller
             : ['active' => 0, 'left' => 0, 'new30' => 0];
 
         return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts,
-            'welcome' => ['ready' => \App\Support\Inquiries::mailReady(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount(), 'error' => \App\Support\WelcomeEmail::lastError()]]);
+            'welcome' => ['ready' => \App\Support\WelcomeEmail::ready(), 'from' => \App\Support\WelcomeEmail::fromAddress(), 'gmail' => \App\Support\WelcomeEmail::viaGmail(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount(), 'error' => \App\Support\WelcomeEmail::lastError()]]);
     }
 
     /** Sends the welcome email to members who haven't received it yet. */
