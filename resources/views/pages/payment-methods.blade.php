@@ -49,8 +49,8 @@
 
             <section aria-labelledby="pm-cod" class="border-l-4 border-gold-500 bg-gold-50 p-5 text-steel-800" style="border-radius: .75rem">
                 <h2 id="pm-cod" class="text-xl font-bold text-steel-950">No cash on delivery (COD)</h2>
-                <p class="mt-2">JFL Solar does not offer cash on delivery. If your order needs delivery, check our <a href="/delivery-rates" class="font-semibold underline">delivery rates</a> and contact us to arrange payment and delivery.</p>
-                <p class="mt-3"><a href="/delivery-rates" class="{{ Ui::button('secondary') }}">See delivery rates →</a></p>
+                <p class="mt-2">JFL Solar does not offer cash on delivery. Besides pickup, <strong>we also deliver via Lalamove</strong>. Check our <a href="/delivery-rates" class="font-semibold underline">estimated delivery rates</a>, then contact us to arrange payment and delivery.</p>
+                <p class="mt-3"><a href="/delivery-rates" class="{{ Ui::button('secondary') }}">See estimated delivery rates →</a></p>
             </section>
 
             <section aria-labelledby="pm-good" class="{{ $card }}">
