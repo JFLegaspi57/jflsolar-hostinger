@@ -29,7 +29,8 @@ class CourseController extends Controller
             'member' => $member,
             'paidUntil' => Course::paidUntil($member),
             'canView' => Course::canView(),
-            'lessons' => Course::lessons(),
+            'lessons' => $lessons = Course::lessons(),
+            'results' => $member && Course::canView() ? \App\Support\CourseResults::forLessons($member->id, $lessons) : [],
             'price' => Course::price(),
             'canBuy' => Course::canBuy(),
             'paidNote' => $paidNote,
@@ -54,6 +55,13 @@ class CourseController extends Controller
         }
         \Illuminate\Support\Facades\RateLimiter::hit('course-quiz:'.$who, 3600);
         $r = \App\Support\CourseQuiz::check($q['q'], $q['a'], $answer, $tl);
+        $member = Members::current();
+        if ($member && ! isset($r['error'])) {
+            // Keep the latest result per question, and send back the lesson's updated pass / fail summary.
+            \App\Support\CourseResults::record($member->id, $lesson->id, (int) $request->input('q'), $r['verdict'], $answer);
+            $total = \App\Support\CourseQuiz::count((string) ($tl ? $lesson->body_tl : $lesson->body));
+            $r['summary_html'] = view('pages.course.quiz-summary', ['r' => \App\Support\CourseResults::lesson($member->id, $lesson->id, $total), 'tl' => $tl])->render();
+        }
 
         return response()->json($r, isset($r['error']) ? 503 : 200);
     }
@@ -91,6 +99,7 @@ class CourseController extends Controller
             'position' => $i === false ? null : $i + 1,
             'total' => $all->count(),
             'staffPreview' => $staff !== null && ! $member,
+            'result' => $member ? \App\Support\CourseResults::lesson($member->id, $lesson->id, \App\Support\CourseQuiz::count((string) ($tagalog ? $lesson->body_tl : $lesson->body))) : null,
         ])->header('Cache-Control', 'private, no-store')->header('X-Robots-Tag', 'noindex, nofollow');
     }
 

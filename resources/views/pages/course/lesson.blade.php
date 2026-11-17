@@ -57,6 +57,13 @@
             .quiz-q .quiz-result.is-correct { background: #ecfdf3; border-color: #86efac; }
             .quiz-q .quiz-result.is-partly { background: #fff8e1; border-color: #f5d77a; }
             .quiz-q .quiz-result.is-wrong { background: #fef2f2; border-color: #fca5a5; }
+            .quiz-summary { margin-top: 2.5rem; padding: 1.25rem 1.4rem; border: 2px solid var(--color-steel-200); border-radius: .9rem; background: var(--color-steel-50); color: var(--color-steel-800); }
+            .quiz-summary h2 { margin: 0 0 .5rem; font-size: 1.3rem; font-weight: 800; color: var(--color-steel-950); }
+            .quiz-summary p { margin: .4rem 0; }
+            .quiz-summary .quiz-verdict { font-size: 1.6rem; font-weight: 800; letter-spacing: .02em; }
+            .quiz-summary .quiz-summary-small { font-size: .85rem; color: var(--color-steel-600); }
+            .quiz-summary.is-passed { background: #ecfdf3; border-color: #4ade80; } .quiz-summary.is-passed .quiz-verdict { color: #166534; }
+            .quiz-summary.is-failed { background: #fef2f2; border-color: #f87171; } .quiz-summary.is-failed .quiz-verdict { color: #991b1b; }
         </style>
     </x-slot:head>
     @php
@@ -169,6 +176,8 @@
                                     var head = document.createElement('strong'); head.textContent = d.verdict === 'correct' ? t.ok : (d.verdict === 'partly' ? t.part : t.no);
                                     var p = document.createElement('span'); p.textContent = ' ' + (d.feedback || '');
                                     out.appendChild(head); out.appendChild(p);
+                                    var sum = document.getElementById('quiz-summary');
+                                    if (sum && d.summary_html) { sum.outerHTML = d.summary_html; }
                                 })
                                 .catch(function () { out.className = 'quiz-result is-err'; out.textContent = t.err; })
                                 .finally(function () { btn.disabled = false; btn.textContent = t.btn; });
@@ -177,6 +186,9 @@
                     });
                 })();
             </script>
+            @if ($result && $result['total'] > 0)
+                @include('pages.course.quiz-summary', ['r' => $result, 'tl' => $tl])
+            @endif
             <p class="lesson-print-note" style="display: none">This lesson cannot be printed.</p>
             <p class="lesson-shield-note" aria-live="polite">{{ $tl ? 'Nakatago ang aralin habang hindi aktibo ang window o habang may screenshot. Pindutin ang pahina para magpatuloy.' : 'The lesson is hidden while this window is not active or a screenshot is being taken. Click the page to continue.' }}</p>
             <nav aria-label="Lessons" class="mt-12 flex flex-wrap justify-between gap-3 border-t border-steel-200 pt-6">
