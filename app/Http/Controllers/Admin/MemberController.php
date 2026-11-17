@@ -34,7 +34,11 @@ class MemberController extends Controller
             'new30' => Member::query()->where('created_at', '>=', now()->subDays(30))->count(),
         ] : ['total' => 0, 'active' => 0, 'new30' => 0];
 
-        return view('admin.members.index', ['members' => $members, 'q' => $q, 'counts' => $counts, 'logins' => $members ? Members::lastLogins($members->pluck('id')->all()) : [], 'online' => Members::online()]);
+        $online = Members::online();
+        $courseIds = array_values(array_unique(array_merge($members ? $members->pluck('id')->all() : [], $online->pluck('id')->all())));
+
+        return view('admin.members.index', ['members' => $members, 'q' => $q, 'counts' => $counts, 'logins' => $members ? Members::lastLogins($members->pluck('id')->all()) : [], 'online' => $online,
+            'course' => \App\Support\CourseResults::progressFor($courseIds)]);
     }
 
     /** One member: details, orders, sign-ins (time and place) and pages viewed while signed in. */

@@ -137,6 +137,40 @@ final class CourseResults
         return $out;
     }
 
+    /**
+     * Course progress for many members at once (for the admin members list), keyed by member id.
+     *
+     * @param  list<int>  $memberIds
+     * @return array<int, array{passed: int, failed: int, started: int, total: int, seen: ?object, seenNumber: ?int}>
+     */
+    public static function progressFor(array $memberIds): array
+    {
+        if (! $memberIds) {
+            return [];
+        }
+        self::ensureTable();
+        $lessons = Course::lessons()->values();
+        $pos = $lessons->mapWithKeys(fn ($l, $i) => [$l->id => $i + 1]);
+        $totals = DB::table('course_lessons')->whereIn('id', $lessons->pluck('id'))->pluck('body', 'id')->map(fn ($b) => CourseQuiz::count((string) $b));
+        $rows = DB::table(self::TABLE)->whereIn('member_id', $memberIds)->whereIn('lesson_id', $lessons->pluck('id'))->get(['member_id', 'lesson_id', 'q', 'verdict'])->groupBy('member_id');
+        $seen = DB::table(self::SEEN)->whereIn('member_id', $memberIds)->pluck('lesson_id', 'member_id');
+        $out = [];
+        foreach ($memberIds as $id) {
+            $passed = $failed = $started = 0;
+            foreach (collect($rows[$id] ?? [])->groupBy('lesson_id') as $lessonId => $answers) {
+                $total = (int) ($totals[$lessonId] ?? 0);
+                $r = self::summary($answers->filter(fn ($a) => $a->q < $total)->pluck('verdict', 'q')->all(), $total);
+                $started += $r['answered'] > 0 ? 1 : 0;
+                $passed += $r['status'] === 'passed' ? 1 : 0;
+                $failed += $r['status'] === 'failed' ? 1 : 0;
+            }
+            $seenLesson = isset($seen[$id]) ? $lessons->firstWhere('id', (int) $seen[$id]) : null;
+            $out[$id] = ['passed' => $passed, 'failed' => $failed, 'started' => $started, 'total' => $lessons->count(), 'seen' => $seenLesson, 'seenNumber' => $seenLesson ? $pos[$seenLesson->id] : null];
+        }
+
+        return $out;
+    }
+
     /** Remembers the lesson a member has just opened. */
     public static function seen(int $memberId, int $lessonId): void
     {
