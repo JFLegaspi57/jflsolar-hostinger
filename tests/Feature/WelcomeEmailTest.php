@@ -56,6 +56,19 @@ class WelcomeEmailTest extends TestCase
         $this->get('/admin/subscribers')->assertOk()->assertSee('team@gmail.test')->assertSee('(Gmail)');
     }
 
+    public function test_owner_can_mark_members_who_already_got_it_by_hand(): void
+    {
+        config(['mail.default' => 'log']);   // mailbox off: sign-ups stay waiting
+        $this->signup('done@example.com');
+        $this->signup('wait@example.com');
+        $this->assertSame(2, WelcomeEmail::pendingCount());
+        $this->postJson('/admin/subscribers/welcome/mark', ['emails' => ['done@example.com']])->assertUnauthorized();
+        $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
+        $this->postJson('/admin/subscribers/welcome/mark', ['emails' => ['DONE@example.com', 'nobody@example.com', 'not-an-email']])->assertOk()->assertExactJson(['marked' => 1, 'pending' => 1]);
+        $this->assertNotNull(Member::query()->where('email', 'done@example.com')->value('welcome_sent_at'));
+        $this->assertNull(Member::query()->where('email', 'wait@example.com')->value('welcome_sent_at'));
+    }
+
     public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
     {
         $this->signup('ana@example.com');
