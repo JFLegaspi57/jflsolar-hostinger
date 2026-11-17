@@ -44,6 +44,7 @@ final class WelcomeEmail
             if (! Inquiries::mailReady() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
                 return false;
             }
+            Cache::forget('member-welcome-last-error');
             $claimed = DB::table('members')->where('id', $member->id)->whereNull('welcome_sent_at')->update(['welcome_sent_at' => now()]);
             if (! $claimed) {
                 return false;   // already sent
@@ -53,6 +54,8 @@ final class WelcomeEmail
             } catch (\Throwable $e) {
                 DB::table('members')->where('id', $member->id)->update(['welcome_sent_at' => null]);   // try again later
                 Log::error('[welcome] email failed', ['member' => $member->id, 'error' => $e::class]);
+                // For Admin → Subscribers: what went wrong (no passwords in mail-server messages).
+                Cache::put('member-welcome-last-error', class_basename($e).': '.mb_substr(preg_replace('/\s+/', ' ', $e->getMessage()), 0, 300), now()->addDays(2));
 
                 return false;
             }
@@ -83,6 +86,11 @@ final class WelcomeEmail
         }
 
         return $sent;
+    }
+
+    public static function lastError(): ?string
+    {
+        return Cache::get('member-welcome-last-error');
     }
 
     public static function sentSinceCount(): int
