@@ -69,6 +69,14 @@ class WelcomeEmailTest extends TestCase
         $this->assertNull(Member::query()->where('email', 'wait@example.com')->value('welcome_sent_at'));
     }
 
+    public function test_owner_sees_a_mail_settings_check_without_the_password(): void
+    {
+        config(['mail.default' => 'smtp', 'mail.mailers.smtp.username' => 'info@jflsolar.test', 'mail.mailers.smtp.password' => 'Secret#Pass1 ', 'mail.mailers.smtp.host' => '127.0.0.1', 'mail.mailers.smtp.port' => 1]);
+        $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
+        $this->get('/admin/subscribers')->assertOk()->assertSee('Check the mail settings')->assertSee('13 characters, starts or ends with a space')->assertDontSee('Secret#Pass1');
+        $this->post('/admin/subscribers/mail-test')->assertRedirect('/admin/subscribers')->assertSessionHas('status_error');
+    }
+
     public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
     {
         $this->signup('ana@example.com');
