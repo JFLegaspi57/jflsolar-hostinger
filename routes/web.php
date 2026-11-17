@@ -80,6 +80,8 @@ Route::post('/forgot-password', [Account\AuthController::class, 'forgot'])->midd
 Route::get('/reset-password/{token}', [Account\AuthController::class, 'showReset'])->where('token', '[A-Za-z0-9]{20,100}');
 Route::post('/reset-password', [Account\AuthController::class, 'reset'])->middleware('throttle:account');
 Route::get('/account', [Account\AccountController::class, 'show']);
+Route::get('/account/orders', [Account\AccountController::class, 'orders']);
+Route::get('/account/course', [Account\AccountController::class, 'course']);
 Route::post('/account', [Account\AccountController::class, 'update']);
 Route::post('/account/password', [Account\AccountController::class, 'password'])->middleware('throttle:account');
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');

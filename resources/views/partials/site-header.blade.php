@@ -31,10 +31,11 @@
     ]];
     // Sub-menu under "Account" for signed-in members: shortcuts to the sections of the account page.
     $accountMenu = $member ? array_values(array_filter([
-        $cartCount !== null ? ['/account#basket', 'Your Basket'] : null,
+        $cartCount !== null ? ['/cart', 'Your Basket'] : null,
         ['/quotation', \App\Support\Quotations::NAME],
-        ['/account#course', 'Online Course'],
-        ['/account#orders', 'Your Orders'],
+        ['/account/course', 'Online Course'],
+        ['/account/orders', 'Your Orders'],
+        ['/forum', 'Forum'],
     ])) : [];
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
@@ -97,7 +98,7 @@
                     <ul aria-label="Your account" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
                         <li><a href="/account" @if (request()->is('account')) aria-current="page" @endif class="nav-dd-link font-semibold">Your Account</a></li>
                         @foreach ($accountMenu as [$accHref, $accLabel])
-                            <li><a href="{{ $accHref }}" class="nav-dd-link">{{ $accLabel }}</a></li>
+                            <li><a href="{{ $accHref }}" @if (request()->is(ltrim(strtok($accHref, '#'), '/'))) aria-current="page" @endif class="nav-dd-link">{{ $accLabel }}</a></li>
                         @endforeach
                     </ul>
                 </div>

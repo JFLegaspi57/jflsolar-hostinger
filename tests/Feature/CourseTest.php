@@ -121,7 +121,9 @@ class CourseTest extends TestCase
 
         $student = $this->member();
         $this->actingAs($student, 'member');
-        $this->get('/account')->assertSee('No lessons done yet')->assertSee('/account#orders', false)->assertSee('/account#course', false)->assertSee('Online Course');
+        $this->get('/account')->assertSee('No lessons done yet')->assertSee('/account/orders', false)->assertSee('/account/course', false)->assertSee('Online Course')->assertSee('href="/forum"', false);
+        $this->get('/account/orders')->assertOk()->assertSee('Your Orders')->assertSee('No orders yet');
+        $this->get('/account/course')->assertOk()->assertSee('No lessons done yet');
         $this->get(Course::PATH.'/result-lesson')->assertSee('Answer and check all 2 questions');
         $first = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 0, 'answer' => 'a'])->assertOk()->json('summary_html');
         $this->assertStringContainsString('checked 1 of 2', $first);
@@ -137,6 +139,7 @@ class CourseTest extends TestCase
         $this->get(Course::PATH)->assertSee('Passed · 100%')->assertSee('1 of 1 lessons passed')->assertSee('passed every lesson');
 
         // The record on the member's account page, and with the answers for staff.
+        $this->get('/account/course')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson');
         $this->get('/account')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson')->assertSee('2 of 2 (100%)')->assertDontSee('better');
         $this->actingAs($this->owner(), 'web')->get('/admin/members/'.$student->id)->assertOk()->assertSee('Online course record')->assertSee('Question 2?')->assertSee('better');
     }
