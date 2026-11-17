@@ -24,6 +24,14 @@
             <p class="mt-1">The welcome email is ready, but the website’s mail server is not set up, so it can’t be sent yet.</p>
         @endif
         @if ($welcome['check'] ?? null)
+            <form method="post" action="/admin/subscribers/mail-password" class="mt-3 flex flex-wrap items-end gap-2" autocomplete="off">
+                @csrf
+                <label class="grid gap-1 text-sm font-semibold text-steel-900">Mailbox password for {{ $welcome['check']['Username'] ?: 'the website mailbox' }}
+                    <input type="password" name="password" autocomplete="new-password" required maxlength="200" class="min-h-11 rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal" style="width: 16rem">
+                </label>
+                <button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Save and test</button>
+            </form>
+            <p class="mt-1 text-xs text-steel-700">The same password you use for this mailbox in Hostinger → Emails. It is saved encrypted and never shown again. The test signs in to the mail server without sending any email.</p>
             <details class="mt-3 text-sm">
                 <summary class="cursor-pointer font-semibold">Check the mail settings</summary>
                 <dl class="mt-2 grid gap-1" style="grid-template-columns: max-content 1fr; column-gap: 1rem">
