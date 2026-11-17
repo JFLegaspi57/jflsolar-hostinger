@@ -131,4 +131,11 @@ class HelpPagesTest extends TestCase
             ->assertDontSee('googletagmanager.com/gtag/js?id=G', false); // only added after "Allow"
         $this->get('/privacy')->assertSee('id="tracking"', false)->assertSee('Only if you choose “Allow”', false);
     }
+
+    public function test_payment_methods_page_is_in_the_about_menu(): void
+    {
+        $this->get('/payment-methods')->assertOk()->assertSee('Payment Methods')->assertSee('Pay at pickup')->assertSee('GCash')->assertSee('No cash on delivery (COD)')->assertSee('0969 471 2098');
+        $this->get('/about')->assertSee('href="/payment-methods"', false);
+        $this->get('/sitemap.xml')->assertSee('/payment-methods', false);
+    }
 }

@@ -25,6 +25,7 @@ final class Site
         ['href' => '/about', 'label' => 'Who We Are'],
         ['href' => '/contact', 'label' => 'Contact Us'],
         ['href' => '/brands', 'label' => 'Our Brands'],
+        ['href' => '/payment-methods', 'label' => 'Payment Methods'],
         ['href' => '/blog', 'label' => 'Blog Posts'],
     ];
 
