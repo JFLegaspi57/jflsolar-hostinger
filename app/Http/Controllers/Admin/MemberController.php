@@ -115,57 +115,7 @@ class MemberController extends Controller
             ]
             : ['active' => 0, 'left' => 0, 'new30' => 0];
 
-        return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts,
-            'welcome' => ['ready' => \App\Support\WelcomeEmail::ready(), 'from' => \App\Support\WelcomeEmail::fromAddress(), 'gmail' => \App\Support\WelcomeEmail::viaGmail(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount(), 'error' => \App\Support\WelcomeEmail::lastError(), 'errorAt' => \App\Support\WelcomeEmail::lastErrorAt(), 'check' => auth('web')->user()?->isOwner() ? \App\Support\WelcomeEmail::settingsCheck() : null]]);
-    }
-
-    /** Sends the welcome email to members who haven't received it yet. */
-    public function sendWelcome(): \Illuminate\Http\RedirectResponse
-    {
-        $sent = \App\Support\WelcomeEmail::sendPending();
-        $left = \App\Support\WelcomeEmail::pendingCount();
-
-        return redirect('/admin/subscribers')->with('status', 'Welcome email sent to '.$sent.' '.($sent === 1 ? 'member' : 'members').'.'.($left ? ' '.$left.' still waiting: send again.' : ''));
-    }
-
-    /** Owner only: signs in to the mail server without sending anything. */
-    public function testMail(): \Illuminate\Http\RedirectResponse
-    {
-        abort_unless(auth('web')->user()?->isOwner(), 403);
-        $r = \App\Support\WelcomeEmail::testLogin();
-
-        return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', 'Mail login test: '.$r['message']);
-    }
-
-    /** Owner only: saves the website mailbox password (encrypted), then tests the login without sending anything. */
-    public function mailPassword(Request $request): \Illuminate\Http\RedirectResponse
-    {
-        abort_unless(auth('web')->user()?->isOwner(), 403);
-        $pw = (string) $request->input('password', '');
-        if ($pw === '' || mb_strlen($pw) > 200) {
-            return redirect('/admin/subscribers')->with('status_error', 'Type the mailbox password first.');
-        }
-        \App\Support\MailPassword::set($pw);
-        $r = \App\Support\WelcomeEmail::testLogin();
-
-        return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', $r['ok']
-            ? 'Mailbox password saved, and the login works. The welcome email can be sent now.'
-            : 'Mailbox password saved, but the mail server still refuses it: check it is the same password as info@jflsolar.ph in Hostinger → Emails. ('.$r['message'].')');
-    }
-
-    /** Owner only: marks the welcome email as already received for these addresses (it was sent to them by hand, e.g. from Gmail). */
-    public function markWelcome(Request $request): \Illuminate\Http\JsonResponse
-    {
-        abort_unless(auth('web')->user()?->isOwner(), 403);
-        $emails = collect((array) $request->input('emails', []))->take(5000)
-            ->map(fn ($e) => mb_strtolower(trim((string) $e)))->filter(fn ($e) => filter_var($e, FILTER_VALIDATE_EMAIL))->unique()->values();
-        \App\Support\WelcomeEmail::ensureColumn();
-        $marked = 0;
-        foreach ($emails->chunk(500) as $chunk) {
-            $marked += \App\Models\Member::query()->whereNull('welcome_sent_at')->whereIn(\Illuminate\Support\Facades\DB::raw('LOWER(email)'), $chunk->all())->update(['welcome_sent_at' => now()]);
-        }
-
-        return response()->json(['marked' => $marked, 'pending' => \App\Support\WelcomeEmail::pendingCount()]);
+        return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts]);
     }
 
     /** CSV of active subscribers, for your email tool. Each row has its personal unsubscribe link. */
