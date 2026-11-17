@@ -21,6 +21,14 @@ class MemberWelcome extends Mailable
     {
         $s = PublicContent::settings();
 
+        // From Gmail: it comes from (and replies go to) that account. Otherwise from the website's mailbox, replies to the public email.
+        if (\App\Support\WelcomeEmail::viaGmail()) {
+            return new Envelope(
+                from: new Address((string) config('mail.mailers.gmail.username'), Site::NAME),
+                subject: 'Thank you from the whole JFL Solar team + a quick tour of our website',
+            );
+        }
+
         return new Envelope(
             subject: 'Thank you from the whole JFL Solar team + a quick tour of our website',
             replyTo: filled($s->public_email) ? [new Address($s->public_email, Site::NAME)] : [],

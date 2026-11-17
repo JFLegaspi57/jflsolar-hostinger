@@ -42,6 +42,20 @@ class WelcomeEmailTest extends TestCase
         Mail::assertSentCount(1);
     }
 
+    public function test_it_can_be_sent_from_a_gmail_account(): void
+    {
+        config(['mail.default' => 'log', 'mail.mailers.gmail.username' => 'team@gmail.test', 'mail.mailers.gmail.password' => 'app-password']);
+        $this->assertTrue(WelcomeEmail::viaGmail());
+        $this->assertTrue(WelcomeEmail::ready());   // even with the website's own mailbox off
+        $this->assertSame('team@gmail.test', WelcomeEmail::fromAddress());
+        Mail::fake();
+        $this->signup('gmailer@example.com');
+        Mail::assertSent(MemberWelcome::class, fn ($m) => $m->hasTo('gmailer@example.com') && $m->mailer === 'gmail' && $m->hasFrom('team@gmail.test'));
+
+        $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
+        $this->get('/admin/subscribers')->assertOk()->assertSee('team@gmail.test')->assertSee('(Gmail)');
+    }
+
     public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
     {
         $this->signup('ana@example.com');

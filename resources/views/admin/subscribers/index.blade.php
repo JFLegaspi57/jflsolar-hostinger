@@ -13,7 +13,7 @@
     <section aria-labelledby="welcome-h" class="mb-5 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .75rem">
         <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email</h2>
         @if ($welcome['ready'])
-            <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from the website’s mailbox. Sent automatically so far: <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
+            <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from <strong>{{ $welcome['from'] ?? 'the website’s mailbox' }}</strong>{{ $welcome['gmail'] ? ' (Gmail)' : '' }}. Sent automatically so far: <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
             @if ($welcome['error'])
                 <p class="mt-2 text-sm text-steel-800"><strong>Last sending problem:</strong> <span class="break-words">{{ $welcome['error'] }}</span></p>
             @endif
@@ -23,6 +23,9 @@
         @else
             <p class="mt-1">The welcome email is ready, but the website’s mail server is not set up, so it can’t be sent yet.</p>
         @endif
+        @unless ($welcome['gmail'])
+            <p class="mt-2 text-sm">To send it from your Gmail account instead, add <code>GMAIL_USERNAME</code> (the Gmail address) and <code>GMAIL_APP_PASSWORD</code> (a Google app password) to the server settings, then reload the settings.</p>
+        @endunless
     </section>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">

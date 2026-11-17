@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * The welcome email ("Thank you from the whole JFL Solar team + a quick tour of our website"),
- * sent automatically to every new member right after sign-up, from the website's own mailbox.
+ * sent automatically to every new member right after sign-up: from the Gmail account when GMAIL_USERNAME and
+ * GMAIL_APP_PASSWORD are set, otherwise from the website's own mailbox.
  * members.welcome_sent_at keeps track, so nobody gets it twice.
  */
 final class WelcomeEmail
@@ -22,6 +23,24 @@ final class WelcomeEmail
     public const MANUAL_UNTIL = '2026-11-17 11:52:00';   // UTC (7:52 PM in Manila)
 
     private const KEY = 'member-welcome-column-v1';
+
+    /** Sent from the Gmail account (GMAIL_USERNAME + GMAIL_APP_PASSWORD in the server settings). */
+    public static function viaGmail(): bool
+    {
+        return filled(config('mail.mailers.gmail.username')) && filled(config('mail.mailers.gmail.password'));
+    }
+
+    /** It can be sent: from Gmail, or from the website's mailbox. */
+    public static function ready(): bool
+    {
+        return self::viaGmail() || Inquiries::mailReady();
+    }
+
+    /** The address new members see it from. */
+    public static function fromAddress(): ?string
+    {
+        return self::viaGmail() ? (string) config('mail.mailers.gmail.username') : (config('mail.from.address') ?: null);
+    }
 
     public static function ensureColumn(): void
     {
@@ -41,7 +60,7 @@ final class WelcomeEmail
     {
         try {
             self::ensureColumn();
-            if (! Inquiries::mailReady() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
+            if (! self::ready() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
                 return false;
             }
             $claimed = DB::table('members')->where('id', $member->id)->whereNull('welcome_sent_at')->update(['welcome_sent_at' => now()]);
@@ -49,7 +68,7 @@ final class WelcomeEmail
                 return false;   // already sent
             }
             try {
-                Mail::to($member->email, $member->name)->send(new MemberWelcome($member));
+                Mail::mailer(self::viaGmail() ? 'gmail' : null)->to($member->email, $member->name)->send(new MemberWelcome($member));
                 Cache::forget('member-welcome-last-error');
             } catch (\Throwable $e) {
                 DB::table('members')->where('id', $member->id)->update(['welcome_sent_at' => null]);   // try again later
