@@ -58,7 +58,7 @@ class CourseController extends Controller
         $member = Members::current();
         if ($member && ! isset($r['error'])) {
             // Keep the latest result per question, and send back the lesson's updated pass / fail summary.
-            \App\Support\CourseResults::record($member->id, $lesson->id, (int) $request->input('q'), $r['verdict'], $answer);
+            \App\Support\CourseResults::save($member->id, $lesson->id, (int) $request->input('q'), $r['verdict'], $answer);
             $total = \App\Support\CourseQuiz::count((string) ($tl ? $lesson->body_tl : $lesson->body));
             $r['summary_html'] = view('pages.course.quiz-summary', ['r' => \App\Support\CourseResults::lesson($member->id, $lesson->id, $total), 'tl' => $tl])->render();
         }

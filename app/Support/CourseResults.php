@@ -43,7 +43,7 @@ final class CourseResults
     }
 
     /** Saves the latest checked answer to one question (a new check replaces the old one). */
-    public static function record(int $memberId, int $lessonId, int $q, string $verdict, string $answer): void
+    public static function save(int $memberId, int $lessonId, int $q, string $verdict, string $answer): void
     {
         if (! isset(self::POINTS[$verdict])) {
             return;
@@ -86,6 +86,42 @@ final class CourseResults
             $total = CourseQuiz::count((string) ($bodies[$id] ?? ''));
             $rows = collect($all[$id] ?? [])->filter(fn ($r) => $r->q < $total)->pluck('verdict', 'q')->all();
             $out[$id] = self::summary($rows, $total);
+        }
+
+        return $out;
+    }
+
+    /**
+     * The member's course record: every lesson with at least one checked answer, in course order,
+     * with its result and when it was last checked. With $answers, each checked question and answer too (for staff).
+     *
+     * @return list<array{lesson: object, result: array, last: ?\Illuminate\Support\Carbon, answers: list<array{n: int, question: string, verdict: string, answer: string}>}>
+     */
+    public static function record(int $memberId, bool $answers = false): array
+    {
+        self::ensureTable();
+        $lessons = Course::lessons();
+        $results = self::forLessons($memberId, $lessons);
+        $rows = DB::table(self::TABLE)->where('member_id', $memberId)->orderBy('q')->get()->groupBy('lesson_id');
+        $bodies = $answers ? DB::table('course_lessons')->pluck('body', 'id') : collect();
+        $out = [];
+        foreach ($lessons as $l) {
+            $r = $results[$l->id] ?? null;
+            if (! $r || $r['answered'] === 0) {
+                continue;
+            }
+            $mine = collect($rows[$l->id] ?? []);
+            $list = [];
+            if ($answers) {
+                $qs = CourseQuiz::questions((string) ($bodies[$l->id] ?? ''));
+                foreach ($mine as $row) {
+                    if (isset($qs[$row->q])) {
+                        $list[] = ['n' => (int) $row->q + 1, 'question' => trim(html_entity_decode(strip_tags(preg_replace('/^\s*\d+\.\s*/', '', $qs[$row->q]['q'])), ENT_QUOTES | ENT_HTML5, 'UTF-8')), 'verdict' => $row->verdict, 'answer' => $row->answer];
+                    }
+                }
+            }
+            $last = $mine->max('updated_at');
+            $out[] = ['lesson' => $l, 'result' => $r, 'last' => $last ? \Illuminate\Support\Carbon::parse($last) : null, 'answers' => $list];
         }
 
         return $out;

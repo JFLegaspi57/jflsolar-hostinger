@@ -35,6 +35,7 @@ class AccountController extends Controller
             'forumLatest' => \App\Support\Forum::hasTables()
                 ? \App\Models\ForumTopic::query()->where('status', 'published')->orderByDesc('last_post_at')->limit(5)->get()
                 : collect(),
+            'courseRecord' => \App\Support\CourseResults::record($member->id),
             'quoteCount' => (function () use ($member) {
                 \App\Support\Quotations::ensureTables();
 

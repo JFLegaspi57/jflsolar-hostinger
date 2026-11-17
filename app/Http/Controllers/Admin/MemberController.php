@@ -53,6 +53,7 @@ class MemberController extends Controller
             'logins' => $hasActivity ? DB::table('member_activity')->where('member_id', $m->id)->where('kind', 'login')->orderByDesc('id')->limit(50)->get() : collect(),
             'pages' => $hasActivity ? DB::table('member_activity')->where('member_id', $m->id)->where('kind', 'page')->orderByDesc('id')->limit(300)->get() : collect(),
             'subscribed' => Newsletter::isSubscribed($m->email),
+            'courseRecord' => \App\Support\CourseResults::record($m->id, true),
         ]);
     }
 

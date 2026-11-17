@@ -119,7 +119,9 @@ class CourseTest extends TestCase
         $reply = fn (string $v) => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"'.$v.'","feedback":"ok"}']]]);
         \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::sequence()->pushResponse($reply('correct'))->pushResponse($reply('wrong'))->pushResponse($reply('correct'))]);
 
-        $this->actingAs($this->member(), 'member');
+        $student = $this->member();
+        $this->actingAs($student, 'member');
+        $this->get('/account')->assertSee('No lessons done yet');
         $this->get(Course::PATH.'/result-lesson')->assertSee('Answer and check all 2 questions');
         $first = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 0, 'answer' => 'a'])->assertOk()->json('summary_html');
         $this->assertStringContainsString('checked 1 of 2', $first);
@@ -133,6 +135,10 @@ class CourseTest extends TestCase
         $this->assertStringContainsString('PASSED', $passed);
         $this->get(Course::PATH.'/result-lesson')->assertSee('PASSED')->assertSee('2 of 2');
         $this->get(Course::PATH)->assertSee('Passed · 100%')->assertSee('1 of 1 lessons passed')->assertSee('passed every lesson');
+
+        // The record on the member's account page, and with the answers for staff.
+        $this->get('/account')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson')->assertSee('2 of 2 (100%)')->assertDontSee('better');
+        $this->actingAs($this->owner(), 'web')->get('/admin/members/'.$student->id)->assertOk()->assertSee('Online course record')->assertSee('Question 2?')->assertSee('better');
     }
 
     public function test_gcash_donation_box_before_the_lesson(): void
