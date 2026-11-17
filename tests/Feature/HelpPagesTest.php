@@ -134,7 +134,8 @@ class HelpPagesTest extends TestCase
 
     public function test_payment_methods_page_is_in_the_about_menu(): void
     {
-        $this->get('/payment-methods')->assertOk()->assertSee('Payment Methods')->assertSee('Pay at pickup')->assertSee('GCash')->assertSee('No cash on delivery (COD)')->assertSee('0969 471 2098')->assertSee('The check must clear first')->assertSee('images.unsplash.com', false)->assertSee('Clay Banks');
+        $this->get('/payment-methods')->assertOk()->assertSee('Payment Methods')->assertSee('Pay at pickup')->assertSee('GCash')->assertSee('No cash on delivery (COD)')->assertSee('0969 471 2098')->assertSee('The check must clear first')->assertSee('images.unsplash.com', false)->assertSee('Clay Banks')->assertSee('See delivery rates');
+        $this->get('/delivery-rates')->assertSee('href="/payment-methods"', false);
         $about = $this->get('/about')->assertSee('href="/payment-methods"', false)->getContent();
         // Delivery Rates sits in the About menu (after Payment Methods), no longer under Products.
         $this->assertLessThan(strpos($about, 'href="/delivery-rates"'), strpos($about, 'href="/payment-methods"'));

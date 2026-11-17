@@ -129,6 +129,7 @@
                         <li>Expressway tolls, extra helpers, long waiting time and extra drop-off points are charged separately.</li>
                         <li>Courier rates can change with fuel prices and demand, so we confirm the final fee in your quotation before we dispatch.</li>
                         <li>Online shop orders are for pickup at our warehouse. Call our Sales team if you would like them delivered.</li>
+                        <li>No cash on delivery (COD). See our <a href="/payment-methods" class="font-semibold underline">payment methods</a>.</li>
                     </ul>
                 </div>
                 <div class="rounded-[var(--radius-panel)] border border-steel-200 bg-steel-50 p-6">
