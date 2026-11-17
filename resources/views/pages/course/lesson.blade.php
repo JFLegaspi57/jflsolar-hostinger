@@ -37,6 +37,15 @@
             .lesson-protected img, .lesson-protected svg { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
             .lesson-protected { position: relative; }
             .lesson-wm { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-repeat: repeat; opacity: .07; }
+            /* Check your understanding: each question gets an answer box; the model answer opens below it. */
+            .quiz-q { margin: 1.25rem 0; padding: 1rem 1.2rem; border: 1px solid var(--color-steel-200); border-radius: .75rem; background: #fff; position: relative; z-index: 3; }
+            .quiz-q .quiz-question { margin: 0 0 .6rem; font-weight: 700; color: var(--color-steel-950); }
+            .quiz-q textarea { display: block; width: 100%; min-height: 6rem; padding: .6rem .75rem; border: 1px solid var(--color-steel-400); border-radius: .5rem; background: var(--color-steel-50); font: inherit; font-size: 1rem; line-height: 1.5; color: var(--color-steel-900); resize: vertical; -webkit-user-select: text; -moz-user-select: text; user-select: text; }
+            .quiz-q textarea:focus { outline: 3px solid var(--color-gold-500); outline-offset: 1px; background: #fff; }
+            .quiz-q .quiz-saved { margin-top: .3rem; font-size: .8rem; color: var(--color-steel-500); min-height: 1em; }
+            .quiz-q details { margin-top: .6rem; }
+            .quiz-q details summary { display: inline-flex; min-height: 2.75rem; align-items: center; cursor: pointer; font-weight: 700; color: var(--color-steel-900); text-decoration: underline; text-underline-offset: .2em; }
+            .quiz-q details[open] summary { margin-bottom: .25rem; }
         </style>
     </x-slot:head>
     @php
@@ -93,6 +102,31 @@
                     }, true);
                     window.addEventListener('beforeprint', function () { document.body.style.visibility = 'hidden'; });
                     window.addEventListener('afterprint', function () { document.body.style.visibility = ''; });
+                })();
+            </script>
+            <script>
+                (function () {
+                    // Turn each "Check your understanding" question into: question, an answer box for the student, then "Show answer".
+                    // What the student writes is kept in this browser only (not sent anywhere).
+                    var showLabel = @json($tl ? 'Ipakita ang sagot' : 'Show answer');
+                    var boxLabel = @json($tl ? 'Ang sagot mo' : 'Your answer');
+                    var placeholder = @json($tl ? 'Isulat dito ang sagot mo bago tingnan ang sagot…' : 'Write your answer here before you look at the answer…');
+                    var savedText = @json($tl ? 'Naka-save sa browser na ito' : 'Saved in this browser');
+                    var keyBase = 'jfl-course-answer:' + @json($lesson->slug) + ':';
+                    var store = { get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
+                    document.querySelectorAll('.lesson-body details').forEach(function (d, i) {
+                        var summary = d.querySelector('summary');
+                        if (!summary || d.closest('.quiz-q')) return;
+                        var wrap = document.createElement('div'); wrap.className = 'quiz-q';
+                        var q = document.createElement('p'); q.className = 'quiz-question'; q.id = 'quiz-q-' + i; q.innerHTML = summary.innerHTML;
+                        var ta = document.createElement('textarea'); ta.id = 'quiz-a-' + i; ta.placeholder = placeholder; ta.setAttribute('aria-label', boxLabel); ta.setAttribute('aria-describedby', q.id);
+                        var note = document.createElement('p'); note.className = 'quiz-saved'; note.setAttribute('aria-live', 'polite');
+                        var key = keyBase + i; ta.value = store.get(key);
+                        var t; ta.addEventListener('input', function () { clearTimeout(t); t = setTimeout(function () { if (store.set(key, ta.value)) { note.textContent = ta.value ? savedText : ''; } }, 400); });
+                        d.parentNode.insertBefore(wrap, d);
+                        summary.textContent = showLabel;
+                        wrap.appendChild(q); wrap.appendChild(ta); wrap.appendChild(note); wrap.appendChild(d);
+                    });
                 })();
             </script>
             <p class="lesson-print-note" style="display: none">This lesson cannot be printed.</p>
