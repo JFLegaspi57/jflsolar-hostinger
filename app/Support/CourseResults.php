@@ -18,7 +18,10 @@ final class CourseResults
 
     private const TABLE = 'course_quiz_results';
 
-    private const TABLE_KEY = 'course-quiz-results-v1';
+    private const TABLE_KEY = 'course-quiz-results-v2';
+
+    /** The last lesson each member opened (one row per member). */
+    private const SEEN = 'course_last_seen';
 
     private const POINTS = ['correct' => 1.0, 'partly' => 0.5, 'wrong' => 0.0];
 
@@ -37,6 +40,13 @@ final class CourseResults
                 $t->text('answer');
                 $t->timestamps();
                 $t->unique(['member_id', 'lesson_id', 'q']);
+            });
+        }
+        if (! Schema::hasTable(self::SEEN)) {
+            Schema::create(self::SEEN, function (Blueprint $t) {
+                $t->unsignedBigInteger('member_id')->primary();
+                $t->unsignedBigInteger('lesson_id');
+                $t->timestamp('seen_at')->nullable();
             });
         }
         Cache::forever(self::TABLE_KEY, true);
@@ -125,6 +135,54 @@ final class CourseResults
         }
 
         return $out;
+    }
+
+    /** Remembers the lesson a member has just opened. */
+    public static function seen(int $memberId, int $lessonId): void
+    {
+        self::ensureTable();
+        DB::table(self::SEEN)->upsert([['member_id' => $memberId, 'lesson_id' => $lessonId, 'seen_at' => now()]], ['member_id'], ['lesson_id', 'seen_at']);
+    }
+
+    /**
+     * Where the member should go next in the course.
+     * kind: start (nothing done yet) | resume (an opened lesson not passed yet) | next (after the last passed lesson) | complete (all passed).
+     *
+     * @return array{kind: string, lesson: ?object, number: ?int, done: ?object, doneNumber: ?int}
+     */
+    public static function nextStep(int $memberId): array
+    {
+        self::ensureTable();
+        $lessons = Course::lessons()->values();
+        $none = ['kind' => 'start', 'lesson' => $lessons->first(), 'number' => $lessons->isEmpty() ? null : 1, 'done' => null, 'doneNumber' => null];
+        if ($lessons->isEmpty()) {
+            return $none;
+        }
+        $results = self::forLessons($memberId, $lessons);
+        $passed = fn ($l) => ($results[$l->id]['status'] ?? '') === 'passed';
+        $pos = $lessons->mapWithKeys(fn ($l, $i) => [$l->id => $i]);
+
+        // The last finished lesson: the passed lesson checked most recently.
+        $lastChecked = DB::table(self::TABLE)->where('member_id', $memberId)->groupBy('lesson_id')->selectRaw('lesson_id, MAX(updated_at) as at')->pluck('at', 'lesson_id');
+        $done = $lessons->filter($passed)->sortByDesc(fn ($l) => (string) ($lastChecked[$l->id] ?? ''))->first();
+        $seen = DB::table(self::SEEN)->where('member_id', $memberId)->first();
+        $seenLesson = $seen ? $lessons->firstWhere('id', (int) $seen->lesson_id) : null;
+
+        // Opened a lesson after finishing the last one and not passed it yet: continue there.
+        if ($seenLesson && ! $passed($seenLesson) && (! $done || (string) $seen->seen_at >= (string) ($lastChecked[$done->id] ?? ''))) {
+            return ['kind' => 'resume', 'lesson' => $seenLesson, 'number' => $pos[$seenLesson->id] + 1,
+                'done' => $done, 'doneNumber' => $done ? $pos[$done->id] + 1 : null];
+        }
+        if (! $done) {
+            return $seenLesson ? ['kind' => 'resume', 'lesson' => $seenLesson, 'number' => $pos[$seenLesson->id] + 1, 'done' => null, 'doneNumber' => null] : $none;
+        }
+        // The next lesson after the last finished one that isn't passed yet (or any earlier one still open).
+        $after = $lessons->slice($pos[$done->id] + 1)->first(fn ($l) => ! $passed($l)) ?? $lessons->first(fn ($l) => ! $passed($l));
+        if (! $after) {
+            return ['kind' => 'complete', 'lesson' => null, 'number' => null, 'done' => $done, 'doneNumber' => $pos[$done->id] + 1];
+        }
+
+        return ['kind' => 'next', 'lesson' => $after, 'number' => $pos[$after->id] + 1, 'done' => $done, 'doneNumber' => $pos[$done->id] + 1];
     }
 
     /** "5.5" or "6": half points only when there are any. */

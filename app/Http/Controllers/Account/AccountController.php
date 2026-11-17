@@ -35,7 +35,7 @@ class AccountController extends Controller
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount%2Fcourse'));
 
-        return view('pages.account.subpage', ['section' => 'course', 'heading' => 'Online Course', 'path' => '/account/course', 'courseRecord' => \App\Support\CourseResults::record($member->id)]);
+        return view('pages.account.subpage', ['section' => 'course', 'heading' => 'Online Course', 'path' => '/account/course', 'courseRecord' => \App\Support\CourseResults::record($member->id), 'nextStep' => \App\Support\Course::canView() ? \App\Support\CourseResults::nextStep($member->id) : null]);
     }
 
     public function show(): View|RedirectResponse
@@ -55,6 +55,7 @@ class AccountController extends Controller
                 ? \App\Models\ForumTopic::query()->where('status', 'published')->orderByDesc('last_post_at')->limit(5)->get()
                 : collect(),
             'courseRecord' => \App\Support\CourseResults::record($member->id),
+            'nextStep' => \App\Support\Course::canView() ? \App\Support\CourseResults::nextStep($member->id) : null,
             'quoteCount' => (function () use ($member) {
                 \App\Support\Quotations::ensureTables();
 

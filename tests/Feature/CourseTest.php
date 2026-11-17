@@ -144,6 +144,39 @@ class CourseTest extends TestCase
         $this->actingAs($this->owner(), 'web')->get('/admin/members/'.$student->id)->assertOk()->assertSee('Online course record')->assertSee('Question 2?')->assertSee('better');
     }
 
+    public function test_member_is_led_to_the_next_lesson(): void
+    {
+        Course::ensureTables();
+        foreach ([1, 2, 3] as $n) {
+            DB::table('course_lessons')->insert(['slug' => 'step-'.$n, 'title' => 'Step lesson '.$n, 'summary' => 's', 'position' => $n, 'status' => 'published', 'created_at' => now(), 'updated_at' => now(),
+                'body' => '<h2>Check your understanding</h2><details><summary><strong>1. Q'.$n.'?</strong></summary><p>A.</p></details>']);
+        }
+        config(['chatbot.api_key' => 'test-key']);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"correct","feedback":"ok"}']]])]);
+        $this->actingAs($this->member(), 'member');
+
+        $this->get('/account')->assertSee('Start Lesson 1')->assertSee(Course::PATH.'/step-1', false);
+        $this->get(Course::PATH.'/step-1')->assertOk();
+        $this->get('/account')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1');
+
+        // Lesson 1 finished: next time, straight to Lesson 2.
+        $this->postJson('/courses/check-answer', ['lesson' => 'step-1', 'q' => 0, 'answer' => 'a'])->assertOk();
+        $this->get('/account')->assertSee('You finished Lesson 1: Step lesson 1')->assertSee('Start Lesson 2')->assertSee(Course::PATH.'/step-2', false);
+        $this->get(Course::PATH)->assertSee('Start Lesson 2');
+        $this->get('/account/course')->assertSee('Start Lesson 2');
+
+        // Opened Lesson 2 but not finished: continue Lesson 2.
+        $this->travel(2)->seconds();
+        $this->get(Course::PATH.'/step-2')->assertOk();
+        $this->get('/account')->assertSee('Continue Lesson 2');
+
+        foreach (['step-2', 'step-3'] as $slug) {
+            $this->travel(2)->seconds();
+            $this->postJson('/courses/check-answer', ['lesson' => $slug, 'q' => 0, 'answer' => 'a'])->assertOk();
+        }
+        $this->get('/account')->assertSee('You have passed every lesson');
+    }
+
     public function test_gcash_donation_box_before_the_lesson(): void
     {
         $lesson = $this->lesson();
