@@ -11,6 +11,9 @@
             <a href="/admin/chats" @if ($view === 'all' && ! $visitor) aria-current="page" @endif class="{{ $tab }}">All <span class="tabular">({{ $counts['all'] }})</span></a>
             <a href="/admin/chats?view=callback" @if ($view === 'callback') aria-current="page" @endif class="{{ $tab }}">Asked for a callback <span class="tabular">({{ $counts['callback'] }})</span></a>
         </nav>
+        @if ($newCount)
+            <form method="post" action="/admin/chats/seen">@csrf<button type="submit" class="inline-flex min-h-11 items-center rounded-[var(--radius-control)] border border-steel-300 bg-white px-4 text-sm font-semibold text-steel-900">Mark all as read ({{ $newCount }})</button></form>
+        @endif
         <form method="get" action="/admin/chats" role="search" class="ml-auto flex flex-wrap gap-2">
             @if ($view === 'callback')<input type="hidden" name="view" value="callback">@endif
             <label for="chat-q" class="sr-only">Search chats</label>
@@ -28,9 +31,10 @@
         <ul class="divide-y divide-steel-200 rounded-[var(--radius-panel)] border border-steel-200 bg-white">
             @foreach ($chats as $c)
                 @php $first = ChatLog::firstQuestion($c); @endphp
-                <li class="p-4">
+                @php $isNew = ChatLog::isNew($c); @endphp
+                <li class="p-4" @if ($isNew) style="background: #fffbeb" @endif>
                     <div class="flex flex-wrap items-baseline justify-between gap-2">
-                        <a href="/admin/chats/{{ $c->id }}" class="line-clamp-2 min-w-0 flex-1 text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $first !== '' ? $first : 'Chat' }}</a>
+                        <a href="/admin/chats/{{ $c->id }}" class="line-clamp-2 min-w-0 flex-1 text-lg font-bold text-steel-950 underline-offset-2 hover:underline">@if ($isNew)<span class="mr-1 rounded-full bg-gold-500 px-2 text-xs font-bold text-steel-950 align-middle" style="vertical-align: middle">New</span>@endif{{ $first !== '' ? $first : 'Chat' }}</a>
                         <span class="text-sm text-steel-600 tabular">{{ \Illuminate\Support\Carbon::parse($c->last_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}</span>
                     </div>
                     <p class="mt-1 text-sm text-steel-700">

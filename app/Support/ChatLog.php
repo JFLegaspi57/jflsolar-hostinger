@@ -24,6 +24,9 @@ final class ChatLog
     /** Created on first use (Hostinger does not run migrations). */
     public static function ensureTable(): void
     {
+        if (\Illuminate\Support\Facades\Cache::get('chat-log-table-v2')) {
+            return;
+        }
         if (! Schema::hasTable(self::TABLE)) {
             Schema::create(self::TABLE, function (Blueprint $t) {
                 $t->id();
@@ -39,6 +42,42 @@ final class ChatLog
                 $t->timestamps();
             });
         }
+        // When staff last opened the chat: newer messages make it "new" again (Admin badge and pop-up).
+        if (! Schema::hasColumn(self::TABLE, 'seen_at')) {
+            Schema::table(self::TABLE, fn (Blueprint $t) => $t->timestamp('seen_at')->nullable());
+            // Chats from before this was added count as read, except the last 24 hours.
+            DB::table(self::TABLE)->where('last_at', '<', now()->subDay())->update(['seen_at' => DB::raw('last_at')]);
+        }
+        \Illuminate\Support\Facades\Cache::forever('chat-log-table-v2', true);
+    }
+
+    /** Chats staff haven't opened yet, or with new messages since they did. */
+    public static function unseen(): \Illuminate\Database\Query\Builder
+    {
+        return self::query()->where(fn ($w) => $w->whereNull('seen_at')->orWhereColumn('last_at', '>', 'seen_at'));
+    }
+
+    public static function newCount(): int
+    {
+        try {
+            return self::unseen()->count();
+        } catch (\Throwable) {
+            return 0;
+        }
+    }
+
+    public static function isNew(object $row): bool
+    {
+        return ! $row->seen_at || (string) $row->last_at > (string) $row->seen_at;
+    }
+
+    public static function markSeen(?int $id = null): void
+    {
+        $q = self::query();
+        if ($id) {
+            $q->where('id', $id);
+        }
+        $q->update(['seen_at' => now()]);
     }
 
     /** A chat id from the browser, or a fresh one when it is missing or malformed. */

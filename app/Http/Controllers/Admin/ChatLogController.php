@@ -35,6 +35,7 @@ class ChatLogController extends Controller
             'visitor' => $visitor,
             'counts' => ['all' => ChatLog::query()->count(), 'callback' => ChatLog::query()->where('callback', true)->count()],
             'today' => ChatLog::todayCount(),
+            'newCount' => ChatLog::newCount(),
         ]);
     }
 
@@ -42,12 +43,35 @@ class ChatLogController extends Controller
     {
         $chat = ChatLog::query()->where('id', $id)->first();
         abort_unless($chat, 404);
+        ChatLog::markSeen($id);
 
         return view('admin.chats.show', [
             'chat' => $chat,
             'messages' => ChatLog::messages($chat),
             'others' => ChatLog::query()->where('visitor', $chat->visitor)->where('id', '!=', $chat->id)->count(),
         ]);
+    }
+
+    /** "Mark all as read". */
+    public function seenAll(): RedirectResponse
+    {
+        ChatLog::markSeen();
+
+        return redirect('/admin/chats')->with('status', 'All chats marked as read.');
+    }
+
+    /** For the admin pop-up: how many new chats, and the newest one. */
+    public function newCount(): \Illuminate\Http\JsonResponse
+    {
+        $latest = ChatLog::unseen()->orderByDesc('last_at')->first();
+        $text = '';
+        if ($latest) {
+            $user = array_values(array_filter(ChatLog::messages($latest), fn ($m) => $m['role'] === 'user'));
+            $text = \Illuminate\Support\Str::limit((string) (end($user)['content'] ?? ''), 90);
+        }
+
+        return response()->json(['count' => ChatLog::newCount(), 'latest' => $latest ? ['id' => $latest->id, 'text' => $text, 'callback' => (bool) $latest->callback] : null])
+            ->header('Cache-Control', 'no-store');
     }
 
     public function destroy(int $id): RedirectResponse

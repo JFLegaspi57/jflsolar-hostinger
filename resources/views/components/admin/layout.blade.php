@@ -28,6 +28,7 @@
     $forumPending = \App\Support\Forum::pendingCount();
     $blogWaiting = \App\Support\BlogComments::waitingCount();
     $membersOnline = \App\Support\Members::online()->count();
+    $newChats = \App\Support\ChatLog::newCount();
     // Online shop: the Orders page appears once the shop is switched on (or has had orders).
     $shopOn = \App\Support\Shop::ordersVisible();
     if (! $shopOn) {
@@ -80,6 +81,9 @@
                                     @if ($href === '/admin/forum' && $forumPending)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $forumPending }}<span class="sr-only"> waiting for approval</span></span>
                                     @endif
+                                    @if ($href === '/admin/chats')
+                                        <span data-new-chats class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular" @unless ($newChats) hidden @endunless>{{ $newChats }}<span class="sr-only"> new</span></span>
+                                    @endif
                                     @if ($href === '/admin/inquiries' && $newInquiries)
                                         <span class="rounded-full bg-white px-2 text-xs font-bold text-steel-950 tabular">{{ $newInquiries }}<span class="sr-only"> new</span></span>
                                     @endif
@@ -109,5 +113,37 @@
             </div>
         </main>
     </div>
+    {{-- New Buckny chats: checks every 30 seconds, updates the menu badge and pops up a note when a new chat comes in. --}}
+    <div id="chat-pop" role="status" aria-live="polite" hidden style="position: fixed; right: 1rem; bottom: 1rem; z-index: 60; max-width: min(24rem, calc(100vw - 2rem)); padding: .9rem 1rem; border-radius: .9rem; background: var(--color-steel-950); color: #fff; box-shadow: 0 12px 32px rgb(0 0 0 / .3)">
+        <p style="margin: 0; font-weight: 700">💬 <span data-chat-pop-title>New Buckny chat</span></p>
+        <p data-chat-pop-text style="margin: .3rem 0 0; color: var(--color-steel-200); font-size: .9rem"></p>
+        <p style="margin: .6rem 0 0; display: flex; gap: .75rem"><a data-chat-pop-link href="/admin/chats" style="font-weight: 700; color: var(--color-gold-400); text-decoration: underline">Open chat</a><button type="button" data-chat-pop-close style="color: var(--color-steel-300); text-decoration: underline; background: none; border: 0; cursor: pointer">Dismiss</button></p>
+    </div>
+    <script>
+        (function () {
+            var last = {{ (int) $newChats }}, pop = document.getElementById('chat-pop'), title = document.title.replace(/^\(\d+\) /, '');
+            var setTitle = function (n) { document.title = (n ? '(' + n + ') ' : '') + title; };
+            setTitle(last);
+            pop.querySelector('[data-chat-pop-close]').addEventListener('click', function () { pop.hidden = true; });
+            var check = function () {
+                fetch('/admin/chats/new-count', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin', cache: 'no-store' })
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (d) {
+                        if (!d) return;
+                        document.querySelectorAll('[data-new-chats]').forEach(function (b) { b.hidden = !d.count; b.firstChild.nodeValue = d.count; });
+                        setTitle(d.count);
+                        if (d.count > last && d.latest) {
+                            pop.querySelector('[data-chat-pop-title]').textContent = (d.count - last > 1 ? (d.count - last) + ' new Buckny chats' : 'New Buckny chat') + (d.latest.callback ? ' · asked for a callback' : '');
+                            pop.querySelector('[data-chat-pop-text]').textContent = d.latest.text ? '“' + d.latest.text + '”' : '';
+                            pop.querySelector('[data-chat-pop-link]').href = '/admin/chats/' + d.latest.id;
+                            pop.hidden = false;
+                        }
+                        last = d.count;
+                    }).catch(function () {});
+            };
+            setInterval(function () { if (document.visibilityState === 'visible') check(); }, 30000);
+            document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') check(); });
+        })();
+    </script>
 </body>
 </html>
