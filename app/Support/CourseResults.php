@@ -310,6 +310,15 @@ final class CourseResults
         ];
     }
 
+    /** How many members have started the course (opened a lesson or checked an answer). */
+    public static function studentCount(): int
+    {
+        self::ensureTable();
+        $ids = DB::table(self::VIEWS)->select('member_id')->union(DB::table(self::TABLE)->select('member_id'))->pluck('member_id')->unique()->all();
+
+        return $ids ? DB::table('members')->whereIn('id', $ids)->where('status', 'active')->count() : 0;
+    }
+
     /** The member has opened at least one lesson or checked an answer. */
     public static function started(int $memberId): bool
     {
