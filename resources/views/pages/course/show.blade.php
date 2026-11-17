@@ -30,6 +30,7 @@
                 </h2>
                 @if ($member && $canView)
                     <p class="mt-2 text-steel-700">The course is free. Start with Lesson 1 below and go at your own pace. Each lesson is in English and Tagalog.</p>
+                    <p class="mt-3 text-steel-700"><strong>Certificate of completion:</strong> available on request. It is issued after an assessment of your learning and a number of on-the-job training (OJT) sessions with the JFL Solar technical team.</p>
                 @elseif ($canView)
                     <p class="mt-2 text-steel-700">You are signed in as staff, so you can open the lessons (also drafts) to check them.</p>
                 @else
