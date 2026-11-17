@@ -14,6 +14,9 @@
         <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email</h2>
         @if ($welcome['ready'])
             <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from the website’s mailbox. Sent automatically so far: <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
+            @if ($welcome['error'])
+                <p class="mt-2 text-sm text-steel-800"><strong>Last sending problem:</strong> <span class="break-words">{{ $welcome['error'] }}</span></p>
+            @endif
             @if ($welcome['pending'])
                 <form method="post" action="/admin/subscribers/welcome" class="mt-3">@csrf<button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Send it to {{ $welcome['pending'] }} waiting {{ $welcome['pending'] === 1 ? 'member' : 'members' }}</button></form>
             @endif
