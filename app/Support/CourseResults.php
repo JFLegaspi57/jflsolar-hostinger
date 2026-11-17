@@ -199,6 +199,92 @@ final class CourseResults
         return $out;
     }
 
+    /**
+     * Course-wide numbers for the admin: how many members have started, how far they got, and each lesson's reach.
+     *
+     * @return array{members: int, started: int, notStarted: int, startedWeek: int, passedAny: int, passedAll: int, maxPassed: int,
+     *     bands: array<string, int>, lessons: list<array{number: int, title: string, opened: int, passed: int}>}
+     */
+    public static function overview(): array
+    {
+        self::ensureTable();
+        $lessons = Course::lessons()->values();
+        $ids = $lessons->pluck('id')->all();
+        $members = DB::table('members')->pluck('id')->flip();
+
+        $views = DB::table(self::VIEWS)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'first_at'])
+            ->filter(fn ($r) => isset($members[$r->member_id]));
+        $quiz = DB::table(self::TABLE)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'q', 'verdict'])
+            ->filter(fn ($r) => isset($members[$r->member_id]));
+        $seen = DB::table(self::SEEN)->whereIn('lesson_id', $ids)->pluck('member_id')->filter(fn ($id) => isset($members[$id]));
+
+        $started = $views->pluck('member_id')->merge($quiz->pluck('member_id'))->merge($seen)->unique();
+
+        // Lessons opened per member (a checked answer counts as opening the lesson).
+        $openedBy = [];
+        foreach ($views as $r) {
+            $openedBy[$r->member_id][$r->lesson_id] = true;
+        }
+        foreach ($quiz as $r) {
+            $openedBy[$r->member_id][$r->lesson_id] = true;
+        }
+        $n = count($ids);
+        $bands = ['Lesson 1 only' => 0, '2 to 5 lessons' => 0, '6 to 12 lessons' => 0, '13 to '.max($n - 1, 13).' lessons' => 0, 'All '.$n.' lessons' => 0];
+        $keys = array_keys($bands);
+        foreach ($started as $m) {
+            $c = count($openedBy[$m] ?? []);
+            $band = match (true) {
+                $c >= $n && $n > 0 => $keys[4],
+                $c >= 13 => $keys[3],
+                $c >= 6 => $keys[2],
+                $c >= 2 => $keys[1],
+                default => $keys[0],
+            };
+            $bands[$band]++;
+        }
+
+        // Passed lessons, per member and per lesson.
+        $totals = DB::table('course_lessons')->whereIn('id', $ids)->pluck('body', 'id')->map(fn ($b) => CourseQuiz::count((string) $b));
+        $passedBy = [];
+        $passedLesson = [];
+        foreach ($quiz->groupBy(fn ($r) => $r->member_id.'-'.$r->lesson_id) as $rows) {
+            $first = $rows->first();
+            $total = (int) ($totals[$first->lesson_id] ?? 0);
+            $r = self::summary($rows->filter(fn ($a) => $a->q < $total)->pluck('verdict', 'q')->all(), $total);
+            if ($r['status'] === 'passed') {
+                $passedBy[$first->member_id] = ($passedBy[$first->member_id] ?? 0) + 1;
+                $passedLesson[$first->lesson_id] = ($passedLesson[$first->lesson_id] ?? 0) + 1;
+            }
+        }
+
+        $firstAt = [];
+        foreach ($views as $r) {
+            if ($r->first_at && (! isset($firstAt[$r->member_id]) || $r->first_at < $firstAt[$r->member_id])) {
+                $firstAt[$r->member_id] = $r->first_at;
+            }
+        }
+        $weekAgo = now()->subDays(7)->toDateTimeString();
+
+        $openedLesson = [];
+        foreach ($openedBy as $m => $ls) {
+            foreach (array_keys($ls) as $l) {
+                $openedLesson[$l] = ($openedLesson[$l] ?? 0) + 1;
+            }
+        }
+
+        return [
+            'members' => $members->count(),
+            'started' => $started->count(),
+            'notStarted' => max(0, $members->count() - $started->count()),
+            'startedWeek' => count(array_filter($firstAt, fn ($t) => (string) $t >= $weekAgo)),
+            'passedAny' => count($passedBy),
+            'passedAll' => $n > 0 ? count(array_filter($passedBy, fn ($c) => $c >= $n)) : 0,
+            'maxPassed' => $passedBy ? max($passedBy) : 0,
+            'bands' => $bands,
+            'lessons' => $lessons->map(fn ($l, $i) => ['number' => $i + 1, 'title' => (string) $l->title, 'opened' => (int) ($openedLesson[$l->id] ?? 0), 'passed' => (int) ($passedLesson[$l->id] ?? 0)])->all(),
+        ];
+    }
+
     /** The member has opened at least one lesson or checked an answer. */
     public static function started(int $memberId): bool
     {

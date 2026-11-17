@@ -20,6 +20,7 @@ class CourseController extends Controller
 
         return view('admin.course.index', [
             'lessons' => Course::lessons(true),
+            'stats' => \App\Support\CourseResults::overview(),
             'price' => Course::price(),
             'online' => \App\Support\Shop::onlinePayment(),
             'members' => DB::table('members')->whereNotNull('paid_until')->orderByDesc('paid_until')->limit(200)->get(['id', 'name', 'email', 'paid_until', 'status']),
