@@ -35,6 +35,7 @@ final class FaqTagalog
         16 => ['Anong support ang makukuha ko pagkatapos bumili?', 'Ang mga kliyenteng bumibili ng supplies sa amin ay may libreng technical support, mula installation at commissioning hanggang troubleshooting, kasama ang parameter settings ng inverter at battery. Sagot ka namin!'],
         17 => ['Puwede ko bang ipadala sa grid ang sobrang solar power ko (net metering)?', 'Oo, kung nakakonekta sa grid ang sistema mo at 100 kW o mas maliit, puwede kang mag-apply ng net metering sa electric utility mo, gaya ng Meralco o ng electric cooperative mo. Ang kuryenteng ipinapadala mo sa grid ay may katumbas na kredito sa piso na nagpapababa sa bill mo.'],
         18 => ['Paano ko makukuha ang balita at promo ninyo?', 'I-tick ang “Email me JFL Solar promos and news” kapag nag-sign up, o i-on ito mamaya sa account mo. May unsubscribe link ang bawat email, kaya puwede kang huminto anumang oras.'],
+        19 => ['Gumagawa ba kayo ng one-day installation?', 'Hindi. Naniniwala kami na ang pagmamadali ay kadalasang nauuwi sa pagkakamali. Seryosong bagay ang solar PV system: pinaghirapang pera ng aming mga kliyente ang ipinupuhunan nila rito, kaya naglalaan kami ng sapat na oras para gawin nang tama ang bawat hakbang.'],
     ];
 
     /** Link under an answer (same pages as the English FAQ; guides open in Tagalog). */

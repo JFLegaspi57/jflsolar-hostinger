@@ -159,6 +159,8 @@ final class PageTextData
         'faq.q17.a' => 'Yes, if your system is connected to the grid and is 100 kW or smaller, you can apply for net metering with your electric utility, such as Meralco or your electric cooperative. Power you send to the grid earns peso credits that reduce your bill.',
         'faq.q18.q' => 'How do I get your news and promos?',
         'faq.q18.a' => 'Tick “Email me JFL Solar promos and news” when you sign up, or turn it on later in your account. Every email has an unsubscribe link, so you can stop anytime.',
+        'faq.q19.q' => 'Do you do one-day installation?',
+        'faq.q19.a' => 'No. We believe that rushing things often leads to mistakes. A solar PV system is a serious matter: our clients invest their hard-earned money in it, so we take the time to do every step right.',
     ];
 
     public const PAGES = [
@@ -475,6 +477,8 @@ final class PageTextData
                         ['key' => 'faq.q17.a', 'label' => 'Answer 17', 'kind' => 'paragraph'],
                         ['key' => 'faq.q18.q', 'label' => 'Question 18', 'kind' => 'line'],
                         ['key' => 'faq.q18.a', 'label' => 'Answer 18', 'kind' => 'paragraph'],
+                        ['key' => 'faq.q19.q', 'label' => 'Question 19', 'kind' => 'line'],
+                        ['key' => 'faq.q19.a', 'label' => 'Answer 19', 'kind' => 'paragraph'],
                     ],
                 ],
             ],
