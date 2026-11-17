@@ -129,6 +129,7 @@ final class WelcomeEmail
     public static function testLogin(): array
     {
         try {
+            Mail::purge(self::viaGmail() ? 'gmail' : 'smtp');
             $transport = Mail::mailer(self::viaGmail() ? 'gmail' : 'smtp')->getSymfonyTransport();
             if (! method_exists($transport, 'start')) {
                 return ['ok' => false, 'message' => 'The mailer is not SMTP ('.config('mail.default').').'];
@@ -162,7 +163,7 @@ final class WelcomeEmail
             'Settings cached' => app()->configurationIsCached() ? 'yes (reload the settings after editing .env)' : 'no (read fresh on every page)',
             'Mail server' => config('mail.mailers.smtp.scheme').'://'.config('mail.mailers.smtp.host').':'.config('mail.mailers.smtp.port'),
             'Username' => (string) config('mail.mailers.smtp.username'),
-            'Password' => $pw === '' ? 'not set' : strlen($pw).' characters'.($pw !== trim($pw) ? ', starts or ends with a space' : '').(preg_match('/^["\']|["\']$/', $pw) ? ', has a quote mark at the start or end' : ''),
+            'Password' => ($pw === '' ? 'not set' : strlen($pw).' characters').(MailPassword::saved() ? ' (saved on this page)' : ' (from the settings file)').($pw !== trim($pw) ? ', starts or ends with a space' : '').(preg_match('/^["\']|["\']$/', $pw) ? ', has a quote mark at the start or end' : ''),
         ];
     }
 

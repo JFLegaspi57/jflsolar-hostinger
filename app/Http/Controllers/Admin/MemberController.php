@@ -137,6 +137,22 @@ class MemberController extends Controller
         return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', 'Mail login test: '.$r['message']);
     }
 
+    /** Owner only: saves the website mailbox password (encrypted), then tests the login without sending anything. */
+    public function mailPassword(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth('web')->user()?->isOwner(), 403);
+        $pw = (string) $request->input('password', '');
+        if ($pw === '' || mb_strlen($pw) > 200) {
+            return redirect('/admin/subscribers')->with('status_error', 'Type the mailbox password first.');
+        }
+        \App\Support\MailPassword::set($pw);
+        $r = \App\Support\WelcomeEmail::testLogin();
+
+        return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', $r['ok']
+            ? 'Mailbox password saved, and the login works. The welcome email can be sent now.'
+            : 'Mailbox password saved, but the mail server still refuses it: check it is the same password as info@jflsolar.ph in Hostinger → Emails. ('.$r['message'].')');
+    }
+
     /** Owner only: marks the welcome email as already received for these addresses (it was sent to them by hand, e.g. from Gmail). */
     public function markWelcome(Request $request): \Illuminate\Http\JsonResponse
     {

@@ -73,8 +73,24 @@ class WelcomeEmailTest extends TestCase
     {
         config(['mail.default' => 'smtp', 'mail.mailers.smtp.username' => 'info@jflsolar.test', 'mail.mailers.smtp.password' => 'Secret#Pass1 ', 'mail.mailers.smtp.host' => '127.0.0.1', 'mail.mailers.smtp.port' => 1]);
         $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
-        $this->get('/admin/subscribers')->assertOk()->assertSee('Check the mail settings')->assertSee('13 characters, starts or ends with a space')->assertDontSee('Secret#Pass1');
+        $this->get('/admin/subscribers')->assertOk()->assertSee('Check the mail settings')->assertSee('13 characters (from the settings file), starts or ends with a space')->assertDontSee('Secret#Pass1');
         $this->post('/admin/subscribers/mail-test')->assertRedirect('/admin/subscribers')->assertSessionHas('status_error');
+    }
+
+    public function test_owner_saves_the_mailbox_password_in_the_admin(): void
+    {
+        config(['mail.default' => 'smtp', 'mail.mailers.smtp.username' => 'info@jflsolar.test', 'mail.mailers.smtp.password' => 'old', 'mail.mailers.smtp.host' => '127.0.0.1', 'mail.mailers.smtp.port' => 1]);
+        \App\Support\MailPassword::forget();
+        $staff = User::query()->create(['name' => 'Staff', 'email' => 'staff@jflsolar.test', 'password' => 'a long test password', 'role' => 'staff', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($staff, 'web')->post('/admin/subscribers/mail-password', ['password' => 'x'])->assertForbidden();
+        $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
+        $this->get('/admin/subscribers')->assertSee('Save and test')->assertSee('(from the settings file)');
+        $this->post('/admin/subscribers/mail-password', ['password' => 'New#Mailbox$Pass 1'])->assertRedirect('/admin/subscribers')->assertSessionHas('status_error');
+        $this->assertSame('New#Mailbox$Pass 1', \App\Support\MailPassword::get());
+        $this->assertSame('New#Mailbox$Pass 1', config('mail.mailers.smtp.password'));
+        $this->assertStringNotContainsString('New#Mailbox', (string) file_get_contents(\App\Support\MailPassword::file()));
+        $this->get('/admin/subscribers')->assertSee('18 characters (saved on this page)')->assertDontSee('New#Mailbox');
+        \App\Support\MailPassword::forget();
     }
 
     public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
