@@ -28,5 +28,11 @@ class AppServiceProvider extends ServiceProvider
         foreach (['beacon' => 120, 'cart' => 60, 'checkout' => 10, 'orders' => 30, 'webhook' => 120, 'account' => 20, 'stats' => 30, 'forum' => 20, 'chat' => 15, 'quotation' => 90] as $name => $perMinute) {
             RateLimiter::for($name, fn (Request $r) => Limit::perMinute($perMinute)->by($name.'|'.$r->ip()));
         }
+
+        // The mailbox password saved in Admin → Subscribers takes the place of MAIL_PASSWORD.
+        try {
+            \App\Support\MailPassword::apply();
+        } catch (\Throwable $e) {
+        }
     }
 }

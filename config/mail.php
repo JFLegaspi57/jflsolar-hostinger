@@ -37,6 +37,17 @@ return [
 
     'mailers' => [
 
+        // A Gmail account used for the automatic welcome email to new members (needs a Google app password).
+        'gmail' => [
+            'transport' => 'smtp',
+            'scheme' => 'smtp',
+            'host' => 'smtp.gmail.com',
+            'port' => 587,
+            'username' => env('GMAIL_USERNAME'),
+            'password' => env('GMAIL_APP_PASSWORD'),
+            'timeout' => 20,
+            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        ],
 
         'smtp' => [
             'transport' => 'smtp',

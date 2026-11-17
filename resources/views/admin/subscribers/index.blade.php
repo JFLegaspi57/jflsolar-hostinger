@@ -10,6 +10,40 @@
             </div>
         @endforeach
     </dl>
+    <section aria-labelledby="welcome-h" class="mb-5 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .75rem">
+        <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email</h2>
+        @if ($welcome['ready'])
+            <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from <strong>{{ $welcome['from'] ?? 'the website’s mailbox' }}</strong>{{ $welcome['gmail'] ? ' (Gmail)' : '' }}. Received so far (automatically, or by hand from Gmail): <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
+            @if ($welcome['error'])
+                <p class="mt-2 text-sm text-steel-800"><strong>Last sending problem</strong>@if ($welcome['errorAt'] ?? null) ({{ $welcome['errorAt'] }})@endif: <span class="break-words">{{ $welcome['error'] }}</span></p>
+            @endif
+            @if ($welcome['pending'])
+                <form method="post" action="/admin/subscribers/welcome" class="mt-3">@csrf<button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Send it to {{ $welcome['pending'] }} waiting {{ $welcome['pending'] === 1 ? 'member' : 'members' }}</button></form>
+            @endif
+        @else
+            <p class="mt-1">The welcome email is ready, but the website’s mail server is not set up, so it can’t be sent yet.</p>
+        @endif
+        @if ($welcome['check'] ?? null)
+            <form method="post" action="/admin/subscribers/mail-password" class="mt-3 flex flex-wrap items-end gap-2" autocomplete="off">
+                @csrf
+                <label class="grid gap-1 text-sm font-semibold text-steel-900">Mailbox password for {{ $welcome['check']['Username'] ?: 'the website mailbox' }}
+                    <input type="password" name="password" autocomplete="new-password" required maxlength="200" class="min-h-11 rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal" style="width: 16rem">
+                </label>
+                <button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Save and test</button>
+            </form>
+            <p class="mt-1 text-xs text-steel-700">The same password you use for this mailbox in Hostinger → Emails. It is saved encrypted and never shown again. The test signs in to the mail server without sending any email.</p>
+            <details class="mt-3 text-sm">
+                <summary class="cursor-pointer font-semibold">Check the mail settings</summary>
+                <dl class="mt-2 grid gap-1" style="grid-template-columns: max-content 1fr; column-gap: 1rem">
+                    @foreach ($welcome['check'] as $k => $v)<dt class="font-semibold">{{ $k }}</dt><dd class="break-words">{{ $v }}</dd>@endforeach
+                </dl>
+                <form method="post" action="/admin/subscribers/mail-test" class="mt-2">@csrf<button type="submit" class="{{ \App\Support\Ui::button('secondary') }}">Test the mail login (sends nothing)</button></form>
+            </details>
+        @endif
+        @unless ($welcome['gmail'])
+            <p class="mt-2 text-sm">To send it from your Gmail account instead, add <code>GMAIL_USERNAME</code> (the Gmail address) and <code>GMAIL_APP_PASSWORD</code> (a Google app password) to the server settings, then reload the settings.</p>
+        @endunless
+    </section>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">
             <a href="/admin/subscribers" @if ($show === 'active') aria-current="page" @endif class="{{ $tab }}">Subscribed <span class="tabular">({{ $counts['active'] }})</span></a>
