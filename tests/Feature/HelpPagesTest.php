@@ -141,4 +141,10 @@ class HelpPagesTest extends TestCase
         $this->assertLessThan(strpos($about, 'href="/delivery-rates"'), strpos($about, 'href="/payment-methods"'));
         $this->get('/sitemap.xml')->assertSee('/payment-methods', false);
     }
+
+    public function test_faq_answers_one_day_installation(): void
+    {
+        $this->get('/faq')->assertOk()->assertSee('Do you do one-day installation?')->assertSee('rushing things often leads to mistakes');
+        $this->get('/faq/tagalog')->assertOk()->assertSee('Gumagawa ba kayo ng one-day installation?');
+    }
 }
