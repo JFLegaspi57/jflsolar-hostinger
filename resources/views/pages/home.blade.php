@@ -36,6 +36,14 @@
                             </div>
                         @endforeach
                     </dl>
+                    <dl id="live-stats-2" aria-label="JFL Solar community, updated live" class="mt-1.5 grid grid-cols-3 gap-1.5" style="max-width: 27rem">
+                        @foreach (['members' => 'Members', 'subscribers' => 'Subscribers', 'students' => 'Online Course Students'] as $key => $label)
+                            <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-2 py-1">
+                                <dt class="leading-tight text-steel-300" style="font-size: .65rem">{{ $label }}</dt>
+                                <dd data-stat="{{ $key }}" class="font-display text-base font-extrabold text-white tabular">{{ number_format($stats[$key] ?? 0) }}</dd>
+                            </div>
+                        @endforeach
+                    </dl>
                     <p class="mt-2 flex items-center gap-2 text-xs text-steel-300"><span aria-hidden="true" style="width: .5rem; height: .5rem; border-radius: 9999px; background: #34d399; display: inline-block"></span> Live</p>
                     <script>
                     (() => {
@@ -47,7 +55,7 @@
                                 const r = await fetch('/stats/visitors', { headers: { Accept: 'application/json' }, cache: 'no-store' });
                                 if (!r.ok) return;
                                 const d = await r.json();
-                                for (const el of box.querySelectorAll('[data-stat]')) {
+                                for (const el of document.querySelectorAll('#live-stats [data-stat], #live-stats-2 [data-stat]')) {
                                     const v = d[el.dataset.stat];
                                     if (Number.isFinite(v)) el.textContent = fmt.format(v);
                                 }

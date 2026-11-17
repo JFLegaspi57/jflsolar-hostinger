@@ -78,14 +78,25 @@ final class Visitors
     public static function publicStats(): ?array
     {
         try {
-            return Cache::remember('public-visitor-stats-v2', 15, function () {
+            return Cache::remember('public-visitor-stats-v3', 15, function () {
                 self::ensureTables();
+                // Community numbers: each one falls back to 0 if its table isn't there yet.
+                $safe = function (callable $count): int {
+                    try {
+                        return (int) $count();
+                    } catch (\Throwable $e) {
+                        return 0;
+                    }
+                };
 
                 return [
                     'today' => (int) DB::table('visitor_days')->where('day', self::today()->toDateString())->count(),
                     'first' => (int) DB::table('visitor_ids')->count(),
                     'returning' => (int) DB::table('visitor_ids')->where('days', '>', 1)->count(),
                     'visits' => (int) DB::table('visitor_days')->count(),
+                    'members' => $safe(fn () => DB::table('members')->where('status', 'active')->count()),
+                    'subscribers' => $safe(fn () => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count()),
+                    'students' => $safe(fn () => CourseResults::studentCount()),
                 ];
             });
         } catch (\Throwable $e) {
