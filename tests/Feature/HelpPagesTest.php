@@ -144,7 +144,8 @@ class HelpPagesTest extends TestCase
 
     public function test_faq_answers_one_day_installation(): void
     {
-        $this->get('/faq')->assertOk()->assertSee('Do you do one-day installation?')->assertSee('rushing things often leads to mistakes');
-        $this->get('/faq/tagalog')->assertOk()->assertSee('Gumagawa ba kayo ng one-day installation?');
+        $this->get('/faq')->assertOk()->assertSee('Do you do one-day installation?')->assertSee('rushing things often leads to mistakes')
+            ->assertSee('How many days does it take to install a solar PV system?')->assertSee('for the safety of our technical team');
+        $this->get('/faq/tagalog')->assertOk()->assertSee('Gumagawa ba kayo ng one-day installation?')->assertSee('Ilang araw ang pag-install ng solar PV system?');
     }
 }
