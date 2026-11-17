@@ -83,7 +83,11 @@ final class WelcomeEmail
         @set_time_limit(120);
         $sent = 0;
         foreach (Member::query()->whereNull('welcome_sent_at')->where('status', 'active')->orderBy('id')->limit($max)->get() as $m) {
-            $sent += self::send($m) ? 1 : 0;
+            if (self::send($m)) {
+                $sent++;
+            } elseif (str_contains((string) self::lastError(), 'authenticate')) {
+                break;   // the mail server refuses the website's login: no point trying the others now
+            }
         }
 
         return $sent;
