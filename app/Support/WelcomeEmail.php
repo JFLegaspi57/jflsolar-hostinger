@@ -75,6 +75,7 @@ final class WelcomeEmail
                 Log::error('[welcome] email failed', ['member' => $member->id, 'error' => $e::class]);
                 // For Admin → Subscribers: what went wrong (no passwords in mail-server messages).
                 Cache::put('member-welcome-last-error', class_basename($e).': '.mb_substr(preg_replace('/\s+/', ' ', $e->getMessage()), 0, 300), now()->addDays(2));
+                Cache::put('member-welcome-last-error-at', now()->toIso8601String(), now()->addDays(2));
 
                 return false;
             }
@@ -110,6 +111,59 @@ final class WelcomeEmail
         }
 
         return $sent;
+    }
+
+    /** When the last sending problem happened (Manila time), or null. */
+    public static function lastErrorAt(): ?string
+    {
+        $at = Cache::get('member-welcome-last-error-at');
+
+        return $at ? \Illuminate\Support\Carbon::parse($at)->timezone('Asia/Manila')->format('j M Y, g:i:s A') : null;
+    }
+
+    /**
+     * Signs in to the website's mail server without sending anything.
+     *
+     * @return array{ok: bool, message: string}
+     */
+    public static function testLogin(): array
+    {
+        try {
+            $transport = Mail::mailer(self::viaGmail() ? 'gmail' : 'smtp')->getSymfonyTransport();
+            if (! method_exists($transport, 'start')) {
+                return ['ok' => false, 'message' => 'The mailer is not SMTP ('.config('mail.default').').'];
+            }
+            $transport->start();
+            $transport->stop();
+
+            return ['ok' => true, 'message' => 'Signed in to the mail server as '.self::fromLogin().'. Sending works.'];
+        } catch (\Throwable $e) {
+            return ['ok' => false, 'message' => class_basename($e).': '.mb_substr(preg_replace('/\s+/', ' ', $e->getMessage()), 0, 300)];
+        }
+    }
+
+    private static function fromLogin(): string
+    {
+        return (string) (self::viaGmail() ? config('mail.mailers.gmail.username') : config('mail.mailers.smtp.username'));
+    }
+
+    /**
+     * What the website reads from its settings (never the password itself), to find setup mistakes.
+     *
+     * @return array<string, string>
+     */
+    public static function settingsCheck(): array
+    {
+        $env = base_path('.env');
+        $pw = (string) config('mail.mailers.smtp.password');
+
+        return [
+            'Settings file' => $env.(is_file($env) ? ' (last changed '.\Illuminate\Support\Carbon::createFromTimestamp(filemtime($env))->timezone('Asia/Manila')->format('j M Y, g:i A').')' : ' (not found)'),
+            'Settings cached' => app()->configurationIsCached() ? 'yes (reload the settings after editing .env)' : 'no (read fresh on every page)',
+            'Mail server' => config('mail.mailers.smtp.scheme').'://'.config('mail.mailers.smtp.host').':'.config('mail.mailers.smtp.port'),
+            'Username' => (string) config('mail.mailers.smtp.username'),
+            'Password' => $pw === '' ? 'not set' : strlen($pw).' characters'.($pw !== trim($pw) ? ', starts or ends with a space' : '').(preg_match('/^["\']|["\']$/', $pw) ? ', has a quote mark at the start or end' : ''),
+        ];
     }
 
     public static function lastError(): ?string

@@ -116,7 +116,7 @@ class MemberController extends Controller
             : ['active' => 0, 'left' => 0, 'new30' => 0];
 
         return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts,
-            'welcome' => ['ready' => \App\Support\WelcomeEmail::ready(), 'from' => \App\Support\WelcomeEmail::fromAddress(), 'gmail' => \App\Support\WelcomeEmail::viaGmail(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount(), 'error' => \App\Support\WelcomeEmail::lastError()]]);
+            'welcome' => ['ready' => \App\Support\WelcomeEmail::ready(), 'from' => \App\Support\WelcomeEmail::fromAddress(), 'gmail' => \App\Support\WelcomeEmail::viaGmail(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount(), 'error' => \App\Support\WelcomeEmail::lastError(), 'errorAt' => \App\Support\WelcomeEmail::lastErrorAt(), 'check' => auth('web')->user()?->isOwner() ? \App\Support\WelcomeEmail::settingsCheck() : null]]);
     }
 
     /** Sends the welcome email to members who haven't received it yet. */
@@ -126,6 +126,15 @@ class MemberController extends Controller
         $left = \App\Support\WelcomeEmail::pendingCount();
 
         return redirect('/admin/subscribers')->with('status', 'Welcome email sent to '.$sent.' '.($sent === 1 ? 'member' : 'members').'.'.($left ? ' '.$left.' still waiting: send again.' : ''));
+    }
+
+    /** Owner only: signs in to the mail server without sending anything. */
+    public function testMail(): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth('web')->user()?->isOwner(), 403);
+        $r = \App\Support\WelcomeEmail::testLogin();
+
+        return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', 'Mail login test: '.$r['message']);
     }
 
     /** Owner only: marks the welcome email as already received for these addresses (it was sent to them by hand, e.g. from Gmail). */
