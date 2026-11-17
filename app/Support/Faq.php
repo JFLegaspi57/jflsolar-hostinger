@@ -7,7 +7,7 @@ use App\Models\SiteSetting;
 /** Frequently asked questions (wording editable in Admin → Page text → FAQ). */
 final class Faq
 {
-    public const COUNT = 19;
+    public const COUNT = 20;
 
     /** Question number => page linked under the answer. */
     public const LINKS = [
