@@ -28,6 +28,29 @@
         @endforeach
     </table>
 
+    <h3 class="mt-6 font-bold text-steel-950">Members leading the course</h3>
+    <p class="mt-1 text-sm text-steel-700">Everyone who has started, ranked by lessons passed, then lessons opened, then the most recent activity. Open a name to see the member's full course record.</p>
+    @php $rank = $s['ranking']; $row = function ($r, $i) use ($s) {
+        $at = $r['at'] ? \Illuminate\Support\Carbon::parse($r['at'])->timezone('Asia/Manila')->format('j M, g:i A') : '—';
+        return '<tr class="border-t border-steel-200"><td class="py-2 pr-3 tabular text-steel-600">'.($i + 1).'</td>'
+            .'<td class="py-2 pr-3"><a class="font-semibold underline" href="/admin/members/'.$r['id'].'">'.e($r['name'] ?: $r['email']).'</a><br><span class="text-steel-600">'.e($r['email']).'</span></td>'
+            .'<td class="pr-3 text-right tabular font-semibold">'.$r['passed'].'</td>'
+            .'<td class="pr-3 text-right tabular">'.$r['opened'].'</td>'
+            .'<td class="pr-3 tabular">'.($r['last'] ? 'Lesson '.$r['last'] : '—').'</td>'
+            .'<td class="pr-3 whitespace-nowrap text-steel-700">'.$at.'</td></tr>';
+    }; $head = '<tr class="text-left text-steel-600"><th class="py-1 pr-3">#</th><th class="pr-3">Member</th><th class="pr-3 text-right">Passed</th><th class="pr-3 text-right">Opened</th><th class="pr-3">Last opened</th><th class="pr-3">Last active</th></tr>'; @endphp
+    @if (! $rank)
+        <p class="mt-2 text-steel-600">Nobody has started yet.</p>
+    @else
+        <div class="mt-2 overflow-x-auto"><table class="w-full text-sm">{!! $head !!}@foreach (array_slice($rank, 0, 20) as $i => $r){!! $row($r, $i) !!}@endforeach</table></div>
+        @if (count($rank) > 20)
+            <details class="mt-2">
+                <summary class="cursor-pointer font-semibold text-steel-900 underline">Show all {{ number_format(count($rank)) }} members who started</summary>
+                <div class="mt-2 overflow-x-auto"><table class="w-full text-sm">{!! $head !!}@foreach (array_slice($rank, 20, null, true) as $i => $r){!! $row($r, $i) !!}@endforeach</table></div>
+            </details>
+        @endif
+    @endif
+
     <details class="mt-6">
         <summary class="cursor-pointer font-bold text-steel-950">Members per lesson (where they stop)</summary>
         <div class="mt-2 overflow-x-auto"><table class="w-full text-sm">

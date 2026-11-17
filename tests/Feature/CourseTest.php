@@ -187,7 +187,9 @@ class CourseTest extends TestCase
         $this->assertSame(1, $o['bands']['All 3 lessons']);
         $this->assertSame([1, 1], [$o['lessons'][1]['opened'], $o['lessons'][1]['passed']]);
         $this->actingAs($this->owner(), 'web')->get('/admin/course')->assertOk()->assertSee('Who is taking the course')->assertSee('Started the course')
-            ->assertSee('All 3 lessons opened')->assertSee('best so far: 3 of 3 lessons')->assertSee('2. Step lesson 2');
+            ->assertSee('All 3 lessons opened')->assertSee('best so far: 3 of 3 lessons')->assertSee('2. Step lesson 2')
+            ->assertSee('Members leading the course')->assertSee('Maria Santos')->assertSee('maria@example.com');
+        $this->assertSame(['Maria Santos', 3, 3, 2], [$o['ranking'][0]['name'], $o['ranking'][0]['passed'], $o['ranking'][0]['opened'], $o['ranking'][0]['last']]);
     }
 
     public function test_gcash_donation_box_before_the_lesson(): void
