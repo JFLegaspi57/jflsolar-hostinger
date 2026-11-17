@@ -1,4 +1,4 @@
-{{-- A member's course record: the lessons they have worked on, with pass / fail and the date. $staff = also show each answer. --}}
+{{-- A member's course record: every lesson they have opened or answered, with pass / fail and the date. $staff = also show each answer. --}}
 @php
     $staff = $staff ?? false;
     $all = \App\Support\Course::lessons();
@@ -8,6 +8,7 @@
         'passed' => ['✅ Passed', 'background:#dcfce7;color:#166534'],
         'failed' => ['❌ Failed', 'background:#fee2e2;color:#991b1b'],
         'progress' => ['In progress', 'background:#eef1f5;color:#334155'],
+        'opened' => ['📖 Opened', 'background:#eef5ff;color:#1e3a8a'],
     ];
     $verdict = ['correct' => '✅ Correct', 'partly' => '🟡 Partly correct', 'wrong' => '❌ Not quite'];
 @endphp
@@ -25,7 +26,7 @@
                         <th class="py-2 pr-4 font-semibold">Lesson</th>
                         <th class="py-2 pr-4 font-semibold">Result</th>
                         <th class="py-2 pr-4 font-semibold">Score</th>
-                        <th class="py-2 font-semibold">Last checked</th>
+                        <th class="py-2 font-semibold">Last activity</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,6 +35,7 @@
                         <tr class="border-b border-steel-200 align-top">
                             <td class="py-2 pr-4">
                                 <a href="{{ \App\Support\Course::PATH }}/{{ $row['lesson']->slug }}" class="font-semibold text-steel-950 underline">{{ $row['lesson']->title }}</a>
+                                @if ($staff && ($row['first'] ?? null))<span class="block text-xs text-steel-600">Opened {{ $row['times'] }} {{ $row['times'] === 1 ? 'time' : 'times' }} · first on {{ $row['first']->setTimezone('Asia/Manila')->format('M j, Y') }}</span>@endif
                                 @if ($staff && $row['answers'])
                                     <details class="mt-1">
                                         <summary class="cursor-pointer text-steel-700 underline">Answers</summary>
@@ -46,7 +48,7 @@
                                 @endif
                             </td>
                             <td class="py-2 pr-4"><span class="inline-block rounded-full px-2 text-xs font-bold whitespace-nowrap" style="{{ $style }};padding-block:.15rem">{{ $label }}</span></td>
-                            <td class="py-2 pr-4 tabular whitespace-nowrap">{{ $r['status'] === 'progress' ? $r['answered'].' of '.$r['total'].' checked' : \App\Support\CourseResults::points($r['score']).' of '.$r['total'].' ('.$r['percent'].'%)' }}</td>
+                            <td class="py-2 pr-4 tabular whitespace-nowrap">{{ $r['status'] === 'opened' ? 'Not checked yet' : ($r['status'] === 'progress' ? $r['answered'].' of '.$r['total'].' checked' : \App\Support\CourseResults::points($r['score']).' of '.$r['total'].' ('.$r['percent'].'%)') }}</td>
                             <td class="py-2 whitespace-nowrap text-steel-700">{{ $row['last']?->setTimezone('Asia/Manila')->format('M j, Y') }}</td>
                         </tr>
                     @endforeach

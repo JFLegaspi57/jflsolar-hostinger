@@ -65,7 +65,7 @@
                 <p class="text-sm font-semibold tracking-wide text-gold-800 uppercase">Online Course</p>
                 <h2 id="course-h" class="mt-1 text-xl font-bold text-steel-950">Solar PV System Designing</h2>
                 <p class="mt-3 text-steel-700">Learn to design solar PV systems with JF Legaspi. Free for members, in English and Tagalog.</p>
-                @php $courseStarted = ($nextStep['kind'] ?? 'start') !== 'start'; @endphp
+                @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                 @include('pages.course.record', ['record' => $courseRecord ?? [], 'started' => $courseStarted])
                 <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
             </section>

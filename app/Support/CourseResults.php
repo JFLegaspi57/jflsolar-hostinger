@@ -18,10 +18,13 @@ final class CourseResults
 
     private const TABLE = 'course_quiz_results';
 
-    private const TABLE_KEY = 'course-quiz-results-v2';
+    private const TABLE_KEY = 'course-quiz-results-v3';
 
     /** The last lesson each member opened (one row per member). */
     private const SEEN = 'course_last_seen';
+
+    /** Every lesson each member has opened: first and last time (the course record keeps these). */
+    private const VIEWS = 'course_lesson_views';
 
     private const POINTS = ['correct' => 1.0, 'partly' => 0.5, 'wrong' => 0.0];
 
@@ -48,6 +51,24 @@ final class CourseResults
                 $t->unsignedBigInteger('lesson_id');
                 $t->timestamp('seen_at')->nullable();
             });
+        }
+        if (! Schema::hasTable(self::VIEWS)) {
+            Schema::create(self::VIEWS, function (Blueprint $t) {
+                $t->id();
+                $t->unsignedBigInteger('member_id');
+                $t->unsignedBigInteger('lesson_id');
+                $t->unsignedInteger('times')->default(1);
+                $t->timestamp('first_at')->nullable();
+                $t->timestamp('last_at')->nullable();
+                $t->unique(['member_id', 'lesson_id']);
+            });
+            // Start the record with what is already known: the last lesson each member opened, and lessons with checked answers.
+            foreach (DB::table(self::SEEN)->get() as $r) {
+                DB::table(self::VIEWS)->insertOrIgnore(['member_id' => $r->member_id, 'lesson_id' => $r->lesson_id, 'times' => 1, 'first_at' => $r->seen_at, 'last_at' => $r->seen_at]);
+            }
+            foreach (DB::table(self::TABLE)->groupBy('member_id', 'lesson_id')->selectRaw('member_id, lesson_id, MIN(created_at) as f, MAX(updated_at) as l')->get() as $r) {
+                DB::table(self::VIEWS)->insertOrIgnore(['member_id' => $r->member_id, 'lesson_id' => $r->lesson_id, 'times' => 1, 'first_at' => $r->f, 'last_at' => $r->l]);
+            }
         }
         Cache::forever(self::TABLE_KEY, true);
     }
@@ -114,11 +135,16 @@ final class CourseResults
         $results = self::forLessons($memberId, $lessons);
         $rows = DB::table(self::TABLE)->where('member_id', $memberId)->orderBy('q')->get()->groupBy('lesson_id');
         $bodies = $answers ? DB::table('course_lessons')->pluck('body', 'id') : collect();
+        $views = DB::table(self::VIEWS)->where('member_id', $memberId)->get()->keyBy('lesson_id');
         $out = [];
         foreach ($lessons as $l) {
             $r = $results[$l->id] ?? null;
-            if (! $r || $r['answered'] === 0) {
+            $view = $views[$l->id] ?? null;
+            if (! $r || ($r['answered'] === 0 && ! $view)) {
                 continue;
+            }
+            if ($r['answered'] === 0) {
+                $r['status'] = 'opened';
             }
             $mine = collect($rows[$l->id] ?? []);
             $list = [];
@@ -130,8 +156,9 @@ final class CourseResults
                     }
                 }
             }
-            $last = $mine->max('updated_at');
-            $out[] = ['lesson' => $l, 'result' => $r, 'last' => $last ? \Illuminate\Support\Carbon::parse($last) : null, 'answers' => $list];
+            $last = collect([$mine->max('updated_at'), $view?->last_at])->filter()->max();
+            $out[] = ['lesson' => $l, 'result' => $r, 'last' => $last ? \Illuminate\Support\Carbon::parse($last) : null, 'answers' => $list,
+                'first' => $view?->first_at ? \Illuminate\Support\Carbon::parse($view->first_at) : null, 'times' => (int) ($view->times ?? 0)];
         }
 
         return $out;
@@ -154,6 +181,7 @@ final class CourseResults
         $totals = DB::table('course_lessons')->whereIn('id', $lessons->pluck('id'))->pluck('body', 'id')->map(fn ($b) => CourseQuiz::count((string) $b));
         $rows = DB::table(self::TABLE)->whereIn('member_id', $memberIds)->whereIn('lesson_id', $lessons->pluck('id'))->get(['member_id', 'lesson_id', 'q', 'verdict'])->groupBy('member_id');
         $seen = DB::table(self::SEEN)->whereIn('member_id', $memberIds)->pluck('lesson_id', 'member_id');
+        $opened = DB::table(self::VIEWS)->whereIn('member_id', $memberIds)->whereIn('lesson_id', $lessons->pluck('id'))->groupBy('member_id')->selectRaw('member_id, COUNT(*) as n')->pluck('n', 'member_id');
         $out = [];
         foreach ($memberIds as $id) {
             $passed = $failed = $started = 0;
@@ -165,10 +193,18 @@ final class CourseResults
                 $failed += $r['status'] === 'failed' ? 1 : 0;
             }
             $seenLesson = isset($seen[$id]) ? $lessons->firstWhere('id', (int) $seen[$id]) : null;
-            $out[$id] = ['passed' => $passed, 'failed' => $failed, 'started' => $started, 'total' => $lessons->count(), 'seen' => $seenLesson, 'seenNumber' => $seenLesson ? $pos[$seenLesson->id] : null];
+            $out[$id] = ['passed' => $passed, 'failed' => $failed, 'started' => $started, 'opened' => (int) ($opened[$id] ?? 0), 'total' => $lessons->count(), 'seen' => $seenLesson, 'seenNumber' => $seenLesson ? $pos[$seenLesson->id] : null];
         }
 
         return $out;
+    }
+
+    /** The member has opened at least one lesson or checked an answer. */
+    public static function started(int $memberId): bool
+    {
+        self::ensureTable();
+
+        return DB::table(self::VIEWS)->where('member_id', $memberId)->exists() || DB::table(self::TABLE)->where('member_id', $memberId)->exists();
     }
 
     /** Remembers the lesson a member has just opened. */
@@ -176,6 +212,11 @@ final class CourseResults
     {
         self::ensureTable();
         DB::table(self::SEEN)->upsert([['member_id' => $memberId, 'lesson_id' => $lessonId, 'seen_at' => now()]], ['member_id'], ['lesson_id', 'seen_at']);
+        $now = now();
+        $done = DB::table(self::VIEWS)->where('member_id', $memberId)->where('lesson_id', $lessonId)->update(['times' => DB::raw('times + 1'), 'last_at' => $now]);
+        if (! $done) {
+            DB::table(self::VIEWS)->insertOrIgnore(['member_id' => $memberId, 'lesson_id' => $lessonId, 'times' => 1, 'first_at' => $now, 'last_at' => $now]);
+        }
     }
 
     /**
