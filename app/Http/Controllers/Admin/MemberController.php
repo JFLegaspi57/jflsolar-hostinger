@@ -115,7 +115,17 @@ class MemberController extends Controller
             ]
             : ['active' => 0, 'left' => 0, 'new30' => 0];
 
-        return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts]);
+        return view('admin.subscribers.index', ['rows' => $rows, 'show' => $show, 'counts' => $counts,
+            'welcome' => ['ready' => \App\Support\Inquiries::mailReady(), 'pending' => \App\Support\WelcomeEmail::pendingCount(), 'sent' => \App\Support\WelcomeEmail::sentSinceCount()]]);
+    }
+
+    /** Sends the welcome email to members who haven't received it yet. */
+    public function sendWelcome(): \Illuminate\Http\RedirectResponse
+    {
+        $sent = \App\Support\WelcomeEmail::sendPending();
+        $left = \App\Support\WelcomeEmail::pendingCount();
+
+        return redirect('/admin/subscribers')->with('status', 'Welcome email sent to '.$sent.' '.($sent === 1 ? 'member' : 'members').'.'.($left ? ' '.$left.' still waiting: send again.' : ''));
     }
 
     /** CSV of active subscribers, for your email tool. Each row has its personal unsubscribe link. */

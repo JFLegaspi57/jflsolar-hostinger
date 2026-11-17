@@ -229,6 +229,7 @@ Route::prefix('admin')->group(function () {
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);
+        Route::post('subscribers/welcome', [Admin\MemberController::class, 'sendWelcome']);
         Route::get('orders', [Admin\OrderController::class, 'index']);
         Route::post('orders/delete', [Admin\OrderController::class, 'destroyMany']);
         Route::get('orders/{order}', [Admin\OrderController::class, 'show'])->whereNumber('order');

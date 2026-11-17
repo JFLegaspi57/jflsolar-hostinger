@@ -85,6 +85,8 @@ class AuthController extends Controller
         if ($values['newsletter'] === '1' && class_exists(Newsletter::class)) {
             Newsletter::subscribe($member->email, $member->name, 'signup');
         }
+        // Welcome email with the tour of the website, sent right after the page is returned (so sign-up stays fast).
+        \Illuminate\Support\defer(fn () => \App\Support\WelcomeEmail::send($member));
         Auth::guard('member')->login($member);
         $request->session()->regenerate();
         Members::stampSession($member);
