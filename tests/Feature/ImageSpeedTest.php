@@ -57,7 +57,7 @@ class ImageSpeedTest extends TestCase
             ->assertSee('<source type="image/webp" srcset="/images/home-roof2-640.webp 640w', false)
             ->assertSee('src="/images/home-roof2-1280.jpg"', false);
         $this->get('/products')->assertOk()
-            ->assertSee('srcset="/images/products-rooftop-640.webp 640w, /images/products-rooftop-960.webp 960w, /images/products-rooftop-1280.webp 1280w"', false);
+            ->assertSee('srcset="/images/products-stock-640.webp 640w, /images/products-stock-900.webp 900w"', false);
         foreach (glob(public_path('images/*.jpg')) as $jpg) {
             $this->assertFileExists(substr($jpg, 0, -4).'.webp', 'Missing WebP twin for '.basename($jpg));
         }
