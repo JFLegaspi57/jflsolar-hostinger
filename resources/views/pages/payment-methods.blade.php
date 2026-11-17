@@ -8,7 +8,13 @@
 @endphp
 <x-site-layout title="Payment Methods" path="/payment-methods" :reviews-above-footer="false"
     description="How to pay for your JFL Solar order: cash, GCash, bank transfer, check or card at pickup{{ $online ? ', or online through PayMongo' : '' }}. No cash on delivery (COD).">
-    <x-page-header eyebrow="About JFL Solar" title="Payment Methods" intro="The ways you can pay for solar panels, inverters, batteries and other solar PV system materials from JFL Solar." />
+    @php
+        // Free photo from Unsplash (Unsplash License), served by Unsplash's image CDN in the sizes the banner needs.
+        $photo = fn (int $w) => 'https://images.unsplash.com/photo-1556742031-c6961e8560b0?auto=format&fit=crop&w='.$w.'&h='.(int) round($w * 0.5625).'&crop=focalpoint&fp-x=0.55&fp-y=0.42&q=70';
+    @endphp
+    <x-page-hero eyebrow="About JFL Solar" title="Payment Methods" intro="The ways you can pay for solar panels, inverters, batteries and other solar PV system materials from JFL Solar."
+        :image="$photo(1280)" :srcset="collect([640, 960, 1280, 1920])->map(fn ($w) => $photo($w).' '.$w.'w')->implode(', ')" imageAlt="" focus="50% 50%" />
+    <p class="mx-auto max-w-[76rem] px-3 pt-2 text-right text-xs text-steel-500 sm:px-6 lg:px-8">Photo: <a href="https://unsplash.com/@claybanks?utm_source=jfl_solar&amp;utm_medium=referral" target="_blank" rel="noopener" class="underline">Clay Banks</a> on <a href="https://unsplash.com/?utm_source=jfl_solar&amp;utm_medium=referral" target="_blank" rel="noopener" class="underline">Unsplash</a></p>
     <x-container class="py-10 sm:py-14">
         <div class="mx-auto max-w-3xl space-y-8">
             @if ($inPerson)
@@ -17,8 +23,8 @@
                     <p class="mt-2 text-steel-700">Choose one of these when you place your order. We contact you when your order is ready.</p>
                     <ul class="mt-4 divide-y divide-steel-200">
                         @foreach ($inPerson as $c)
-                            <li class="flex gap-4 py-4">
-                                <span aria-hidden="true" class="text-2xl" style="line-height: 1">{{ $icons[$c] ?? '•' }}</span>
+                            <li class="flex items-center gap-4 py-4">
+                                <span aria-hidden="true" class="flex shrink-0 items-center justify-center bg-gold-50" style="width: 3.75rem; height: 3.75rem; border-radius: 1rem; font-size: 2.1rem; line-height: 1">{{ $icons[$c] ?? '•' }}</span>
                                 <div>
                                     <p class="font-bold text-steel-950">{{ Shop::IN_PERSON_CHOICES[$c]['label'] }}</p>
                                     <p class="mt-1 text-steel-700">{{ Shop::IN_PERSON_CHOICES[$c]['hint'] }}</p>
