@@ -14,7 +14,9 @@
 <div class="mt-4">
     <p class="font-semibold text-steel-950">{{ $staff ? 'Course progress' : 'Your course record' }}: {{ $passedN }} of {{ $withQuiz }} lessons passed</p>
     @if (empty($record))
-        <p class="mt-2 text-sm text-steel-700">{{ $staff ? 'No answers checked yet.' : 'No lessons done yet. Your results appear here once you check your answers at the end of a lesson.' }}</p>
+        @if ($staff || ! ($started ?? false))
+            <p class="mt-2 text-sm text-steel-700">{{ $staff ? 'No answers checked yet.' : 'No lessons done yet. Your results appear here once you check your answers at the end of a lesson.' }}</p>
+        @endif
     @else
         <div class="mt-2 overflow-x-auto">
             <table class="w-full text-sm">

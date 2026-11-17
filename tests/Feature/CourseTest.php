@@ -156,9 +156,9 @@ class CourseTest extends TestCase
         \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"correct","feedback":"ok"}']]])]);
         $this->actingAs($this->member(), 'member');
 
-        $this->get('/account')->assertSee('Start Lesson 1')->assertSee(Course::PATH.'/step-1', false);
+        $this->get('/account')->assertSee('Start Lesson 1')->assertSee(Course::PATH.'/step-1', false)->assertSee('Start the Course')->assertSee('No lessons done yet');
         $this->get(Course::PATH.'/step-1')->assertOk();
-        $this->get('/account')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1');
+        $this->get('/account')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1')->assertDontSee('Start the Course')->assertDontSee('No lessons done yet')->assertSee('Open the course');
 
         // Lesson 1 finished: next time, straight to Lesson 2.
         $this->postJson('/courses/check-answer', ['lesson' => 'step-1', 'q' => 0, 'answer' => 'a'])->assertOk();
