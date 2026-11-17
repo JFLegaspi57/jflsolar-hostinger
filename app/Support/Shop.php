@@ -40,9 +40,9 @@ final class Shop
         'cash' => ['label' => 'Cash', 'hint' => 'Pay in cash when you pick up.'],
         'gcash' => ['label' => 'GCash', 'hint' => 'Pay by GCash before or at pickup. We send our GCash number when we confirm your order.'],
         'bank_transfer' => ['label' => 'Bank transfer', 'hint' => 'Transfer before pickup. We send our bank details when we confirm your order.'],
-        'check' => ['label' => 'Check', 'hint' => 'Pay by check when you pick up.'],
+        'check' => ['label' => 'Check', 'hint' => 'Pay by check before pickup. The check must clear first before you can pick up your order.'],
         // 'only': the one pickup place where this way to pay is possible (the card terminal is there).
-        'card' => ['label' => 'Card (credit or debit)', 'hint' => 'Pay by credit or debit card when you pick up — available at our warehouse only.', 'only' => 'warehouse'],
+        'card' => ['label' => 'Card (credit or debit)', 'hint' => 'Pay by credit or debit card when you pick up — available at our warehouse only. Credit card payments have additional charges; call Sales at 0969 471 2098 for details.', 'only' => 'warehouse'],
     ];
 
     /** @return list<string> pay-at-pickup choices offered at checkout */
