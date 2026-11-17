@@ -12,7 +12,7 @@
     $verdict = ['correct' => '✅ Correct', 'partly' => '🟡 Partly correct', 'wrong' => '❌ Not quite'];
 @endphp
 <div class="mt-4">
-    <p class="font-semibold text-steel-950">{{ $staff ? 'Lessons passed' : 'Your course record' }}: {{ $passedN }} of {{ $withQuiz }} lessons passed</p>
+    <p class="font-semibold text-steel-950">{{ $staff ? 'Course progress' : 'Your course record' }}: {{ $passedN }} of {{ $withQuiz }} lessons passed</p>
     @if (empty($record))
         <p class="mt-2 text-sm text-steel-700">{{ $staff ? 'No answers checked yet.' : 'No lessons done yet. Your results appear here once you check your answers at the end of a lesson.' }}</p>
     @else
