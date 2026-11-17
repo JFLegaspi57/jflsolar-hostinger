@@ -121,7 +121,7 @@ class CourseTest extends TestCase
 
         $student = $this->member();
         $this->actingAs($student, 'member');
-        $this->get('/account')->assertSee('No lessons done yet');
+        $this->get('/account')->assertSee('No lessons done yet')->assertSee('/account#orders', false)->assertSee('/account#course', false)->assertSee('Online Course');
         $this->get(Course::PATH.'/result-lesson')->assertSee('Answer and check all 2 questions');
         $first = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 0, 'answer' => 'a'])->assertOk()->json('summary_html');
         $this->assertStringContainsString('checked 1 of 2', $first);
