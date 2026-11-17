@@ -75,6 +75,11 @@
         </section>
     </div>
 
+    <section aria-labelledby="course-h" class="{{ $card }} mt-6">
+        <h2 id="course-h" class="text-lg font-bold text-steel-950">Online course record</h2>
+        @include('pages.course.record', ['record' => $courseRecord, 'staff' => true])
+    </section>
+
     <section aria-labelledby="pages-h" class="{{ $card }} mt-6">
         <h2 id="pages-h" class="text-lg font-bold text-steel-950">Pages viewed while signed in</h2>
         <p class="text-sm text-steel-600">Newest first, last {{ $pages->count() }} shown. Not recorded when the browser asks not to be tracked. Kept for about 13 months.</p>
