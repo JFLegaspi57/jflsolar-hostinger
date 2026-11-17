@@ -37,6 +37,7 @@ Route::get('/lang/{lang}', function (\Illuminate\Http\Request $request, string $
 Route::get('/faq', [PageController::class, 'faq']);
 Route::get('/faq/tagalog', [PageController::class, 'faqTagalog']);
 Route::get('/delivery-rates', [PageController::class, 'deliveryRates']);
+Route::get('/payment-methods', [PageController::class, 'paymentMethods']);
 Route::get('/net-metering', [PageController::class, 'netMetering']);
 Route::get('/net-metering/tagalog', [PageController::class, 'netMeteringTagalog']);
 Route::get('/hybrid-pv-system-guide', [PageController::class, 'hybridGuide']);
