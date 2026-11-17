@@ -138,6 +138,28 @@ class MemberController extends Controller
         return redirect('/admin/subscribers')->with('status', $on ? 'The automatic welcome email is on: new members get it right after signing up.' : 'The automatic welcome email is off: nobody gets it.');
     }
 
+    /** Owner only: saves the Gmail address + app password the welcome email is sent from, then tests the login. */
+    public function gmailSender(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth('web')->user()?->isOwner(), 403);
+        if ($request->input('stop') === '1') {
+            \App\Support\GmailSender::forget();
+
+            return redirect('/admin/subscribers')->with('status', 'Gmail is no longer used: the welcome email is sent from the website mailbox.');
+        }
+        $user = mb_strtolower(trim((string) $request->input('gmail', '')));
+        $pass = (string) $request->input('app_password', '');
+        if (! filter_var($user, FILTER_VALIDATE_EMAIL) || trim($pass) === '' || mb_strlen($pass) > 100) {
+            return redirect('/admin/subscribers')->with('status_error', 'Type the Gmail address and its 16-letter app password.');
+        }
+        \App\Support\GmailSender::set($user, $pass);
+        $r = \App\Support\WelcomeEmail::testLogin();
+
+        return redirect('/admin/subscribers')->with($r['ok'] ? 'status' : 'status_error', $r['ok']
+            ? 'Gmail saved, and the login works: the welcome email is now sent from '.$user.'.'
+            : 'Gmail saved, but Google refused the login. Check the address, and use an app password (not your normal Gmail password). ('.$r['message'].')');
+    }
+
     /** Owner only: signs in to the mail server without sending anything. */
     public function testMail(): \Illuminate\Http\RedirectResponse
     {

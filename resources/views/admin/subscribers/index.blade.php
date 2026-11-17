@@ -43,9 +43,26 @@
                 <form method="post" action="/admin/subscribers/mail-test" class="mt-2">@csrf<button type="submit" class="{{ \App\Support\Ui::button('secondary') }}">Test the mail login (sends nothing)</button></form>
             </details>
         @endif
-        @unless ($welcome['gmail'])
-            <p class="mt-2 text-sm">To send it from your Gmail account instead, add <code>GMAIL_USERNAME</code> (the Gmail address) and <code>GMAIL_APP_PASSWORD</code> (a Google app password) to the server settings, then reload the settings.</p>
-        @endunless
+        @if ($welcome['check'] ?? null)
+            <div class="mt-4 border-t border-gold-200 pt-3">
+                <h3 class="font-bold text-steel-950">Send it from Gmail</h3>
+                @if ($welcome['gmail'])
+                    <p class="mt-1 text-sm">Sent from <strong>{{ $welcome['from'] }}</strong> (Gmail).</p>
+                    <form method="post" action="/admin/subscribers/gmail" class="mt-2">@csrf<input type="hidden" name="stop" value="1"><button type="submit" class="{{ \App\Support\Ui::button('secondary') }}">Stop using Gmail</button></form>
+                @endif
+                <form method="post" action="/admin/subscribers/gmail" class="mt-2 flex flex-wrap items-end gap-2" autocomplete="off">
+                    @csrf
+                    <label class="grid gap-1 text-sm font-semibold text-steel-900">Gmail address
+                        <input type="email" name="gmail" required maxlength="190" placeholder="name@gmail.com" value="{{ $welcome['gmail'] ? $welcome['from'] : '' }}" class="min-h-11 rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal" style="width: 16rem">
+                    </label>
+                    <label class="grid gap-1 text-sm font-semibold text-steel-900">Google app password
+                        <input type="password" name="app_password" autocomplete="new-password" required maxlength="100" placeholder="16 letters" class="min-h-11 rounded-[var(--radius-control)] border border-steel-500 px-3 font-normal" style="width: 12rem">
+                    </label>
+                    <button type="submit" class="{{ \App\Support\Ui::button('primary') }}">Save and test</button>
+                </form>
+                <p class="mt-1 text-xs text-steel-700">Not your normal Gmail password: create an <strong>app password</strong> at <a class="underline" href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a> (2-Step Verification must be on), name it "JFL Solar website" and copy the 16 letters. Saved encrypted and never shown again. Gmail sends up to about 500 emails a day.</p>
+            </div>
+        @endif
     </section>
     <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Filter subscribers" class="flex flex-wrap gap-2">

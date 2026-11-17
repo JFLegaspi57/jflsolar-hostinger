@@ -115,6 +115,24 @@ class WelcomeEmailTest extends TestCase
         \App\Support\MailPassword::forget();
     }
 
+    public function test_owner_saves_the_gmail_sender_in_the_admin(): void
+    {
+        config(['mail.default' => 'log']);
+        \App\Support\GmailSender::forget();
+        config(['mail.mailers.gmail.username' => null, 'mail.mailers.gmail.password' => null]);
+        $this->assertFalse(WelcomeEmail::viaGmail());
+        $this->actingAs(User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]), 'web');
+        $this->get('/admin/subscribers')->assertSee('Send it from Gmail')->assertSee('myaccount.google.com/apppasswords');
+        $this->post('/admin/subscribers/gmail', ['gmail' => 'Team@Gmail.test', 'app_password' => 'abcd efgh ijkl mnop'])->assertRedirect('/admin/subscribers');
+        $this->assertSame(['user' => 'team@gmail.test', 'pass' => 'abcdefghijklmnop'], \App\Support\GmailSender::get());
+        $this->assertTrue(WelcomeEmail::viaGmail());
+        $this->assertSame('team@gmail.test', WelcomeEmail::fromAddress());
+        $this->assertStringNotContainsString('abcdefgh', (string) file_get_contents(\App\Support\GmailSender::file()));
+        $this->get('/admin/subscribers')->assertSee('Sent from')->assertSee('Stop using Gmail')->assertDontSee('abcdefgh');
+        $this->post('/admin/subscribers/gmail', ['stop' => '1']);
+        $this->assertNull(\App\Support\GmailSender::get());
+    }
+
     public function test_the_email_has_the_tour_and_an_unsubscribe_link(): void
     {
         $this->signup('ana@example.com');

@@ -32,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         // The mailbox password saved in Admin → Subscribers takes the place of MAIL_PASSWORD.
         try {
             \App\Support\MailPassword::apply();
+            \App\Support\GmailSender::apply();
         } catch (\Throwable $e) {
         }
     }
