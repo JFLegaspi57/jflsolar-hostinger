@@ -107,6 +107,34 @@ class CourseTest extends TestCase
         \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains(json_encode($r->data()), 'Secret model answer'));
     }
 
+    public function test_lesson_result_shows_passed_or_failed(): void
+    {
+        Course::ensureTables();
+        $body = '<h2>Check your understanding</h2>';
+        foreach ([1, 2] as $n) {
+            $body .= '<details><summary><strong>'.$n.'. Question '.$n.'?</strong></summary><p>Answer '.$n.'.</p></details>';
+        }
+        DB::table('course_lessons')->insert(['slug' => 'result-lesson', 'title' => 'Result lesson', 'summary' => 's', 'position' => 1, 'status' => 'published', 'created_at' => now(), 'updated_at' => now(), 'body' => $body]);
+        config(['chatbot.api_key' => 'test-key']);
+        $reply = fn (string $v) => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"'.$v.'","feedback":"ok"}']]]);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::sequence()->pushResponse($reply('correct'))->pushResponse($reply('wrong'))->pushResponse($reply('correct'))]);
+
+        $this->actingAs($this->member(), 'member');
+        $this->get(Course::PATH.'/result-lesson')->assertSee('Answer and check all 2 questions');
+        $first = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 0, 'answer' => 'a'])->assertOk()->json('summary_html');
+        $this->assertStringContainsString('checked 1 of 2', $first);
+        $failed = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 1, 'answer' => 'b'])->assertOk()->json('summary_html');
+        $this->assertStringContainsString('FAILED', $failed);
+        $this->assertStringContainsString('1 of 2', $failed);
+        $this->get(Course::PATH)->assertSee('Failed · 50%')->assertSee('0 of 1 lessons passed');
+
+        // A better answer replaces the old one.
+        $passed = $this->postJson('/courses/check-answer', ['lesson' => 'result-lesson', 'q' => 1, 'answer' => 'better'])->assertOk()->json('summary_html');
+        $this->assertStringContainsString('PASSED', $passed);
+        $this->get(Course::PATH.'/result-lesson')->assertSee('PASSED')->assertSee('2 of 2');
+        $this->get(Course::PATH)->assertSee('Passed · 100%')->assertSee('1 of 1 lessons passed')->assertSee('passed every lesson');
+    }
+
     public function test_gcash_donation_box_before_the_lesson(): void
     {
         $lesson = $this->lesson();

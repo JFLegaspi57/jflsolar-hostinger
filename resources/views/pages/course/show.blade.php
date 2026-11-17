@@ -60,12 +60,30 @@
                 @elseif ($lessons->isEmpty())
                     <p class="mt-3 text-steel-700">The first lesson is being prepared.</p>
                 @else
+                    @if ($results)
+                        @php
+                            $withQuiz = collect($results)->filter(fn ($r) => $r['total'] > 0);
+                            $passedN = $withQuiz->where('status', 'passed')->count();
+                        @endphp
+                        <div class="mt-4 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .6rem{{ $passedN === $withQuiz->count() && $passedN > 0 ? '; border-color: #16a34a; background: #ecfdf3' : '' }}">
+                            <p class="font-bold text-steel-950">Your progress: {{ $passedN }} of {{ $withQuiz->count() }} lessons passed</p>
+                            @if ($passedN === $withQuiz->count() && $passedN > 0)
+                                <p class="mt-1">🎉 Congratulations, you have passed every lesson! You can now request the assessment and OJT sessions for your certificate of completion.</p>
+                            @else
+                                <p class="mt-1">A lesson is passed with at least {{ \App\Support\CourseResults::PASS_PERCENT }}% on its "Check your understanding" questions.</p>
+                            @endif
+                        </div>
+                    @endif
                     <ol class="mt-4 divide-y divide-steel-200">
                         @foreach ($lessons as $l)
                             <li class="flex gap-4 py-4">
                                 <span class="grid size-9 shrink-0 place-items-center rounded-full bg-steel-900 font-bold text-white">{{ $loop->iteration }}</span>
                                 <div class="min-w-0 flex-1">
                                     <a href="{{ Course::PATH }}/{{ $l->slug }}" class="text-lg font-bold text-steel-950 underline-offset-2 hover:underline">{{ $l->title }}</a>
+                                    @php $res = $results[$l->id] ?? null; @endphp
+                                    @if ($res && $res['status'] === 'passed')<span class="ml-1 inline-block rounded-full px-2 text-xs font-bold" style="background:#dcfce7;color:#166534;vertical-align:middle;padding-block:.15rem">✅ Passed · {{ $res['percent'] }}%</span>
+                                    @elseif ($res && $res['status'] === 'failed')<span class="ml-1 inline-block rounded-full px-2 text-xs font-bold" style="background:#fee2e2;color:#991b1b;vertical-align:middle;padding-block:.15rem">❌ Failed · {{ $res['percent'] }}%</span>
+                                    @elseif ($res && $res['status'] === 'progress')<span class="ml-1 inline-block rounded-full bg-steel-100 px-2 text-xs font-bold text-steel-700" style="vertical-align:middle;padding-block:.15rem">{{ $res['answered'] }} of {{ $res['total'] }} checked</span>@endif
                                     @if ($l->summary)<p class="mt-1 text-steel-700">{{ $l->summary }}</p>@endif
                                 </div>
                             </li>

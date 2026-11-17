@@ -24,6 +24,12 @@ final class CourseQuiz
         return array_map(fn ($x) => ['q' => trim($x[1]), 'a' => trim(preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($x[2]), ENT_QUOTES | ENT_HTML5, 'UTF-8')))], $m);
     }
 
+    /** How many "Check your understanding" questions the lesson HTML has. */
+    public static function count(string $html): int
+    {
+        return (int) preg_match_all(self::RX, $html);
+    }
+
     /** The lesson HTML with each model answer removed: only the question stays, as a box the page script fills in. */
     public static function stripAnswers(string $html): string
     {
