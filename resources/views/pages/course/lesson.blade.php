@@ -99,6 +99,14 @@
             <script>
                 (function () {
                     // Paid-member lessons: block copying, saving, printing and viewing the source from the keyboard and mouse.
+                    // A saved copy of the page (Save Page As, offline copy) wipes the lesson when it is opened anywhere but the JFL Solar website.
+                    var hostOk = /(^|\.)jflsolar\.(ph|com)$/.test(location.hostname) || ['localhost', '127.0.0.1'].indexOf(location.hostname) > -1;
+                    if (!hostOk) {
+                        document.querySelectorAll('.lesson-protected, .hero-media, .course-slide, .quiz-q').forEach(function (el) { el.remove(); });
+                        document.title = 'JFL Solar';
+                        document.body.innerHTML = '<p style="max-width:32rem;margin:4rem auto;padding:1rem;font:600 1.1rem/1.5 Arial,sans-serif;text-align:center">This lesson can only be viewed on the JFL Solar website: <a href="https://www.jflsolar.ph/courses/solar-pv-system-design">jflsolar.ph</a></p>';
+                        return;
+                    }
                     var stop = function (e) { e.preventDefault(); return false; };
                     ['copy', 'cut', 'contextmenu', 'dragstart', 'selectstart'].forEach(function (t) {
                         document.addEventListener(t, function (e) { if (!e.target.closest || !e.target.closest('input, textarea, #jfl-chat')) stop(e); }, true);
