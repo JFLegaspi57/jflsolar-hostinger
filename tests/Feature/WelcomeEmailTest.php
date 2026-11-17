@@ -21,6 +21,28 @@ class WelcomeEmailTest extends TestCase
         $this->seed();
         Cache::flush();
         config(['mail.default' => 'array']);
+        WelcomeEmail::setEnabled(true);
+    }
+
+    protected function tearDown(): void
+    {
+        WelcomeEmail::setEnabled(false);
+        parent::tearDown();
+    }
+
+    public function test_switched_off_nobody_gets_it_and_the_owner_can_turn_it_on(): void
+    {
+        WelcomeEmail::setEnabled(false);
+        Mail::fake();
+        $this->signup('off@example.com');
+        Mail::assertNothingSent();
+        $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($owner, 'web')->get('/admin/subscribers')->assertSee('Automatic welcome email: OFF')->assertSee('Turn it on')->assertDontSee('Send it to');
+        $this->post('/admin/subscribers/welcome/switch', ['on' => '1'])->assertRedirect('/admin/subscribers');
+        $this->assertTrue(WelcomeEmail::enabled());
+        $this->get('/admin/subscribers')->assertSee('Automatic welcome email: ON')->assertSee('Turn it off');
+        $this->post('/admin/subscribers/welcome/switch', ['on' => '0']);
+        $this->assertFalse(WelcomeEmail::enabled());
     }
 
     private function signup(string $email, bool $promos = true): void
