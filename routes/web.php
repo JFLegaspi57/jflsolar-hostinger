@@ -230,6 +230,7 @@ Route::prefix('admin')->group(function () {
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);
         Route::post('subscribers/welcome', [Admin\MemberController::class, 'sendWelcome']);
+        Route::post('subscribers/welcome/switch', [Admin\MemberController::class, 'welcomeSwitch']);
         Route::post('subscribers/welcome/mark', [Admin\MemberController::class, 'markWelcome']);
         Route::post('subscribers/mail-test', [Admin\MemberController::class, 'testMail']);
         Route::post('subscribers/mail-password', [Admin\MemberController::class, 'mailPassword']);

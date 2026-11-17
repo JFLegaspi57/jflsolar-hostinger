@@ -11,8 +11,11 @@
         @endforeach
     </dl>
     <section aria-labelledby="welcome-h" class="mb-5 border-l-4 border-gold-500 bg-gold-50 p-4 text-steel-800" style="border-radius: .75rem">
-        <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email</h2>
-        @if ($welcome['ready'])
+        <h2 id="welcome-h" class="font-bold text-steel-950">Automatic welcome email: {{ $welcome['on'] ? 'ON' : 'OFF' }}</h2>
+        <form method="post" action="/admin/subscribers/welcome/switch" class="mt-2">@csrf<input type="hidden" name="on" value="{{ $welcome['on'] ? '0' : '1' }}"><button type="submit" class="{{ \App\Support\Ui::button($welcome['on'] ? 'secondary' : 'primary') }}">{{ $welcome['on'] ? 'Turn it off' : 'Turn it on' }}</button></form>
+        @if (! $welcome['on'])
+            <p class="mt-2">It is switched off: new members and subscribers do not get a welcome email.</p>
+        @elseif ($welcome['ready'])
             <p class="mt-1">Every new member gets “Thank you from the whole JFL Solar team + a quick tour of our website” automatically, right after signing up, from <strong>{{ $welcome['from'] ?? 'the website’s mailbox' }}</strong>{{ $welcome['gmail'] ? ' (Gmail)' : '' }}. Received so far (automatically, or by hand from Gmail): <strong class="tabular">{{ $welcome['sent'] }}</strong>.</p>
             @if ($welcome['error'])
                 <p class="mt-2 text-sm text-steel-800"><strong>Last sending problem</strong>@if ($welcome['errorAt'] ?? null) ({{ $welcome['errorAt'] }})@endif: <span class="break-words">{{ $welcome['error'] }}</span></p>

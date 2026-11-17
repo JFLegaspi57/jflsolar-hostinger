@@ -30,6 +30,27 @@ final class WelcomeEmail
         return filled(config('mail.mailers.gmail.username')) && filled(config('mail.mailers.gmail.password'));
     }
 
+    /** Automatic sending is switched on by the owner (Admin → Subscribers). Off unless turned on. */
+    public static function enabled(): bool
+    {
+        return is_file(self::switchFile());
+    }
+
+    public static function setEnabled(bool $on): void
+    {
+        if ($on) {
+            @mkdir(dirname(self::switchFile()), 0755, true);
+            file_put_contents(self::switchFile(), now()->toIso8601String());
+        } else {
+            @unlink(self::switchFile());
+        }
+    }
+
+    private static function switchFile(): string
+    {
+        return storage_path('app/welcome-email-on');
+    }
+
     /** It can be sent: from Gmail, or from the website's mailbox. */
     public static function ready(): bool
     {
@@ -60,7 +81,7 @@ final class WelcomeEmail
     {
         try {
             self::ensureColumn();
-            if (! self::ready() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
+            if (! self::enabled() || ! self::ready() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
                 return false;
             }
             $claimed = DB::table('members')->where('id', $member->id)->whereNull('welcome_sent_at')->update(['welcome_sent_at' => now()]);
