@@ -142,6 +142,7 @@ class CourseTest extends TestCase
         $this->get('/account/course')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson');
         $this->get('/account')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson')->assertSee('2 of 2 (100%)')->assertDontSee('better');
         $this->actingAs($this->owner(), 'web')->get('/admin/members/'.$student->id)->assertOk()->assertSee('Online course record')->assertSee('Question 2?')->assertSee('better');
+        $this->get('/admin/members')->assertOk()->assertSee('Online course:')->assertSee('1 of 1 lessons passed')->assertSee('last opened Lesson 1: Result lesson');
     }
 
     public function test_member_is_led_to_the_next_lesson(): void

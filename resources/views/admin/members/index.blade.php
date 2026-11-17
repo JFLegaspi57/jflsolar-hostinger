@@ -1,6 +1,6 @@
 @php $input = 'min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 bg-white px-3 text-base text-steel-950'; @endphp
 <x-admin.layout title="Members">
-    <x-admin.page-title title="Members" intro="Customer accounts created on the website (they can also post in the forum). Open a name to see their orders, sign-ins (time and approximate place) and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
+    <x-admin.page-title title="Members" intro="Customer accounts created on the website (they can also post in the forum). Open a name to see their orders, sign-ins (time and approximate place), online course record and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
     <dl class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Member totals">
         @foreach ([['Total members', $counts['total']], ['Active', $counts['active']], ['Disabled', $counts['total'] - $counts['active']], ['Joined in the last 30 days', $counts['new30']]] as $i => [$label, $value])
             <div class="rounded-[var(--radius-panel)] border {{ $i === 0 ? 'border-gold-500 bg-gold-50' : 'border-steel-200 bg-white' }} p-4">
@@ -33,6 +33,7 @@
                             <div class="min-w-0">
                                 <p class="font-semibold break-words text-steel-950"><a href="/admin/members/{{ $o->id }}" class="underline-offset-2 hover:underline">{{ $o->name }}</a></p>
                                 <p class="text-sm break-all text-steel-600">{{ $o->email }}</p>
+                                @include('admin.members.course-progress', ['id' => $o->id])
                             </div>
                         </div>
                         <div class="text-sm text-steel-700">
@@ -71,6 +72,7 @@
                         <p class="font-bold text-steel-950"><a href="/admin/members/{{ $m->id }}" class="underline-offset-2 hover:underline">{{ $m->name }}</a> @if ($m->status !== 'active')<span class="ml-1 rounded-full bg-danger-50 px-2 text-xs font-semibold text-danger-700">Disabled</span>@endif</p>
                         <p class="text-sm text-steel-700 break-all"><a href="mailto:{{ $m->email }}" class="underline">{{ $m->email }}</a>@if ($m->phone) · <span class="tabular">{{ $m->phone }}</span>@endif</p>
                         <p class="text-sm text-steel-600">Joined {{ $m->created_at->timezone('Asia/Manila')->format('j M Y') }}@isset($m->orders_count) · {{ $m->orders_count }} {{ $m->orders_count === 1 ? 'order' : 'orders' }}@endisset @if ($m->last_login_at)· last signed in {{ $m->last_login_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}@if ($logins[$m->id]->place ?? null) from {{ $logins[$m->id]->place }}@endif @endif</p>
+                        @include('admin.members.course-progress', ['id' => $m->id])
                         @php $socials = collect(\App\Support\Members::SOCIALS)->filter(fn ($s, $f) => $m->{$f}); @endphp
                         @if ($socials->isNotEmpty())
                             <p class="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
