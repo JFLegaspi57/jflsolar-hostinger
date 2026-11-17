@@ -272,7 +272,32 @@ final class CourseResults
             }
         }
 
+        // Everyone who started, leading first: most lessons passed, then most lessons opened, then most recently active.
+        $lastAt = [];
+        foreach ($views as $r) {
+            $lastAt[$r->member_id] = max((string) ($lastAt[$r->member_id] ?? ''), (string) $r->first_at);
+        }
+        foreach (DB::table(self::VIEWS)->whereIn('lesson_id', $ids)->groupBy('member_id')->selectRaw('member_id, MAX(last_at) as l')->pluck('l', 'member_id') as $m => $l) {
+            $lastAt[$m] = max((string) ($lastAt[$m] ?? ''), (string) $l);
+        }
+        foreach ($quiz->groupBy('member_id') as $m => $rows) {
+            $lastAt[$m] = $lastAt[$m] ?? '';
+        }
+        $seenLesson = DB::table(self::SEEN)->pluck('lesson_id', 'member_id');
+        $pos = $lessons->mapWithKeys(fn ($l, $i) => [$l->id => $i + 1]);
+        $people = DB::table('members')->whereIn('id', $started->all())->get(['id', 'name', 'email'])->keyBy('id');
+        $ranking = $started->map(fn ($m) => [
+            'id' => (int) $m,
+            'name' => (string) ($people[$m]->name ?? ''),
+            'email' => (string) ($people[$m]->email ?? ''),
+            'passed' => (int) ($passedBy[$m] ?? 0),
+            'opened' => count($openedBy[$m] ?? []),
+            'last' => isset($seenLesson[$m]) ? ($pos[(int) $seenLesson[$m]] ?? null) : null,
+            'at' => ($lastAt[$m] ?? '') ?: null,
+        ])->sort(fn ($a, $b) => [$b['passed'], $b['opened'], (string) $b['at']] <=> [$a['passed'], $a['opened'], (string) $a['at']])->values()->all();
+
         return [
+            'ranking' => $ranking,
             'members' => $members->count(),
             'started' => $started->count(),
             'notStarted' => max(0, $members->count() - $started->count()),
