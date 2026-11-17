@@ -16,6 +16,7 @@
             <form method="post" action="/logout">@csrf<button type="submit" class="{{ Ui::button('secondary') }}">Sign out</button></form>
         </div>
         <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
+        @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem]">
             <div class="space-y-8 self-start">

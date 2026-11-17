@@ -9,6 +9,9 @@
             <a href="/account" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← Your account</a>
             <p class="mt-2 text-sm font-semibold tracking-wide text-steel-600 uppercase">Your account</p>
             <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $heading }}</h1>
+            @if ($section === 'course')
+                @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
+            @endif
             <section class="{{ $card }} mt-8">
                 @if ($section === 'orders')
                     @include('pages.account.orders-list')

@@ -31,6 +31,7 @@ class CourseController extends Controller
             'canView' => Course::canView(),
             'lessons' => $lessons = Course::lessons(),
             'results' => $member && Course::canView() ? \App\Support\CourseResults::forLessons($member->id, $lessons) : [],
+            'nextStep' => $member && Course::canView() ? \App\Support\CourseResults::nextStep($member->id) : null,
             'price' => Course::price(),
             'canBuy' => Course::canBuy(),
             'paidNote' => $paidNote,
@@ -84,6 +85,9 @@ class CourseController extends Controller
                 : (Course::FREE ? 'Please sign in or create a free account to open the lessons.' : 'Please sign in. Lessons are for paid members.'));
         }
         $member = Members::current();
+        if ($member && $lesson->status === 'published') {
+            \App\Support\CourseResults::seen($member->id, $lesson->id);   // to bring the member back here next time
+        }
         $slides = Course::slides($lesson->id);
         $all = Course::lessons($staff !== null)->values();
         $i = $all->search(fn ($l) => $l->id === $lesson->id);
