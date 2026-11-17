@@ -154,7 +154,7 @@ final class WelcomeEmail
      */
     public static function settingsCheck(): array
     {
-        $env = base_path('.env');
+        $env = app()->environmentFilePath();
         $pw = (string) config('mail.mailers.smtp.password');
 
         return [
