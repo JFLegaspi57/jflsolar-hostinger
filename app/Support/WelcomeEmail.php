@@ -44,13 +44,13 @@ final class WelcomeEmail
             if (! Inquiries::mailReady() || ! filter_var($member->email, FILTER_VALIDATE_EMAIL)) {
                 return false;
             }
-            Cache::forget('member-welcome-last-error');
             $claimed = DB::table('members')->where('id', $member->id)->whereNull('welcome_sent_at')->update(['welcome_sent_at' => now()]);
             if (! $claimed) {
                 return false;   // already sent
             }
             try {
                 Mail::to($member->email, $member->name)->send(new MemberWelcome($member));
+                Cache::forget('member-welcome-last-error');
             } catch (\Throwable $e) {
                 DB::table('members')->where('id', $member->id)->update(['welcome_sent_at' => null]);   // try again later
                 Log::error('[welcome] email failed', ['member' => $member->id, 'error' => $e::class]);
@@ -77,9 +77,10 @@ final class WelcomeEmail
     }
 
     /** Sends to waiting members, a batch at a time. @return int how many were sent */
-    public static function sendPending(int $max = 40): int
+    public static function sendPending(int $max = 10): int
     {
         self::ensureColumn();
+        @set_time_limit(120);
         $sent = 0;
         foreach (Member::query()->whereNull('welcome_sent_at')->where('status', 'active')->orderBy('id')->limit($max)->get() as $m) {
             $sent += self::send($m) ? 1 : 0;
