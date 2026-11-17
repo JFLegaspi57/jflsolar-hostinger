@@ -121,7 +121,7 @@ class CourseTest extends TestCase
 
         $student = $this->member();
         $this->actingAs($student, 'member');
-        $this->get('/account')->assertSee('No lessons done yet')->assertSee('/account/orders', false)->assertSee('/account/course', false)->assertSee('Online Course')->assertSee('href="/forum"', false);
+        $this->get('/account')->assertSee('No lessons done yet')->assertSee('/account/orders', false)->assertSee('/account/course', false)->assertSee('Online Course')->assertSee('href="/forum"', false)->assertSee('Your Quotations');
         $this->get('/account/orders')->assertOk()->assertSee('Your Orders')->assertSee('No orders yet');
         $this->get('/account/course')->assertOk()->assertSee('No lessons done yet');
         $this->get(Course::PATH.'/result-lesson')->assertSee('Answer and check all 2 questions');

@@ -31,7 +31,7 @@
     // Sub-menu under "Account" for signed-in members: shortcuts to the sections of the account page.
     $accountMenu = $member ? array_values(array_filter([
         $cartCount !== null ? ['/cart', 'Your Basket'] : null,
-        ['/quotation', \App\Support\Quotations::NAME],
+        ['/quotation', 'Your Quotations'],
         ['/account/course', 'Online Course'],
         ['/account/orders', 'Your Orders'],
         ['/forum', 'Forum'],
