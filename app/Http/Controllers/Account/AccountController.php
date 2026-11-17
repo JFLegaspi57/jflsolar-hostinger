@@ -19,6 +19,25 @@ use Illuminate\View\View;
 /** The member's own account page: details, newsletter choice, password and past orders. */
 class AccountController extends Controller
 {
+    /** Your Orders on its own page (from the Account menu). */
+    public function orders(): View
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount%2Forders'));
+        $orders = Shop::hasTables() && \Illuminate\Support\Facades\Schema::hasColumn('orders', 'member_id')
+            ? Order::query()->where('member_id', $member->id)->withCount('items')->latest('id')->limit(200)->get()
+            : collect();
+
+        return view('pages.account.subpage', ['section' => 'orders', 'heading' => 'Your Orders', 'path' => '/account/orders', 'orders' => $orders]);
+    }
+
+    /** Online Course on its own page: the member's course record (from the Account menu). */
+    public function course(): View
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount%2Fcourse'));
+
+        return view('pages.account.subpage', ['section' => 'course', 'heading' => 'Online Course', 'path' => '/account/course', 'courseRecord' => \App\Support\CourseResults::record($member->id)]);
+    }
+
     public function show(): View|RedirectResponse
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
