@@ -37,6 +37,11 @@
             .lesson-protected img, .lesson-protected svg { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
             .lesson-protected { position: relative; }
             .lesson-wm { position: absolute; inset: 0; z-index: 2; pointer-events: none; background-repeat: repeat; opacity: .07; }
+            /* Screen-capture shield: the lesson is blurred while a screenshot key is held or the window is not in front. */
+            .lesson-protected, .hero-media { transition: filter .08s; }
+            html.lesson-shield .lesson-protected, html.lesson-shield .hero-media { filter: blur(24px); }
+            .lesson-shield-note { display: none; position: fixed; inset: auto 1rem 1rem; z-index: 60; margin: 0 auto; max-width: 30rem; padding: .9rem 1.1rem; border-radius: .75rem; background: var(--color-steel-950); color: #fff; font-weight: 600; text-align: center; box-shadow: 0 10px 30px rgb(0 0 0 / .3); }
+            html.lesson-shield .lesson-shield-note { display: block; }
             /* Check your understanding: each question gets an answer box; the model answer opens below it. */
             .quiz-q { margin: 1.25rem 0; padding: 1rem 1.2rem; border: 1px solid var(--color-steel-200); border-radius: .75rem; background: #fff; position: relative; z-index: 3; }
             .quiz-q .quiz-question { margin: 0 0 .6rem; font-weight: 700; color: var(--color-steel-950); }
@@ -79,15 +84,15 @@
                 <p class="mb-6 rounded-[var(--radius-control)] border border-[#f0d39a] bg-warn-50 p-3 text-sm font-semibold text-warn-800">Staff preview{{ $lesson->status !== 'published' ? ' (draft: not visible to members yet)' : '' }}{{ $tl ? ' · Tagalog version' : '' }}.</p>
             @endif
             @php
-                $wmText = \App\Support\Members::current()?->email ?? (\App\Support\Forum::staff()?->email ?? 'JFL Solar');
-                $wmSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="200"><text x="0" y="120" transform="rotate(-25 180 100)" font-family="Arial" font-size="15" fill="#0f172a">'.e($wmText).' · JFL Solar</text></svg>';
+                $wmText = \App\Support\Members::current()?->email ?? (\App\Support\Forum::staff()?->email ?? 'jflsolar.ph');
+                $wmSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="200"><text x="0" y="120" transform="rotate(-25 180 100)" font-family="Arial" font-size="15" fill="#0f172a">'.e(\App\Support\Course::WATERMARK.' · '.$wmText).'</text></svg>';
             @endphp
             <article class="lesson-body lesson-protected" oncontextmenu="return false" ondragstart="return false">
                 <span class="lesson-wm" aria-hidden="true" style="background-image: url('data:image/svg+xml;base64,{{ base64_encode($wmSvg) }}')"></span>
                 {!! $body !!}
                 @if (! str_contains((string) $lesson->body, '[[slide:') && $slides->isNotEmpty())
                     @foreach ($slides as $s)
-                        @include('pages.course.slide', ['slide' => $s, 'number' => $loop->iteration, 'watermark' => $slides->isNotEmpty() ? (\App\Support\Members::current()?->email ?? '') : ''])
+                        @include('pages.course.slide', ['slide' => $s, 'number' => $loop->iteration, 'watermark' => \App\Support\Course::WATERMARK])
                     @endforeach
                 @endif
             </article>
@@ -101,13 +106,30 @@
                     document.addEventListener('keydown', function (e) {
                         var k = (e.key || '').toLowerCase(), mod = e.ctrlKey || e.metaKey;
                         if (e.target.closest && e.target.closest('input, textarea')) return;
-                        if ((mod && ['c', 'x', 'a', 's', 'p', 'u'].indexOf(k) > -1) || (mod && e.shiftKey && ['i', 'j', 'c', 's'].indexOf(k) > -1) || k === 'f12' || k === 'printscreen') {
+                        if ((mod && ['c', 'x', 'a', 's', 'p', 'u'].indexOf(k) > -1) || (mod && (e.shiftKey || e.altKey) && ['i', 'j', 'c', 'k', 's', 'u'].indexOf(k) > -1) || k === 'f12' || k === 'printscreen') {
                             stop(e);
-                            if (k === 'printscreen' && navigator.clipboard) { navigator.clipboard.writeText('').catch(function () {}); }
+                            if (k === 'printscreen') { wipe(); }
                         }
                     }, true);
                     window.addEventListener('beforeprint', function () { document.body.style.visibility = 'hidden'; });
                     window.addEventListener('afterprint', function () { document.body.style.visibility = ''; });
+
+                    // Screen capture: blur the lesson while the Windows / Command key or Print Screen is pressed
+                    // (Win+Shift+S, Win+PrtSc, Cmd+Shift+3/4/5), and while the window is not in front (Snipping Tool, other capture apps).
+                    var root = document.documentElement, held = false, away = false;
+                    var update = function () { root.classList.toggle('lesson-shield', held || away); };
+                    var wipe = function () { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText('').catch(function () {}); } };
+                    document.addEventListener('keydown', function (e) {
+                        if (e.key === 'Meta' || e.key === 'OS' || e.key === 'PrintScreen' || (e.metaKey && e.shiftKey)) { held = true; update(); }
+                    }, true);
+                    document.addEventListener('keyup', function (e) {
+                        if (e.key === 'PrintScreen') { wipe(); }
+                        if (e.key === 'Meta' || e.key === 'OS' || e.key === 'PrintScreen' || !e.metaKey) { setTimeout(function () { held = false; update(); }, e.key === 'PrintScreen' ? 1500 : 300); }
+                    }, true);
+                    window.addEventListener('blur', function () { away = true; update(); });
+                    window.addEventListener('focus', function () { away = false; held = false; update(); });
+                    document.addEventListener('visibilitychange', function () { away = document.visibilityState !== 'visible'; update(); });
+                    document.addEventListener('pointerdown', function () { if (document.hasFocus()) { away = false; update(); } }, true);
                 })();
             </script>
             <script>
@@ -148,6 +170,7 @@
                 })();
             </script>
             <p class="lesson-print-note" style="display: none">This lesson cannot be printed.</p>
+            <p class="lesson-shield-note" aria-live="polite">{{ $tl ? 'Nakatago ang aralin habang hindi aktibo ang window o habang may screenshot. Pindutin ang pahina para magpatuloy.' : 'The lesson is hidden while this window is not active or a screenshot is being taken. Click the page to continue.' }}</p>
             <nav aria-label="Lessons" class="mt-12 flex flex-wrap justify-between gap-3 border-t border-steel-200 pt-6">
                 @if ($prev)<a href="{{ $link($prev) }}" class="{{ Ui::button('secondary') }}">← {{ $name($prev) }}</a>@else<span></span>@endif
                 @if ($next)<a href="{{ $link($next) }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Susunod' : 'Next' }}: {{ $name($next) }} →</a>@else<a href="{{ Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $tl ? 'Bumalik sa kurso' : 'Back to the course' }}</a>@endif

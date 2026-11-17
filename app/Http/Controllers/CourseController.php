@@ -84,7 +84,7 @@ class CourseController extends Controller
             'settings' => PublicContent::settings(),
             'lesson' => $lesson,
             'slides' => $slides,
-            'body' => \App\Support\CourseQuiz::stripAnswers(Course::renderBody($lesson, $slides, $member?->email ?? ($staff?->email ?? ''), $tagalog)),
+            'body' => \App\Support\CourseQuiz::stripAnswers(Course::renderBody($lesson, $slides, Course::WATERMARK, $tagalog)),
             'tl' => $tagalog,
             'prev' => $i !== false && $i > 0 ? $all[$i - 1] : null,
             'next' => $i !== false ? ($all[$i + 1] ?? null) : null,
