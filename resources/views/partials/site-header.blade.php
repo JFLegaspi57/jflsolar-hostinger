@@ -29,6 +29,13 @@
         ['/hybrid-pv-system-guide', 'How hybrid PV systems work', request()->is('hybrid-pv-system-guide', 'hybrid-pv-system-guide/*')],
         ['/grid-tied-pv-system-guide', 'How grid-tied PV systems work', request()->is('grid-tied-pv-system-guide', 'grid-tied-pv-system-guide/*')],
     ]];
+    // Sub-menu under "Account" for signed-in members: shortcuts to the sections of the account page.
+    $accountMenu = $member ? array_values(array_filter([
+        $cartCount !== null ? ['/account#basket', 'Your Basket'] : null,
+        ['/quotation', \App\Support\Quotations::NAME],
+        ['/account#course', 'Online Course'],
+        ['/account#orders', 'Your Orders'],
+    ])) : [];
 @endphp
 <header class="sticky top-0 z-40 border-b border-steel-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/90">
     <div class="mx-auto flex h-[4.5rem] max-w-[76rem] items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:h-20 lg:px-8">
@@ -71,6 +78,11 @@
                 </ul>
             </nav>
             @if ($member)
+                <style>
+                    .acct-dd .nav-dd-menu { left: auto; right: 0; min-width: 13rem; }
+                    @media (max-width: 1023.98px) { .acct-dd:hover .nav-dd-menu, .acct-dd:focus-within .nav-dd-menu { display: none; } }
+                </style>
+                <div class="nav-dd acct-dd relative">
                 <a href="/account" aria-label="Your account" @if (request()->is('account')) aria-current="page" @endif
                     style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">
                     @if ($photo = \App\Support\Members::photoUrl($member))
@@ -79,7 +91,17 @@
                         <x-icon name="user" class="size-4" />
                     @endif
                     <span class="auth-label">Account</span>
+                    <svg aria-hidden="true" class="hidden lg:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: .85rem; height: .85rem"><path d="M6 9l6 6 6-6"/></svg>
                 </a>
+                <div class="nav-dd-menu">
+                    <ul aria-label="Your account" class="rounded-[var(--radius-panel)] border border-steel-200 bg-white p-2 shadow-2xl">
+                        <li><a href="/account" @if (request()->is('account')) aria-current="page" @endif class="nav-dd-link font-semibold">Your Account</a></li>
+                        @foreach ($accountMenu as [$accHref, $accLabel])
+                            <li><a href="{{ $accHref }}" class="nav-dd-link">{{ $accLabel }}</a></li>
+                        @endforeach
+                    </ul>
+                </div>
+                </div>
             @else
                 <a href="/login" data-auth-open="login" aria-haspopup="dialog" aria-label="Log in or create an account" @if (request()->is('login', 'signup')) aria-current="page" @endif
                     style="min-width: 2.75rem" class="inline-flex min-h-11 items-center justify-center gap-1 rounded-[var(--radius-control)] px-2 text-sm font-semibold whitespace-nowrap text-steel-700 hover:bg-steel-100 hover:text-steel-950 aria-[current=page]:bg-gold-50">
@@ -147,6 +169,13 @@
                     </nav>
                     <div class="mt-auto space-y-3 border-t border-steel-200 p-4">
                         <a href="{{ $member ? '/account' : '/login' }}" @unless ($member) data-auth-open="login" @endunless data-close-dialog class="flex min-h-12 items-center justify-center gap-2 rounded-[var(--radius-control)] border border-steel-300 font-semibold text-steel-950 hover:bg-steel-50"><x-icon name="user" class="size-5" /> {{ $member ? 'Your account' : 'Log in / Create account' }}</a>
+                        @if ($accountMenu)
+                            <ul aria-label="Your account" class="grid grid-cols-2 gap-2">
+                                @foreach ($accountMenu as [$accHref, $accLabel])
+                                    <li><a href="{{ $accHref }}" data-close-dialog class="flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-steel-50 px-2 text-center text-sm font-semibold text-steel-800 hover:bg-steel-100">{{ $accLabel }}</a></li>
+                                @endforeach
+                            </ul>
+                        @endif
                         <a href="{{ $quoteBtn['href'] }}" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">{{ $quoteBtn['label'] }}</a>
                         <ul class="space-y-1">
                             @foreach ($menuContacts as $c)
