@@ -29,6 +29,9 @@ final class Course
 
     public const PATH = '/courses/'.self::SLUG;
 
+    /** Shown in the corner of every lesson slide. */
+    public const WATERMARK = 'JFL Solar & Renewables Corp';
+
     public const MEMBERSHIP_MONTHS = 12;
 
     /** The course is free for every signed-in member; donations by GCash are welcome. */

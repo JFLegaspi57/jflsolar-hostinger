@@ -78,7 +78,7 @@ class CourseTest extends TestCase
         $m = $this->member();
         $this->actingAs($m, 'member');
         $this->get(Course::PATH)->assertSee('all lessons are open')->assertSee('Understanding Solar Energy');
-        $res = $this->get($url)->assertOk()->assertSee('Secret notes')->assertSee('/courses/slide/'.$slide->id, false)->assertSee('maria@example.com')->assertDontSee('alert(1)', false);
+        $res = $this->get($url)->assertOk()->assertSee('Secret notes')->assertSee('/courses/slide/'.$slide->id, false)->assertSee('JFL Solar &amp; Renewables Corp', false)->assertSee('lesson-shield', false)->assertDontSee('alert(1)', false);
         $this->assertStringContainsString('no-store', (string) $res->headers->get('Cache-Control'));
         $this->assertStringContainsString('noindex', (string) $res->headers->get('X-Robots-Tag'));
         $this->get('/courses/slide/'.$slide->id)->assertOk()->assertHeader('Content-Type', 'image/webp');

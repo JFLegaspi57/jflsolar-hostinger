@@ -49,7 +49,7 @@
 
     <section class="{{ $box }}" aria-labelledby="slides-h">
         <h2 id="slides-h" class="text-lg font-bold text-steel-950">Slides ({{ $slides->count() }})</h2>
-        <p class="mt-1 text-sm text-steel-700">Upload slide images (in PowerPoint: File → Export → PNG, all slides). They are stored privately and shown only to paid members, with their email as a small watermark.</p>
+        <p class="mt-1 text-sm text-steel-700">Upload slide images (in PowerPoint: File → Export → PNG, all slides). They are stored privately and shown only to paid members, with a small "JFL Solar &amp; Renewables Corp" watermark.</p>
         <form method="post" action="/admin/course/lessons/{{ $lesson->id }}/slides" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-3">
             @csrf
             <label class="grid gap-1 font-semibold text-steel-900">Images <input type="file" name="files[]" accept="image/png,image/jpeg,image/webp" multiple required class="font-normal"></label>
