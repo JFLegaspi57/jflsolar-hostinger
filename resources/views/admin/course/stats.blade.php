@@ -1,0 +1,46 @@
+{{-- Admin → Online course: how many members have started the course, how far they got, and how many reached each lesson. --}}
+@php
+    $s = $stats;
+    $pct = fn ($n, $of) => $of > 0 ? (int) round($n / $of * 100) : 0;
+    $tile = 'border-radius:var(--radius-panel);border:1px solid var(--color-steel-200);padding:.75rem 1rem;background:var(--color-steel-50)';
+    $maxOpened = max(1, collect($s['lessons'])->max('opened'));
+@endphp
+<section class="mb-6 border border-steel-200 bg-white p-4 sm:p-6" style="border-radius:var(--radius-panel)" aria-labelledby="stats-h">
+    <h2 id="stats-h" class="text-lg font-bold text-steel-950">Who is taking the course</h2>
+    <p class="mt-1 text-sm text-steel-700">Live numbers from the members' course records. "Started" means the member has opened at least one lesson. A lesson is passed with at least {{ \App\Support\CourseResults::PASS_PERCENT }}% in its "Check your understanding" questions.</p>
+
+    <div class="mt-4 grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
+        <div style="{{ $tile }}"><div class="text-sm text-steel-700">Started the course</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['started']) }}</div><div class="text-sm text-steel-600">{{ $pct($s['started'], $s['members']) }}% of {{ number_format($s['members']) }} members</div></div>
+        <div style="{{ $tile }}"><div class="text-sm text-steel-700">Not started yet</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['notStarted']) }}</div><div class="text-sm text-steel-600">{{ $pct($s['notStarted'], $s['members']) }}% of members</div></div>
+        <div style="{{ $tile }}"><div class="text-sm text-steel-700">Started in the last 7 days</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['startedWeek']) }}</div></div>
+        <div style="{{ $tile }}"><div class="text-sm text-steel-700">Passed at least 1 lesson</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['passedAny']) }}</div><div class="text-sm text-steel-600">best so far: {{ $s['maxPassed'] }} of {{ count($s['lessons']) }} lessons</div></div>
+        <div style="{{ $tile }}"><div class="text-sm text-steel-700">Passed every lesson</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['passedAll']) }}</div></div>
+    </div>
+
+    <h3 class="mt-6 font-bold text-steel-950">How far the members who started have gone</h3>
+    <table class="mt-2 w-full text-sm" style="max-width:34rem">
+        @foreach ($s['bands'] as $label => $n)
+            <tr class="border-t border-steel-200">
+                <td class="py-2 pr-3">{{ $label }} opened</td>
+                <td class="py-2 pr-3 text-right font-semibold tabular" style="width:4rem">{{ number_format($n) }}</td>
+                <td class="py-2" style="width:45%"><span aria-hidden="true" style="display:block;height:.55rem;border-radius:999px;background:var(--color-steel-200);overflow:hidden"><span style="display:block;height:100%;width:{{ $pct($n, max(1, $s['started'])) }}%;background:#2563eb"></span></span></td>
+            </tr>
+        @endforeach
+    </table>
+
+    <details class="mt-6">
+        <summary class="cursor-pointer font-bold text-steel-950">Members per lesson (where they stop)</summary>
+        <div class="mt-2 overflow-x-auto"><table class="w-full text-sm">
+            <tr class="text-left text-steel-600"><th class="py-1 pr-3">Lesson</th><th class="pr-3 text-right">Opened</th><th class="pr-3 text-right">Passed</th><th style="width:30%"></th></tr>
+            @foreach ($s['lessons'] as $l)
+                <tr class="border-t border-steel-200">
+                    <td class="py-2 pr-3">{{ $l['number'] }}. {{ \Illuminate\Support\Str::limit($l['title'], 70) }}</td>
+                    <td class="pr-3 text-right tabular">{{ number_format($l['opened']) }}</td>
+                    <td class="pr-3 text-right tabular">{{ number_format($l['passed']) }}</td>
+                    <td><span aria-hidden="true" style="display:block;height:.55rem;border-radius:999px;background:var(--color-steel-200);overflow:hidden"><span style="display:block;height:100%;width:{{ $pct($l['opened'], $maxOpened) }}%;background:#2563eb"></span></span></td>
+                </tr>
+            @endforeach
+        </table></div>
+    </details>
+    <p class="mt-4 text-sm"><a href="/admin/members" class="underline">See each member's progress in Members</a></p>
+</section>

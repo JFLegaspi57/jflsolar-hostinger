@@ -11,6 +11,8 @@
         <x-slot:action><a href="{{ Course::PATH }}" target="_blank" rel="noopener" class="{{ $btn }} border border-steel-400 text-steel-900">View course page</a></x-slot:action>
     </x-admin.page-title>
 
+    @include('admin.course.stats')
+
     <section class="{{ $box }}" aria-labelledby="gcash-h">
         <h2 id="gcash-h" class="text-lg font-bold text-steel-950">GCash donations</h2>
         <p class="mt-1 text-sm text-steel-700">Shown on the course page and at the top of every lesson, before the lesson starts.</p>
