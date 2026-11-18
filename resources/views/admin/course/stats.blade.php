@@ -37,8 +37,9 @@
             .'<td class="pr-3 text-right tabular font-semibold">'.$r['passed'].'</td>'
             .'<td class="pr-3 text-right tabular">'.$r['opened'].'</td>'
             .'<td class="pr-3 tabular">'.($r['last'] ? 'Lesson '.$r['last'] : '—').'</td>'
-            .'<td class="pr-3 whitespace-nowrap text-steel-700">'.$at.'</td></tr>';
-    }; $head = '<tr class="text-left text-steel-600"><th class="py-1 pr-3">#</th><th class="pr-3">Member</th><th class="pr-3 text-right">Passed</th><th class="pr-3 text-right">Opened</th><th class="pr-3">Last opened</th><th class="pr-3">Last active</th></tr>'; @endphp
+            .'<td class="pr-3 whitespace-nowrap text-steel-700">'.$at.'</td>'
+            .'<td><form method="post" action="/admin/course/hide/'.$r['id'].'"><input type="hidden" name="_token" value="'.csrf_token().'"><input type="hidden" name="hide" value="1"><button type="submit" class="text-sm underline text-steel-700" title="Leave this member out of the course numbers and ranking">Hide</button></form></td></tr>';
+    }; $head = '<tr class="text-left text-steel-600"><th class="py-1 pr-3">#</th><th class="pr-3">Member</th><th class="pr-3 text-right">Passed</th><th class="pr-3 text-right">Opened</th><th class="pr-3">Last opened</th><th class="pr-3">Last active</th><th></th></tr>'; @endphp
     @if (! $rank)
         <p class="mt-2 text-steel-600">Nobody has started yet.</p>
     @else
@@ -49,6 +50,18 @@
                 <div class="mt-2 overflow-x-auto"><table class="w-full text-sm">{!! $head !!}@foreach (array_slice($rank, 20, null, true) as $i => $r){!! $row($r, $i) !!}@endforeach</table></div>
             </details>
         @endif
+    @endif
+
+    @if ($s['hidden'])
+        <details class="mt-3 text-sm">
+            <summary class="cursor-pointer font-semibold text-steel-900">Hidden from the course progress ({{ count($s['hidden']) }})</summary>
+            <ul class="mt-2">
+                @foreach ($s['hidden'] as $h)
+                    <li class="flex flex-wrap items-center gap-2 py-1">{{ $h['name'] ?: $h['email'] }} <span class="text-steel-600">{{ $h['email'] }}</span>
+                        <form method="post" action="/admin/course/hide/{{ $h['id'] }}">@csrf<input type="hidden" name="hide" value="0"><button type="submit" class="underline">Show again</button></form></li>
+                @endforeach
+            </ul>
+        </details>
     @endif
 
     <details class="mt-6">

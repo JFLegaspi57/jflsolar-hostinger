@@ -190,6 +190,16 @@ class CourseTest extends TestCase
             ->assertSee('All 3 lessons opened')->assertSee('best so far: 3 of 3 lessons')->assertSee('2. Step lesson 2')
             ->assertSee('Members leading the course')->assertSee('Maria Santos')->assertSee('maria@example.com');
         $this->assertSame(['Maria Santos', 3, 3, 2], [$o['ranking'][0]['name'], $o['ranking'][0]['passed'], $o['ranking'][0]['opened'], $o['ranking'][0]['last']]);
+
+        // Hiding a member (e.g. the owner's own test account) leaves them out of the numbers and the ranking.
+        $id = $o['ranking'][0]['id'];
+        $this->post('/admin/course/hide/'.$id, ['hide' => '1'])->assertRedirect();
+        $o2 = \App\Support\CourseResults::overview();
+        $this->assertSame([0, []], [$o2['started'], $o2['ranking']]);
+        $this->assertSame(0, \App\Support\CourseResults::studentCount());
+        $this->get('/admin/course')->assertSee('Hidden from the course progress (1)')->assertSee('Show again');
+        $this->post('/admin/course/hide/'.$id, ['hide' => '0']);
+        $this->assertSame(1, \App\Support\CourseResults::overview()['started']);
     }
 
     public function test_gcash_donation_box_before_the_lesson(): void

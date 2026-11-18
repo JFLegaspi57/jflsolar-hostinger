@@ -33,6 +33,15 @@ class CourseController extends Controller
         ]);
     }
 
+    /** Leaves a member out of (or puts them back into) the course numbers and the ranking. */
+    public function hide(Request $request, int $member): RedirectResponse
+    {
+        $hide = $request->input('hide') === '1';
+        \App\Support\CourseResults::setHidden($member, $hide);
+
+        return redirect('/admin/course#stats-h')->with('status', $hide ? 'Hidden from the course progress.' : 'Shown again in the course progress.');
+    }
+
     public function price(Request $request): RedirectResponse
     {
         $raw = trim(str_replace([',', '₱', ' '], '', (string) $request->input('price')));
