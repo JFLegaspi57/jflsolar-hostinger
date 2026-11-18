@@ -313,4 +313,34 @@ class CourseTest extends TestCase
         Course::deleteBanner('lesson-'.$id);
         $this->assertFalse(Course::isPaid(Member::query()->where('email', 'juan@example.com')->first()));
     }
+
+    public function test_answer_checks_retry_when_busy_and_read_cut_off_replies(): void
+    {
+        config(['chatbot.api_key' => 'test-key']);
+        Cache::flush();
+        $ok = fn (string $text) => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => $text]]]);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::sequence()
+            ->push(['type' => 'error', 'error' => ['type' => 'overloaded_error', 'message' => 'Overloaded']], 529)
+            ->push(['error' => ['message' => 'rate limited']], 429)
+            ->pushResponse($ok('{"verdict":"correct","feedback":"Yes, that is it."}'))
+            ->pushResponse($ok('```json\n{"verdict": "partly", "feedback": "Malapit na, pero kulang pa ang'))   // cut off
+            ->push(['error' => ['type' => 'authentication_error', 'message' => 'invalid x-api-key']], 401)]);
+
+        $r = \App\Support\CourseQuiz::check('Q?', 'A', 'my answer', false);
+        $this->assertSame('correct', $r['verdict']);   // third try worked
+
+        $r = \App\Support\CourseQuiz::check('Q?', 'A', 'sagot', true);
+        $this->assertSame('partly', $r['verdict']);
+        $this->assertStringStartsWith('Malapit na', $r['feedback']);
+
+        $r = \App\Support\CourseQuiz::check('Q?', 'A', 'x', false);
+        $this->assertArrayHasKey('error', $r);   // wrong key: not retried
+        \Illuminate\Support\Facades\Http::assertSentCount(5);
+
+        $st = \App\Support\CourseQuiz::todayStats();
+        $this->assertSame([2, 3], [$st['checked'], $st['failed']]);
+        $this->assertStringContainsString('AI replied 401: invalid x-api-key', $st['problem']);
+        $owner = \App\Models\User::query()->where('role', 'owner')->first() ?? $this->owner();
+        $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Answer checks today:')->assertSee('2 checked, 3 could not be checked');
+    }
 }

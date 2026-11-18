@@ -9,6 +9,8 @@
     <h2 id="stats-h" class="text-lg font-bold text-steel-950">Who is taking the course</h2>
     <p class="mt-1 text-sm text-steel-700">Live numbers from the members' course records. "Started" means the member has opened at least one lesson. A lesson is passed with at least {{ \App\Support\CourseResults::PASS_PERCENT }}% in its "Check your understanding" questions.</p>
 
+    @php $qs = \App\Support\CourseQuiz::todayStats(); @endphp
+    <p class="mt-3 text-sm" style="{{ $qs['failed'] ? 'color:#9a3412' : '' }}"><strong>Answer checks today:</strong> {{ number_format($qs['checked']) }} checked{{ $qs['failed'] ? ', '.number_format($qs['failed']).' could not be checked (each one is tried up to 3 times)' : ', none failed' }}.@if ($qs['problem']) <span class="text-steel-700">Last problem: {{ $qs['problem'] }}</span>@endif</p>
     <div class="mt-4 grid gap-3" style="grid-template-columns:repeat(auto-fit,minmax(10rem,1fr))">
         <div style="{{ $tile }}"><div class="text-sm text-steel-700">Started the course</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['started']) }}</div><div class="text-sm text-steel-600">{{ $pct($s['started'], $s['members']) }}% of {{ number_format($s['members']) }} members</div></div>
         <div style="{{ $tile }}"><div class="text-sm text-steel-700">Not started yet</div><div class="text-2xl font-bold text-steel-950 tabular">{{ number_format($s['notStarted']) }}</div><div class="text-sm text-steel-600">{{ $pct($s['notStarted'], $s['members']) }}% of members</div></div>
