@@ -96,7 +96,7 @@ final class CourseQuiz
         for ($try = 1; $try <= 3; $try++) {
             try {
                 $res = Http::withHeaders(['x-api-key' => (string) config('chatbot.api_key'), 'anthropic-version' => '2023-06-01'])
-                    ->timeout(25)->acceptJson()->post(Chatbot::API_URL, [
+                    ->timeout(20)->acceptJson()->post(Chatbot::API_URL, [
                         'model' => (string) config('chatbot.model'),
                         'max_tokens' => 500,
                         'system' => $system,

@@ -51,7 +51,7 @@ class CourseController extends Controller
         }
         $q = \App\Support\CourseQuiz::questions((string) ($tl ? $lesson->body_tl : $lesson->body))[(int) $request->input('q', -1)] ?? abort(404);
         $who = Members::current()?->id ?? Forum::staff()?->id ?? $request->ip();
-        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts('course-quiz:'.$who, 60)) {
+        if (\Illuminate\Support\Facades\RateLimiter::tooManyAttempts('course-quiz:'.$who, 150)) {
             return response()->json(['error' => $tl ? 'Masyadong maraming pagsusuri. Subukan ulit pagkalipas ng isang oras.' : 'Too many checks for now. Please try again in an hour.'], 429);
         }
         \Illuminate\Support\Facades\RateLimiter::hit('course-quiz:'.$who, 3600);
