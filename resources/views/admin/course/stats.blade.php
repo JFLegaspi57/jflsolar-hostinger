@@ -54,7 +54,7 @@
 
     @if ($s['hidden'])
         <details class="mt-3 text-sm">
-            <summary class="cursor-pointer font-semibold text-steel-900">Hidden from the course progress ({{ count($s['hidden']) }})</summary>
+            <summary class="cursor-pointer font-semibold text-steel-900">Hidden from the course progress and from "Online now" ({{ count($s['hidden']) }})</summary>
             <ul class="mt-2">
                 @foreach ($s['hidden'] as $h)
                     <li class="flex flex-wrap items-center gap-2 py-1">{{ $h['name'] ?: $h['email'] }} <span class="text-steel-600">{{ $h['email'] }}</span>

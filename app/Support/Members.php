@@ -260,7 +260,9 @@ final class Members
                 return collect();
             }
             $rows = \Illuminate\Support\Facades\DB::table('member_activity')->whereIn('id', $ids)->get()->keyBy('member_id');
-            $members = Member::query()->whereIn('id', $rows->keys())->where('status', 'active')->get();
+            // Members hidden in Admin → Online course (e.g. the owner's own account) are not listed either.
+            $hidden = CourseResults::hiddenIds();
+            $members = Member::query()->whereIn('id', $rows->keys())->when($hidden, fn ($q) => $q->whereNotIn('id', $hidden))->where('status', 'active')->get();
             foreach ($members as $m) {
                 $r = $rows[$m->id];
                 $m->last_seen = \Illuminate\Support\Carbon::parse($r->created_at);

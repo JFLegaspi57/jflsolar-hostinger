@@ -55,6 +55,12 @@ class MembersOnlineTest extends TestCase
         $this->assertMatchesRegularExpression('/Online now <span class="tabular text-steel-600">\(1\)<\/span>/', $html);
         $this->assertStringContainsString('1<span class="sr-only"> online now</span>', $html);
 
+        // A member hidden in Admin → Online course is not listed.
+        \App\Support\CourseResults::setHidden($maria->id, true);
+        $this->assertTrue(Members::online()->isEmpty());
+        \App\Support\CourseResults::setHidden($maria->id, false);
+        $this->assertSame(['maria@example.com'], Members::online()->pluck('email')->all());
+
         // A disabled account is not listed.
         $maria->forceFill(['status' => 'disabled'])->save();
         $this->assertTrue(Members::online()->isEmpty());
