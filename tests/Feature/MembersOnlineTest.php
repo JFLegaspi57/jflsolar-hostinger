@@ -22,6 +22,7 @@ class MembersOnlineTest extends TestCase
         PublicContent::flush();
         Http::fake();
         Members::flushState();
+        @unlink(storage_path('app/course-hidden-members.json'));   // no member hidden from the course numbers
         Members::ensureTables();
     }
 
