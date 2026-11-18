@@ -23,6 +23,7 @@ class CourseTest extends TestCase
         parent::setUp();
         $this->seed();
         Cache::flush();
+        @unlink(storage_path('app/course-hidden-members.json'));   // no member hidden from the course numbers
         config(['shop.paymongo.secret_key' => 'sk_test_abc', 'shop.paymongo.webhook_secret' => self::SECRET]);
     }
 
@@ -197,7 +198,7 @@ class CourseTest extends TestCase
         $o2 = \App\Support\CourseResults::overview();
         $this->assertSame([0, []], [$o2['started'], $o2['ranking']]);
         $this->assertSame(0, \App\Support\CourseResults::studentCount());
-        $this->get('/admin/course')->assertSee('Hidden from the course progress and from &quot;Online now&quot; (1)', false)->assertSee('Show again');
+        $this->get('/admin/course')->assertSee('Hidden from the course progress and from "Online now" (1)', false)->assertSee('Show again');
         $this->post('/admin/course/hide/'.$id, ['hide' => '0']);
         $this->assertSame(1, \App\Support\CourseResults::overview()['started']);
     }
