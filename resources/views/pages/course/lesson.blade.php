@@ -152,8 +152,8 @@
                     // "Check your understanding": the student writes an answer and the website checks it (right / partly / not quite) without showing the model answer.
                     // The text is also kept in this browser so it is still there next time.
                     var tl = @json((bool) $tl);
-                    var t = tl ? { box: 'Ang sagot mo', ph: 'Isulat dito ang sagot mo…', btn: 'Suriin ang sagot ko', busy: 'Sinusuri…', ok: '✅ Tama!', part: '🟡 Halos tama', no: '❌ Hindi pa tama', saved: 'Naka-save sa browser na ito', err: 'Hindi masuri ang sagot ngayon. Subukan ulit mamaya.' }
-                               : { box: 'Your answer', ph: 'Write your answer here…', btn: 'Check my answer', busy: 'Checking…', ok: '✅ Correct!', part: '🟡 Partly correct', no: '❌ Not quite', saved: 'Saved in this browser', err: 'Your answer can\'t be checked right now. Please try again later.' };
+                    var t = tl ? { box: 'Ang sagot mo', ph: 'Isulat dito ang sagot mo…', btn: 'Suriin ang sagot ko', busy: 'Sinusuri…', ok: '✅ Tama!', part: '🟡 Halos tama', no: '❌ Hindi pa tama', saved: 'Naka-save sa browser na ito', err: 'Hindi masuri ang sagot ngayon. Subukan ulit mamaya.', retry: 'Abala ang tagasuri, sinusubukan ulit…', expired: 'Nag-expire ang session mo. I-refresh ang pahina at mag-sign in ulit. Naka-save ang mga sagot mo.' }
+                               : { box: 'Your answer', ph: 'Write your answer here…', btn: 'Check my answer', busy: 'Checking…', ok: '✅ Correct!', part: '🟡 Partly correct', no: '❌ Not quite', saved: 'Saved in this browser', err: 'Your answer can\'t be checked right now. Please try again later.', retry: 'The checker is busy, trying again…', expired: 'Your session has expired. Please refresh the page and sign in again. Your answers are saved.' };
                     var slug = @json($lesson->slug), csrf = @json(csrf_token());
                     var store = { get: function (k) { try { return localStorage.getItem(k) || ''; } catch (e) { return ''; } }, set: function (k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } } };
                     document.querySelectorAll('.lesson-body .quiz-q[data-q]').forEach(function (box) {
@@ -167,20 +167,45 @@
                         btn.addEventListener('click', function () {
                             if (!ta.value.trim()) { ta.focus(); return; }
                             btn.disabled = true; btn.textContent = t.busy; out.className = 'quiz-result'; out.textContent = '';
-                            fetch('/courses/check-answer', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
-                                body: JSON.stringify({ lesson: slug, q: Number(i), tl: tl, answer: ta.value }) })
-                                .then(function (r) { return r.json().catch(function () { return {}; }); })
-                                .then(function (d) {
-                                    if (!d || !d.verdict) { out.className = 'quiz-result is-err'; out.textContent = (d && d.error) || t.err; return; }
-                                    out.className = 'quiz-result is-' + d.verdict;
-                                    var head = document.createElement('strong'); head.textContent = d.verdict === 'correct' ? t.ok : (d.verdict === 'partly' ? t.part : t.no);
-                                    var p = document.createElement('span'); p.textContent = ' ' + (d.feedback || '');
-                                    out.appendChild(head); out.appendChild(p);
-                                    var sum = document.getElementById('quiz-summary');
-                                    if (sum && d.summary_html) { sum.outerHTML = d.summary_html; }
-                                })
-                                .catch(function () { out.className = 'quiz-result is-err'; out.textContent = t.err; })
-                                .finally(function () { btn.disabled = false; btn.textContent = t.btn; });
+                            var done = function () { btn.disabled = false; btn.textContent = t.btn; };
+                            var fail = function (msg) { out.className = 'quiz-result is-err'; out.textContent = msg; done(); };
+                            // Busy moments and an expired page session are handled here, so the student doesn't have to.
+                            var send = function (attempt) {
+                                fetch('/courses/check-answer', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf },
+                                    body: JSON.stringify({ lesson: slug, q: Number(i), tl: tl, answer: ta.value }) })
+                                    .then(function (r) { return r.json().catch(function () { return {}; }).then(function (d) { return { s: r.status, d: d || {} }; }); })
+                                    .then(function (x) {
+                                        var d = x.d;
+                                        if (d.verdict) {
+                                            out.className = 'quiz-result is-' + d.verdict;
+                                            var head = document.createElement('strong'); head.textContent = d.verdict === 'correct' ? t.ok : (d.verdict === 'partly' ? t.part : t.no);
+                                            var p = document.createElement('span'); p.textContent = ' ' + (d.feedback || '');
+                                            out.appendChild(head); out.appendChild(p);
+                                            var sum = document.getElementById('quiz-summary');
+                                            if (sum && d.summary_html) { sum.outerHTML = d.summary_html; }
+                                            done(); return;
+                                        }
+                                        if (x.s === 419 && attempt < 3) {
+                                            // The page was open for a long time: get a fresh security token, then try again.
+                                            return fetch(location.href, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (h) {
+                                                var m = h.match(/csrf = "([^"]+)"/); if (m) { csrf = m[1]; }
+                                                send(attempt + 1);
+                                            }).catch(function () { fail(t.expired); });
+                                        }
+                                        if (x.s === 419 || x.s === 401 || x.s === 403) { fail(t.expired); return; }
+                                        if ((x.s >= 500 || x.s === 0 || (x.s === 429 && !d.error) || (x.s === 200 && !d.error)) && attempt < 4) {
+                                            out.className = 'quiz-result'; out.textContent = t.retry;
+                                            setTimeout(function () { send(attempt + 1); }, attempt * 4000);
+                                            return;
+                                        }
+                                        fail(d.error || t.err);
+                                    })
+                                    .catch(function () {
+                                        if (attempt < 4) { out.className = 'quiz-result'; out.textContent = t.retry; setTimeout(function () { send(attempt + 1); }, attempt * 4000); }
+                                        else { fail(t.err); }
+                                    });
+                            };
+                            send(1);
                         });
                         box.appendChild(ta); box.appendChild(note); box.appendChild(btn); box.appendChild(out);
                     });

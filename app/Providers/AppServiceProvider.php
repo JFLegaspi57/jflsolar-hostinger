@@ -29,6 +29,14 @@ class AppServiceProvider extends ServiceProvider
             RateLimiter::for($name, fn (Request $r) => Limit::perMinute($perMinute)->by($name.'|'.$r->ip()));
         }
 
+        // Course answer checks: counted per signed-in member, not per internet address. Many students in the
+        // Philippines share one address (mobile data / CGNAT), and a per-address limit blocked them.
+        RateLimiter::for('course-check', function (Request $r) {
+            $id = \App\Support\Members::current()?->id ?? \App\Support\Forum::staff()?->id;
+
+            return $id ? Limit::perMinute(20)->by('course-check|m'.$id) : Limit::perMinute(120)->by('course-check|'.$r->ip());
+        });
+
         // The mailbox password saved in Admin → Subscribers takes the place of MAIL_PASSWORD.
         try {
             \App\Support\MailPassword::apply();

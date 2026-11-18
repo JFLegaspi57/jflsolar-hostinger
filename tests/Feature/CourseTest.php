@@ -108,6 +108,27 @@ class CourseTest extends TestCase
         \Illuminate\Support\Facades\Http::assertSent(fn ($r) => str_contains(json_encode($r->data()), 'Secret model answer'));
     }
 
+    public function test_answer_checks_are_limited_per_member_not_per_internet_address(): void
+    {
+        Course::ensureTables();
+        DB::table('course_lessons')->insert(['slug' => 'quiz-lesson', 'title' => 'Quiz lesson', 'summary' => 's', 'position' => 1, 'status' => 'published', 'created_at' => now(), 'updated_at' => now(),
+            'body' => '<details><summary>1. Q?</summary><p>A.</p></details>']);
+        config(['chatbot.api_key' => 'test-key']);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"correct","feedback":"ok"}']]])]);
+        $a = $this->member('ana@example.com');
+        $b = $this->member('ben@example.com');
+        $this->actingAs($a, 'member');
+        for ($n = 0; $n < 20; $n++) {
+            $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => 'A'])->assertOk();
+        }
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => 'A'])->assertStatus(429);
+        // Same internet address, another student: not blocked.
+        $this->actingAs($b, 'member');
+        session()->forget('member_pw');   // a fresh sign-in for the second student
+        $this->postJson('/courses/check-answer', ['lesson' => 'quiz-lesson', 'q' => 0, 'answer' => 'A'])->assertOk();
+        $this->get(Course::PATH.'/quiz-lesson')->assertSee('The checker is busy, trying again')->assertSee('Your session has expired');
+    }
+
     public function test_lesson_result_shows_passed_or_failed(): void
     {
         Course::ensureTables();
