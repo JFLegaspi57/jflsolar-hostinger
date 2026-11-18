@@ -210,7 +210,7 @@ final class CourseResults
         self::ensureTable();
         $lessons = Course::lessons()->values();
         $ids = $lessons->pluck('id')->all();
-        $members = DB::table('members')->pluck('id')->flip();
+        $members = DB::table('members')->whereNotIn('id', self::hiddenIds() ?: [0])->pluck('id')->flip();
 
         $views = DB::table(self::VIEWS)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'first_at'])
             ->filter(fn ($r) => isset($members[$r->member_id]));
@@ -297,6 +297,7 @@ final class CourseResults
         ])->sort(fn ($a, $b) => [$b['passed'], $b['opened'], (string) $b['at']] <=> [$a['passed'], $a['opened'], (string) $a['at']])->values()->all();
 
         return [
+            'hidden' => DB::table('members')->whereIn('id', self::hiddenIds() ?: [0])->get(['id', 'name', 'email'])->map(fn ($m) => ['id' => (int) $m->id, 'name' => (string) $m->name, 'email' => (string) $m->email])->all(),
             'ranking' => $ranking,
             'members' => $members->count(),
             'started' => $started->count(),
@@ -311,12 +312,36 @@ final class CourseResults
     }
 
     /** How many members have started the course (opened a lesson or checked an answer). */
+    /**
+     * Members left out of the course numbers and ranking (e.g. the owner's own test account), set in Admin → Online course.
+     *
+     * @return list<int>
+     */
+    public static function hiddenIds(): array
+    {
+        $f = storage_path('app/course-hidden-members.json');
+        $ids = is_file($f) ? json_decode((string) file_get_contents($f), true) : [];
+
+        return is_array($ids) ? array_values(array_unique(array_map('intval', $ids))) : [];
+    }
+
+    public static function setHidden(int $memberId, bool $hidden): void
+    {
+        $ids = array_values(array_diff(self::hiddenIds(), [$memberId]));
+        if ($hidden) {
+            $ids[] = $memberId;
+        }
+        @mkdir(storage_path('app'), 0755, true);
+        file_put_contents(storage_path('app/course-hidden-members.json'), json_encode($ids), LOCK_EX);
+        \Illuminate\Support\Facades\Cache::forget('public-visitor-stats-v3');
+    }
+
     public static function studentCount(): int
     {
         self::ensureTable();
         $ids = DB::table(self::VIEWS)->select('member_id')->union(DB::table(self::TABLE)->select('member_id'))->pluck('member_id')->unique()->all();
 
-        return $ids ? DB::table('members')->whereIn('id', $ids)->where('status', 'active')->count() : 0;
+        return $ids ? DB::table('members')->whereIn('id', $ids)->whereNotIn('id', self::hiddenIds() ?: [0])->where('status', 'active')->count() : 0;
     }
 
     /** The member has opened at least one lesson or checked an answer. */

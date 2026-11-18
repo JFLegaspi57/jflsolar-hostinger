@@ -249,6 +249,7 @@ Route::prefix('admin')->group(function () {
         Route::post('course/gcash', [Admin\CourseController::class, 'gcash']);
         Route::post('course/donations/{id}', [Admin\CourseController::class, 'donation']);
         Route::post('course/member', [Admin\CourseController::class, 'member']);
+        Route::post('course/hide/{member}', [Admin\CourseController::class, 'hide'])->whereNumber('member');
         Route::post('course/lessons', [Admin\CourseController::class, 'createLesson']);
         Route::get('course/lessons/{id}', [Admin\CourseController::class, 'editLesson'])->whereNumber('id');
         Route::post('course/lessons/{id}', [Admin\CourseController::class, 'updateLesson'])->whereNumber('id');
