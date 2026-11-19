@@ -48,14 +48,21 @@
                         @if (! Certs::qrUrl())
                             <p class="mt-2 text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
                         @endif
+                        @if ((int) $cert->wrong_refs > 0 && ! Certs::blocked($cert))
+                            <p class="mt-2 text-sm font-semibold" style="color:#991b1b">⚠️ {{ $cert->wrong_refs }} of {{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment.</p>
+                        @endif
                         @if ($cert->gcash_ref)
                             <p class="mt-3 text-sm text-steel-800">⏳ We received your reference number <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. We'll unlock your download as soon as the payment is confirmed.</p>
                         @endif
-                        <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
-                            @csrf
-                            <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
-                            <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
-                        </form>
+                        @if (Certs::blocked($cert))
+                            <p class="mt-3 rounded border p-3 text-sm font-semibold" style="border-color:#fca5a5;background:#fef2f2;color:#991b1b">{{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment, so you can no longer send one here. If you paid, please call our Sales team at 0969 471 2098 with your GCash receipt.</p>
+                        @else
+                            <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
+                                @csrf
+                                <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
+                                <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
+                            </form>
+                        @endif
                     </div>
                     @if ($qrSide)
                         <div><img src="{{ $qrSide }}" alt="GCash QR code of JFL Solar for the certificate payment" width="190" class="rounded border border-steel-300 bg-white" style="width:11.875rem;height:auto">
@@ -67,10 +74,38 @@
             @endif
         @endif
 
+        @if (! $staff && $cert->wrong_popup)
+            <dialog id="cert-warn-{{ $cert->id }}" aria-labelledby="cert-warn-h-{{ $cert->id }}" class="rounded-[var(--radius-panel)] p-0 shadow-2xl" style="max-width:30rem;border:2px solid #dc2626">
+                <div class="p-6">
+                    <h2 id="cert-warn-h-{{ $cert->id }}" class="text-xl font-bold" style="color:#991b1b">⚠️ Warning {{ min($cert->wrong_refs, Certs::MAX_WRONG_REFS) }} of {{ Certs::MAX_WRONG_REFS }}: wrong GCash reference number</h2>
+                    <p class="mt-3 text-steel-800">The GCash reference number you sent, <strong>{{ $cert->wrong_last }}</strong>, does not match any payment we received.</p>
+                    @if (Certs::blocked($cert))
+                        <p class="mt-2 font-semibold text-steel-900">This was the {{ Certs::MAX_WRONG_REFS }}rd wrong reference number, so you can no longer send one on the website. If you really paid, please call our Sales team at 0969 471 2098 with your GCash receipt.</p>
+                    @else
+                        <p class="mt-2 text-steel-800">Please check your GCash receipt and type the reference number exactly as shown. Sending a made-up number won't unlock your certificate.</p>
+                        <p class="mt-2 font-semibold text-steel-900">You have {{ Certs::MAX_WRONG_REFS - (int) $cert->wrong_refs }} {{ Certs::MAX_WRONG_REFS - (int) $cert->wrong_refs === 1 ? 'try' : 'tries' }} left. After {{ Certs::MAX_WRONG_REFS }} wrong reference numbers, you can no longer send one here.</p>
+                    @endif
+                    <form method="post" action="/account/certificate/warning-seen" class="mt-5">@csrf<button type="submit" class="{{ \App\Support\Ui::button('primary') }}">I understand</button></form>
+                </div>
+            </dialog>
+            <script>(function () { var d = document.getElementById('cert-warn-{{ $cert->id }}'); if (d && d.showModal) { d.showModal(); } else if (d) { d.setAttribute('open', ''); } })();</script>
+        @endif
+
         @if ($staff)
             <div class="mt-4 space-y-3 border-t border-gold-300 pt-3 text-sm">
                 <p><strong>Payment ({{ $fee }} via GCash):</strong>
                     @if ($cert->paid_at) paid. @elseif ($cert->gcash_ref) the member sent reference <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. Check it in GCash, then mark it paid. @else not paid yet. @endif</p>
+                @if (! $cert->paid_at && $cert->gcash_ref)
+                    <form method="post" action="/admin/members/{{ $memberId }}/certificate">@csrf
+                        <input type="hidden" name="action" value="reject">
+                        <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}" style="color:#991b1b;border-color:#dc2626">Reject: no GCash payment with this reference</button>
+                        <span class="text-steel-600">The member gets a pop-up warning ({{ (int) $cert->wrong_refs + 1 }} of {{ Certs::MAX_WRONG_REFS }}).</span>
+                    </form>
+                @endif
+                @if ((int) $cert->wrong_refs > 0)
+                    <p style="color:#991b1b"><strong>Wrong reference numbers:</strong> {{ $cert->wrong_refs }} of {{ Certs::MAX_WRONG_REFS }} (last: {{ $cert->wrong_last }}){{ Certs::blocked($cert) ? ' — blocked from sending more.' : '' }}</p>
+                    <form method="post" action="/admin/members/{{ $memberId }}/certificate">@csrf<input type="hidden" name="action" value="reset-wrong"><button type="submit" class="text-sm underline text-steel-700">Reset the count (give the 3 tries back)</button></form>
+                @endif
                 <form method="post" action="/admin/members/{{ $memberId }}/certificate">@csrf
                     <input type="hidden" name="action" value="{{ $cert->paid_at ? 'unpaid' : 'paid' }}">
                     <button type="submit" class="{{ \App\Support\Ui::button($cert->paid_at ? 'secondary' : 'primary', 'sm') }}">{{ $cert->paid_at ? 'Mark as not paid (locks the download)' : 'Mark as paid (unlocks the download)' }}</button>

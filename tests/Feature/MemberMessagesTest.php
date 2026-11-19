@@ -59,7 +59,7 @@ class MemberMessagesTest extends TestCase
 
     public function test_staff_issue_a_unique_certificate_number_shown_on_the_account_page(): void
     {
-        Cache::forget('course-certificates-table-v1');
+        Cache::forget('course-certificates-table-v3');
         $a = Member::query()->create(['name' => 'Warren', 'email' => 'wa@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $b = Member::query()->create(['name' => 'Maria', 'email' => 'ma@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
@@ -83,7 +83,7 @@ class MemberMessagesTest extends TestCase
 
     public function test_certificate_preview_payment_reference_and_download_only_when_paid(): void
     {
-        Cache::forget('course-certificates-table-v2');
+        Cache::forget('course-certificates-table-v3');
         @mkdir(\App\Support\CourseCertificates::dir(), 0775, true);
         $m = Member::query()->create(['name' => 'Warren', 'email' => 'wc@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
@@ -121,5 +121,35 @@ class MemberMessagesTest extends TestCase
         $this->get('/account/certificate/gcash-qr.jpg')->assertNotFound();
         \App\Support\CourseCertificates::revoke($m->id);
         @unlink(\App\Support\CourseCertificates::qrFile());
+    }
+
+    public function test_fake_reference_numbers_get_a_pop_up_warning_and_block_after_three(): void
+    {
+        Cache::forget('course-certificates-table-v3');
+        @mkdir(\App\Support\CourseCertificates::dir(), 0775, true);
+        $m = Member::query()->create(['name' => 'Fake', 'email' => 'fk@example.com', 'password' => 'a long test password', 'status' => 'active']);
+        $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $pdfPath = tempnam(sys_get_temp_dir(), 'p'); file_put_contents($pdfPath, "%PDF-1.4\n");
+        $this->actingAs($owner, 'web')->post('/admin/members/'.$m->id.'/certificate', ['action' => 'issue']);
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'upload', 'pdf' => new \Illuminate\Http\UploadedFile($pdfPath, 'c.pdf', 'application/pdf', null, true)]);
+
+        for ($i = 1; $i <= 3; $i++) {
+            session()->forget('member_pw');
+            $this->actingAs($m, 'member')->post('/account/certificate/reference', ['reference' => '99999990000'.$i])->assertSessionHas('status');
+            $this->actingAs($owner, 'web')->get('/admin/members/'.$m->id)->assertSee('Reject: no GCash payment with this reference');
+            $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'reject']);
+            session()->forget('member_pw');
+            $page = $this->actingAs($m, 'member')->get('/account/course')->assertSee('Warning '.$i.' of 3')->assertSee('99999990000'.$i);
+            $i < 3 ? $page->assertSee('GCash reference number</span>', false) : $page->assertSee('you can no longer send one here');
+            $this->post('/account/certificate/warning-seen');
+            $this->get('/account/course')->assertDontSee('Warning '.$i.' of 3');
+        }
+        $this->post('/account/certificate/reference', ['reference' => '1234567890123'])->assertSessionHas('status_error');
+        $this->assertNull(\App\Support\CourseCertificates::for($m->id)->gcash_ref);
+
+        $this->actingAs($owner, 'web')->get('/admin/members/'.$m->id)->assertSee('blocked from sending more');
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'reset-wrong']);
+        $this->assertSame(0, (int) \App\Support\CourseCertificates::for($m->id)->wrong_refs);
+        \App\Support\CourseCertificates::revoke($m->id);
     }
 }
