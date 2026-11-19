@@ -17,6 +17,7 @@
         </div>
         <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
         @include('partials.account-messages')
+        @include('partials.account-own-words')
         @include('partials.account-announcement')
         @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
 
