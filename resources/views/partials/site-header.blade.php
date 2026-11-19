@@ -99,6 +99,7 @@
                         @foreach ($accountMenu as [$accHref, $accLabel])
                             <li><a href="{{ $accHref }}" @if (request()->is(ltrim(strtok($accHref, '#'), '/'))) aria-current="page" @endif class="nav-dd-link">{{ $accLabel }}</a></li>
                         @endforeach
+                        <li class="mt-1 border-t border-steel-200 pt-1"><form method="post" action="/logout">@csrf<button type="submit" class="nav-dd-link w-full text-left" style="cursor:pointer">Log out</button></form></li>
                     </ul>
                 </div>
                 </div>
@@ -174,6 +175,7 @@
                                 @foreach ($accountMenu as [$accHref, $accLabel])
                                     <li><a href="{{ $accHref }}" data-close-dialog class="flex min-h-11 items-center justify-center rounded-[var(--radius-control)] bg-steel-50 px-2 text-center text-sm font-semibold text-steel-800 hover:bg-steel-100">{{ $accLabel }}</a></li>
                                 @endforeach
+                                <li><form method="post" action="/logout">@csrf<button type="submit" class="flex min-h-11 w-full items-center justify-center rounded-[var(--radius-control)] bg-steel-50 px-2 text-center text-sm font-semibold text-steel-800 hover:bg-steel-100">Log out</button></form></li>
                             </ul>
                         @endif
                         <a href="{{ $quoteBtn['href'] }}" data-close-dialog class="flex min-h-12 items-center justify-center rounded-[var(--radius-control)] bg-gold-500 font-semibold text-steel-950 hover:bg-gold-400">{{ $quoteBtn['label'] }}</a>

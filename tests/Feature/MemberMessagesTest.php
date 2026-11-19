@@ -157,4 +157,15 @@ class MemberMessagesTest extends TestCase
         $this->assertSame(0, (int) \App\Support\CourseCertificates::for($m->id)->wrong_refs);
         \App\Support\CourseCertificates::revoke($m->id);
     }
+
+    public function test_account_menu_ends_with_log_out(): void
+    {
+        $m = Member::query()->create(['name' => 'Menu', 'email' => 'menu@example.com', 'password' => 'a long test password', 'status' => 'active']);
+        $html = (string) $this->actingAs($m, 'member')->get('/account')->getContent();
+        $menu = substr($html, (int) strpos($html, 'aria-label="Your account" class="rounded'));
+        $menu = substr($menu, 0, (int) strpos($menu, '</ul>'));
+        $this->assertStringEndsWith('Log out</button></form></li>', trim($menu));
+        $this->post('/logout')->assertRedirect();
+        $this->assertNull(\App\Support\Members::current());
+    }
 }
