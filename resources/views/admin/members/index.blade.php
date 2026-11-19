@@ -1,6 +1,7 @@
 @php $input = 'min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 bg-white px-3 text-base text-steel-950'; @endphp
 <x-admin.layout title="Members">
     <x-admin.page-title title="Members" intro="Customer accounts created on the website (they can also post in the forum). Open a name to see their orders, sign-ins (time and approximate place), online course record and the pages they viewed while signed in. Disabling an account signs the person out and stops them signing in." />
+    @if (auth('web')->user()?->isOwner())<p class="mb-4 text-sm"><a href="/admin/social-login" class="font-semibold underline">Sign-up with Google &amp; Facebook: settings</a></p>@endif
     <dl class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="Member totals">
         @foreach ([['Total members', $counts['total']], ['Active', $counts['active']], ['Disabled', $counts['total'] - $counts['active']], ['Joined in the last 30 days', $counts['new30']]] as $i => [$label, $value])
             <div class="rounded-[var(--radius-panel)] border {{ $i === 0 ? 'border-gold-500 bg-gold-50' : 'border-steel-200 bg-white' }} p-4">

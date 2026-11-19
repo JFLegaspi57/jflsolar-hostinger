@@ -76,6 +76,8 @@ Route::post('/signup', [Account\AuthController::class, 'signup'])->middleware('t
 Route::get('/login', [Account\AuthController::class, 'showLogin']);
 Route::post('/login', [Account\AuthController::class, 'login'])->middleware('throttle:account');
 Route::post('/logout', [Account\AuthController::class, 'logout']);
+Route::get('/auth/start', [Account\SocialController::class, 'start'])->middleware('throttle:account');
+Route::get('/auth/{provider}/callback', [Account\SocialController::class, 'callback'])->where('provider', 'google|facebook')->middleware('throttle:account');
 Route::get('/forgot-password', [Account\AuthController::class, 'showForgot']);
 Route::post('/forgot-password', [Account\AuthController::class, 'forgot'])->middleware('throttle:account');
 Route::get('/reset-password/{token}', [Account\AuthController::class, 'showReset'])->where('token', '[A-Za-z0-9]{20,100}');
@@ -224,6 +226,8 @@ Route::prefix('admin')->group(function () {
         Route::post('forum/posts/{post}', [Admin\ForumController::class, 'post'])->whereNumber('post');
         Route::post('forum/topics/{topic}', [Admin\ForumController::class, 'topic'])->whereNumber('topic');
         Route::get('members', [Admin\MemberController::class, 'index']);
+        Route::get('social-login', [Admin\MemberController::class, 'socialLogin']);
+        Route::post('social-login', [Admin\MemberController::class, 'saveSocialLogin']);
         Route::get('members/export', [Admin\MemberController::class, 'exportMembers']);
         Route::get('members/{member}', [Admin\MemberController::class, 'show'])->whereNumber('member');
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
