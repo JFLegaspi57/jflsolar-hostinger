@@ -38,7 +38,7 @@ final class PayMongo
                     'line_items' => $lineItems,
                     'payment_method_types' => config('shop.paymongo.methods'),
                     'success_url' => Site::url('/checkout/done?order='.$order->reference.'&t='.$order->access_token),
-                    'cancel_url' => Site::url('/cart?cancelled='.$order->reference),
+                    'cancel_url' => Site::url('/account/cart?cancelled='.$order->reference),
                     'reference_number' => $order->reference,
                     'description' => 'JFL Solar order '.$order->reference,
                     'send_email_receipt' => true,

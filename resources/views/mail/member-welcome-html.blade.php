@@ -29,7 +29,7 @@
 <ul style="margin-top:0;padding-left:20px;">
 <li><b>PV Calculator</b>: get an idea of how much solar you need.<br>{!! $link('/pv-calculator') !!}</li>
 <li><b>Packages</b>: Materials Only bundles, <b>Build Your Own</b> with a price for every part, and Complete packages with installation. You can also compare packages side by side.<br>{!! $link('/packages') !!}</li>
-<li><b>Make a Quotation</b>: put together a quotation for your own solar PV system and keep it in your account.<br>{!! $link('/quotation') !!}</li>
+<li><b>Make a Quotation</b>: put together a quotation for your own solar PV system and keep it in your account.<br>{!! $link('/account/quotation') !!}</li>
 <li><b>Services</b>: what JFL Solar can do for you.<br>{!! $link('/services') !!}</li>
 </ul>
 

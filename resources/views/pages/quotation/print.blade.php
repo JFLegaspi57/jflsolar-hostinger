@@ -31,7 +31,7 @@
 <body>
     <div class="bar no-print">
         <button type="button" class="btn" onclick="window.print()">Print / Save as PDF</button>
-        <a class="btn alt" href="/quotation/{{ $q->id }}">Back to your quotation</a>
+        <a class="btn alt" href="/account/quotation/{{ $q->id }}">Back to your quotation</a>
     </div>
     <main class="sheet">
         <div style="font-family:Arial,Helvetica,sans-serif;color:#111827;">

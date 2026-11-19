@@ -30,7 +30,7 @@ class CheckoutController extends Controller
         abort_unless(Shop::visible(), 404);
         $summary = Shop::summary();
         if (! $summary['lines']) {
-            return redirect('/cart');
+            return redirect('/account/cart');
         }
 
         $settings = PublicContent::settings();
@@ -48,15 +48,15 @@ class CheckoutController extends Controller
 
         // Honeypot: people never see or fill this field.
         if (trim((string) $request->input('website', '')) !== '') {
-            return redirect('/cart');
+            return redirect('/account/cart');
         }
 
         $summary = Shop::summary();
         if ($summary['removed']) {
-            return redirect('/cart')->with('cart_error', 'Some items are no longer available online and were removed. Please check your cart.');
+            return redirect('/account/cart')->with('cart_error', 'Some items are no longer available online and were removed. Please check your cart.');
         }
         if (! $summary['lines']) {
-            return redirect('/cart');
+            return redirect('/account/cart');
         }
 
         $values = [
@@ -250,7 +250,7 @@ class CheckoutController extends Controller
             Shop::put([]);   // the cart has become an order
         }
 
-        return $order ? redirect($order->publicPath()) : redirect('/cart');
+        return $order ? redirect($order->publicPath()) : redirect('/account/cart');
     }
 
     /** Private order status page (link in the success redirect; unguessable token). */

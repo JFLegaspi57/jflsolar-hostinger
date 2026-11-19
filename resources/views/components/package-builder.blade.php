@@ -18,7 +18,7 @@
         <div role="status" class="mt-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-3 text-ok-700">
             <p class="flex items-center gap-2 font-semibold"><x-icon name="check" class="size-5" /> Added to your basket:</p>
             <ul class="mt-1 text-sm">@foreach ((array) session('pkg_added') as $line)<li>{{ $line }}</li>@endforeach</ul>
-            <p class="mt-1 text-sm"><a href="/cart" class="font-semibold underline">View basket and check out</a></p>
+            <p class="mt-1 text-sm"><a href="/account/cart" class="font-semibold underline">View basket and check out</a></p>
         </div>
     @endif
     @if (session('pkg_error'))

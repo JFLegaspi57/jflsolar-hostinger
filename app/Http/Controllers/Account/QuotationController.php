@@ -39,7 +39,7 @@ class QuotationController extends Controller
         $member = $this->member();
         Quotations::ensureTables();
         if (MemberQuote::query()->where('member_id', $member->id)->count() >= Quotations::MAX_QUOTES) {
-            return redirect('/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need first.');
+            return redirect('/account/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need first.');
         }
         $items = [];
         if ($p = Quotations::available()->get(Input::str($request, 'product_id'))) {
@@ -50,7 +50,7 @@ class QuotationController extends Controller
             'member_id' => $member->id, 'title' => 'My quotation '.$n, 'phone' => $member->phone, 'items' => $items,
         ]);
 
-        return redirect('/quotation/'.$q->id)->with('quote_status', $items ? 'New quotation started with '.$items[0]['name'].'.' : 'New quotation started. Add products and your own items below.');
+        return redirect('/account/quotation/'.$q->id)->with('quote_status', $items ? 'New quotation started with '.$items[0]['name'].'.' : 'New quotation started. Add products and your own items below.');
     }
 
     /**
@@ -74,7 +74,7 @@ class QuotationController extends Controller
         }
         $request->session()->put('quote_from_build', array_values($items));
         if (! Members::current()) {
-            return redirect('/login?next='.rawurlencode('/quotation/from-build'))
+            return redirect('/login?next='.rawurlencode('/account/quotation/from-build'))
                 ->with('account_status', 'Sign in or create a free account, and your Build Your Own parts become a quotation you can keep, print and send.');
         }
 
@@ -88,10 +88,10 @@ class QuotationController extends Controller
         Quotations::ensureTables();
         $items = (array) $request->session()->pull('quote_from_build', []);
         if (! $items) {
-            return redirect('/quotation');
+            return redirect('/account/quotation');
         }
         if (MemberQuote::query()->where('member_id', $member->id)->count() >= Quotations::MAX_QUOTES) {
-            return redirect('/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need, then use Make a Quotation on Build Your Own again.');
+            return redirect('/account/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need, then use Make a Quotation on Build Your Own again.');
         }
         $available = Quotations::available();
         $items = array_slice(array_values(array_filter($items, fn ($it) => $available->has((string) ($it['product_id'] ?? '')))), 0, Quotations::MAX_LINES);
@@ -103,7 +103,7 @@ class QuotationController extends Controller
             'member_id' => $member->id, 'title' => 'Build Your Own package'.($n > 1 ? ' '.$n : ''), 'phone' => $member->phone, 'items' => $items,
         ]);
 
-        return redirect('/quotation/'.$q->id)->with('quote_status', 'Your Build Your Own parts are now a quotation ('.count($items).' '.(count($items) === 1 ? 'item' : 'items').'). Change anything you like, then print it or send it to us.');
+        return redirect('/account/quotation/'.$q->id)->with('quote_status', 'Your Build Your Own parts are now a quotation ('.count($items).' '.(count($items) === 1 ? 'item' : 'items').'). Change anything you like, then print it or send it to us.');
     }
 
     public function edit(int $id): View
@@ -129,7 +129,7 @@ class QuotationController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $q = $this->find($id);
-        $back = '/quotation/'.$q->id;
+        $back = '/account/quotation/'.$q->id;
         $wasSent = $q->sent_at !== null;
         $before = json_encode([$q->title, $q->location, $q->notes, $q->items]);
 
@@ -214,7 +214,7 @@ class QuotationController extends Controller
 
         return match ($intent) {
             'send' => $this->send($q),
-            'print' => redirect('/quotation/'.$q->id.'/print'),
+            'print' => redirect('/account/quotation/'.$q->id.'/print'),
             default => $response->with('quote_status', $status),
         };
     }
@@ -225,10 +225,10 @@ class QuotationController extends Controller
         $q = $this->find($id);
         $title = Quotations::clean($request->input('title'), Quotations::LIMITS['title']);
         if ($title === '') {
-            return redirect('/quotation#q-'.$q->id)->with('quote_error', 'Type a name for your quotation.');
+            return redirect('/account/quotation#q-'.$q->id)->with('quote_error', 'Type a name for your quotation.');
         }
         if ($title === $q->title) {
-            return redirect('/quotation#q-'.$q->id)->with('quote_status', 'The name is unchanged.');
+            return redirect('/account/quotation#q-'.$q->id)->with('quote_status', 'The name is unchanged.');
         }
         $old = $q->title;
         $q->title = $title;
@@ -237,21 +237,21 @@ class QuotationController extends Controller
         }
         $q->save();
 
-        return redirect('/quotation#q-'.$q->id)->with('quote_status', 'Renamed “'.$old.'” to “'.$title.'”.');
+        return redirect('/account/quotation#q-'.$q->id)->with('quote_status', 'Renamed “'.$old.'” to “'.$title.'”.');
     }
 
     public function duplicate(int $id): RedirectResponse
     {
         $q = $this->find($id);
         if (MemberQuote::query()->where('member_id', $q->member_id)->count() >= Quotations::MAX_QUOTES) {
-            return redirect('/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need first.');
+            return redirect('/account/quotation')->with('quote_error', 'You have '.Quotations::MAX_QUOTES.' quotations, the most you can keep. Please delete one you no longer need first.');
         }
         $copy = MemberQuote::query()->create([
             'member_id' => $q->member_id, 'title' => mb_substr('Copy of '.$q->title, 0, Quotations::LIMITS['title']),
             'location' => $q->location, 'phone' => $q->phone, 'notes' => $q->notes, 'items' => $q->items,
         ]);
 
-        return redirect('/quotation/'.$copy->id)->with('quote_status', 'Copied. This is your new quotation; the original is unchanged.');
+        return redirect('/account/quotation/'.$copy->id)->with('quote_status', 'Copied. This is your new quotation; the original is unchanged.');
     }
 
     public function destroy(int $id): RedirectResponse
@@ -260,7 +260,7 @@ class QuotationController extends Controller
         $title = $q->title;
         $q->delete();
 
-        return redirect('/quotation')->with('quote_status', 'Deleted “'.$title.'”.'.($q->sent_at ? ' A request you already sent stays with our team.' : ''));
+        return redirect('/account/quotation')->with('quote_status', 'Deleted “'.$title.'”.'.($q->sent_at ? ' A request you already sent stays with our team.' : ''));
     }
 
     public function print(int $id): View
@@ -273,7 +273,7 @@ class QuotationController extends Controller
     private function send(MemberQuote $q): RedirectResponse
     {
         $member = Members::current();
-        $back = redirect('/quotation/'.$q->id.'#send');
+        $back = redirect('/account/quotation/'.$q->id.'#send');
         $problems = [];
         if (! $q->items) {
             $problems[] = 'Add at least one product or item.';
@@ -326,18 +326,18 @@ class QuotationController extends Controller
         }
         $q->save();
 
-        return redirect('/quotation/'.$q->id);
+        return redirect('/account/quotation/'.$q->id);
     }
 
     private function member(): \App\Models\Member
     {
-        return Members::current() ?? abort(redirect('/login?next='.rawurlencode('/quotation')));
+        return Members::current() ?? abort(redirect('/login?next='.rawurlencode('/account/quotation')));
     }
 
     /** One of the signed-in member's own quotations; anyone else's is "not found". */
     private function find(int $id): MemberQuote
     {
-        $member = Members::current() ?? abort(redirect('/login?next='.rawurlencode('/quotation/'.$id)));
+        $member = Members::current() ?? abort(redirect('/login?next='.rawurlencode('/account/quotation/'.$id)));
         Quotations::ensureTables();
 
         return MemberQuote::query()->where('member_id', $member->id)->find($id) ?? abort(404);

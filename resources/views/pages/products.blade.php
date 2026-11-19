@@ -9,7 +9,7 @@
         image="/images/products-stock-900.jpg" srcset="/images/products-stock-640.jpg 640w, /images/products-stock-900.jpg 900w"
         imageAlt="Delivery truck loaded with boxed solar panels, mounting rails and accessories" focus="50% 55%">
         <p class="mt-5 text-xl font-extrabold text-gold-400">Sagot ka namin!</p>
-        <p class="mt-5"><a href="/quotation" class="{{ \App\Support\Ui::button('primary', 'lg') }}">{{ \App\Support\Quotations::NAME }}</a></p>
+        <p class="mt-5"><a href="/account/quotation" class="{{ \App\Support\Ui::button('primary', 'lg') }}">{{ \App\Support\Quotations::NAME }}</a></p>
     </x-page-hero>
     {{-- Brand strip (logos from the owner's brand sheet). Each logo is a link to that brand's products:
          the link shows its own slice of the same image, so it lines up exactly and can lift on hover. --}}

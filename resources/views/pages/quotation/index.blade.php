@@ -4,14 +4,15 @@
     use App\Support\Ui;
     $card = 'rounded-[var(--radius-panel)] border border-steel-200 bg-white p-6 sm:p-8';
 @endphp
-<x-site-layout :title="Quotations::NAME" path="/quotation" :noindex="(bool) $member" :reviews-above-footer="false"
+<x-site-layout :title="Quotations::NAME" path="/account/quotation" :noindex="(bool) $member" :reviews-above-footer="false"
     description="Make a Quotation: registered JFL Solar members list the solar PV products they need, add their own items, and send the list to JFL Solar for a quotation.">
-    <x-page-hero eyebrow="For members" :title="Quotations::NAME"
+    <x-page-hero :eyebrow="$member ? 'Your account' : 'For members'" :title="Quotations::NAME"
         intro="Build your own list of solar PV equipment: pick products from our catalogue with today's website prices, add anything else you need, then send it to JFL Solar for a formal quotation."
         image="/images/quotation-desk-1280.jpg" srcset="/images/quotation-desk-640.jpg 640w, /images/quotation-desk-960.jpg 960w, /images/quotation-desk-1280.jpg 1280w"
         imageAlt="Laptop, tablet, phone, notebook and a cup of coffee on a wooden desk" focus="45% 50%" />
 
     <x-container class="py-10 sm:py-14">
+        @if ($member)<p class="-mt-4 mb-4"><a href="/account" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← Your account</a></p>@endif
         @include('pages.quotation.flash')
 
         @if (! $member)
@@ -25,15 +26,15 @@
                 </ol>
                 <p class="mt-6 text-steel-800">{{ Quotations::NAME }} is free for registered members.</p>
                 <div class="mt-4 flex flex-wrap items-center gap-4">
-                    <a href="/signup?next=%2Fquotation" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
-                    <span class="text-steel-700">Already a member? <a href="/login?next=%2Fquotation" class="font-semibold text-steel-900 underline">Sign in</a></span>
+                    <a href="/signup?next=%2Faccount%2Fquotation" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
+                    <span class="text-steel-700">Already a member? <a href="/login?next=%2Faccount%2Fquotation" class="font-semibold text-steel-900 underline">Sign in</a></span>
                 </div>
             </section>
         @else
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <h2 class="text-2xl font-bold text-steel-950">Your quotations</h2>
                 @if ($quotes->count() < Quotations::MAX_QUOTES)
-                    <form method="post" action="/quotation">@csrf<button type="submit" class="{{ Ui::button('primary', 'lg') }}"><span aria-hidden="true">＋</span> New quotation</button></form>
+                    <form method="post" action="/account/quotation">@csrf<button type="submit" class="{{ Ui::button('primary', 'lg') }}"><span aria-hidden="true">＋</span> New quotation</button></form>
                 @endif
             </div>
             @if ($quotes->isEmpty())
@@ -47,7 +48,7 @@
                         <li id="q-{{ $q->id }}" class="{{ $card }} mq-item">
                             <div class="min-w-0">
                                 <p class="text-sm font-semibold text-steel-600">{{ $q->reference() }} · {{ $n }} {{ $n === 1 ? 'line' : 'lines' }}</p>
-                                <h3 class="mt-1 text-lg font-bold text-steel-950"><a href="/quotation/{{ $q->id }}" class="underline-offset-2 hover:underline">{{ $q->title }}</a></h3>
+                                <h3 class="mt-1 text-lg font-bold text-steel-950"><a href="/account/quotation/{{ $q->id }}" class="underline-offset-2 hover:underline">{{ $q->title }}</a></h3>
                                 <p class="mt-1 text-sm text-steel-700">
                                     @if ($q->sent_at)
                                         <span class="mq-badge mq-sent">Sent {{ $q->sent_at->timezone('Asia/Manila')->format('j M Y') }}</span>
@@ -58,10 +59,10 @@
                                     Last changed {{ $q->updated_at->timezone('Asia/Manila')->format('j M Y, g:i A') }}
                                 </p>
                                 <div class="mq-tools mt-3">
-                                <a href="/quotation/{{ $q->id }}" class="mq-rename-btn mq-edit-btn"><span aria-hidden="true">✎</span> Edit<span class="sr-only"> “{{ $q->title }}”</span></a>
+                                <a href="/account/quotation/{{ $q->id }}" class="mq-rename-btn mq-edit-btn"><span aria-hidden="true">✎</span> Edit<span class="sr-only"> “{{ $q->title }}”</span></a>
                                 <details class="mq-rename" name="mq-tools-{{ $q->id }}">
                                     <summary class="mq-rename-btn"><span aria-hidden="true" class="mq-aa">Aa</span> Rename</summary>
-                                    <form method="post" action="/quotation/{{ $q->id }}/rename" class="mq-rename-box">@csrf
+                                    <form method="post" action="/account/quotation/{{ $q->id }}/rename" class="mq-rename-box">@csrf
                                         <label for="rename-{{ $q->id }}" class="block text-sm font-semibold text-steel-900">Quotation name</label>
                                         <div class="mq-rename-row">
                                             <input id="rename-{{ $q->id }}" name="title" value="{{ $q->title }}" maxlength="{{ Quotations::LIMITS['title'] }}" required
@@ -72,7 +73,7 @@
                                 </details>
                                 <details class="mq-rename mq-del" name="mq-tools-{{ $q->id }}">
                                     <summary class="mq-rename-btn mq-del-btn"><span aria-hidden="true">🗑</span> Delete</summary>
-                                    <form method="post" action="/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
+                                    <form method="post" action="/account/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
                                         <p class="text-sm text-steel-900">Delete “{{ $q->title }}”? This cannot be undone.@if ($q->sent_at) A request you already sent stays with our team.@endif</p>
                                         <button type="submit" class="{{ Ui::button('danger', 'sm') }} mt-2">Yes, delete it</button>
                                     </form>

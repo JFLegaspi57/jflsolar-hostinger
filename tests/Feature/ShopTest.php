@@ -67,7 +67,7 @@ class ShopTest extends TestCase
     {
         $p = $this->product();
         $this->fakePayMongo();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2])->assertRedirect('/products/'.$p->slug);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2])->assertRedirect('/products/'.$p->slug);
         $this->post('/checkout', $this->checkoutForm())->assertRedirect('https://checkout.paymongo.com/cs_test_123');
 
         return Order::query()->with('items')->latest('id')->firstOrFail();
@@ -97,12 +97,12 @@ class ShopTest extends TestCase
     {
         $p = $this->product();
         config(['shop.enabled' => false]);
-        $this->get('/cart')->assertNotFound();
+        $this->get('/account/cart')->assertNotFound();
         $this->get('/products/'.$p->slug)->assertOk()->assertDontSee('Add to cart')->assertSee('Inquire Now');
 
         // Switched on but no way to pay (no PayMongo, pay at pickup off): still hidden.
         config(['shop.enabled' => true, 'shop.paymongo.secret_key' => '', 'shop.pay_in_person' => false]);
-        $this->get('/cart')->assertNotFound();
+        $this->get('/account/cart')->assertNotFound();
 
         config(['shop.paymongo.secret_key' => 'sk_test_abc']);
         $this->get('/products/'.$p->slug)->assertSee('Add to cart');
@@ -115,50 +115,50 @@ class ShopTest extends TestCase
         $ask = $this->product(['availability' => 'on_request']);
         $draft = $this->product(['status' => 'draft']);
         foreach ([$quote, $sample, $ask, $draft] as $p) {
-            $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+            $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         }
-        $this->get('/cart')->assertSee('Your cart is empty');
+        $this->get('/account/cart')->assertSee('Your cart is empty');
         $this->get('/products/'.$quote->slug)->assertDontSee('Add to cart');
     }
 
     public function test_cart_prices_come_from_the_catalog_and_follow_changes(): void
     {
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 3, 'price' => 1]);
-        $this->get('/cart')->assertSee('₱1,440');
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 3, 'price' => 1]);
+        $this->get('/account/cart')->assertSee('₱1,440');
 
         $p->update(['price_php' => 500]);
         PublicContent::flush();
-        $this->get('/cart')->assertSee('₱1,500');
+        $this->get('/account/cart')->assertSee('₱1,500');
 
         $p->update(['availability' => 'unavailable']);
         PublicContent::flush();
-        $this->get('/cart')->assertSee('were removed')->assertSee('Your cart is empty');
+        $this->get('/account/cart')->assertSee('were removed')->assertSee('Your cart is empty');
     }
 
     public function test_per_metre_products_are_sold_in_metres(): void
     {
         $p = $this->product(['name' => 'Flexible Conduit 25mm 100M', 'price_php' => 85, 'price_basis' => 'Per meter, pickup price']);
         $this->get('/products/'.$p->slug)->assertSee('Quantity (metres)');
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 30]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 30]);
         $this->get('/checkout')->assertSee('30 metres')->assertSee('₱2,550');
     }
 
     public function test_quantities_are_clamped_and_can_be_updated_or_removed(): void
     {
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 99999]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 99999]);
         $this->assertSame(500, session('cart')[$p->id]);
-        $this->post('/cart', ['quantity' => [$p->id => 4]]);
+        $this->post('/account/cart', ['quantity' => [$p->id => 4]]);
         $this->assertSame(4, session('cart')[$p->id]);
-        $this->post('/cart', ['remove' => $p->id]);
+        $this->post('/account/cart', ['remove' => $p->id]);
         $this->assertSame([], session('cart'));
     }
 
     public function test_checkout_validates_details(): void
     {
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->post('/checkout', $this->checkoutForm(['email' => 'nope', 'agree' => '']))
             ->assertRedirect('/checkout')->assertSessionHasErrors(['email', 'agree']);
         $this->assertSame(0, Order::query()->count());
@@ -189,7 +189,7 @@ class ShopTest extends TestCase
     {
         $p = $this->product();
         Http::fake(['api.paymongo.com/*' => Http::response(['errors' => [['detail' => 'nope']]], 400)]);
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->post('/checkout', $this->checkoutForm())->assertRedirect('/checkout')->assertSessionHas('checkout_error');
         $this->assertSame(0, Order::query()->count());
         $this->assertArrayHasKey($p->id, session('cart'));
@@ -329,7 +329,7 @@ class ShopTest extends TestCase
     {
         $p = $this->product();
         $this->fakePayMongo();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $form = $this->checkoutForm();
         $p->update(['price_php' => 999]);
         PublicContent::flush();
@@ -341,7 +341,7 @@ class ShopTest extends TestCase
     {
         config(['shop.max_total' => 1000]);
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 3]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 3]);
         $this->post('/checkout', $this->checkoutForm())->assertSessionHasErrors('total');
     }
 
@@ -362,7 +362,7 @@ class ShopTest extends TestCase
             ]]], 200);
         });
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->post('/checkout', $this->checkoutForm())->assertRedirect('https://checkout.paymongo.com/cs_test_123');
         $order = Order::query()->latest('id')->firstOrFail();
 
@@ -403,20 +403,20 @@ class ShopTest extends TestCase
 
         // Customers: no shop at all.
         $this->get('/products/'.$p->slug)->assertDontSee('Add to cart');
-        $this->get('/cart')->assertNotFound();
+        $this->get('/account/cart')->assertNotFound();
 
         // Staff: full preview, clearly labelled; checkout stops before payment.
         Http::fake();
         $this->actingAs($staff)->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Staff preview');
-        $this->actingAs($staff)->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
-        $this->actingAs($staff)->get('/cart')->assertOk()->assertSee('Staff preview')->assertSee('₱960');
+        $this->actingAs($staff)->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->actingAs($staff)->get('/account/cart')->assertOk()->assertSee('Staff preview')->assertSee('₱960');
         $this->actingAs($staff)->post('/checkout', $this->checkoutForm())->assertRedirect('/checkout')->assertSessionHas('checkout_preview');
         $this->assertSame(0, Order::query()->count());
         Http::assertNotSent(fn ($r) => str_contains($r->url(), 'paymongo'));
 
         // Switched off entirely: staff see nothing either.
         config(['shop.staff_preview' => false]);
-        $this->actingAs($staff)->get('/cart')->assertNotFound();
+        $this->actingAs($staff)->get('/account/cart')->assertNotFound();
     }
 
     public function test_pay_at_pickup_reserves_the_order_without_paymongo_and_alerts_the_owner(): void
@@ -424,7 +424,7 @@ class ShopTest extends TestCase
         Mail::fake();
         Http::fake();
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->get('/checkout')->assertSee('Cash')->assertSee('GCash')->assertSee('Bank transfer')->assertSee('Check')->assertSee('Pay online now');
         $response = $this->post('/checkout', $this->checkoutForm(['payment' => 'gcash']));
 
@@ -447,7 +447,7 @@ class ShopTest extends TestCase
         config(['shop.paymongo.secret_key' => '', 'shop.paymongo.webhook_secret' => '']);
         $p = $this->product();
         $this->get('/products/'.$p->slug)->assertSee('Add to cart')->assertSee('Order online, then pay by cash, GCash, bank transfer, check or card');
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->get('/checkout')->assertSee('Bank transfer')->assertDontSee('Pay online now');
         // "online" cannot be forced when PayMongo is not set up.
         $this->post('/checkout', $this->checkoutForm(['payment' => 'online']))->assertSessionHasErrors('payment');
@@ -460,13 +460,13 @@ class ShopTest extends TestCase
         $this->assertStringNotContainsString('paymongo', (string) $this->get('/checkout')->headers->get('Content-Security-Policy'));
 
         config(['shop.pay_in_person' => false]);
-        $this->get('/cart')->assertNotFound();   // no way to pay → no shop
+        $this->get('/account/cart')->assertNotFound();   // no way to pay → no shop
     }
 
     public function test_staff_record_counter_payment_for_pay_at_pickup_orders(): void
     {
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']));
         $order = Order::query()->latest('id')->firstOrFail();
         $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
@@ -490,9 +490,9 @@ class ShopTest extends TestCase
     {
         config(['shop.reservations_per_day' => 1]);
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']));
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']))->assertSessionHas('checkout_error');
         $this->assertSame(1, Order::query()->count());
     }
@@ -526,7 +526,7 @@ class ShopTest extends TestCase
         $settings = PublicContent::settings();
         $p = $this->product();
         $this->get('/products/'.$p->slug)->assertSee('pick up at our warehouse')->assertSee('call our Sales team before you come');
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->get('/checkout')
             ->assertSee('Pickup only at')
             ->assertSee($settings->warehouse_address)
@@ -536,7 +536,7 @@ class ShopTest extends TestCase
         // A forged choice of the office still books the warehouse.
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash', 'pickup' => 'office']));
         $this->assertSame('warehouse', Order::query()->latest('id')->firstOrFail()->pickup_location);
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
 
         // Owner can offer both places again from the .env.
         config(['shop.pickup_locations' => ['warehouse', 'office']]);
@@ -548,7 +548,7 @@ class ShopTest extends TestCase
         Mail::fake();
         Http::fake();
         $p = $this->product(['brand' => 'Leikeking', 'model' => 'DC-2P-25A']);
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash', 'notes' => 'Saturday morning please']));
         $order = Order::query()->latest('id')->firstOrFail();
 
@@ -579,7 +579,7 @@ class ShopTest extends TestCase
         config(['shop.enabled' => false]);
         $p = $this->product();
         $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);
-        $this->actingAs($staff)->post('/cart/add', ['product' => $p->id, 'quantity' => 2]);
+        $this->actingAs($staff)->post('/account/cart/add', ['product' => $p->id, 'quantity' => 2]);
         $this->actingAs($staff)->post('/checkout', $this->checkoutForm(['payment' => 'gcash']))->assertRedirect('/checkout/preview');
         $this->assertSame(0, Order::query()->count());
         $this->assertSame([], session('cart'));   // basket emptied, as for a real order
@@ -597,7 +597,7 @@ class ShopTest extends TestCase
     {
         Http::fake();
         $p = $this->product();
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->get('/checkout')->assertSee('Card (credit or debit)')->assertSee('available at our warehouse only');
         $this->post('/checkout', $this->checkoutForm(['payment' => 'card']));
         $order = Order::query()->latest('id')->firstOrFail();
@@ -606,7 +606,7 @@ class ShopTest extends TestCase
 
         // With both places offered, card + office is refused.
         config(['shop.pickup_locations' => ['warehouse', 'office']]);
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->post('/checkout', $this->checkoutForm(['payment' => 'card', 'pickup' => 'office']))->assertSessionHasErrors('payment');
         $this->assertSame(1, Order::query()->count());
 
@@ -632,7 +632,7 @@ class ShopTest extends TestCase
         $p = $this->product();
         // A busy shopper: many cart clicks and order-page views in one minute.
         for ($i = 0; $i < 12; $i++) {
-            $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1])->assertRedirect();
+            $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1])->assertRedirect();
         }
         $this->post('/checkout', $this->checkoutForm(['payment' => 'cash']))->assertRedirect();
         $this->assertSame(1, Order::query()->count());

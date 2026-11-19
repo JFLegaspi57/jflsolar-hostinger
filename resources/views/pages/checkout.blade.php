@@ -11,7 +11,7 @@
 @endphp
 <x-site-layout title="Checkout" path="/checkout" :noindex="true" :reviews-above-footer="false">
     <x-container class="py-10 sm:py-14">
-        <p><a href="/cart" class="font-semibold text-steel-800 underline">← Back to cart</a></p>
+        <p><a href="/account/cart" class="font-semibold text-steel-800 underline">← Back to cart</a></p>
         <h1 class="mt-3 text-3xl font-extrabold text-steel-950 sm:text-4xl">Checkout</h1>
         @include('partials.shop-preview-note')
         @if ($member)

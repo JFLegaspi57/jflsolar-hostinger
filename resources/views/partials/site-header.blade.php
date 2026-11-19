@@ -15,7 +15,7 @@
     if ($productCategories->isNotEmpty()) {
         $subMenus['/products'] = ['Product categories', ['/products', 'All Products', request()->is('products') && $currentCategory === ''],
             [...$productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all(),
-                ['/quotation', \App\Support\Quotations::NAME, request()->is('quotation', 'quotation/*')]]];
+                ['/account/quotation', \App\Support\Quotations::NAME, request()->is('account/quotation', 'account/quotation/*')]]];
     }
     $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'), ltrim($i['href'], '/').'/*')], Site::ABOUT_MENU)];
     $subMenus['/packages'] = ['Package types', null, [
@@ -30,8 +30,8 @@
     ]];
     // Sub-menu under "Account" for signed-in members: shortcuts to the sections of the account page.
     $accountMenu = $member ? array_values(array_filter([
-        $cartCount !== null ? ['/cart', 'Your Cart'] : null,
-        ['/quotation', 'Your Quotations'],
+        $cartCount !== null ? ['/account/cart', 'Your Cart'] : null,
+        ['/account/quotation', 'Your Quotations'],
         ['/account/course', 'Online Course'],
         ['/account/orders', 'Your Orders'],
         ['/forum', 'Forum'],
@@ -110,7 +110,7 @@
                 </a>
             @endif
             @if ($cartCount !== null)
-                <a href="/cart" @if (request()->is('cart', 'checkout')) aria-current="page" @endif
+                <a href="/account/cart" @if (request()->is('account/cart', 'checkout')) aria-current="page" @endif
                     class="relative inline-flex size-11 items-center justify-center rounded-[var(--radius-control)] text-steel-900 hover:bg-steel-100 aria-[current=page]:bg-gold-50">
                     <x-icon name="cart" class="size-6" />
                     <span class="sr-only">Cart{{ $cartCount ? ', '.$cartCount.' '.($cartCount === 1 ? 'item' : 'items') : ', empty' }}</span>
@@ -119,9 +119,9 @@
             @endif
             {{-- Gold button: "Make a Quotation" everywhere except the Products page and the Make a Quotation pages themselves, where it is "Inquire" (the inquiry form). --}}
             @php
-                $quoteBtn = request()->is('products', 'quotation', 'quotation/*')
+                $quoteBtn = request()->is('products', 'account/quotation', 'account/quotation/*')
                     ? ['href' => Site::QUOTE_HREF, 'label' => 'Inquire']
-                    : ['href' => '/quotation', 'label' => \App\Support\Quotations::NAME];
+                    : ['href' => '/account/quotation', 'label' => \App\Support\Quotations::NAME];
             @endphp
             <a href="{{ $quoteBtn['href'] }}" class="hdr-quote inline-flex min-h-11 items-center rounded-[var(--radius-control)] bg-gold-500 px-3 text-sm font-semibold whitespace-nowrap text-steel-950 hover:bg-gold-400 sm:px-4 sm:text-[0.95rem]">
                 {{ $quoteBtn['label'] }}

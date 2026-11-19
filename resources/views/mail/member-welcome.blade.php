@@ -28,7 +28,7 @@ Sign in and open the Account menu at the top of the page. From there you can go 
 - Packages: Materials Only bundles, Build Your Own with a price for every part, and Complete packages with installation. You can also compare packages side by side.
   {{ $u('/packages') }}
 - Make a Quotation: put together a quotation for your own solar PV system and keep it in your account.
-  {{ $u('/quotation') }}
+  {{ $u('/account/quotation') }}
 - Services: what JFL Solar can do for you.
   {{ $u('/services') }}
 

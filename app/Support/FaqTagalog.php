@@ -44,7 +44,7 @@ final class FaqTagalog
         2 => ['/services#system-types', 'Ikumpara ang mga uri ng sistema'],
         3 => ['/pv-calculator', 'Buksan ang PV Calculator'],
         4 => ['/packages?type=materials', 'Tingnan ang Materials Only bundles'],
-        5 => ['/quotation', 'Buksan ang Make a Quotation'],
+        5 => ['/account/quotation', 'Buksan ang Make a Quotation'],
         6 => ['/contact#quote', 'Magpadala ng inquiry'],
         8 => ['/products', 'Tingnan ang mga produkto'],
         9 => ['/delivery-rates', 'Tingnan ang delivery rates'],
