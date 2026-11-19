@@ -101,7 +101,7 @@ class MemberMessagesTest extends TestCase
         $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
 
         session()->forget('member_pw');
-        $this->actingAs($m, 'member')->get('/account')->assertSee('Certificate of Completion – Ready for download')->assertSee('Pay via GCash, and you can download it once your payment is confirmed.');
+        $this->actingAs($m, 'member')->get('/account')->assertSee('Certificate of Completion – Ready for download')->assertDontSee('Pay via GCash, and you can download it');
         $this->get('/account/course')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('Pay ₱2,500 with GCash')->assertSee('Type the GCash reference number exactly')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
         $this->get('/account/certificate/thumb.jpg')->assertOk();
         $this->get('/account/course')->assertSee('Lessons page (preview)')->assertSee('Certificate (preview)');
