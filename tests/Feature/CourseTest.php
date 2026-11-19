@@ -164,8 +164,8 @@ class CourseTest extends TestCase
         $this->get(Course::PATH)->assertSee('Passed · 100%')->assertSee('1 of 1 lessons passed')->assertSee('passed every lesson');
 
         // The record on the member's account page, and with the answers for staff.
-        $this->get('/account/course')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson');
-        $this->get('/account')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson')->assertSee('2 of 2 (100%)')->assertDontSee('better');
+        $this->get('/account/course')->assertSee('Your course record: 1 of 1 lessons passed')->assertSee('Result lesson')->assertSee('2 of 2 (100%)')->assertDontSee('better');
+        $this->get('/account')->assertSee('Your course record: 1 of 1 lessons passed')->assertDontSee('2 of 2 (100%)')->assertSee('passed every lesson');   // account page: just the count
         $this->actingAs($this->owner(), 'web')->get('/admin/members/'.$student->id)->assertOk()->assertSee('Online course record')->assertSee('Question 2?')->assertSee('better');
         $this->get('/admin/members')->assertOk()->assertSee('Online course:')->assertSee('1 of 1 lessons passed')->assertSee('last opened Lesson 1: Result lesson')->assertSee('1 lesson opened');
         $this->get('/admin/members/'.$student->id)->assertSee('first on');
@@ -189,7 +189,7 @@ class CourseTest extends TestCase
         $this->get('/account')->assertDontSee('Continue where you left off')->assertDontSee('Start the Course')->assertDontSee('No lessons done yet')->assertSee('Open the course');
         // The record keeps every lesson opened, even before any answer is checked.
         $this->get('/account/course')->assertSee('Step lesson 1')->assertSee('Opened')->assertSee('Not checked yet');   // Online Course page: opened lessons too
-        $this->get('/account')->assertSee('No lessons passed yet')->assertDontSee('Not checked yet');   // account page: passed lessons only
+        $this->get('/account')->assertSee('0 of 3 lessons passed')->assertDontSee('Not checked yet')->assertDontSee('Last activity');   // account page: just the count
         $this->get(Course::PATH.'/step-1')->assertOk();
 
         // Lesson 1 finished: next time, straight to Lesson 2.

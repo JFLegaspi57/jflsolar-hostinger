@@ -20,6 +20,8 @@
         @if ($staff || ! ($started ?? false))
             <p class="mt-2 text-sm text-steel-700">{{ $staff ? 'No answers checked yet.' : 'No lessons done yet. Your results appear here once you check your answers at the end of a lesson.' }}</p>
         @endif
+    @elseif ($summaryOnly ?? false)
+        {{-- Account page: only the "X of 25 lessons passed" line; the table is on Your account → Online Course. --}}
     @elseif (empty($rows))
         <p class="mt-2 text-sm text-steel-700">No lessons passed yet. Each lesson you pass appears here.</p>
     @else
@@ -59,8 +61,8 @@
                 </tbody>
             </table>
         </div>
-        @if (! $staff && $passedN === $withQuiz && $withQuiz > 0)
+    @endif
+    @if (! empty($record) && ! $staff && $passedN === $withQuiz && $withQuiz > 0)
             <p class="mt-3 font-semibold" style="color:#166534">🎉 You have passed every lesson. You can now request the assessment and OJT sessions for your certificate of completion.</p>
-        @endif
     @endif
 </div>
