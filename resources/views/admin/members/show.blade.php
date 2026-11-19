@@ -99,6 +99,10 @@
     <section aria-labelledby="course-h" class="{{ $card }} mt-6">
         <h2 id="course-h" class="text-lg font-bold text-steel-950">Online course record</h2>
         @include('partials.course-certificate', ['memberId' => $m->id, 'staff' => true])
+        <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-3" onsubmit="return confirm('Mark every question of every lesson as correct for {{ e(addslashes($m->name)) }}? Use this for test accounts.')">@csrf
+            <input type="hidden" name="action" value="mark-all-passed">
+            <button type="submit" class="text-sm underline text-steel-700">Mark all lessons as passed (test accounts)</button>
+        </form>
         @php $certIssued = \App\Support\CourseCertificates::for($m->id); @endphp
         <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-3 flex flex-wrap items-end gap-3">
             @csrf

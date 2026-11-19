@@ -73,6 +73,34 @@ final class CourseResults
         Cache::forever(self::TABLE_KEY, true);
     }
 
+    /**
+     * Staff tool: marks every question of every published lesson "correct" for a member (and the lessons opened),
+     * e.g. for a test account. Questions the member already answered correctly keep their answer. Returns lessons done.
+     */
+    public static function markAllPassed(int $memberId): int
+    {
+        self::ensureTable();
+        $lessons = Course::lessons();
+        $bodies = DB::table('course_lessons')->whereIn('id', $lessons->pluck('id'))->pluck('body', 'id');
+        $now = now();
+        $n = 0;
+        foreach ($lessons as $l) {
+            $total = CourseQuiz::count((string) ($bodies[$l->id] ?? ''));
+            for ($q = 0; $q < $total; $q++) {
+                $have = DB::table(self::TABLE)->where(['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q])->value('verdict');
+                if ($have !== 'correct') {
+                    DB::table(self::TABLE)->upsert(
+                        [['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q, 'verdict' => 'correct', 'answer' => '(marked passed by staff)', 'created_at' => $now, 'updated_at' => $now]],
+                        ['member_id', 'lesson_id', 'q'], ['verdict', 'answer', 'updated_at']);
+                }
+            }
+            DB::table(self::VIEWS)->insertOrIgnore(['member_id' => $memberId, 'lesson_id' => $l->id, 'times' => 1, 'first_at' => $now, 'last_at' => $now]);
+            $n++;
+        }
+
+        return $n;
+    }
+
     /** Saves the latest checked answer to one question (a new check replaces the old one). */
     public static function save(int $memberId, int $lessonId, int $q, string $verdict, string $answer): void
     {
