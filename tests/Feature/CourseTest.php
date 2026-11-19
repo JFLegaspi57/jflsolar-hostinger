@@ -362,10 +362,10 @@ class CourseTest extends TestCase
         \Illuminate\Support\Facades\Http::assertSentCount(5);
 
         $st = \App\Support\CourseQuiz::todayStats();
-        $this->assertSame([2, 3], [$st['checked'], $st['failed']]);
+        $this->assertSame([2, 1, 3], [$st['checked'], $st['failed'], $st['retried']]);
         $this->assertStringContainsString('AI replied 401: invalid x-api-key', $st['problem']);
         $owner = \App\Models\User::query()->where('role', 'owner')->first() ?? $this->owner();
-        $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Answer checks today:')->assertSee('2 checked, 3 could not be checked');
+        $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Answer checks today:')->assertSee('2 checked, 1 could not be checked even after 3 tries')->assertSee('3 tries went wrong and worked on the next try');
     }
 
     public function test_an_unreadable_reply_is_tried_again(): void
@@ -379,6 +379,27 @@ class CourseTest extends TestCase
         $r = \App\Support\CourseQuiz::check('Q?', 'A', 'answer', false);
         $this->assertSame('correct', $r['verdict']);
         \Illuminate\Support\Facades\Http::assertSentCount(2);
-        $this->assertSame([1, 1], [\App\Support\CourseQuiz::todayStats()['checked'], \App\Support\CourseQuiz::todayStats()['failed']]);
+        $st = \App\Support\CourseQuiz::todayStats();
+        $this->assertSame([1, 0, 1], [$st['checked'], $st['failed'], $st['retried']]);
+        $this->assertStringContainsString('I think the student is mostly right', $st['problem']);   // a sample of the reply is kept
+    }
+
+    public function test_the_verdict_comes_from_the_grade_tool_and_other_words_are_understood(): void
+    {
+        config(['chatbot.api_key' => 'test-key']);
+        Cache::flush();
+        $ok = fn (array $content) => \Illuminate\Support\Facades\Http::response(['content' => $content, 'stop_reason' => 'tool_use']);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::sequence()
+            ->pushResponse($ok([['type' => 'tool_use', 'name' => 'grade', 'input' => ['verdict' => 'partly', 'feedback' => 'Almost there.']]]))
+            ->pushResponse($ok([['type' => 'text', 'text' => '{"verdict":"incorrect","feedback":"Not quite."}']]))
+            ->pushResponse($ok([['type' => 'text', 'text' => '{"verdict":"Partially correct","feedback":"Halos."}']]))
+            ->pushResponse($ok([['type' => 'text', 'text' => '{"verdict":"Correct","feedback":"Yes."}']]))]);
+
+        $this->assertSame(['partly', 'Almost there.'], array_values(\App\Support\CourseQuiz::check('Q?', 'A', 'a', false)));
+        $this->assertSame('wrong', \App\Support\CourseQuiz::check('Q?', 'A', 'b', false)['verdict']);
+        $this->assertSame('partly', \App\Support\CourseQuiz::check('Q?', 'A', 'c', true)['verdict']);
+        $this->assertSame('correct', \App\Support\CourseQuiz::check('Q?', 'A', 'd', false)['verdict']);
+        \Illuminate\Support\Facades\Http::assertSent(fn ($r) => ($r['tool_choice']['name'] ?? '') === 'grade' && ($r['tools'][0]['input_schema']['properties']['verdict']['enum'] ?? []) === ['correct', 'partly', 'wrong']);
+        $this->assertSame([4, 0, 0], array_values(array_slice(\App\Support\CourseQuiz::todayStats(), 0, 3)));
     }
 }
