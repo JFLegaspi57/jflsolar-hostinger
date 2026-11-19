@@ -75,7 +75,8 @@ class MemberMessagesTest extends TestCase
         $this->assertSame('2026-11-19', (string) $ca->completed_on);
         $this->get('/admin/members/'.$a->id)->assertSee($ca->ctn)->assertSee('Remove the certificate number');
 
-        $this->actingAs($a, 'member')->get('/account')->assertSee('Certificate number (CTN)')->assertSee($ca->ctn)->assertDontSee($cb->ctn)->assertSee('being prepared');
+        $this->actingAs($a, 'member')->get('/account')->assertSee('Certificate of Completion')->assertSee('being prepared')->assertDontSee($ca->ctn);   // account page: short note only
+        $this->get('/account/course')->assertSee('Certificate number (CTN)')->assertSee($ca->ctn)->assertDontSee($cb->ctn);
         $this->get('/account/course')->assertSee($ca->ctn)->assertSee('course completed 19 November 2026');
 
         $this->actingAs($owner, 'web')->post('/admin/members/'.$b->id.'/certificate', ['action' => 'revoke'])->assertRedirect();
