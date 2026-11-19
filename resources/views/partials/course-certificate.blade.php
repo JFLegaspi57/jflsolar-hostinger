@@ -48,7 +48,7 @@
             {{-- GCash QR on the left; the payment text and the reference number box on its right; the previews below --}}
             <div id="cert-pay-{{ $cert->id }}" class="mt-3 flex flex-wrap items-start gap-4">
                 @if ($qr)
-                    <div><img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="190" class="rounded border border-steel-300 bg-white" style="width:11.875rem;height:auto"><p class="mt-1 text-center text-sm text-steel-700">Pay {{ $fee }} with GCash</p></div>
+                    <div><img src="{{ $qr }}" alt="GCash QR code of JFL Solar: pay {{ $fee }} for the certificate" width="190" class="rounded border border-steel-300 bg-white" style="width:11.875rem;height:auto"></div>
                 @endif
                 <div class="min-w-0 flex-1" style="min-width:15rem">
                     <p class="text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
