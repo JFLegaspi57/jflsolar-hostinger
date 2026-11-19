@@ -16,6 +16,7 @@
         <div class="min-w-0 flex-1" style="min-width: 15rem">
             <h2 id="donate-h" class="text-xl font-bold text-steel-950">{{ $tl ? 'Libre ang kursong ito. Suportahan kami sa GCash' : 'This course is free. Support it with GCash' }}</h2>
             <p class="mt-2 text-steel-800">{{ $tl ? 'Kung nakakatulong sa iyo ang mga aralin, maaari kang magbigay ng kahit anong halaga sa GCash. I-scan ang QR code gamit ang GCash app.' : 'If the lessons help you, you can donate any amount by GCash. Scan the QR code with your GCash app.' }}</p>
+            <p class="mt-2 font-bold" style="color:#991b1b">{{ $tl ? 'Mahalaga! Ilagay ang tamang Reference No. at ang Halaga.' : 'Important! Enter the right Reference No. and the Amount.' }}</p>
             @if ($gcash['number'])
                 <p class="mt-2 font-semibold text-steel-950">GCash: <span class="tabular">{{ $gcash['number'] }}</span>@if ($gcash['name']) <span class="font-normal text-steel-700">· {{ $gcash['name'] }}</span>@endif</p>
             @endif
@@ -25,8 +26,8 @@
                     <label class="grid gap-1 text-sm font-semibold text-steel-900">{{ $tl ? 'GCash reference no.' : 'GCash reference no.' }}
                         <input name="reference" required inputmode="numeric" autocomplete="off" placeholder="e.g. 1234 567 890123" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 13rem">
                     </label>
-                    <label class="grid gap-1 text-sm font-semibold text-steel-900">{{ $tl ? 'Halaga (₱, opsyonal)' : 'Amount (₱, optional)' }}
-                        <input name="amount" inputmode="decimal" autocomplete="off" placeholder="2,000" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 7rem">
+                    <label class="grid gap-1 text-sm font-semibold text-steel-900">{{ $tl ? 'Halaga (₱)' : 'Amount (₱)' }}
+                        <input name="amount" required inputmode="decimal" autocomplete="off" placeholder="1,000" class="rounded-[var(--radius-control)] border border-steel-300 bg-white px-3 py-2 font-normal" style="width: 7rem">
                     </label>
                     <button type="submit" class="{{ \App\Support\Ui::button('primary') }}">{{ $tl ? 'Naipadala ko na' : "I've sent my donation" }}</button>
                 </form>
