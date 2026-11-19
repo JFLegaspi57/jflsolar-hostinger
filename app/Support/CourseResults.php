@@ -214,7 +214,7 @@ final class CourseResults
 
         $views = DB::table(self::VIEWS)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'first_at'])
             ->filter(fn ($r) => isset($members[$r->member_id]));
-        $quiz = DB::table(self::TABLE)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'q', 'verdict'])
+        $quiz = DB::table(self::TABLE)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'q', 'verdict', 'created_at', 'updated_at'])
             ->filter(fn ($r) => isset($members[$r->member_id]));
         $seen = DB::table(self::SEEN)->whereIn('lesson_id', $ids)->pluck('member_id')->filter(fn ($id) => isset($members[$id]));
 
@@ -247,13 +247,40 @@ final class CourseResults
         $totals = DB::table('course_lessons')->whereIn('id', $ids)->pluck('body', 'id')->map(fn ($b) => CourseQuiz::count((string) $b));
         $passedBy = [];
         $passedLesson = [];
-        foreach ($quiz->groupBy(fn ($r) => $r->member_id.'-'.$r->lesson_id) as $rows) {
+        // How long it took: from first opening the lesson to the last answer check of a passed lesson.
+        $openedAt = [];
+        foreach ($views as $r) {
+            if ($r->first_at) {
+                $openedAt[$r->member_id.'-'.$r->lesson_id] = (string) $r->first_at;
+            }
+        }
+        $lessonSecs = [];       // every passed lesson, all members
+        $lessonSecsBy = [];     // per lesson id
+        $memberSpan = [];       // member id => [start, end] over their passed lessons
+        foreach ($quiz->groupBy(fn ($r) => $r->member_id.'-'.$r->lesson_id) as $key => $rows) {
             $first = $rows->first();
             $total = (int) ($totals[$first->lesson_id] ?? 0);
             $r = self::summary($rows->filter(fn ($a) => $a->q < $total)->pluck('verdict', 'q')->all(), $total);
             if ($r['status'] === 'passed') {
                 $passedBy[$first->member_id] = ($passedBy[$first->member_id] ?? 0) + 1;
                 $passedLesson[$first->lesson_id] = ($passedLesson[$first->lesson_id] ?? 0) + 1;
+                $start = (string) ($openedAt[$key] ?? $rows->min('created_at') ?? '');
+                $end = (string) ($rows->max('updated_at') ?? '');
+                if ($start !== '' && $end !== '') {
+                    $secs = max(0, strtotime($end) - strtotime($start));
+                    $lessonSecs[] = $secs;
+                    $lessonSecsBy[$first->lesson_id][] = $secs;
+                    $span = $memberSpan[$first->member_id] ?? [$start, $end];
+                    $memberSpan[$first->member_id] = [min($span[0], $start), max($span[1], $end)];
+                }
+            }
+        }
+        // Whole course: from the first lesson opened to the last lesson passed, for members who passed every lesson.
+        $courseSecs = [];
+        $finishedIn = [];
+        foreach ($passedBy as $m => $c) {
+            if ($n > 0 && $c >= $n && isset($memberSpan[$m])) {
+                $finishedIn[$m] = $courseSecs[] = max(0, strtotime($memberSpan[$m][1]) - strtotime($memberSpan[$m][0]));
             }
         }
 
@@ -283,6 +310,13 @@ final class CourseResults
         foreach ($quiz->groupBy('member_id') as $m => $rows) {
             $lastAt[$m] = $lastAt[$m] ?? '';
         }
+        // When each member started the course: the first lesson opened (or the first answer checked, for old records).
+        $startedAt = $firstAt;
+        foreach ($quiz as $r) {
+            if ($r->created_at && (! isset($startedAt[$r->member_id]) || (string) $r->created_at < (string) $startedAt[$r->member_id])) {
+                $startedAt[$r->member_id] = $r->created_at;
+            }
+        }
         $seenLesson = DB::table(self::SEEN)->pluck('lesson_id', 'member_id');
         $pos = $lessons->mapWithKeys(fn ($l, $i) => [$l->id => $i + 1]);
         $people = DB::table('members')->whereIn('id', $started->all())->get(['id', 'name', 'email'])->keyBy('id');
@@ -294,6 +328,8 @@ final class CourseResults
             'opened' => count($openedBy[$m] ?? []),
             'last' => isset($seenLesson[$m]) ? ($pos[(int) $seenLesson[$m]] ?? null) : null,
             'at' => ($lastAt[$m] ?? '') ?: null,
+            'started' => isset($startedAt[$m]) ? (string) $startedAt[$m] : null,
+            'took' => $finishedIn[$m] ?? null,
         ])->sort(fn ($a, $b) => [$b['passed'], $b['opened'], (string) $b['at']] <=> [$a['passed'], $a['opened'], (string) $a['at']])->values()->all();
 
         return [
@@ -307,8 +343,57 @@ final class CourseResults
             'passedAll' => $n > 0 ? count(array_filter($passedBy, fn ($c) => $c >= $n)) : 0,
             'maxPassed' => $passedBy ? max($passedBy) : 0,
             'bands' => $bands,
-            'lessons' => $lessons->map(fn ($l, $i) => ['number' => $i + 1, 'title' => (string) $l->title, 'opened' => (int) ($openedLesson[$l->id] ?? 0), 'passed' => (int) ($passedLesson[$l->id] ?? 0)])->all(),
+            'lessons' => $lessons->map(fn ($l, $i) => ['number' => $i + 1, 'title' => (string) $l->title, 'opened' => (int) ($openedLesson[$l->id] ?? 0), 'passed' => (int) ($passedLesson[$l->id] ?? 0),
+                'avg' => self::average($lessonSecsBy[$l->id] ?? [])])->all(),
+            'timing' => [
+                'lessonAvg' => self::average($lessonSecs), 'lessonMedian' => self::median($lessonSecs), 'lessonCount' => count($lessonSecs),
+                'courseAvg' => self::average($courseSecs), 'courseMedian' => self::median($courseSecs), 'courseCount' => count($courseSecs),
+            ],
         ];
+    }
+
+    /** @param list<int> $secs */
+    private static function average(array $secs): ?int
+    {
+        return $secs ? (int) round(array_sum($secs) / count($secs)) : null;
+    }
+
+    /** @param list<int> $secs */
+    private static function median(array $secs): ?int
+    {
+        if (! $secs) {
+            return null;
+        }
+        sort($secs);
+        $c = count($secs);
+
+        return (int) ($c % 2 ? $secs[intdiv($c, 2)] : round(($secs[$c / 2 - 1] + $secs[$c / 2]) / 2));
+    }
+
+    /** "45 min", "2 hours 10 min", "3 days 4 hours", "2 weeks 1 day", "1 month 2 weeks" (a month = 30 days): the two largest units that aren't zero. */
+    public static function duration(?int $secs): string
+    {
+        if ($secs === null) {
+            return '—';
+        }
+        if ($secs < 60) {
+            return 'under 1 min';
+        }
+        $units = [['month', 2592000], ['week', 604800], ['day', 86400], ['hour', 3600], ['min', 60]];
+        $parts = [];
+        $left = $secs;
+        foreach ($units as [$name, $size]) {
+            $v = intdiv($left, $size);
+            if ($v > 0) {
+                $parts[] = $v.' '.$name.($v > 1 && $name !== 'min' ? 's' : '');
+                $left -= $v * $size;
+                if (count($parts) === 2) {
+                    break;
+                }
+            }
+        }
+
+        return implode(' ', $parts);
     }
 
     /** Members on a course page right now (opened one within the last few minutes), hidden members left out. */

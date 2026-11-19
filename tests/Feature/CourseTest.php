@@ -211,7 +211,15 @@ class CourseTest extends TestCase
         $this->assertSame([1, 1, 1, 3, 1], [$o['started'], $o['startedWeek'], $o['passedAny'], $o['maxPassed'], $o['passedAll']]);
         $this->assertSame(1, $o['bands']['All 3 lessons']);
         $this->assertSame([1, 1], [$o['lessons'][1]['opened'], $o['lessons'][1]['passed']]);
-        $this->actingAs($this->owner(), 'web')->get('/admin/course')->assertOk()->assertSee('Who is taking the course')->assertSee('Started the course')
+        $this->assertSame([3, 1], [$o['timing']['lessonCount'], $o['timing']['courseCount']]);
+        $this->assertNotNull($o['timing']['courseAvg']);
+        $this->assertGreaterThanOrEqual($o['timing']['lessonMedian'], $o['timing']['courseAvg']);
+        $this->actingAs(\App\Models\User::query()->where('role', 'owner')->first() ?? $this->owner(), 'web')->get('/admin/course')->assertSee('How long students take')
+            ->assertSee('Average time to finish a lesson')->assertSee('from 3 passed lessons')->assertSee('from 1 student who passed every lesson')->assertSee('Average time to pass')
+            ->assertSee('Finished in')->assertSee(now('Asia/Manila')->format('D j M Y'));
+        $this->assertNotNull($o['ranking'][0]['started']);
+        $this->assertSame($o['timing']['courseAvg'], $o['ranking'][0]['took']);
+        $this->actingAs(\App\Models\User::query()->where('role', 'owner')->first() ?? $this->owner(), 'web')->get('/admin/course')->assertOk()->assertSee('Who is taking the course')->assertSee('Started the course')
             ->assertSee('All 3 lessons opened')->assertSee('best so far: 3 of 3 lessons')->assertSee('2. Step lesson 2')
             ->assertSee('Members leading the course')->assertSee('Maria Santos')->assertSee('maria@example.com');
         $this->assertSame(['Maria Santos', 3, 3, 2], [$o['ranking'][0]['name'], $o['ranking'][0]['passed'], $o['ranking'][0]['opened'], $o['ranking'][0]['last']]);
@@ -225,6 +233,13 @@ class CourseTest extends TestCase
         $this->get('/admin/course')->assertSee('Hidden from the course progress and from "Online now" (1)', false)->assertSee('Show again');
         $this->post('/admin/course/hide/'.$id, ['hide' => '0']);
         $this->assertSame(1, \App\Support\CourseResults::overview()['started']);
+    }
+
+    public function test_durations_read_in_minutes_hours_days_weeks_and_months(): void
+    {
+        $d = fn ($x) => \App\Support\CourseResults::duration($x);
+        $this->assertSame(['—', 'under 1 min', '45 min', '1 hour', '2 hours 10 min', '3 days 4 hours', '2 weeks 5 hours', '1 week 1 day', '1 month 2 weeks', '2 months 3 days'],
+            [$d(null), $d(30), $d(45 * 60), $d(3600 + 59), $d(2 * 3600 + 600), $d(3 * 86400 + 4 * 3600 + 120), $d(14 * 86400 + 5 * 3600), $d(8 * 86400), $d(44 * 86400), $d(63 * 86400)]);
     }
 
     public function test_gcash_donation_box_before_the_lesson(): void
