@@ -1,0 +1,31 @@
+"The biggest shark in the ocean never thinks he is." 🦈
+I have been thinking about this line a lot lately, because it describes something I see every week in our industry.
+## The gentle giant
+The biggest shark in the world is the whale shark, the butanding that many of us know from Donsol in Sorsogon and Oslob in Cebu. It can grow longer than 12 metres, about the length of a bus, and weigh many tonnes. If any shark had the right to act like the king of the ocean, it would be this one.
+But the whale shark is not the scary one. It swims slowly, feeds on plankton and tiny fish by filtering the water, and lets divers swim right next to it. It has nothing to prove. It doesn't need to show its teeth to show what it is.
+The smaller sharks are the ones that make the most noise.
+## The same thing happens in solar 🌞
+In more than three decades of working in renewable energy, first in Europe and now here in the Philippines, I have worked with many engineers and installers. The very best of them have something in common: they are usually the quiet ones.
+They don't brag about how many kWp they have installed or how many projects they have finished. You find out how good they are by looking at their work: the clean cable routing, the labelled strings, the right protection devices, the settings that were checked twice. These are the people who:
+- Still check the datasheet: they read the inverter datasheet before setting the parameters, even when they have done it a hundred times. A new firmware version, a new battery model or a different grid code can change everything.
+- Measure before connecting: they measure Voc and polarity instead of assuming. One reversed string, or a string voltage above the inverter's maximum DC input, can destroy an inverter in a second, and no warranty covers that.
+- Keep asking questions: they ask in seminars even when they are already experienced. Some of the best questions I get as a resource person come from installers with many years in the field.
+- Share freely: they share what they know, because helping others grow doesn't make them smaller. A stronger industry means safer installations and more trust from clients, and that is good for all of us.
+- Admit what they don't know: and then they go and find out. "I'm not sure, let me check" is one of the most professional sentences an installer can say.
+## When someone thinks he is already the biggest shark
+The danger starts when someone believes he already knows everything. That is when the shortcuts begin:
+- Wrong cable sizing: a DC or battery cable that is too small for the current runs hot, wastes energy and can start a fire. A cable has to be sized for the current, the length (voltage drop) and the conditions where it is installed.
+- Missing protection devices: no DC breaker or fuse, no surge protection device (SPD), no proper grounding. Everything looks fine on the day of installation, until the first lightning storm or the first fault.
+- Copied battery settings: settings taken from someone else's solar PV system. Charge voltages, current limits and the communication protocol between battery and inverter depend on the exact models. Settings that work on one system can overcharge or damage the battery on another.
+These are the mistakes that lead to fires, damaged equipment and unhappy clients. Many of them come not from a lack of skill, but from a lack of humility.
+## Nobody ever "graduates" in this industry
+Our technology keeps changing. Every year there are new inverters, new battery chemistries and designs, new panel technologies such as N-type and bifacial modules, and new rules from the utilities. What was good practice five years ago may not be enough today.
+So whether you have done 5 installations or 500, there is always something new to learn. That is not a weakness. It is what keeps you, your clients and their homes safe.
+That is also why we made the free JFL Solar online course, Solar PV System Designing, with 25 lessons in English and Tagalog, and why we run hands-on training at the JFL Solar Training Center. Not because anyone is "not good enough", but because the best installers never stop learning.
+## Be the whale shark 🌊
+Big in skill. Calm in attitude. Always open to learning.
+Let your work speak for you. Check before you connect. Share what you know. And never be too proud to ask.
+☀️ Learn from the best... learn it the right way!
+- Free online course: [Solar PV System Designing](https://www.jflsolar.ph/courses/solar-pv-system-design), 25 lessons in English and Tagalog
+- Forum: ask questions and share your projects in our [forum](https://www.jflsolar.ph/forum)
+- Questions about your solar PV system: call or text our Sales team at 0969 471 2098
