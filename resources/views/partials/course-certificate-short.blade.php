@@ -11,7 +11,6 @@
             <p class="mt-1 text-steel-800">Your payment is confirmed.</p>
             <p class="mt-2"><a href="/account/certificate/download" class="{{ \App\Support\Ui::button('primary', 'sm') }}">Download your certificate</a></p>
         @elseif ($ready)
-            <p class="mt-1 text-steel-800">Pay via GCash, and you can download it once your payment is confirmed.</p>
             <p class="mt-2"><a href="/account/course#cert-pay-{{ $cert->id }}" class="font-semibold underline">Pay via GCash and download →</a></p>
         @else
             <p class="mt-1 text-steel-800">Your certificate is being prepared.</p>
