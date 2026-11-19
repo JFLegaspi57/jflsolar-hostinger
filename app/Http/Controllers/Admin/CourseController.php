@@ -69,6 +69,19 @@ class CourseController extends Controller
     }
 
     /** GCash donation details shown on the course page and at the end of each lesson. */
+    /** The GCash QR code students scan to pay for their certificate. */
+    public function certificateQr(Request $request): RedirectResponse
+    {
+        if ($request->boolean('remove')) {
+            @unlink(\App\Support\CourseCertificates::qrFile());
+
+            return back()->with('status', 'Certificate payment QR removed.');
+        }
+        $error = \App\Support\CourseCertificates::saveQr($request->file('qr'));
+
+        return $error ? back()->with('status_error', $error) : back()->with('status', 'Certificate payment QR saved.');
+    }
+
     public function gcash(Request $request): RedirectResponse
     {
         if ($request->boolean('remove_qr')) {

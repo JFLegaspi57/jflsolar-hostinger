@@ -90,6 +90,10 @@ Route::post('/account/password', [Account\AccountController::class, 'password'])
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
 Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
 Route::post('/account/messages/{id}/close', [Account\AccountController::class, 'closeMessage'])->whereNumber('id');
+Route::get('/account/certificate/thumb.jpg', [Account\AccountController::class, 'certificateThumb']);
+Route::get('/account/certificate/gcash-qr.jpg', [Account\AccountController::class, 'certificateQr']);
+Route::get('/account/certificate/download', [Account\AccountController::class, 'certificateDownload']);
+Route::post('/account/certificate/reference', [Account\AccountController::class, 'certificateReference'])->middleware('throttle:account');
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}(-full)?\.webp');
 
 // Make a Quotation: members build quote requests from the catalogue and their own items.
@@ -234,6 +238,7 @@ Route::prefix('admin')->group(function () {
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
         Route::post('members/{member}/messages', [Admin\MemberController::class, 'addMessage'])->whereNumber('member');
         Route::post('members/{member}/certificate', [Admin\MemberController::class, 'certificate'])->whereNumber('member');
+        Route::get('members/{member}/certificate/thumb.jpg', [Admin\MemberController::class, 'certificateThumb'])->whereNumber('member');
         Route::post('members/{member}/messages/{id}/delete', [Admin\MemberController::class, 'deleteMessage'])->whereNumber('member')->whereNumber('id');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);
@@ -255,6 +260,7 @@ Route::prefix('admin')->group(function () {
         Route::post('course/price', [Admin\CourseController::class, 'price']);
         Route::post('course/banner', [Admin\CourseController::class, 'banner']);
         Route::post('course/gcash', [Admin\CourseController::class, 'gcash']);
+        Route::post('course/certificate-qr', [Admin\CourseController::class, 'certificateQr']);
         Route::post('course/donations/{id}', [Admin\CourseController::class, 'donation']);
         Route::post('course/member', [Admin\CourseController::class, 'member']);
         Route::post('course/hide/{member}', [Admin\CourseController::class, 'hide'])->whereNumber('member');

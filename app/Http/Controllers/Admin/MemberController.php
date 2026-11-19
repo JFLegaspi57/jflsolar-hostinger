@@ -76,15 +76,35 @@ class MemberController extends Controller
     public function certificate(Request $request, int $member): RedirectResponse
     {
         $m = Member::query()->findOrFail($member);
-        if ($request->input('action') === 'revoke') {
-            \App\Support\CourseCertificates::revoke($m->id);
+        $back = redirect('/admin/members/'.$m->id.'#course-h');
+        switch ($request->input('action')) {
+            case 'revoke':
+                \App\Support\CourseCertificates::revoke($m->id);
 
-            return redirect('/admin/members/'.$m->id.'#course-h')->with('status', 'Certificate number removed.');
+                return $back->with('status', 'Certificate number removed.');
+            case 'paid':
+            case 'unpaid':
+                \App\Support\CourseCertificates::setPaid($m->id, $request->input('action') === 'paid');
+
+                return $back->with('status', $request->input('action') === 'paid' ? 'Marked as paid: '.$m->name.' can now download the certificate.' : 'Marked as not paid: the download is locked.');
+            case 'upload':
+                $error = \App\Support\CourseCertificates::saveFiles($m->id, $request->file('image'), $request->file('pdf'));
+
+                return $error ? $back->with('status_error', $error) : $back->with('status', 'Certificate uploaded.');
         }
         $data = $request->validate(['completed_on' => ['nullable', 'date']]);
         $cert = \App\Support\CourseCertificates::issue($m->id, $data['completed_on'] ?? null);
 
         return redirect('/admin/members/'.$m->id.'#course-h')->with('status', 'Certificate number '.$cert->ctn.' issued to '.$m->name.'.');
+    }
+
+    public function certificateThumb(int $member): \Illuminate\Http\Response
+    {
+        $cert = \App\Support\CourseCertificates::for($member);
+        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert) : null;
+        abort_unless($jpg, 404);
+
+        return response($jpg, 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=600']);
     }
 
     public function deleteMessage(int $member, int $id): RedirectResponse
