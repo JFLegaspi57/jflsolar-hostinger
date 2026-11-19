@@ -16,7 +16,7 @@
 @if ($ownWordsShow)
     <section id="ann-own-words" aria-labelledby="ann-own-words-h" class="mt-6 rounded-[var(--radius-panel)] border p-5 sm:p-6" style="border-color:#f59e0b;background:#fffbeb">
         <div class="flex items-start justify-between gap-3">
-            <h2 id="ann-own-words-h" class="text-lg font-bold text-steel-950">A little note from JF to all my Online Course students 🌞</h2>
+            <h2 id="ann-own-words-h" class="text-lg font-bold text-steel-950">A little note from Prof. JF</h2>
             <button type="button" class="ann-close shrink-0 text-sm font-semibold underline text-steel-800" aria-label="Close this note">Close</button>
         </div>
         <div class="mt-2 space-y-2 text-steel-800">

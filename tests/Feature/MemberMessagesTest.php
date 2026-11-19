@@ -52,8 +52,8 @@ class MemberMessagesTest extends TestCase
         \App\Support\CourseResults::ensureTable();
         \Illuminate\Support\Facades\DB::table('course_lesson_views')->insert(['member_id' => $student->id, 'lesson_id' => 1, 'times' => 1, 'first_at' => now(), 'last_at' => now()]);
 
-        $this->actingAs($student, 'member')->get('/account')->assertSee('A little note from JF to all my Online Course students')->assertSee('Hi Warren,')->assertSee('use your own words');
+        $this->actingAs($student, 'member')->get('/account')->assertSee('A little note from Prof. JF')->assertSee('Hi Warren,')->assertSee('use your own words');
         session()->forget('member_pw');
-        $this->actingAs($new, 'member')->get('/account')->assertDontSee('A little note from JF to all my Online Course students');
+        $this->actingAs($new, 'member')->get('/account')->assertDontSee('A little note from Prof. JF');
     }
 }
