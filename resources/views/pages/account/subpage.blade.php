@@ -21,6 +21,7 @@
                     <h2 class="mt-1 text-xl font-bold text-steel-950">The Fundamentals of Solar PV System</h2>
                     @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                     @include('pages.course.record', ['record' => $courseRecord, 'started' => $courseStarted, 'showOpened' => true])
+                    @include('partials.course-certificate', ['memberId' => \App\Support\Members::current()->id])
                     <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
                 @endif
             </section>
