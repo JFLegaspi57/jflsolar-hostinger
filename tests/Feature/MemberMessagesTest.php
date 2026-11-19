@@ -59,7 +59,7 @@ class MemberMessagesTest extends TestCase
 
     public function test_staff_issue_a_unique_certificate_number_shown_on_the_account_page(): void
     {
-        Cache::forget('course-certificates-table-v3');
+        Cache::forget('course-certificates-table-v4');
         $a = Member::query()->create(['name' => 'Warren', 'email' => 'wa@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $b = Member::query()->create(['name' => 'Maria', 'email' => 'ma@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
@@ -83,7 +83,7 @@ class MemberMessagesTest extends TestCase
 
     public function test_certificate_preview_payment_reference_and_download_only_when_paid(): void
     {
-        Cache::forget('course-certificates-table-v3');
+        Cache::forget('course-certificates-table-v4');
         @mkdir(\App\Support\CourseCertificates::dir(), 0775, true);
         $m = Member::query()->create(['name' => 'Warren', 'email' => 'wc@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
@@ -93,13 +93,15 @@ class MemberMessagesTest extends TestCase
         $pdf = new \Illuminate\Http\UploadedFile($pdfPath, 'cert.pdf', 'application/pdf', null, true);
 
         $this->actingAs($owner, 'web')->post('/admin/members/'.$m->id.'/certificate', ['action' => 'issue']);
-        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'upload', 'image' => $png(), 'pdf' => $pdf])->assertSessionHas('status', 'Certificate uploaded.');
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'upload', 'image' => $png(), 'image2' => $png(), 'pdf' => $pdf])->assertSessionHas('status', 'Certificate uploaded.');
+        $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg?page=2')->assertOk();
         $this->post('/admin/course/certificate-qr', ['qr' => $png()])->assertSessionHas('status');
         $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
 
         session()->forget('member_pw');
         $this->actingAs($m, 'member')->get('/account')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('Pay ₱2,500 with GCash')->assertSee('Type the GCash reference number exactly')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
         $this->get('/account/certificate/thumb.jpg')->assertOk();
+        $this->get('/account/course')->assertSee('Lessons page (preview)')->assertSee('Certificate (preview)');
         $this->get('/account/certificate/gcash-qr.jpg')->assertOk();
         $this->get('/account/certificate/download')->assertRedirect('/account#course');
         $this->post('/account/certificate/reference', ['reference' => '1234 567 890123'])->assertRedirect('/account#course');
@@ -110,7 +112,7 @@ class MemberMessagesTest extends TestCase
 
         session()->forget('member_pw');
         $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Paid via GCash');
-        $this->get('/account/course')->assertDontSee('Your certificate of completion (sample)')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false);
+        $this->get('/account/course')->assertDontSee('Your certificate of completion (sample)')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false)->assertSee('Lessons page');
         $r = $this->get('/account/certificate/download')->assertOk();
         $this->assertStringContainsString('Certificate-JFL-', (string) $r->headers->get('content-disposition'));
 
@@ -125,7 +127,7 @@ class MemberMessagesTest extends TestCase
 
     public function test_fake_reference_numbers_get_a_pop_up_warning_and_block_after_three(): void
     {
-        Cache::forget('course-certificates-table-v3');
+        Cache::forget('course-certificates-table-v4');
         @mkdir(\App\Support\CourseCertificates::dir(), 0775, true);
         $m = Member::query()->create(['name' => 'Fake', 'email' => 'fk@example.com', 'password' => 'a long test password', 'status' => 'active']);
         $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
