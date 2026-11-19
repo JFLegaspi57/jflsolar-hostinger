@@ -90,6 +90,8 @@ final class Visitors
                 };
 
                 return [
+                    // Browsers that opened a page in the last 15 minutes (same window as "Online now" for members).
+                    'online' => (int) DB::table('page_views')->where('created_at', '>=', now()->subMinutes(Members::ONLINE_MINUTES))->distinct()->count('id_hash'),
                     'today' => (int) DB::table('visitor_days')->where('day', self::today()->toDateString())->count(),
                     'first' => (int) DB::table('visitor_ids')->count(),
                     'returning' => (int) DB::table('visitor_ids')->where('days', '>', 1)->count(),
