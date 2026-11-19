@@ -10,7 +10,13 @@
             <p class="mt-2 text-sm font-semibold tracking-wide text-steel-600 uppercase">Your account</p>
             <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $heading }}</h1>
             @if ($section === 'course')
-                @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
+                {{-- Certificate of completion first: the student's own certificate, or a sample, then how to get it. --}}
+                @php $meId = \App\Support\Members::current()->id; @endphp
+                @if (\App\Support\CourseCertificates::for($meId))
+                    @include('partials.course-certificate', ['memberId' => $meId])
+                @else
+                    @include('partials.course-certificate-sample')
+                @endif
                 @include('partials.course-certificate-note')
             @endif
             <section class="{{ $card }} mt-8">
@@ -21,10 +27,6 @@
                     <h2 class="mt-1 text-xl font-bold text-steel-950">The Fundamentals of Solar PV System</h2>
                     @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                     @include('pages.course.record', ['record' => $courseRecord, 'started' => $courseStarted, 'showOpened' => true])
-                    @include('partials.course-certificate', ['memberId' => \App\Support\Members::current()->id])
-                    @unless (\App\Support\CourseCertificates::for(\App\Support\Members::current()->id))
-                        @include('partials.course-certificate-sample')
-                    @endunless
                     <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
                 @endif
             </section>
