@@ -19,7 +19,7 @@ final class CourseCertificates
     private const TABLE_KEY = 'course-certificates-table-v2';
 
     /** Fee for the certificate download, in pesos. */
-    public const FEE_PHP = 3000;
+    public const FEE_PHP = 2500;
 
     public static function ensureTable(): void
     {
