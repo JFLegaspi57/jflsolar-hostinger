@@ -1,4 +1,4 @@
-{{-- A member's course record: every lesson they have opened or answered, with pass / fail and the date. $staff = also show each answer. --}}
+{{-- A member's course record. Members see only the lessons they passed; staff ($staff) see every lesson opened or answered, with each answer. --}}
 @php
     $staff = $staff ?? false;
     $all = \App\Support\Course::lessons();
@@ -11,6 +11,7 @@
         'opened' => ['📖 Opened', 'background:#eef5ff;color:#1e3a8a'],
     ];
     $verdict = ['correct' => '✅ Correct', 'partly' => '🟡 Partly correct', 'wrong' => '❌ Not quite'];
+    $rows = $staff ? $record : collect($record)->where('result.status', 'passed')->values()->all();
 @endphp
 <div class="mt-4">
     <p class="font-semibold text-steel-950">{{ $staff ? 'Course progress' : 'Your course record' }}: {{ $passedN }} of {{ $withQuiz }} lessons passed</p>
@@ -18,6 +19,8 @@
         @if ($staff || ! ($started ?? false))
             <p class="mt-2 text-sm text-steel-700">{{ $staff ? 'No answers checked yet.' : 'No lessons done yet. Your results appear here once you check your answers at the end of a lesson.' }}</p>
         @endif
+    @elseif (empty($rows))
+        <p class="mt-2 text-sm text-steel-700">No lessons passed yet. Each lesson you pass appears here.</p>
     @else
         <div class="mt-2 overflow-x-auto">
             <table class="w-full text-sm">
@@ -30,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($record as $row)
+                    @foreach ($rows as $row)
                         @php $r = $row['result']; [$label, $style] = $badge[$r['status']] ?? $badge['progress']; @endphp
                         <tr class="border-b border-steel-200 align-top">
                             <td class="py-2 pr-4">
