@@ -1,4 +1,4 @@
-{{-- A member's course record. Members see only the lessons they passed; staff ($staff) see every lesson opened or answered, with each answer. --}}
+{{-- A member's course record. On the account page only passed lessons; with $showOpened (Your account → Online Course) every lesson opened or answered; staff ($staff) also see each answer. --}}
 @php
     $staff = $staff ?? false;
     $all = \App\Support\Course::lessons();
@@ -11,7 +11,8 @@
         'opened' => ['📖 Opened', 'background:#eef5ff;color:#1e3a8a'],
     ];
     $verdict = ['correct' => '✅ Correct', 'partly' => '🟡 Partly correct', 'wrong' => '❌ Not quite'];
-    $rows = $staff ? $record : collect($record)->where('result.status', 'passed')->values()->all();
+    // The account page lists only passed lessons; Your account → Online Course ($showOpened) and staff see opened lessons too.
+    $rows = ($staff || ($showOpened ?? false)) ? $record : collect($record)->where('result.status', 'passed')->values()->all();
 @endphp
 <div class="mt-4">
     <p class="font-semibold text-steel-950">{{ $staff ? 'Course progress' : 'Your course record' }}: {{ $passedN }} of {{ $withQuiz }} lessons passed</p>
