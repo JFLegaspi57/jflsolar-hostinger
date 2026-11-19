@@ -110,7 +110,7 @@ class MemberMessagesTest extends TestCase
 
         session()->forget('member_pw');
         $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Paid via GCash');
-        $this->get('/account/course')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false);
+        $this->get('/account/course')->assertDontSee('Your certificate of completion (sample)')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false);
         $r = $this->get('/account/certificate/download')->assertOk();
         $this->assertStringContainsString('Certificate-JFL-', (string) $r->headers->get('content-disposition'));
 
