@@ -75,7 +75,8 @@ class MemberMessagesTest extends TestCase
         $this->assertSame('2026-11-19', (string) $ca->completed_on);
         $this->get('/admin/members/'.$a->id)->assertSee($ca->ctn)->assertSee('Remove the certificate number');
 
-        $this->actingAs($a, 'member')->get('/account')->assertSee('Certificate number (CTN)')->assertSee($ca->ctn)->assertDontSee($cb->ctn)->assertSee('course completed 19 November 2026');
+        $this->actingAs($a, 'member')->get('/account')->assertSee('Certificate number (CTN)')->assertSee($ca->ctn)->assertDontSee($cb->ctn)->assertSee('being prepared');
+        $this->get('/account/course')->assertSee($ca->ctn)->assertSee('course completed 19 November 2026');
 
         $this->actingAs($owner, 'web')->post('/admin/members/'.$b->id.'/certificate', ['action' => 'revoke'])->assertRedirect();
         $this->assertNull(\App\Support\CourseCertificates::for($b->id));
@@ -99,19 +100,20 @@ class MemberMessagesTest extends TestCase
         $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
 
         session()->forget('member_pw');
-        $this->actingAs($m, 'member')->get('/account')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('Pay ₱2,500 with GCash')->assertSee('Type the GCash reference number exactly')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
+        $this->actingAs($m, 'member')->get('/account')->assertSee('Certificate of Completion – Ready for download')->assertSee('Pay via GCash, and you can download it once your payment is confirmed.');
+        $this->get('/account/course')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('Pay ₱2,500 with GCash')->assertSee('Type the GCash reference number exactly')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
         $this->get('/account/certificate/thumb.jpg')->assertOk();
         $this->get('/account/course')->assertSee('Lessons page (preview)')->assertSee('Certificate (preview)');
         $this->get('/account/certificate/gcash-qr.jpg')->assertOk();
         $this->get('/account/certificate/download')->assertRedirect('/account#course');
         $this->post('/account/certificate/reference', ['reference' => '1234 567 890123'])->assertRedirect('/account#course');
-        $this->get('/account')->assertSee('We received your reference number');
+        $this->get('/account/course')->assertSee('We received your reference number');
 
         $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Payments to check in GCash')->assertSee('1234 567 890123');
         $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'paid']);
 
         session()->forget('member_pw');
-        $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Paid via GCash');
+        $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Your payment is confirmed.');
         $this->get('/account/course')->assertDontSee('Your certificate of completion (sample)')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false)->assertSee('Lessons page');
         $r = $this->get('/account/certificate/download')->assertOk();
         $this->assertStringContainsString('Certificate-JFL-', (string) $r->headers->get('content-disposition'));
