@@ -38,6 +38,15 @@ class AccountController extends Controller
         return view('pages.account.subpage', ['section' => 'course', 'heading' => 'Online Course', 'path' => '/account/course', 'courseRecord' => \App\Support\CourseResults::record($member->id), 'courseStarted' => \App\Support\CourseResults::started($member->id), 'nextStep' => \App\Support\Course::canView() ? \App\Support\CourseResults::nextStep($member->id) : null]);
     }
 
+    /** The member closes a personal message from JFL Solar. */
+    public function closeMessage(int $id): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        \App\Support\MemberMessages::close($member->id, $id);
+
+        return redirect('/account');
+    }
+
     public function show(): View|RedirectResponse
     {
         $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));

@@ -89,6 +89,7 @@ Route::post('/account', [Account\AccountController::class, 'update']);
 Route::post('/account/password', [Account\AccountController::class, 'password'])->middleware('throttle:account');
 Route::post('/account/delete', [Account\AccountController::class, 'destroy'])->middleware('throttle:account');
 Route::post('/account/profile', [Account\AccountController::class, 'profile'])->middleware('throttle:account');
+Route::post('/account/messages/{id}/close', [Account\AccountController::class, 'closeMessage'])->whereNumber('id');
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}(-full)?\.webp');
 
 // Make a Quotation: members build quote requests from the catalogue and their own items.
@@ -231,6 +232,8 @@ Route::prefix('admin')->group(function () {
         Route::get('members/export', [Admin\MemberController::class, 'exportMembers']);
         Route::get('members/{member}', [Admin\MemberController::class, 'show'])->whereNumber('member');
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
+        Route::post('members/{member}/messages', [Admin\MemberController::class, 'addMessage'])->whereNumber('member');
+        Route::post('members/{member}/messages/{id}/delete', [Admin\MemberController::class, 'deleteMessage'])->whereNumber('member')->whereNumber('id');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);
         Route::post('subscribers/welcome', [Admin\MemberController::class, 'sendWelcome']);

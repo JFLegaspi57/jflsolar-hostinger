@@ -58,7 +58,25 @@ class MemberController extends Controller
             'pages' => $hasActivity ? DB::table('member_activity')->where('member_id', $m->id)->where('kind', 'page')->orderByDesc('id')->limit(300)->get() : collect(),
             'subscribed' => Newsletter::isSubscribed($m->email),
             'courseRecord' => \App\Support\CourseResults::record($m->id, true),
+            'messages' => \App\Support\MemberMessages::all($m->id),
         ]);
+    }
+
+    /** A personal message shown on this member's account page until they close it. */
+    public function addMessage(Request $request, int $member): RedirectResponse
+    {
+        $m = Member::query()->findOrFail($member);
+        $data = $request->validate(['title' => ['required', 'string', 'max:200'], 'body' => ['required', 'string', 'max:10000']]);
+        \App\Support\MemberMessages::add($m->id, $data['title'], $data['body']);
+
+        return redirect('/admin/members/'.$m->id.'#messages')->with('status', 'Message posted on '.$m->name.'’s account page.');
+    }
+
+    public function deleteMessage(int $member, int $id): RedirectResponse
+    {
+        \App\Support\MemberMessages::delete($member, $id);
+
+        return redirect('/admin/members/'.$member.'#messages')->with('status', 'Message removed.');
     }
 
     /** CSV of all members with their last sign-in time and place. */
