@@ -7,7 +7,7 @@ Ang pinakamalaking pating sa mundo ay ang whale shark, ang butanding na kilala n
 Pero hindi ang butanding ang nakakatakot. Mabagal itong lumangoy, kumakain ng plankton at maliliit na isda sa pagsala ng tubig, at hinahayaan nitong lumangoy ang mga diver sa tabi mismo nito. Wala itong kailangang patunayan. Hindi nito kailangang ipakita ang ngipin para ipakita kung ano ito.
 Ang mas maliliit na pating ang pinakamaingay.
 ## Ganito rin sa solar 🌞
-Sa mahigit tatlong dekada ko sa renewable energy, una sa Europa at ngayon dito sa Pilipinas, marami na akong nakatrabahong engineer at installer. May iisang bagay na pareho sa pinakamagagaling sa kanila: kadalasan, sila ang mga tahimik.
+Sa mga taon ko sa renewable energy, una sa Europa at ngayon dito sa Pilipinas, marami na akong nakatrabahong engineer at installer. May iisang bagay na pareho sa pinakamagagaling sa kanila: kadalasan, sila ang mga tahimik.
 Hindi nila ipinagyayabang kung ilang kWp na ang na-install nila o ilang proyekto na ang natapos nila. Malalaman mo kung gaano sila kagaling sa pagtingin sa trabaho nila: maayos na cable routing, may label ang mga string, tama ang mga protection device, at dalawang beses sinuri ang mga setting. Sila ang mga taong:
 - Tumitingin pa rin sa datasheet: binabasa nila ang inverter datasheet bago mag-set ng parameters, kahit nagawa na nila ito nang isandaang beses. Puwedeng magbago ang lahat dahil sa bagong firmware, bagong battery model o ibang grid code.
 - Sumusukat bago magkabit: sinusukat nila ang Voc at polarity sa halip na mag-assume. Isang baligtad na string, o string voltage na lampas sa maximum DC input ng inverter, ay puwedeng sumira ng inverter sa isang iglap, at walang warranty na sasagot doon.
