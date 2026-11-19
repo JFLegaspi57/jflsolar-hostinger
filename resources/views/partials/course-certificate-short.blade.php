@@ -16,7 +16,6 @@
         @else
             <p class="mt-1 text-steel-800">Your certificate is being prepared.</p>
         @endif
-        <p class="mt-1 text-sm text-steel-600">Certificate number (CTN): {{ $cert->ctn }}</p>
     </div>
     @if ($cert->wrong_popup)
         @include('partials.course-certificate-warning', ['cert' => $cert])
