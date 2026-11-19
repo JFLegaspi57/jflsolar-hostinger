@@ -168,4 +168,19 @@ class MemberMessagesTest extends TestCase
         $this->post('/logout')->assertRedirect();
         $this->assertNull(\App\Support\Members::current());
     }
+
+    public function test_staff_can_mark_all_lessons_passed_for_a_member(): void
+    {
+        \App\Support\Course::ensureTables();
+        foreach ([1, 2] as $i) {
+            \Illuminate\Support\Facades\DB::table('course_lessons')->insert(['slug' => 'mp-'.$i, 'title' => 'MP lesson '.$i, 'summary' => 's', 'body' => '<p>x</p><details><summary>Q1?</summary>A1</details><details><summary>Q2?</summary>A2</details>', 'position' => 100 + $i, 'status' => 'published', 'created_at' => now(), 'updated_at' => now()]);
+        }
+        $m = Member::query()->create(['name' => 'Tester', 'email' => 'mp@example.com', 'password' => 'a long test password', 'status' => 'active']);
+        $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $this->actingAs($owner, 'web')->get('/admin/members/'.$m->id)->assertSee('Mark all lessons as passed');
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'mark-all-passed'])->assertSessionHas('status');
+        $rec = collect(\App\Support\CourseResults::record($m->id));
+        $this->assertTrue($rec->isNotEmpty());
+        $this->assertTrue($rec->every(fn ($r) => $r['result']['status'] === 'passed'));
+    }
 }

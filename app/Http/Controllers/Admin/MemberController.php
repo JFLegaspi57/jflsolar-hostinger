@@ -87,6 +87,10 @@ class MemberController extends Controller
                 \App\Support\CourseCertificates::setPaid($m->id, $request->input('action') === 'paid');
 
                 return $back->with('status', $request->input('action') === 'paid' ? 'Marked as paid: '.$m->name.' can now download the certificate.' : 'Marked as not paid: the download is locked.');
+            case 'mark-all-passed':
+                $n = \App\Support\CourseResults::markAllPassed($m->id);
+
+                return $back->with('status', 'All '.$n.' lessons marked as passed for '.$m->name.'.');
             case 'reject':
                 \App\Support\CourseCertificates::rejectReference($m->id);
 
