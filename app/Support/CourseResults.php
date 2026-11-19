@@ -311,6 +311,13 @@ final class CourseResults
         ];
     }
 
+    /** Members on a course page right now (opened one within the last few minutes), hidden members left out. */
+    public static function onlineCount(): int
+    {
+        return (int) DB::table('member_activity')->where('created_at', '>=', now()->subMinutes(Members::ONLINE_MINUTES))
+            ->where('path', 'like', Course::PATH.'%')->whereNotIn('member_id', self::hiddenIds() ?: [0])->distinct()->count('member_id');
+    }
+
     /** How many members have started the course (opened a lesson or checked an answer). */
     /**
      * Members left out of the course numbers and ranking (e.g. the owner's own test account), set in Admin → Online course.
