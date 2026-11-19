@@ -87,6 +87,10 @@ class MemberController extends Controller
                 \App\Support\CourseCertificates::setPaid($m->id, $request->input('action') === 'paid');
 
                 return $back->with('status', $request->input('action') === 'paid' ? 'Marked as paid: '.$m->name.' can now download the certificate.' : 'Marked as not paid: the download is locked.');
+            case 'reset-course':
+                \App\Support\CourseResults::resetMember($m->id);
+
+                return $back->with('status', $m->name.' starts the online course over: all answers and opened lessons were removed.');
             case 'mark-all-passed':
                 $n = \App\Support\CourseResults::markAllPassed($m->id);
 

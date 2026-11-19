@@ -101,6 +101,15 @@ final class CourseResults
         return $n;
     }
 
+    /** Staff tool: the member starts the course over (all answers, opened lessons and the last lesson seen are removed). */
+    public static function resetMember(int $memberId): void
+    {
+        self::ensureTable();
+        DB::table(self::TABLE)->where('member_id', $memberId)->delete();
+        DB::table(self::VIEWS)->where('member_id', $memberId)->delete();
+        DB::table(self::SEEN)->where('member_id', $memberId)->delete();
+    }
+
     /** Saves the latest checked answer to one question (a new check replaces the old one). */
     public static function save(int $memberId, int $lessonId, int $q, string $verdict, string $answer): void
     {
