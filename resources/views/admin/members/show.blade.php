@@ -98,6 +98,20 @@
 
     <section aria-labelledby="course-h" class="{{ $card }} mt-6">
         <h2 id="course-h" class="text-lg font-bold text-steel-950">Online course record</h2>
+        @include('partials.course-certificate', ['memberId' => $m->id])
+        @php $certIssued = \App\Support\CourseCertificates::for($m->id); @endphp
+        <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-3 flex flex-wrap items-end gap-3">
+            @csrf
+            @if ($certIssued)
+                <input type="hidden" name="action" value="revoke">
+                <button type="submit" class="text-sm underline text-steel-700" onclick="return confirm('Remove this certificate number? The member will no longer see it.')">Remove the certificate number</button>
+            @else
+                <input type="hidden" name="action" value="issue">
+                <label class="text-sm"><span class="font-semibold">Course completed on</span><br><input type="date" name="completed_on" value="{{ ($courseRecord['completedOn'] ?? null) ?: now('Asia/Manila')->toDateString() }}" class="mt-1 min-h-10 rounded-[var(--radius-control)] border border-steel-400 px-2"></label>
+                <button type="submit" class="{{ \App\Support\Ui::button('primary', 'sm') }}">Issue certificate number (CTN)</button>
+                <span class="text-sm text-steel-600">Gives this member their own unique number, shown on their account page.</span>
+            @endif
+        </form>
         @include('pages.course.record', ['record' => $courseRecord, 'staff' => true])
     </section>
 

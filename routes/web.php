@@ -233,6 +233,7 @@ Route::prefix('admin')->group(function () {
         Route::get('members/{member}', [Admin\MemberController::class, 'show'])->whereNumber('member');
         Route::post('members/{member}', [Admin\MemberController::class, 'update'])->whereNumber('member');
         Route::post('members/{member}/messages', [Admin\MemberController::class, 'addMessage'])->whereNumber('member');
+        Route::post('members/{member}/certificate', [Admin\MemberController::class, 'certificate'])->whereNumber('member');
         Route::post('members/{member}/messages/{id}/delete', [Admin\MemberController::class, 'deleteMessage'])->whereNumber('member')->whereNumber('id');
         Route::get('subscribers', [Admin\MemberController::class, 'subscribers']);
         Route::get('subscribers/export', [Admin\MemberController::class, 'export']);

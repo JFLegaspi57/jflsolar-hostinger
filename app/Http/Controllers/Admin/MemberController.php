@@ -72,6 +72,21 @@ class MemberController extends Controller
         return redirect('/admin/members/'.$m->id.'#messages')->with('status', 'Message posted on '.$m->name.'’s account page.');
     }
 
+    /** Issue or remove the member's certificate of completion number (CTN). */
+    public function certificate(Request $request, int $member): RedirectResponse
+    {
+        $m = Member::query()->findOrFail($member);
+        if ($request->input('action') === 'revoke') {
+            \App\Support\CourseCertificates::revoke($m->id);
+
+            return redirect('/admin/members/'.$m->id.'#course-h')->with('status', 'Certificate number removed.');
+        }
+        $data = $request->validate(['completed_on' => ['nullable', 'date']]);
+        $cert = \App\Support\CourseCertificates::issue($m->id, $data['completed_on'] ?? null);
+
+        return redirect('/admin/members/'.$m->id.'#course-h')->with('status', 'Certificate number '.$cert->ctn.' issued to '.$m->name.'.');
+    }
+
     public function deleteMessage(int $member, int $id): RedirectResponse
     {
         \App\Support\MemberMessages::delete($member, $id);
