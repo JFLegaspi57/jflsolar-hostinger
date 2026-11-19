@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * The online course "Solar PV System Design". FREE for signed-in members (since November 2026),
+ * The online course "The Fundamentals of Solar PV System". FREE for signed-in members (since November 2026),
  * with optional GCash donations; the paid-membership code below stays for later use.
  *
  * Paid membership lasts one year (MEMBERSHIP_MONTHS) and is bought online through PayMongo
@@ -25,7 +25,7 @@ final class Course
 {
     public const SLUG = 'solar-pv-system-design';
 
-    public const TITLE = 'Solar PV System Design';
+    public const TITLE = 'The Fundamentals of Solar PV System';
 
     public const PATH = '/courses/'.self::SLUG;
 
