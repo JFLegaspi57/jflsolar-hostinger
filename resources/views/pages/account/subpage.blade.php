@@ -11,6 +11,7 @@
             <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $heading }}</h1>
             @if ($section === 'course')
                 @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
+                @include('partials.course-certificate-note')
             @endif
             <section class="{{ $card }} mt-8">
                 @if ($section === 'orders')
