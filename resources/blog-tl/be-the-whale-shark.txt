@@ -1,0 +1,33 @@
+Maging Butanding: Bakit Nananatiling Mapagpakumbaba ang Pinakamahuhusay na Solar PV Installer
+Ang pinakamalaking pating sa dagat ay hindi kailanman nag-aakalang siya ang pinakamalaki. Isang aral mula sa butanding tungkol sa kababaang-loob, kaligtasan at walang-katapusang pag-aaral sa solar PV industry, mula kay JF Legaspi.
+"Ang pinakamalaking pating sa dagat ay hindi kailanman nag-aakalang siya ang pinakamalaki." 🦈
+Madalas kong naiisip ang linyang ito nitong mga nakaraang araw, dahil inilalarawan nito ang isang bagay na nakikita ko linggo-linggo sa ating industriya.
+## Ang maamong higante
+Ang pinakamalaking pating sa mundo ay ang whale shark, ang butanding na kilala ng marami sa atin mula sa Donsol sa Sorsogon at Oslob sa Cebu. Puwede itong humaba nang higit 12 metro, halos kasinghaba ng isang bus, at bumigat nang ilang tonelada. Kung may pating na may karapatang umastang hari ng dagat, ito na iyon.
+Pero hindi ang butanding ang nakakatakot. Mabagal itong lumangoy, kumakain ng plankton at maliliit na isda sa pagsala ng tubig, at hinahayaan nitong lumangoy ang mga diver sa tabi mismo nito. Wala itong kailangang patunayan. Hindi nito kailangang ipakita ang ngipin para ipakita kung ano ito.
+Ang mas maliliit na pating ang pinakamaingay.
+## Ganito rin sa solar 🌞
+Sa mahigit tatlong dekada ko sa renewable energy, una sa Europa at ngayon dito sa Pilipinas, marami na akong nakatrabahong engineer at installer. May iisang bagay na pareho sa pinakamagagaling sa kanila: kadalasan, sila ang mga tahimik.
+Hindi nila ipinagyayabang kung ilang kWp na ang na-install nila o ilang proyekto na ang natapos nila. Malalaman mo kung gaano sila kagaling sa pagtingin sa trabaho nila: maayos na cable routing, may label ang mga string, tama ang mga protection device, at dalawang beses sinuri ang mga setting. Sila ang mga taong:
+- Tumitingin pa rin sa datasheet: binabasa nila ang inverter datasheet bago mag-set ng parameters, kahit nagawa na nila ito nang isandaang beses. Puwedeng magbago ang lahat dahil sa bagong firmware, bagong battery model o ibang grid code.
+- Sumusukat bago magkabit: sinusukat nila ang Voc at polarity sa halip na mag-assume. Isang baligtad na string, o string voltage na lampas sa maximum DC input ng inverter, ay puwedeng sumira ng inverter sa isang iglap, at walang warranty na sasagot doon.
+- Patuloy na nagtatanong: nagtatanong sila sa mga seminar kahit marami na silang karanasan. Ilan sa pinakamagagandang tanong na natatanggap ko bilang resource person ay galing sa mga installer na maraming taon na sa field.
+- Bukas-palad sa kaalaman: ibinabahagi nila ang alam nila, dahil hindi sila lumiliit kapag tinutulungan nilang lumago ang iba. Mas matibay na industriya, mas ligtas na installation at mas malaking tiwala ng kliyente, at mabuti iyon para sa ating lahat.
+- Umaamin kapag hindi alam: at saka nila ito inaalam. Ang "Hindi ako sigurado, titingnan ko muna" ay isa sa pinaka-propesyonal na pangungusap na masasabi ng isang installer.
+## Kapag inakala ng isang tao na siya na ang pinakamalaking pating
+Nagsisimula ang panganib kapag naniniwala ang isang tao na alam na niya ang lahat. Doon nagsisimula ang mga shortcut:
+- Maling cable sizing: ang DC o battery cable na masyadong maliit para sa current ay umiinit, nag-aaksaya ng enerhiya at puwedeng magsimula ng sunog. Dapat sukatin ang cable ayon sa current, sa haba (voltage drop) at sa kondisyon ng lugar kung saan ito ikinabit.
+- Kulang na protection devices: walang DC breaker o fuse, walang surge protection device (SPD), walang maayos na grounding. Mukhang maayos ang lahat sa araw ng installation, hanggang sa unang kidlat o unang fault.
+- Kinopyang battery settings: settings na kinuha sa solar PV system ng iba. Nakadepende sa eksaktong model ang charge voltage, current limits at communication protocol ng battery at inverter. Ang settings na gumagana sa isang system ay puwedeng mag-overcharge o makasira ng battery sa iba.
+Ito ang mga pagkakamaling nauuwi sa sunog, sirang kagamitan at hindi masayang kliyente. At marami sa mga ito ay hindi dahil sa kakulangan sa galing, kundi sa kakulangan sa kababaang-loob.
+## Walang "nagtatapos" sa industriyang ito
+Patuloy na nagbabago ang ating teknolohiya. Taon-taon may bagong inverters, bagong battery chemistries at disenyo, bagong panel technologies tulad ng N-type at bifacial modules, at bagong patakaran mula sa mga utility. Ang tamang paraan limang taon na ang nakalipas ay baka hindi na sapat ngayon.
+Kaya 5 man o 500 na ang installation mo, laging may bagong matututunan. Hindi iyon kahinaan. Iyon ang nagpapanatiling ligtas sa iyo, sa mga kliyente mo at sa kanilang mga tahanan.
+Iyan din ang dahilan kung bakit ginawa namin ang libreng JFL Solar online course, Solar PV System Designing, na may 25 aralin sa English at Tagalog, at kung bakit may hands-on training kami sa JFL Solar Training Center. Hindi dahil may "hindi sapat ang galing", kundi dahil hindi tumitigil sa pag-aaral ang pinakamahuhusay na installer.
+## Maging butanding 🌊
+Malaki sa galing. Kalmado sa ugali. Laging bukas sa pag-aaral.
+Hayaang ang trabaho mo ang magsalita para sa iyo. Suriin muna bago ikabit. Ibahagi ang alam mo. At huwag kailanman mahiyang magtanong.
+☀️ Learn from the best... learn it the right way!
+- Libreng online course: [Solar PV System Designing](https://www.jflsolar.ph/courses/solar-pv-system-design), 25 aralin sa English at Tagalog
+- Forum: magtanong at ibahagi ang mga proyekto mo sa aming [forum](https://www.jflsolar.ph/forum)
+- May tanong sa solar PV system mo: tumawag o mag-text sa aming Sales team sa 0969 471 2098
