@@ -13,6 +13,23 @@
 
     @include('admin.course.stats')
 
+    <section class="{{ $box }}" aria-labelledby="certpay-h">
+        <h2 id="certpay-h" class="text-lg font-bold text-steel-950">Certificates: GCash payments</h2>
+        <p class="mt-1 text-sm text-steel-700">Students with a certificate number see this QR code on their account page, to pay ₱{{ number_format(\App\Support\CourseCertificates::FEE_PHP) }} and unlock the download. Issue numbers, upload certificates and mark payments in Admin → Members → (student).</p>
+        @php $cq = \App\Support\CourseCertificates::qrUrl(); $waiting = \App\Support\CourseCertificates::waiting(); @endphp
+        @if ($waiting->isNotEmpty())
+            <div class="mt-3 rounded border border-gold-500 bg-gold-50 p-3 text-sm"><p class="font-semibold">Payments to check in GCash:</p>
+                <ul class="mt-1 list-disc pl-5">@foreach ($waiting as $w)<li><a href="/admin/members/{{ $w->member_id }}#course-h" class="underline">{{ $w->name }}</a> · ref. <strong>{{ $w->gcash_ref }}</strong> · {{ \Illuminate\Support\Carbon::parse($w->ref_at)->timezone('Asia/Manila')->format('j M, g:i A') }} · {{ $w->ctn }}</li>@endforeach</ul></div>
+        @endif
+        @if ($cq)<img src="{{ $cq }}" alt="" class="mt-3 rounded border border-steel-200" style="width: 160px">@endif
+        <form method="post" action="/admin/course/certificate-qr" enctype="multipart/form-data" class="mt-3 flex flex-wrap items-end gap-3">
+            @csrf
+            <label class="grid gap-1 font-semibold text-steel-900">GCash QR code for certificates <input type="file" name="qr" accept="image/jpeg,image/png,image/webp" class="font-normal" required></label>
+            <button type="submit" class="{{ $btn }} bg-steel-900 text-white">Save</button>
+        </form>
+        @if ($cq)<form method="post" action="/admin/course/certificate-qr" class="mt-2">@csrf<input type="hidden" name="remove" value="1"><button class="text-sm text-danger-700 underline">Remove QR code</button></form>@endif
+    </section>
+
     <section class="{{ $box }}" aria-labelledby="gcash-h">
         <h2 id="gcash-h" class="text-lg font-bold text-steel-950">GCash donations</h2>
         <p class="mt-1 text-sm text-steel-700">Shown on the course page and at the top of every lesson, before the lesson starts.</p>

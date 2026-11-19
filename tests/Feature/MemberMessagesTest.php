@@ -80,4 +80,45 @@ class MemberMessagesTest extends TestCase
         $this->actingAs($owner, 'web')->post('/admin/members/'.$b->id.'/certificate', ['action' => 'revoke'])->assertRedirect();
         $this->assertNull(\App\Support\CourseCertificates::for($b->id));
     }
+
+    public function test_certificate_preview_payment_reference_and_download_only_when_paid(): void
+    {
+        Cache::forget('course-certificates-table-v2');
+        @mkdir(\App\Support\CourseCertificates::dir(), 0775, true);
+        $m = Member::query()->create(['name' => 'Warren', 'email' => 'wc@example.com', 'password' => 'a long test password', 'status' => 'active']);
+        $owner = User::query()->create(['name' => 'Owner', 'email' => 'owner@jflsolar.test', 'password' => 'a long test password', 'role' => 'owner', 'active' => true, 'must_change_password' => false]);
+        $png = function () { $im = imagecreatetruecolor(1200, 800); imagefill($im, 0, 0, imagecolorallocate($im, 250, 250, 250)); $t = tempnam(sys_get_temp_dir(), 'c').'.png'; imagepng($im, $t);
+            return new \Illuminate\Http\UploadedFile($t, 'cert.png', 'image/png', null, true); };
+        $pdfPath = tempnam(sys_get_temp_dir(), 'p'); file_put_contents($pdfPath, "%PDF-1.4\n%test\n");
+        $pdf = new \Illuminate\Http\UploadedFile($pdfPath, 'cert.pdf', 'application/pdf', null, true);
+
+        $this->actingAs($owner, 'web')->post('/admin/members/'.$m->id.'/certificate', ['action' => 'issue']);
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'upload', 'image' => $png(), 'pdf' => $pdf])->assertSessionHas('status', 'Certificate uploaded.');
+        $this->post('/admin/course/certificate-qr', ['qr' => $png()])->assertSessionHas('status');
+        $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
+
+        session()->forget('member_pw');
+        $this->actingAs($m, 'member')->get('/account')->assertSee('To download your certificate, pay ₱3,000 via GCash')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
+        $this->get('/account/certificate/thumb.jpg')->assertOk();
+        $this->get('/account/certificate/gcash-qr.jpg')->assertOk();
+        $this->get('/account/certificate/download')->assertRedirect('/account#course');
+        $this->post('/account/certificate/reference', ['reference' => '1234 567 890123'])->assertRedirect('/account#course');
+        $this->get('/account')->assertSee('We received your reference number');
+
+        $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Payments to check in GCash')->assertSee('1234 567 890123');
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'paid']);
+
+        session()->forget('member_pw');
+        $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Paid via GCash');
+        $r = $this->get('/account/certificate/download')->assertOk();
+        $this->assertStringContainsString('Certificate-JFL-', (string) $r->headers->get('content-disposition'));
+
+        auth('member')->logout();
+        auth('web')->logout();
+        session()->flush();
+        $this->get('/account/certificate/thumb.jpg')->assertNotFound();
+        $this->get('/account/certificate/gcash-qr.jpg')->assertNotFound();
+        \App\Support\CourseCertificates::revoke($m->id);
+        @unlink(\App\Support\CourseCertificates::qrFile());
+    }
 }

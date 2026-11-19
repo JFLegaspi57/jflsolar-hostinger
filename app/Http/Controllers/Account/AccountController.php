@@ -38,6 +38,49 @@ class AccountController extends Controller
         return view('pages.account.subpage', ['section' => 'course', 'heading' => 'Online Course', 'path' => '/account/course', 'courseRecord' => \App\Support\CourseResults::record($member->id), 'courseStarted' => \App\Support\CourseResults::started($member->id), 'nextStep' => \App\Support\Course::canView() ? \App\Support\CourseResults::nextStep($member->id) : null]);
     }
 
+    /** Small preview of the member's own certificate ("PREVIEW" mark until paid). */
+    public function certificateThumb(): \Illuminate\Http\Response
+    {
+        $member = Members::current() ?? abort(404);
+        $cert = \App\Support\CourseCertificates::for($member->id);
+        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert) : null;
+        abort_unless($jpg, 404);
+
+        return response($jpg, 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=600', 'X-Content-Type-Options' => 'nosniff']);
+    }
+
+    /** The GCash QR code for the certificate payment (signed-in members only). */
+    public function certificateQr(): \Symfony\Component\HttpFoundation\BinaryFileResponse
+    {
+        abort_unless((Members::current() || auth('web')->user()) && is_file(\App\Support\CourseCertificates::qrFile()), 404);
+
+        return response()->file(\App\Support\CourseCertificates::qrFile(), ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=86400']);
+    }
+
+    /** The full certificate, only after the GCash payment is marked paid. */
+    public function certificateDownload(): \Symfony\Component\HttpFoundation\BinaryFileResponse|RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        $cert = \App\Support\CourseCertificates::for($member->id);
+        if (! $cert || ! $cert->paid_at) {
+            return redirect('/account#course')->with('status_error', 'Your certificate can be downloaded once the GCash payment is confirmed.');
+        }
+        $pdf = \App\Support\CourseCertificates::path($cert, 'pdf');
+        $path = $pdf ?? \App\Support\CourseCertificates::path($cert, 'image');
+        abort_unless($path, 404);
+        $name = 'Certificate-'.$cert->ctn.($pdf ? '.pdf' : '.png');
+
+        return response()->download($path, $name, ['Content-Type' => $pdf ? 'application/pdf' : 'image/png', 'Cache-Control' => 'private, no-store']);
+    }
+
+    public function certificateReference(Request $request): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        $error = \App\Support\CourseCertificates::submitReference($member->id, (string) $request->input('reference'));
+
+        return redirect('/account#course')->with($error ? 'status_error' : 'status', $error ?? 'Thank you! We received your GCash reference number and will unlock your certificate as soon as the payment is confirmed.');
+    }
+
     /** The member closes a personal message from JFL Solar. */
     public function closeMessage(int $id): RedirectResponse
     {
