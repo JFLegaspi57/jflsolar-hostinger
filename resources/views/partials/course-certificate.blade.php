@@ -45,33 +45,40 @@
                 <p class="mt-3"><a href="/account/certificate/download" class="{{ \App\Support\Ui::button('primary', 'sm') }}">Download your certificate</a></p>
             @endif
         @elseif ($hasFiles)
-            <p id="cert-pay-{{ $cert->id }}" class="mt-3 text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
-            <p class="mt-2 font-bold" style="color:#991b1b">Important! Type the GCash reference number exactly as it appears on your receipt. We can only confirm your payment and unlock your certificate with the correct number.</p>
-            @if ((int) $cert->wrong_refs > 0 && ! Certs::blocked($cert))
-                <p class="mt-2 text-sm font-semibold" style="color:#991b1b">⚠️ {{ $cert->wrong_refs }} of {{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment.</p>
-            @endif
-            {{-- GCash QR on the left, then the certificate pages on its right --}}
-            <div class="mt-3 flex flex-wrap items-start gap-3">
+            {{-- GCash QR on the left; the payment text and the reference number box on its right; the previews below --}}
+            <div id="cert-pay-{{ $cert->id }}" class="mt-3 flex flex-wrap items-start gap-4">
                 @if ($qr)
-                    <div><img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="170" class="rounded border border-steel-300 bg-white" style="width:10.625rem;height:auto"><p class="mt-1 text-sm text-steel-700">Pay {{ $fee }} with GCash</p></div>
-                @else
-                    <p class="text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
+                    <div><img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="190" class="rounded border border-steel-300 bg-white" style="width:11.875rem;height:auto"><p class="mt-1 text-center text-sm text-steel-700">Pay {{ $fee }} with GCash</p></div>
                 @endif
-                @foreach ($pages as $p)
-                    <div><img src="{{ $thumbUrl($p) }}" alt="{{ $pageLabel($p) }} preview" width="220" class="rounded border border-steel-300 bg-white" style="width:13.75rem;height:auto"><p class="mt-1 text-sm text-steel-700">{{ $pageLabel($p) }} (preview)</p></div>
-                @endforeach
+                <div class="min-w-0 flex-1" style="min-width:15rem">
+                    <p class="text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
+                    <p class="mt-2 font-bold" style="color:#991b1b">Important! Type the GCash reference number exactly as it appears on your receipt. We can only confirm your payment and unlock your certificate with the correct number.</p>
+                    @unless ($qr)
+                        <p class="mt-2 text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
+                    @endunless
+                    @if ((int) $cert->wrong_refs > 0 && ! Certs::blocked($cert))
+                        <p class="mt-2 text-sm font-semibold" style="color:#991b1b">⚠️ {{ $cert->wrong_refs }} of {{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment.</p>
+                    @endif
+                    @if ($cert->gcash_ref)
+                        <p class="mt-3 text-sm text-steel-800">⏳ We received your reference number <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. We'll unlock your download as soon as the payment is confirmed.</p>
+                    @endif
+                    @if (Certs::blocked($cert))
+                        <p class="mt-3 rounded border p-3 text-sm font-semibold" style="border-color:#fca5a5;background:#fef2f2;color:#991b1b">{{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment, so you can no longer send one here. If you paid, please call our Sales team at 0969 471 2098 with your GCash receipt.</p>
+                    @else
+                        <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
+                            @csrf
+                            <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
+                            <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
+                        </form>
+                    @endif
+                </div>
             </div>
-            @if ($cert->gcash_ref)
-                <p class="mt-3 text-sm text-steel-800">⏳ We received your reference number <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. We'll unlock your download as soon as the payment is confirmed.</p>
-            @endif
-            @if (Certs::blocked($cert))
-                <p class="mt-3 rounded border p-3 text-sm font-semibold" style="border-color:#fca5a5;background:#fef2f2;color:#991b1b">{{ Certs::MAX_WRONG_REFS }} reference numbers you sent did not match any payment, so you can no longer send one here. If you paid, please call our Sales team at 0969 471 2098 with your GCash receipt.</p>
-            @else
-                <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
-                    @csrf
-                    <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
-                    <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
-                </form>
+            @if ($pages)
+                <div class="mt-4 flex flex-wrap items-start gap-3">
+                    @foreach ($pages as $p)
+                        <div><img src="{{ $thumbUrl($p) }}" alt="{{ $pageLabel($p) }} preview" width="220" class="rounded border border-steel-300 bg-white" style="width:13.75rem;height:auto"><p class="mt-1 text-sm text-steel-700">{{ $pageLabel($p) }} (preview)</p></div>
+                    @endforeach
+                </div>
             @endif
         @else
             <p class="mt-3 text-sm text-steel-700">Your certificate is being prepared.</p>
