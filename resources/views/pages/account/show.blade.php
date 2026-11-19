@@ -66,7 +66,6 @@
             <section id="course" aria-labelledby="course-h" class="{{ $card }}">
                 <p class="text-sm font-semibold tracking-wide text-gold-800 uppercase">Online Course</p>
                 <h2 id="course-h" class="mt-1 text-xl font-bold text-steel-950">The Fundamentals of Solar PV System</h2>
-                <p class="mt-3 text-steel-700">Learn to design solar PV systems with JF Legaspi. Free for members, in English and Tagalog.</p>
                 @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                 @include('partials.course-certificate', ['memberId' => $member->id])
                 @include('pages.course.record', ['record' => $courseRecord ?? [], 'started' => $courseStarted])
