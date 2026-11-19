@@ -48,13 +48,13 @@
                         @if (session('cart_added'))
                             <div role="status" class="mt-4 rounded-[var(--radius-control)] border border-[#b7e2c6] bg-ok-50 p-3 text-ok-700">
                                 <p class="flex items-center gap-2 font-semibold"><x-icon name="check" class="size-5" /> Added to your cart — {{ session('cart_added') }} in total.</p>
-                                <p class="mt-1 text-sm"><a href="/cart" class="font-semibold underline">View cart and check out</a></p>
+                                <p class="mt-1 text-sm"><a href="/account/cart" class="font-semibold underline">View cart and check out</a></p>
                             </div>
                         @endif
                         @if (session('cart_error'))
                             <p role="alert" class="mt-4 rounded-[var(--radius-control)] border border-[#f3c3be] bg-danger-50 p-3 font-semibold text-danger-700">{{ session('cart_error') }}</p>
                         @endif
-                        <form method="post" action="/cart/add" class="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end">
+                        <form method="post" action="/account/cart/add" class="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end">
                             @csrf
                             <input type="hidden" name="product" value="{{ $product->id }}">
                             <div>

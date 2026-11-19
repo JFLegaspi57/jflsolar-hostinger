@@ -57,6 +57,6 @@ class CartController extends Controller
         }
         Shop::put($cart);
 
-        return redirect('/cart')->with('cart_status', 'Your cart was updated.');
+        return redirect('/account/cart')->with('cart_status', 'Your cart was updated.');
     }
 }

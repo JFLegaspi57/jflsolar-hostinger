@@ -97,16 +97,20 @@ Route::post('/account/certificate/reference', [Account\AccountController::class,
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}(-full)?\.webp');
 
 // Make a Quotation: members build quote requests from the catalogue and their own items.
-Route::get('/quotation', [Account\QuotationController::class, 'index']);
-Route::post('/quotation', [Account\QuotationController::class, 'store'])->middleware('throttle:account');
+Route::get('/account/quotation', [Account\QuotationController::class, 'index']);
+Route::post('/account/quotation', [Account\QuotationController::class, 'store'])->middleware('throttle:account');
 Route::post('/packages/build-your-own/quotation', [Account\QuotationController::class, 'fromBuild'])->middleware('throttle:account');
-Route::get('/quotation/from-build', [Account\QuotationController::class, 'finishFromBuild']);
-Route::get('/quotation/{id}', [Account\QuotationController::class, 'edit'])->whereNumber('id');
+Route::get('/account/quotation/from-build', [Account\QuotationController::class, 'finishFromBuild']);
+Route::get('/account/quotation/{id}', [Account\QuotationController::class, 'edit'])->whereNumber('id');
+Route::post('/account/quotation/{id}', [Account\QuotationController::class, 'update'])->whereNumber('id')->middleware('throttle:quotation');
+Route::get('/account/quotation/{id}/print', [Account\QuotationController::class, 'print'])->whereNumber('id');
+Route::post('/account/quotation/{id}/rename', [Account\QuotationController::class, 'rename'])->whereNumber('id')->middleware('throttle:quotation');
+Route::post('/account/quotation/{id}/duplicate', [Account\QuotationController::class, 'duplicate'])->whereNumber('id')->middleware('throttle:account');
+Route::post('/account/quotation/{id}/delete', [Account\QuotationController::class, 'destroy'])->whereNumber('id');
+// Old addresses (before Make a Quotation moved under Your account): pages redirect, forms still work.
+Route::get('/quotation/{rest?}', fn (\Illuminate\Http\Request $r, ?string $rest = null) => redirect('/account/quotation'.($rest ? '/'.$rest : '').($r->getQueryString() ? '?'.$r->getQueryString() : ''), 301))->where('rest', '.*');
+Route::post('/quotation', [Account\QuotationController::class, 'store'])->middleware('throttle:account');
 Route::post('/quotation/{id}', [Account\QuotationController::class, 'update'])->whereNumber('id')->middleware('throttle:quotation');
-Route::get('/quotation/{id}/print', [Account\QuotationController::class, 'print'])->whereNumber('id');
-Route::post('/quotation/{id}/rename', [Account\QuotationController::class, 'rename'])->whereNumber('id')->middleware('throttle:quotation');
-Route::post('/quotation/{id}/duplicate', [Account\QuotationController::class, 'duplicate'])->whereNumber('id')->middleware('throttle:account');
-Route::post('/quotation/{id}/delete', [Account\QuotationController::class, 'destroy'])->whereNumber('id');
 
 // Forum: everyone can read; registered users post (first post reviewed by staff)
 Route::get('/forum', [\App\Http\Controllers\ForumController::class, 'index']);
@@ -119,8 +123,10 @@ Route::post('/forum/{slug}/reply', [\App\Http\Controllers\ForumController::class
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'showUnsubscribe'])->where('token', '[A-Za-z0-9]{40}');
 Route::post('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:account');
 
-Route::get('/cart', [Shop\CartController::class, 'show']);
-Route::post('/cart', [Shop\CartController::class, 'update']);
+Route::get('/account/cart', [Shop\CartController::class, 'show']);
+Route::get('/cart', fn (\Illuminate\Http\Request $r) => redirect('/account/cart'.($r->getQueryString() ? '?'.$r->getQueryString() : ''), 301));   // old address
+Route::post('/account/cart', [Shop\CartController::class, 'update']);
+Route::post('/cart', [Shop\CartController::class, 'update']);   // old address
 Route::post('/chat', [\App\Http\Controllers\ChatController::class, 'send'])->middleware('throttle:chat');
 Route::get('/courses/solar-pv-system-design', [\App\Http\Controllers\CourseController::class, 'show']);
 Route::get('/courses/solar-pv-system-design/{slug}', [\App\Http\Controllers\CourseController::class, 'lesson'])->where('slug', '[a-z0-9-]{1,80}');
@@ -133,7 +139,8 @@ Route::get('/courses/slide/{id}', [\App\Http\Controllers\CourseController::class
 Route::post('/courses/join', [\App\Http\Controllers\CourseController::class, 'join'])->middleware('throttle:checkout');
 Route::redirect('/courses', '/courses/solar-pv-system-design');
 Route::redirect('/course', '/courses/solar-pv-system-design');
-Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');
+Route::post('/account/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');
+Route::post('/cart/add', [Shop\CartController::class, 'add'])->middleware('throttle:cart');   // old address
 Route::post('/packages/{slug}/basket', [Shop\PackageBasketController::class, 'add'])->where('slug', '[a-z0-9-]+')->middleware('throttle:cart');
 Route::get('/checkout', [Shop\CheckoutController::class, 'show']);
 Route::post('/checkout', [Shop\CheckoutController::class, 'submit'])->middleware('throttle:checkout');

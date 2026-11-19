@@ -283,7 +283,7 @@ TXT;
         $lines[] = 'Ordering online:';
         if (Shop::visible()) {
             $lines[] = '- '.Shop::howToBuy($settings).' Online orders are for pickup; customers who want delivery call our Sales team (see Delivery below).';
-            $lines[] = '- Basket: [Your basket](/cart). Build a custom system with prices per part: [Build Your Own](/packages/build-your-own).';
+            $lines[] = '- Basket: [Your basket](/account/cart). Build a custom system with prices per part: [Build Your Own](/packages/build-your-own).';
         } else {
             $lines[] = '- Online ordering is not available right now; customers request a quote or call.';
         }
@@ -354,7 +354,7 @@ TXT;
         $one = fn (?string $t) => trim((string) preg_replace('/\s+/u', ' ', mb_scrub((string) $t, 'UTF-8')));
         $lines = ['Website pages and features (link them with these paths):'];
         $lines[] = '- [PV Calculator](/pv-calculator): enter the monthly bill or a list of appliances; it suggests the system size, parts in stock and savings; free, no sign-up; the result can be printed.';
-        $lines[] = '- [Make a Quotation](/quotation): free for registered members; pick catalogue products at today\'s website prices, add own items (labour, mounting), save up to '.Quotations::MAX_QUOTES.' quotations, print, and send to JFL Solar for a formal quotation.';
+        $lines[] = '- [Make a Quotation](/account/quotation): free for registered members; pick catalogue products at today\'s website prices, add own items (labour, mounting), save up to '.Quotations::MAX_QUOTES.' quotations, print, and send to JFL Solar for a formal quotation.';
         $lines[] = '- [Packages](/packages): Materials Only bundles, [Build Your Own](/packages/build-your-own) with a price per part, Complete Packages with installation; [Compare packages](/packages/compare).';
         $lines[] = '- [Products](/products): search by brand, model or category. [Our Brands](/brands): every brand we carry.';
         $lines[] = '- [Delivery Rates](/delivery-rates), [Payment Methods](/payment-methods), [FAQ](/faq) (Tagalog: /faq/tagalog), [Contact](/contact#quote) (inquiry form), [Projects](/projects), [Blog](/blog), [Forum](/forum).';

@@ -22,9 +22,9 @@
         @if ($waiting)
             <h1 class="mt-2 text-3xl font-extrabold text-steel-950 sm:text-4xl">{{ $autoRefresh ? 'Confirming your payment…' : 'We haven’t received your payment yet' }}</h1>
             @if ($autoRefresh)
-                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">This usually takes a few seconds. This page checks again on its own for about two minutes. If you closed the payment page without paying, nothing was charged — <a href="/cart" class="underline">go back to your cart</a>.</p>
+                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">This usually takes a few seconds. This page checks again on its own for about two minutes. If you closed the payment page without paying, nothing was charged — <a href="/account/cart" class="underline">go back to your cart</a>.</p>
             @else
-                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">If you paid, it can take a little longer to reach us — <a href="{{ $o->publicPath() }}" class="font-semibold underline">check again</a>, or call us with order number <span class="font-mono">{{ $o->reference }}</span>. If you did not finish paying, nothing was charged — <a href="/cart" class="underline">go back to your cart</a>.</p>
+                <p role="status" class="mt-3 max-w-2xl text-lg text-steel-700">If you paid, it can take a little longer to reach us — <a href="{{ $o->publicPath() }}" class="font-semibold underline">check again</a>, or call us with order number <span class="font-mono">{{ $o->reference }}</span>. If you did not finish paying, nothing was charged — <a href="/account/cart" class="underline">go back to your cart</a>.</p>
             @endif
         @elseif ($o->payment_mode === 'in_person' && ! $o->paid_at && $o->status !== 'cancelled')
             <h1 class="mt-2 flex items-center gap-3 text-3xl font-extrabold text-steel-950 sm:text-4xl"><x-icon name="check" class="size-9 text-ok-700" /> {{ $justPlaced ? 'Thank you — your order is placed' : 'Your order' }}</h1>

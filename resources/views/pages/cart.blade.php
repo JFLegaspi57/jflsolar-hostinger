@@ -3,9 +3,13 @@
     use App\Support\Ui;
     $lines = $summary['lines'];
 @endphp
-<x-site-layout title="Your cart" path="/cart" :noindex="true" :reviews-above-footer="false">
+<x-site-layout title="Your cart" path="/account/cart" :noindex="true" :reviews-above-footer="false">
     <x-container class="py-10 sm:py-14">
-        <h1 class="text-3xl font-extrabold text-steel-950 sm:text-4xl">Your cart</h1>
+        @if (\App\Support\Members::current())
+            <a href="/account" class="inline-flex min-h-11 items-center text-sm font-semibold text-steel-700 underline hover:text-steel-950">← Your account</a>
+            <p class="mt-2 text-sm font-semibold tracking-wide text-steel-600 uppercase">Your account</p>
+        @endif
+        <h1 class="mt-1 text-3xl font-extrabold text-steel-950 sm:text-4xl">Your cart</h1>
         @include('partials.shop-preview-note')
 
         @if ($cancelled)
@@ -23,7 +27,7 @@
                 <a href="/products" class="{{ Ui::button('primary', 'lg', 'mt-4') }}">Browse products</a>
             </div>
         @else
-            <form method="post" action="/cart" class="mt-8">
+            <form method="post" action="/account/cart" class="mt-8">
                 @csrf
                 {{-- Pressing Enter in a quantity box uses the form's first button: make that "Update", not "Remove". --}}
                 <button type="submit" tabindex="-1" aria-hidden="true" class="sr-only">Update quantities</button>

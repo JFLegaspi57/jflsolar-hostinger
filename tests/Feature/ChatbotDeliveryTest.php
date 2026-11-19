@@ -23,7 +23,7 @@ class ChatbotDeliveryTest extends TestCase
         $this->assertStringContainsString('Batangas City 89 km '.DeliveryRates::peso(DeliveryRates::vanFee(89)).' / '.DeliveryRates::peso(DeliveryRates::longVanFee(89)), $prompt);
         $this->assertStringNotContainsString('delivery is not included', $prompt);
         $this->assertLessThan(90000, mb_strlen($prompt));   // keep the prompt a sensible size
-        $this->assertStringContainsString('[Make a Quotation](/quotation)', $prompt);
+        $this->assertStringContainsString('[Make a Quotation](/account/quotation)', $prompt);
         $this->assertStringContainsString('years ≈ rated cycle life ÷ (cycles per day × 365)', $prompt);
         $this->assertStringContainsString('Q: What does JFL Solar do?', $prompt);
         $this->assertStringContainsString('(/brands/trina-solar)', $prompt);

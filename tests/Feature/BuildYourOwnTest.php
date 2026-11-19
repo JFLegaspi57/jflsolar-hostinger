@@ -72,18 +72,18 @@ class BuildYourOwnTest extends TestCase
         $this->get('/packages/build-your-own')->assertSee('formaction="/packages/build-your-own/quotation"', false)->assertSee('Make a Quotation');
 
         // A visitor signs in first; the choice is kept and becomes the quotation afterwards.
-        $this->post('/packages/build-your-own/quotation', $form)->assertRedirect('/login?next=%2Fquotation%2Ffrom-build')->assertSessionHas('account_status');
+        $this->post('/packages/build-your-own/quotation', $form)->assertRedirect('/login?next=%2Faccount%2Fquotation%2Ffrom-build')->assertSessionHas('account_status');
         $m = new \App\Models\Member;
         $m->forceFill(['name' => 'Maria Santos', 'email' => 'maria@example.com', 'phone' => '0917 123 4567', 'password' => 'sunny days on the roof', 'status' => 'active'])->save();
         $this->actingAs($m, 'member');
-        $res = $this->get('/quotation/from-build');
+        $res = $this->get('/account/quotation/from-build');
         $q = \App\Models\MemberQuote::query()->firstOrFail();
-        $res->assertRedirect('/quotation/'.$q->id)->assertSessionHas('quote_status');
+        $res->assertRedirect('/account/quotation/'.$q->id)->assertSessionHas('quote_status');
         $this->assertSame('Build Your Own package', $q->title);
         $this->assertSame('0917 123 4567', $q->phone);
         $this->assertSame([[$inv->id, 1], [$panel->id, 12], [$clamp->id, 4]], array_map(fn ($it) => [$it['product_id'], $it['qty']], $q->items));   // battery left out (0)
         $this->assertSame(40000.0 + 12 * 5900 + 4 * 150, \App\Support\Quotations::lines($q)['total']);
-        $this->get('/quotation/from-build')->assertRedirect('/quotation');   // used once
+        $this->get('/account/quotation/from-build')->assertRedirect('/account/quotation');   // used once
 
         // Signed in already: straight to the new quotation; nothing goes into the basket.
         $this->post('/packages/build-your-own/quotation', $form)->assertRedirect();

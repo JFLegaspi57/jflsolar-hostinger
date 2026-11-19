@@ -7,9 +7,9 @@
     $L = Quotations::LIMITS;
     $focus = session('quote_focus');
 @endphp
-<x-site-layout :title="$q->title.' · '.Quotations::NAME" :path="'/quotation/'.$q->id" :noindex="true" :reviews-above-footer="false">
+<x-site-layout :title="$q->title.' · '.Quotations::NAME" :path="'/account/quotation/'.$q->id" :noindex="true" :reviews-above-footer="false">
     <x-container class="py-8 sm:py-14">
-        <p><a href="/quotation" class="font-semibold text-steel-800 underline-offset-2 hover:underline"><span aria-hidden="true">←</span> All quotations</a></p>
+        <p><a href="/account/quotation" class="font-semibold text-steel-800 underline-offset-2 hover:underline"><span aria-hidden="true">←</span> All quotations</a></p>
         <div class="mt-3 flex flex-wrap items-end justify-between gap-3">
             <div class="min-w-0">
                 <p class="text-sm font-semibold tracking-wide text-steel-600 uppercase">{{ Quotations::NAME }} · {{ $q->reference() }}</p>
@@ -29,7 +29,7 @@
                     </details>
                     <details class="mq-rename mq-del" name="mq-tools">
                         <summary class="mq-rename-btn mq-del-btn"><span aria-hidden="true">🗑</span> Delete</summary>
-                        <form method="post" action="/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
+                        <form method="post" action="/account/quotation/{{ $q->id }}/delete" class="mq-rename-box mq-del-box">@csrf
                             <p class="text-sm text-steel-900">Delete “{{ $q->title }}”? This cannot be undone.@if ($q->sent_at) A request you already sent stays with our team.@endif</p>
                             <button type="submit" class="{{ Ui::button('danger', 'sm') }} mt-2">Yes, delete it</button>
                         </form>
@@ -48,7 +48,7 @@
         </div>
         <div class="mt-6">@include('pages.quotation.flash')</div>
 
-        <form id="mq-form" method="post" action="/quotation/{{ $q->id }}" novalidate>
+        <form id="mq-form" method="post" action="/account/quotation/{{ $q->id }}" novalidate>
             @csrf
             {{-- Enter in a text field saves (instead of pressing the first move/remove button). --}}
             <button type="submit" name="intent" value="save" class="mq-default" tabindex="-1" aria-hidden="true">Save</button>
@@ -188,7 +188,7 @@
         </form>
 
         <div class="mq-more mt-8">
-            <form method="post" action="/quotation/{{ $q->id }}/duplicate">@csrf<button type="submit" class="{{ Ui::button('secondary', 'sm') }}">Make a copy</button></form>
+            <form method="post" action="/account/quotation/{{ $q->id }}/duplicate">@csrf<button type="submit" class="{{ Ui::button('secondary', 'sm') }}">Make a copy</button></form>
         </div>
     </x-container>
 

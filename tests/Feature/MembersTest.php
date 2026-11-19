@@ -157,7 +157,7 @@ class MembersTest extends TestCase
         PublicContent::flush();
 
         // Guests are invited to sign in, but can still check out.
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 1]);
         $this->get('/checkout')->assertSee('Have an account?')->assertSee('/login?next=%2Fcheckout', false);
 
         $m = $this->member();
@@ -440,7 +440,7 @@ class MembersTest extends TestCase
         PublicContent::flush();
         $this->actingAs($this->member(), 'member');
         $this->get('/account')->assertSee('Your basket')->assertSee('Your basket is empty');
-        $this->post('/cart/add', ['product' => $p->id, 'quantity' => 3]);
+        $this->post('/account/cart/add', ['product' => $p->id, 'quantity' => 3]);
         $this->get('/account')->assertSee('Breaker DC 2P 25A')->assertSee('3 pieces')->assertSee('₱1,440')->assertSee('href="/checkout"', false);
     }
 
@@ -454,7 +454,7 @@ class MembersTest extends TestCase
 
         // Device 1: signed in, adds 2 × A. It is saved on the account.
         $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
-        $this->post('/cart/add', ['product' => $a->id, 'quantity' => 2]);
+        $this->post('/account/cart/add', ['product' => $a->id, 'quantity' => 2]);
         $this->assertSame([$a->id => 2], json_decode($m->fresh()->cart, true));
         $this->post('/logout');
         $this->assertSame([], \App\Support\Shop::raw());   // nothing left on this browser after signing out
@@ -462,15 +462,15 @@ class MembersTest extends TestCase
         // Device 2 (new session): adds 1 × A and 1 × B as a guest, then signs in → combined, larger quantity wins.
         $this->flushSession();
         $this->app['auth']->forgetGuards();
-        $this->post('/cart/add', ['product' => $a->id, 'quantity' => 1]);
-        $this->post('/cart/add', ['product' => $b->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $a->id, 'quantity' => 1]);
+        $this->post('/account/cart/add', ['product' => $b->id, 'quantity' => 1]);
         $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD]);
         $this->assertEquals([$a->id => 2, $b->id => 1], json_decode($m->fresh()->cart, true));
         $this->get('/account')->assertSee('Item item-a')->assertSee('Item item-b')->assertSee('₱400');
-        $this->get('/cart')->assertSee('Item item-b');
+        $this->get('/account/cart')->assertSee('Item item-b');
 
         // Removing an item updates the saved basket too.
-        $this->post('/cart', ['remove' => $b->id]);
+        $this->post('/account/cart', ['remove' => $b->id]);
         $this->assertSame([$a->id => 2], json_decode($m->fresh()->cart, true));
     }
 }

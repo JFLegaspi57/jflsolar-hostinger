@@ -60,7 +60,7 @@
             <p class="mt-2 max-w-3xl text-steel-700">Tell us about your home or business and we will suggest the inverter, panels and battery that suit it. Brands can be mixed: for example a GoodWe inverter with Jinko Solar panels and a Dyness battery.</p>
             <div class="mt-5 flex flex-wrap gap-3">
                 <a href="{{ Site::QUOTE_HREF }}" class="{{ Ui::button('primary', 'lg') }}">Inquire Now</a>
-                <a href="/quotation" class="{{ Ui::button('secondary', 'lg') }}">Make a Quotation</a>
+                <a href="/account/quotation" class="{{ Ui::button('secondary', 'lg') }}">Make a Quotation</a>
             </div>
         </section>
     </x-container>

@@ -46,7 +46,7 @@
                         <p class="mt-2 flex justify-between border-t border-steel-300 pt-3 text-lg font-bold text-steel-950"><span>Total</span><span class="tabular">{{ Pricing::formatPhp($basket['total']) }}</span></p>
                         <div class="mt-4 flex flex-wrap gap-2">
                             <a href="/checkout" class="{{ Ui::button('primary') }}">Check out</a>
-                            <a href="/cart" class="{{ Ui::button('secondary') }}">Edit basket</a>
+                            <a href="/account/cart" class="{{ Ui::button('secondary') }}">Edit basket</a>
                         </div>
                     @endif
                 </section>
@@ -61,7 +61,7 @@
                         List the products you need, add your own items, and send it to us for a formal quotation.
                     @endif
                 </p>
-                <p class="mt-4"><a href="/quotation" class="{{ Ui::button('secondary') }}">{{ ($quoteCount ?? 0) > 0 ? 'Open your quotations' : 'Make a quotation' }}</a></p>
+                <p class="mt-4"><a href="/account/quotation" class="{{ Ui::button('secondary') }}">{{ ($quoteCount ?? 0) > 0 ? 'Open your quotations' : 'Make a quotation' }}</a></p>
             </section>
             <section id="course" aria-labelledby="course-h" class="{{ $card }}">
                 <p class="text-sm font-semibold tracking-wide text-gold-800 uppercase">Online Course</p>

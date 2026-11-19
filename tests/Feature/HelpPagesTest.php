@@ -28,7 +28,7 @@ class HelpPagesTest extends TestCase
             ->assertSee('Which system do I need: on-grid, hybrid or off-grid?')
             ->assertSee('Read our net metering guide')
             ->assertSee('What is Make a Quotation?')
-            ->assertSee('href="/quotation"', false)
+            ->assertSee('href="/account/quotation"', false)
             ->assertSee('href="/delivery-rates"', false)
             ->assertSee('href="/forum"', false)
             ->assertSee('We do not offer cash on delivery (COD).')

@@ -14,7 +14,7 @@ final class Faq
         2 => ['/services#system-types', 'Compare system types'],
         3 => ['/pv-calculator', 'Open the PV Calculator'],
         4 => ['/packages?type=materials', 'See Materials Only bundles'],
-        5 => ['/quotation', 'Open Make a Quotation'],
+        5 => ['/account/quotation', 'Open Make a Quotation'],
         6 => ['/contact#quote', 'Send an inquiry'],
         8 => ['/products', 'Browse products'],
         9 => ['/delivery-rates', 'See delivery rates'],
