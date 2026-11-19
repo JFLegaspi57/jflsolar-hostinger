@@ -91,6 +91,11 @@ class MemberController extends Controller
                 \App\Support\CourseResults::resetMember($m->id);
 
                 return $back->with('status', $m->name.' starts the online course over: all answers and opened lessons were removed.');
+            case 'mark-lesson-passed':
+                $lessonId = (int) $request->input('lesson');
+                $n = \App\Support\CourseResults::markAllPassed($m->id, $lessonId ?: -1);
+
+                return $n ? $back->with('status', 'Lesson marked as passed for '.$m->name.'.') : $back->with('status_error', 'Choose a lesson.');
             case 'mark-all-passed':
                 $n = \App\Support\CourseResults::markAllPassed($m->id);
 

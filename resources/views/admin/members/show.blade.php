@@ -103,6 +103,14 @@
             <input type="hidden" name="action" value="mark-all-passed">
             <button type="submit" class="text-sm underline text-steel-700">Mark all lessons as passed (test accounts)</button>
         </form>
+        <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-1 flex flex-wrap items-center gap-2 text-sm">@csrf
+            <input type="hidden" name="action" value="mark-lesson-passed">
+            <label class="text-steel-700">Mark one lesson as passed:
+                <select name="lesson" class="ml-1 min-h-9 rounded border border-steel-400 px-1">
+                    @foreach (\App\Support\Course::lessons()->values() as $li => $l)<option value="{{ $l->id }}">Lesson {{ $li + 1 }}: {{ $l->title }}</option>@endforeach
+                </select></label>
+            <button type="submit" class="underline text-steel-700">Mark passed</button>
+        </form>
         <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-1" onsubmit="return confirm('Start the online course over for {{ e(addslashes($m->name)) }}? All their answers and opened lessons are removed. This cannot be undone.')">@csrf
             <input type="hidden" name="action" value="reset-course">
             <button type="submit" class="text-sm underline" style="color:#991b1b">Start the course over (remove all answers)</button>
