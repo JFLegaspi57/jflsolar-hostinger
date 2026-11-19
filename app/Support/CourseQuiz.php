@@ -91,8 +91,24 @@ final class CourseQuiz
         $user = "<question>\n".trim(strip_tags($question))."\n</question>\n<model_answer>\n{$model}\n</model_answer>\n<student_answer>\n{$answer}\n</student_answer>";
         @set_time_limit(90);
 
-        // Busy moments (many students checking at once) get "rate limited" or "overloaded" replies: wait a moment and try again.
+        // Reads the verdict and feedback from a reply, also when it is cut off or not quite JSON. Null = unreadable.
+        $read = function (string $text): ?array {
+            $j = preg_match('/\{.*\}/s', $text, $m) ? json_decode($m[0], true) : null;
+            if (is_array($j) && in_array(strtolower((string) ($j['verdict'] ?? '')), ['correct', 'partly', 'wrong'], true)) {
+                return ['verdict' => strtolower((string) $j['verdict']), 'feedback' => (string) ($j['feedback'] ?? '')];
+            }
+            if (! preg_match('/verdict["\'\s]*[:=]\s*["\']?(correct|partly|wrong)/i', $text, $v)) {
+                return null;
+            }
+            preg_match('/"feedback"\s*:\s*"((?:[^"\\\\]|\\\\.)*)/s', $text, $f);
+
+            return ['verdict' => strtolower($v[1]), 'feedback' => isset($f[1]) ? stripcslashes($f[1]) : ''];
+        };
+
+        // Busy moments (many students checking at once) get "rate limited" or "overloaded" replies, and once in a
+        // while a reply can't be read: wait a moment and try again.
         $res = null;
+        $j = null;
         for ($try = 1; $try <= 3; $try++) {
             try {
                 $res = Http::withHeaders(['x-api-key' => (string) config('chatbot.api_key'), 'anthropic-version' => '2023-06-01'])
@@ -107,9 +123,12 @@ final class CourseQuiz
                 self::problem('could not reach the AI ('.class_basename($e).')');
             }
             if ($res && $res->successful()) {
-                break;
-            }
-            if ($res) {
+                $j = $read(implode('', array_map(fn ($b) => (string) ($b['text'] ?? ''), (array) $res->json('content', []))));
+                if ($j) {
+                    break;
+                }
+                self::problem('AI reply could not be read');
+            } elseif ($res) {
                 $status = $res->status();
                 self::problem('AI replied '.$status.': '.mb_substr((string) ($res->json('error.message') ?? $res->json('error.type') ?? ''), 0, 160));
                 if (! in_array($status, [408, 409, 429, 500, 502, 503, 504, 529], true)) {
@@ -121,22 +140,10 @@ final class CourseQuiz
                 usleep(min(max($wait, $try * 2), 8) * 1_000_000);
             }
         }
-        if (! $res || ! $res->successful()) {
+        if (! $j) {
             Log::error('[course-quiz] answer not checked', ['status' => $res?->status()]);
 
             return $fail;
-        }
-        $text = implode('', array_map(fn ($b) => (string) ($b['text'] ?? ''), (array) $res->json('content', [])));
-        $j = preg_match('/\{.*\}/s', $text, $m) ? json_decode($m[0], true) : null;
-        if (! is_array($j)) {
-            // A reply that was cut off or not quite JSON: still read the verdict and the feedback from it.
-            if (! preg_match('/"verdict"\s*:\s*"(correct|partly|wrong)"/i', $text, $v)) {
-                self::problem('AI reply could not be read');
-
-                return $fail;
-            }
-            preg_match('/"feedback"\s*:\s*"((?:[^"\\\\]|\\\\.)*)/s', $text, $f);
-            $j = ['verdict' => strtolower($v[1]), 'feedback' => isset($f[1]) ? stripcslashes($f[1]) : ''];
         }
         Cache::put('course-quiz-ok-'.now('Asia/Manila')->toDateString(), (int) Cache::get('course-quiz-ok-'.now('Asia/Manila')->toDateString(), 0) + 1, now()->addDays(2));
         $verdict = in_array($j['verdict'] ?? '', ['correct', 'partly', 'wrong'], true) ? $j['verdict'] : 'wrong';

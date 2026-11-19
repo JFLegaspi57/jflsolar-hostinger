@@ -364,4 +364,18 @@ class CourseTest extends TestCase
         $owner = \App\Models\User::query()->where('role', 'owner')->first() ?? $this->owner();
         $this->actingAs($owner, 'web')->get('/admin/course')->assertSee('Answer checks today:')->assertSee('2 checked, 3 could not be checked');
     }
+
+    public function test_an_unreadable_reply_is_tried_again(): void
+    {
+        config(['chatbot.api_key' => 'test-key']);
+        Cache::flush();
+        $ok = fn (string $text) => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => $text]]]);
+        \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::sequence()
+            ->pushResponse($ok('I think the student is mostly right.'))
+            ->pushResponse($ok("verdict: 'correct'")), ]);
+        $r = \App\Support\CourseQuiz::check('Q?', 'A', 'answer', false);
+        $this->assertSame('correct', $r['verdict']);
+        \Illuminate\Support\Facades\Http::assertSentCount(2);
+        $this->assertSame([1, 1], [\App\Support\CourseQuiz::todayStats()['checked'], \App\Support\CourseQuiz::todayStats()['failed']]);
+    }
 }
