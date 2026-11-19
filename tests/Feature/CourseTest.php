@@ -182,23 +182,25 @@ class CourseTest extends TestCase
         \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response(['content' => [['type' => 'text', 'text' => '{"verdict":"correct","feedback":"ok"}']]])]);
         $this->actingAs($this->member(), 'member');
 
-        $this->get('/account')->assertSee('Start Lesson 1')->assertSee(Course::PATH.'/step-1', false)->assertSee('Start the Course')->assertSee('No lessons done yet');
+        $this->get('/account/course')->assertSee('Start Lesson 1')->assertSee(Course::PATH.'/step-1', false);
+        $this->get('/account')->assertSee('Start the Course')->assertSee('No lessons done yet')->assertDontSee('Start Lesson 1');
         $this->get(Course::PATH.'/step-1')->assertOk();
-        $this->get('/account')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1')->assertDontSee('Start the Course')->assertDontSee('No lessons done yet')->assertSee('Open the course');
+        $this->get('/account/course')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1');
+        $this->get('/account')->assertDontSee('Continue where you left off')->assertDontSee('Start the Course')->assertDontSee('No lessons done yet')->assertSee('Open the course');
         // The record keeps every lesson opened, even before any answer is checked.
         $this->get('/account/course')->assertSee('Step lesson 1')->assertSee('Opened')->assertSee('Not checked yet');
         $this->get(Course::PATH.'/step-1')->assertOk();
 
         // Lesson 1 finished: next time, straight to Lesson 2.
         $this->postJson('/courses/check-answer', ['lesson' => 'step-1', 'q' => 0, 'answer' => 'a'])->assertOk();
-        $this->get('/account')->assertSee('You finished Lesson 1: Step lesson 1')->assertSee('Start Lesson 2')->assertSee(Course::PATH.'/step-2', false);
+        $this->get('/account/course')->assertSee('You finished Lesson 1: Step lesson 1')->assertSee('Start Lesson 2')->assertSee(Course::PATH.'/step-2', false);
         $this->get(Course::PATH)->assertSee('Start Lesson 2');
         $this->get('/account/course')->assertSee('Start Lesson 2');
 
         // Opened Lesson 2 but not finished: continue Lesson 2.
         $this->travel(2)->seconds();
         $this->get(Course::PATH.'/step-2')->assertOk();
-        $this->get('/account')->assertSee('Continue Lesson 2');
+        $this->get('/account/course')->assertSee('Continue Lesson 2');
 
         foreach (['step-2', 'step-3'] as $slug) {
             $this->travel(2)->seconds();
