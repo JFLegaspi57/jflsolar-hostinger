@@ -67,7 +67,7 @@
                 <p class="text-sm font-semibold tracking-wide text-gold-800 uppercase">Online Course</p>
                 <h2 id="course-h" class="mt-1 text-xl font-bold text-steel-950">The Fundamentals of Solar PV System</h2>
                 @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
-                @include('partials.course-certificate', ['memberId' => $member->id])
+                @include('partials.course-certificate-short', ['memberId' => $member->id])
                 @include('pages.course.record', ['record' => $courseRecord ?? [], 'started' => $courseStarted, 'summaryOnly' => true])
                 <p class="mt-4"><a href="/account/course" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
             </section>
