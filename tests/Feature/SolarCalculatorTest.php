@@ -77,6 +77,8 @@ class SolarCalculatorTest extends TestCase
 
     public function test_page_renders_and_prefills_quote(): void
     {
+        $this->seed();   // the page needs the starting content (don't rely on another test's cache)
+        \App\Support\PublicContent::flush();
         $this->get('/pv-calculator')->assertOk()->assertSee('Your results appear here');
         $this->get('/pv-calculator?type=hybrid&mode=bill&bill=8000&rate=12.5&day=30')
             ->assertOk()->assertSee('kWp')->assertSee('Talk to Us About This')->assertSee('from=calculator', false);

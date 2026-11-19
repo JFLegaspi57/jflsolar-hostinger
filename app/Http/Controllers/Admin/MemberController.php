@@ -128,6 +128,37 @@ class MemberController extends Controller
         return redirect('/admin/subscribers')->with('status', 'Welcome email sent to '.$sent.' '.($sent === 1 ? 'member' : 'members').'.'.($left ? ' '.$left.' still waiting: send again.' : ''));
     }
 
+    /** Owner only: the Google and Facebook app keys for "Continue with Google / Facebook". */
+    public function socialLogin(): \Illuminate\View\View
+    {
+        abort_unless(auth('web')->user()?->isOwner(), 403);
+        $info = [];
+        foreach (\App\Support\SocialLogin::PROVIDERS as $p => $name) {
+            [$id, $secret] = \App\Support\SocialLogin::keys($p);
+            $info[$p] = ['name' => $name, 'id' => $id, 'has_secret' => $secret !== '', 'on' => \App\Support\SocialLogin::enabled($p), 'callback' => \App\Support\SocialLogin::callback($p)];
+        }
+
+        return view('admin.members.social-login', ['info' => $info]);
+    }
+
+    public function saveSocialLogin(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        abort_unless(auth('web')->user()?->isOwner(), 403);
+        $p = (string) $request->input('provider');
+        abort_unless(isset(\App\Support\SocialLogin::PROVIDERS[$p]), 404);
+        $id = trim((string) $request->input('app_id', ''));
+        $secret = trim((string) $request->input('app_secret', ''));
+        if (mb_strlen($id) > 200 || mb_strlen($secret) > 200 || ($id !== '' && ! preg_match('/^[A-Za-z0-9._-]+$/', $id))) {
+            return redirect('/admin/social-login')->with('status_error', 'That app ID does not look right. Copy it again from the developer page.');
+        }
+        \App\Support\SocialLogin::save($p, $id, $secret);
+        $name = \App\Support\SocialLogin::PROVIDERS[$p];
+
+        return redirect('/admin/social-login')->with('status', \App\Support\SocialLogin::enabled($p)
+            ? $name.' sign-in is on: the button now shows on the sign-up and sign-in pages.'
+            : ($id === '' ? $name.' sign-in is off.' : $name.' app ID saved. Add the app secret to turn it on.'));
+    }
+
     /** Owner only: turns the automatic welcome email on or off. */
     public function welcomeSwitch(Request $request): \Illuminate\Http\RedirectResponse
     {

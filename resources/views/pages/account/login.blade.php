@@ -9,6 +9,7 @@
             <p class="mt-3 text-lg text-steel-700">Sign in to see your orders, check out faster and post in the forum.</p>
             <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
 
+            @include('partials.social-login', ['mode' => 'login'])
             <form method="post" action="/login" class="mt-6 space-y-5 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-6 sm:p-8">
                 @csrf
                 @if ($next)<input type="hidden" name="next" value="{{ $next }}">@endif

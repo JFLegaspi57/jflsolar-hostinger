@@ -17,6 +17,8 @@ class VisitorsTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+        $this->seed();   // the pages need the starting content (don't rely on another test's cache)
+        \App\Support\PublicContent::flush();
         Cache::forget('visitor-tables-v3');
     }
 

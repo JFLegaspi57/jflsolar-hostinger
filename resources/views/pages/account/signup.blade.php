@@ -12,6 +12,7 @@
             <p class="mt-3 text-lg text-steel-700">See your orders, check out faster, get our promos if you like, and join the forum.</p>
             <div class="mt-6 space-y-4">@include('partials.account-flash')</div>
 
+            @include('partials.social-login', ['mode' => 'signup'])
             <form method="post" action="/signup" novalidate class="mt-6 space-y-5 rounded-[var(--radius-panel)] border border-steel-200 bg-white p-6 sm:p-8">
                 @csrf
                 @if ($next)<input type="hidden" name="next" value="{{ $next }}">@endif
