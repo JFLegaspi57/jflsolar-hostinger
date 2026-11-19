@@ -41,6 +41,8 @@ class BannerStatsTest extends TestCase
         \App\Support\Newsletter::subscribe('s2@example.com', null, 'test');
         \App\Support\Newsletter::unsubscribeEmail('s2@example.com');
         \App\Support\CourseResults::seen((int) Member::query()->where('email', 'a@example.com')->value('id'), 1);
+        \App\Support\Members::ensureTables();
+        \Illuminate\Support\Facades\DB::table('member_activity')->insert(['member_id' => (int) Member::query()->where('email', 'a@example.com')->value('id'), 'kind' => 'page', 'path' => \App\Support\Course::PATH.'/lesson-one', 'created_at' => now()]);
         Cache::forget('public-visitor-stats-v3');
 
         $page = $this->get('/')->assertOk()->assertSee('First-time visitors')->assertSee('Returning visitors')->assertSee('Total visits')->assertSee('Today’s visitors', false)->assertSee('id="live-stats"', false);
@@ -51,8 +53,10 @@ class BannerStatsTest extends TestCase
         $this->assertMatchesRegularExpression('/data-stat="members"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="subscribers"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="students"[^>]*>1</', $page->getContent());
+        $this->assertMatchesRegularExpression('/data-stat="students_online"[^>]*>1</', $page->getContent());
+        $page->assertSee('Students online now');
         $this->assertMatchesRegularExpression('/data-stat="visits"[^>]*>4</', $page->getContent());
 
-        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4, 'members' => 1, 'subscribers' => 1, 'students' => 1])->assertHeader('Cache-Control', 'no-store, private');
+        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4, 'members' => 1, 'subscribers' => 1, 'students' => 1, 'students_online' => 1])->assertHeader('Cache-Control', 'no-store, private');
     }
 }

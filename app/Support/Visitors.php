@@ -97,6 +97,7 @@ final class Visitors
                     'members' => $safe(fn () => DB::table('members')->where('status', 'active')->count()),
                     'subscribers' => $safe(fn () => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count()),
                     'students' => $safe(fn () => CourseResults::studentCount()),
+                    'students_online' => $safe(fn () => CourseResults::onlineCount()),
                 ];
             });
         } catch (\Throwable $e) {
