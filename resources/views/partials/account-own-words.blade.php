@@ -26,7 +26,7 @@
             <p>When you answer the "Check your understanding" questions, please use your own words. Short answers are fine, and Taglish is fine. Even a "mali" is fine! A wrong answer in your own words teaches you more than a perfect answer copied from somewhere else, because it shows you exactly what to read again.</p>
             <p>I read your answers myself. After many years of teaching, I can usually tell when an answer comes from an AI tool and when it comes from your own mind. And honestly, the answers from your own mind are the ones that make me proud. 😊</p>
             <p>This course is full of things we learned in real installations here in the Philippines. Some of them you won't find online, and some even correct what the internet usually says. That knowledge is what will keep you, your clients and their homes safe on the roof and at the panel board. It's too valuable to miss by rushing through it.</p>
-            <p>So relax, learn it step by step, and enjoy it. If something isn't clear, just message us. We're always happy to help.</p>
+            <p>So relax, learn it step by step, and enjoy it.</p>
             <p><strong>Learn from the best… learn it the right way!</strong></p>
             <p>JF Legaspi<br>JFL Solar &amp; Renewables Corp.</p>
         </div>
