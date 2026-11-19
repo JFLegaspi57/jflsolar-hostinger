@@ -69,7 +69,7 @@
                 @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                 @include('partials.course-certificate', ['memberId' => $member->id])
                 @include('pages.course.record', ['record' => $courseRecord ?? [], 'started' => $courseStarted, 'summaryOnly' => true])
-                <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
+                <p class="mt-4"><a href="/account/course" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
             </section>
             <section id="orders" aria-labelledby="orders-h" class="{{ $card }}">
                 <h2 id="orders-h" class="text-xl font-bold text-steel-950">Your orders</h2>
