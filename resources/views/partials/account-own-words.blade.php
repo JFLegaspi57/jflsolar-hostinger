@@ -21,7 +21,7 @@
         </div>
         <div class="mt-2 space-y-2 text-steel-800">
             <p>Hi {{ $ownWordsName }},</p>
-            <p>First of all, thank you for joining the Solar PV System Design course. It makes me really happy to see so many of you learning every day.</p>
+            <p>First of all, thank you for joining the online course, The Fundamentals of Solar PV System. It makes me really happy to see so many of you learning every day.</p>
             <p>I just want to remind you: take it easy. There's no deadline and no race. The course is free, and it will always be here for you. Read each lesson at your own pace, let it sink in, and go back to it whenever you need to.</p>
             <p>When you answer the "Check your understanding" questions, please use your own words. Short answers are fine, and Taglish is fine. Even a "mali" is fine! A wrong answer in your own words teaches you more than a perfect answer copied from somewhere else, because it shows you exactly what to read again.</p>
             <p>I read your answers myself. After many years of teaching, I can usually tell when an answer comes from an AI tool and when it comes from your own mind. And honestly, the answers from your own mind are the ones that make me proud. 😊</p>
