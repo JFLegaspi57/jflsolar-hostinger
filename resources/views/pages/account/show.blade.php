@@ -19,7 +19,6 @@
         @include('partials.account-messages')
         @include('partials.account-own-words')
         @include('partials.account-announcement')
-        @include('pages.course.continue', ['nextStep' => $nextStep ?? null, 'class' => 'mt-6'])
 
         <div class="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem]">
             <div class="space-y-8 self-start">
