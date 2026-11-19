@@ -103,6 +103,10 @@
             <input type="hidden" name="action" value="mark-all-passed">
             <button type="submit" class="text-sm underline text-steel-700">Mark all lessons as passed (test accounts)</button>
         </form>
+        <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-1" onsubmit="return confirm('Start the online course over for {{ e(addslashes($m->name)) }}? All their answers and opened lessons are removed. This cannot be undone.')">@csrf
+            <input type="hidden" name="action" value="reset-course">
+            <button type="submit" class="text-sm underline" style="color:#991b1b">Start the course over (remove all answers)</button>
+        </form>
         @php $certIssued = \App\Support\CourseCertificates::for($m->id); @endphp
         <form method="post" action="/admin/members/{{ $m->id }}/certificate" class="mt-3 flex flex-wrap items-end gap-3">
             @csrf

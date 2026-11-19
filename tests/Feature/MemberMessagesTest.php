@@ -182,5 +182,8 @@ class MemberMessagesTest extends TestCase
         $rec = collect(\App\Support\CourseResults::record($m->id));
         $this->assertTrue($rec->isNotEmpty());
         $this->assertTrue($rec->every(fn ($r) => $r['result']['status'] === 'passed'));
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'reset-course'])->assertSessionHas('status');
+        $this->assertSame([], \App\Support\CourseResults::record($m->id));
+        $this->assertFalse(\App\Support\CourseResults::started($m->id));
     }
 }
