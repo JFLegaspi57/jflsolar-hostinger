@@ -185,5 +185,10 @@ class MemberMessagesTest extends TestCase
         $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'reset-course'])->assertSessionHas('status');
         $this->assertSame([], \App\Support\CourseResults::record($m->id));
         $this->assertFalse(\App\Support\CourseResults::started($m->id));
+        $first = \App\Support\Course::lessons()->first();
+        $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'mark-lesson-passed', 'lesson' => $first->id])->assertSessionHas('status');
+        $rec = collect(\App\Support\CourseResults::record($m->id));
+        $this->assertSame([$first->id], $rec->pluck('lesson.id')->all());
+        $this->assertSame('passed', $rec->first()['result']['status']);
     }
 }

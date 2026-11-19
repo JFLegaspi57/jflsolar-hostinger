@@ -77,10 +77,10 @@ final class CourseResults
      * Staff tool: marks every question of every published lesson "correct" for a member (and the lessons opened),
      * e.g. for a test account. Questions the member already answered correctly keep their answer. Returns lessons done.
      */
-    public static function markAllPassed(int $memberId): int
+    public static function markAllPassed(int $memberId, ?int $onlyLessonId = null): int
     {
         self::ensureTable();
-        $lessons = Course::lessons();
+        $lessons = Course::lessons()->when($onlyLessonId, fn ($c) => $c->where('id', $onlyLessonId));
         $bodies = DB::table('course_lessons')->whereIn('id', $lessons->pluck('id'))->pluck('body', 'id');
         $now = now();
         $n = 0;
