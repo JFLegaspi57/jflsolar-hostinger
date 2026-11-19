@@ -87,6 +87,14 @@ class MemberController extends Controller
                 \App\Support\CourseCertificates::setPaid($m->id, $request->input('action') === 'paid');
 
                 return $back->with('status', $request->input('action') === 'paid' ? 'Marked as paid: '.$m->name.' can now download the certificate.' : 'Marked as not paid: the download is locked.');
+            case 'reject':
+                \App\Support\CourseCertificates::rejectReference($m->id);
+
+                return $back->with('status', 'Reference rejected. '.$m->name.' will see a warning the next time they open their account.');
+            case 'reset-wrong':
+                \App\Support\CourseCertificates::resetWrong($m->id);
+
+                return $back->with('status', 'Wrong reference count reset to 0.');
             case 'upload':
                 $error = \App\Support\CourseCertificates::saveFiles($m->id, $request->file('image'), $request->file('pdf'));
 

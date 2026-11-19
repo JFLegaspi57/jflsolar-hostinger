@@ -94,6 +94,7 @@ Route::get('/account/certificate/thumb.jpg', [Account\AccountController::class, 
 Route::get('/account/certificate/gcash-qr.jpg', [Account\AccountController::class, 'certificateQr']);
 Route::get('/account/certificate/download', [Account\AccountController::class, 'certificateDownload']);
 Route::post('/account/certificate/reference', [Account\AccountController::class, 'certificateReference'])->middleware('throttle:account');
+Route::post('/account/certificate/warning-seen', [Account\AccountController::class, 'certificateWarningSeen']);
 Route::get('/account/photo/{member}/{file}', [Account\AccountController::class, 'photo'])->whereNumber('member')->where('file', '[A-Za-z0-9]{24}(-full)?\.webp');
 
 // Make a Quotation: members build quote requests from the catalogue and their own items.

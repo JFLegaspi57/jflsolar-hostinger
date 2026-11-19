@@ -16,7 +16,10 @@ final class CourseCertificates
 {
     private const TABLE = 'course_certificates';
 
-    private const TABLE_KEY = 'course-certificates-table-v2';
+    private const TABLE_KEY = 'course-certificates-table-v3';
+
+    /** After this many reference numbers rejected as not matching a payment, the member can't send more. */
+    public const MAX_WRONG_REFS = 3;
 
     /** Fee for the certificate download, in pesos. */
     public const FEE_PHP = 2500;
@@ -43,6 +46,10 @@ final class CourseCertificates
             'gcash_ref' => fn (Blueprint $t) => $t->string('gcash_ref', 60)->nullable(),
             'ref_at' => fn (Blueprint $t) => $t->timestamp('ref_at')->nullable(),
             'paid_at' => fn (Blueprint $t) => $t->timestamp('paid_at')->nullable(),
+            // v3: reference numbers staff rejected (no matching GCash payment)
+            'wrong_refs' => fn (Blueprint $t) => $t->unsignedTinyInteger('wrong_refs')->default(0),
+            'wrong_last' => fn (Blueprint $t) => $t->string('wrong_last', 60)->nullable(),
+            'wrong_popup' => fn (Blueprint $t) => $t->boolean('wrong_popup')->default(false),
         ];
         foreach ($add as $col => $def) {
             if (! Schema::hasColumn(self::TABLE, $col)) {
@@ -235,12 +242,49 @@ final class CourseCertificates
         if (! $cert) {
             return 'No certificate has been issued to you yet.';
         }
+        if (self::blocked($cert)) {
+            return 'You can no longer send a reference number here. Please call our Sales team at 0969 471 2098.';
+        }
         if (strlen(preg_replace('/\D/', '', $ref)) < 6) {
             return 'Enter the GCash reference number shown on your payment receipt.';
         }
         DB::table(self::TABLE)->where('id', $cert->id)->update(['gcash_ref' => mb_substr($ref, 0, 60), 'ref_at' => now(), 'updated_at' => now()]);
 
         return null;
+    }
+
+    /** Too many reference numbers that didn't match a payment: the member can't send more. */
+    public static function blocked(object $cert): bool
+    {
+        return (int) ($cert->wrong_refs ?? 0) >= self::MAX_WRONG_REFS;
+    }
+
+    /** Staff found no GCash payment with the reference the member sent: count it, warn the member (pop-up), clear it. */
+    public static function rejectReference(int $memberId): void
+    {
+        self::ensureTable();
+        $cert = self::for($memberId);
+        if (! $cert || ! $cert->gcash_ref) {
+            return;
+        }
+        DB::table(self::TABLE)->where('id', $cert->id)->update([
+            'wrong_refs' => min(255, (int) $cert->wrong_refs + 1), 'wrong_last' => $cert->gcash_ref, 'wrong_popup' => true,
+            'gcash_ref' => null, 'ref_at' => null, 'updated_at' => now(),
+        ]);
+    }
+
+    /** The member closed the warning pop-up. */
+    public static function warningSeen(int $memberId): void
+    {
+        self::ensureTable();
+        DB::table(self::TABLE)->where('member_id', $memberId)->update(['wrong_popup' => false]);
+    }
+
+    /** Staff give the member their 3 chances back. */
+    public static function resetWrong(int $memberId): void
+    {
+        self::ensureTable();
+        DB::table(self::TABLE)->where('member_id', $memberId)->update(['wrong_refs' => 0, 'wrong_last' => null, 'wrong_popup' => false]);
     }
 
     public static function setPaid(int $memberId, bool $paid): void

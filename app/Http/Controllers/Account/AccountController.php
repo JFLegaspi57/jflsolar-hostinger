@@ -81,6 +81,14 @@ class AccountController extends Controller
         return redirect('/account#course')->with($error ? 'status_error' : 'status', $error ?? 'Thank you! We received your GCash reference number and will unlock your certificate as soon as the payment is confirmed.');
     }
 
+    public function certificateWarningSeen(): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount'));
+        \App\Support\CourseCertificates::warningSeen($member->id);
+
+        return back();
+    }
+
     /** The member closes a personal message from JFL Solar. */
     public function closeMessage(int $id): RedirectResponse
     {
