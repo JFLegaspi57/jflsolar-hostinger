@@ -14,21 +14,37 @@
 
         @if (Certs::path($cert, 'image'))
             @php $thumb = ($staff ? '/admin/members/'.$memberId.'/certificate/thumb.jpg' : '/account/certificate/thumb.jpg').'?v='.md5($cert->image.($cert->paid_at ?? '')); @endphp
-            <img src="{{ $thumb }}" alt="Preview of the certificate" width="240" class="mt-3 rounded border border-steel-300 bg-white" style="width:15rem;height:auto">
+            @php $thumbImg = '<img src="'.e($thumb).'" alt="Preview of the certificate" width="240" class="mt-3 rounded border border-steel-300 bg-white" style="width:15rem;height:auto">'; @endphp
+            @if (! $staff && $cert->paid_at)
+                <a href="/account/certificate/download" title="Download your certificate">{!! $thumbImg !!}</a>
+                <p class="mt-1 text-sm"><a href="/account/certificate/download" class="font-semibold underline">Download your certificate</a></p>
+            @elseif (! $staff)
+                @php $qr = Certs::qrUrl(); @endphp
+                <div class="mt-3 flex flex-wrap items-start gap-4">
+                    <div><a href="#cert-pay-{{ $cert->id }}" title="How to get your certificate">{!! str_replace('class="mt-3 ', 'class="', $thumbImg) !!}</a>
+                        <p class="mt-1 text-sm text-steel-700">Your certificate (preview)</p></div>
+                    @if ($qr)
+                        <div><img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="160" class="rounded border border-steel-300 bg-white" style="width:10rem;height:auto">
+                            <p class="mt-1 text-sm text-steel-700">Pay {{ $fee }} with GCash</p></div>
+                    @endif
+                </div>
+            @else
+                {!! $thumbImg !!}
+            @endif
         @endif
 
         @if ($cert->paid_at)
             <p class="mt-3 text-sm font-semibold" style="color:#166534">✅ Paid via GCash{{ $cert->gcash_ref ? ' (ref. '.$cert->gcash_ref.')' : '' }} · {{ \Illuminate\Support\Carbon::parse($cert->paid_at)->timezone('Asia/Manila')->format('j M Y') }}</p>
-            @if (! $staff && (Certs::path($cert, 'pdf') || Certs::path($cert, 'image')))
+            @if (! $staff && ! Certs::path($cert, 'image') && Certs::path($cert, 'pdf'))
                 <p class="mt-2"><a href="/account/certificate/download" class="{{ \App\Support\Ui::button('primary', 'sm') }}">Download your certificate</a></p>
             @endif
         @elseif (! $staff)
             @if (Certs::path($cert, 'image') || Certs::path($cert, 'pdf'))
-                <p class="mt-3 text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash.</strong> After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
-                @if ($qr = Certs::qrUrl())
+                <p id="cert-pay-{{ $cert->id }}" class="mt-3 text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
+                @if (! Certs::path($cert, 'image') && ($qr = Certs::qrUrl()))
                     <p class="mt-3 text-sm text-steel-700">Scan with your GCash app:</p>
                     <img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="220" class="mt-1 rounded border border-steel-300 bg-white" style="width:13.75rem;height:auto">
-                @else
+                @elseif (! Certs::qrUrl())
                     <p class="mt-2 text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
                 @endif
                 @if ($cert->gcash_ref)

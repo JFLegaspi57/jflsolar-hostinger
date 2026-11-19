@@ -98,7 +98,7 @@ class MemberMessagesTest extends TestCase
         $this->get('/admin/members/'.$m->id.'/certificate/thumb.jpg')->assertOk()->assertHeader('Content-Type', 'image/jpeg');
 
         session()->forget('member_pw');
-        $this->actingAs($m, 'member')->get('/account')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
+        $this->actingAs($m, 'member')->get('/account')->assertSee('To download your certificate, pay ₱2,500 via GCash')->assertSee('Pay ₱2,500 with GCash')->assertSee('/account/certificate/gcash-qr.jpg', false)->assertDontSee('Download your certificate</a>', false);
         $this->get('/account/certificate/thumb.jpg')->assertOk();
         $this->get('/account/certificate/gcash-qr.jpg')->assertOk();
         $this->get('/account/certificate/download')->assertRedirect('/account#course');
@@ -110,6 +110,7 @@ class MemberMessagesTest extends TestCase
 
         session()->forget('member_pw');
         $this->actingAs($m, 'member')->get('/account')->assertSee('Download your certificate')->assertSee('Paid via GCash');
+        $this->get('/account/course')->assertSee('Certificate number (CTN)')->assertSee('href="/account/certificate/download" title="Download your certificate"', false);
         $r = $this->get('/account/certificate/download')->assertOk();
         $this->assertStringContainsString('Certificate-JFL-', (string) $r->headers->get('content-disposition'));
 
