@@ -40,21 +40,28 @@
             @endif
         @elseif (! $staff)
             @if (Certs::path($cert, 'image') || Certs::path($cert, 'pdf'))
-                <p id="cert-pay-{{ $cert->id }}" class="mt-3 text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
-                @if (! Certs::path($cert, 'image') && ($qr = Certs::qrUrl()))
-                    <p class="mt-3 text-sm text-steel-700">Scan with your GCash app:</p>
-                    <img src="{{ $qr }}" alt="GCash QR code of JFL Solar for the certificate payment" width="220" class="mt-1 rounded border border-steel-300 bg-white" style="width:13.75rem;height:auto">
-                @elseif (! Certs::qrUrl())
-                    <p class="mt-2 text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
-                @endif
-                @if ($cert->gcash_ref)
-                    <p class="mt-3 text-sm text-steel-800">⏳ We received your reference number <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. We'll unlock your download as soon as the payment is confirmed.</p>
-                @endif
-                <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
-                    @csrf
-                    <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
-                    <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
-                </form>
+                @php $qrSide = ! Certs::path($cert, 'image') ? Certs::qrUrl() : null; @endphp {{-- with a preview, the QR sits beside the preview instead --}}
+                <div class="mt-3 flex flex-wrap items-start gap-4">
+                    <div class="min-w-0 flex-1" style="min-width:15rem">
+                        <p id="cert-pay-{{ $cert->id }}" class="text-steel-800"><strong>To download your certificate, pay {{ $fee }} via GCash</strong> by scanning the QR code with your GCash app. After paying, enter the GCash reference number below. We'll check the payment and unlock your download.</p>
+                        <p class="mt-2 font-bold" style="color:#991b1b">Important! Type the GCash reference number exactly as it appears on your receipt. We can only confirm your payment and unlock your certificate with the correct number.</p>
+                        @if (! Certs::qrUrl())
+                            <p class="mt-2 text-sm text-steel-700">The GCash QR code will be shown here soon.</p>
+                        @endif
+                        @if ($cert->gcash_ref)
+                            <p class="mt-3 text-sm text-steel-800">⏳ We received your reference number <strong>{{ $cert->gcash_ref }}</strong> on {{ \Illuminate\Support\Carbon::parse($cert->ref_at)->timezone('Asia/Manila')->format('j M Y, g:i A') }}. We'll unlock your download as soon as the payment is confirmed.</p>
+                        @endif
+                        <form method="post" action="/account/certificate/reference" class="mt-3 flex flex-wrap items-end gap-2">
+                            @csrf
+                            <label class="text-sm"><span class="font-semibold">GCash reference number</span><br><input name="reference" required maxlength="60" inputmode="numeric" class="mt-1 min-h-11 rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="e.g. 1234 567 890123"></label>
+                            <button type="submit" class="{{ \App\Support\Ui::button('secondary', 'sm') }}">{{ $cert->gcash_ref ? 'Send again' : 'Send' }}</button>
+                        </form>
+                    </div>
+                    @if ($qrSide)
+                        <div><img src="{{ $qrSide }}" alt="GCash QR code of JFL Solar for the certificate payment" width="190" class="rounded border border-steel-300 bg-white" style="width:11.875rem;height:auto">
+                            <p class="mt-1 text-center text-sm text-steel-700">Scan with your GCash app</p></div>
+                    @endif
+                </div>
             @else
                 <p class="mt-3 text-sm text-steel-700">Your certificate is being prepared.</p>
             @endif
