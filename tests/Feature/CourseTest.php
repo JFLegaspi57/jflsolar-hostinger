@@ -209,6 +209,8 @@ class CourseTest extends TestCase
             $this->postJson('/courses/check-answer', ['lesson' => $slug, 'q' => 0, 'answer' => 'a'])->assertOk();
         }
         $this->get('/account')->assertSee('You have passed every lesson');
+        $this->get('/account/course')->assertDontSee('Certificate of completion:');   // the note goes once every lesson is passed
+        $this->get(Course::PATH)->assertDontSee('Certificate of completion:');
 
         // The course-wide numbers on Admin → Online course.
         $o = \App\Support\CourseResults::overview();
