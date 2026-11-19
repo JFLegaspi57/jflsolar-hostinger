@@ -22,6 +22,9 @@
                     @php $courseStarted = $courseStarted ?? (($nextStep['kind'] ?? 'start') !== 'start'); @endphp
                     @include('pages.course.record', ['record' => $courseRecord, 'started' => $courseStarted, 'showOpened' => true])
                     @include('partials.course-certificate', ['memberId' => \App\Support\Members::current()->id])
+                    @unless (\App\Support\CourseCertificates::for(\App\Support\Members::current()->id))
+                        @include('partials.course-certificate-sample')
+                    @endunless
                     <p class="mt-4"><a href="{{ \App\Support\Course::PATH }}" class="{{ Ui::button('primary') }}">{{ $courseStarted ? 'Open the course' : 'Start the Course' }}</a></p>
                 @endif
             </section>

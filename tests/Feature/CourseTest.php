@@ -188,7 +188,7 @@ class CourseTest extends TestCase
         $this->get('/account/course')->assertSee('Continue where you left off')->assertSee('Continue Lesson 1');
         $this->get('/account')->assertDontSee('Continue where you left off')->assertDontSee('Start the Course')->assertDontSee('No lessons done yet')->assertSee('Open the course');
         // The record keeps every lesson opened, even before any answer is checked.
-        $this->get('/account/course')->assertSee('Certificate of completion:')->assertSee('Step lesson 1')->assertSee('Opened')->assertSee('Not checked yet');   // Online Course page: opened lessons too
+        $this->get('/account/course')->assertSee('Your certificate of completion (sample)')->assertSee('/images/course-certificate-sample.jpg', false)->assertSee('Certificate of completion:')->assertSee('Step lesson 1')->assertSee('Opened')->assertSee('Not checked yet');   // Online Course page: opened lessons too
         $this->get('/account')->assertSee('0 of 3 lessons passed')->assertDontSee('Not checked yet')->assertDontSee('Last activity');   // account page: just the count
         $this->get(Course::PATH.'/step-1')->assertOk();
 
