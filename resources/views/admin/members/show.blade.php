@@ -75,6 +75,27 @@
         </section>
     </div>
 
+    <section id="messages" aria-labelledby="messages-h" class="{{ $card }} mt-6">
+        <h2 id="messages-h" class="text-lg font-bold text-steel-950">Message on {{ $m->name }}’s account page</h2>
+        <p class="text-sm text-steel-600">Only this member sees it, at the top of their account page, until they close it. Plain text: each line is a paragraph, lines starting with "- " become a list.</p>
+        @foreach ($messages as $msg)
+            <div class="mt-3 rounded-[var(--radius-control)] border border-steel-200 p-3">
+                <div class="flex flex-wrap items-start justify-between gap-2">
+                    <p class="font-semibold text-steel-950">{{ $msg->title }}</p>
+                    <form method="post" action="/admin/members/{{ $m->id }}/messages/{{ $msg->id }}/delete">@csrf<button type="submit" class="text-sm underline text-steel-700">Remove</button></form>
+                </div>
+                <p class="text-sm text-steel-600">Posted {{ $when($msg->created_at)->format('j M Y, g:i A') }} · {{ $msg->closed_at ? 'Read and closed by the member '.$when($msg->closed_at)->format('j M Y, g:i A') : 'Showing on the account page (not closed yet)' }}</p>
+                <details class="mt-1 text-sm"><summary class="cursor-pointer underline">Show the message</summary><div class="mt-2 text-steel-800"><x-paragraphs :text="$msg->body" /></div></details>
+            </div>
+        @endforeach
+        <form method="post" action="/admin/members/{{ $m->id }}/messages" class="mt-4 space-y-3">
+            @csrf
+            <label class="block"><span class="text-sm font-semibold">Title</span><input name="title" required maxlength="200" class="mt-1 min-h-11 w-full rounded-[var(--radius-control)] border border-steel-400 px-3" placeholder="A personal message from JF Legaspi"></label>
+            <label class="block"><span class="text-sm font-semibold">Message</span><textarea name="body" required rows="8" maxlength="10000" class="mt-1 w-full rounded-[var(--radius-control)] border border-steel-400 p-3"></textarea></label>
+            <button type="submit" class="{{ \App\Support\Ui::button('primary', 'sm') }}">Post on the account page</button>
+        </form>
+    </section>
+
     <section aria-labelledby="course-h" class="{{ $card }} mt-6">
         <h2 id="course-h" class="text-lg font-bold text-steel-950">Online course record</h2>
         @include('pages.course.record', ['record' => $courseRecord, 'staff' => true])
