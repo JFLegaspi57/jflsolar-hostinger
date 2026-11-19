@@ -96,7 +96,7 @@ class MemberController extends Controller
 
                 return $back->with('status', 'Wrong reference count reset to 0.');
             case 'upload':
-                $error = \App\Support\CourseCertificates::saveFiles($m->id, $request->file('image'), $request->file('pdf'));
+                $error = \App\Support\CourseCertificates::saveFiles($m->id, $request->file('image'), $request->file('pdf'), $request->file('image2'));
 
                 return $error ? $back->with('status_error', $error) : $back->with('status', 'Certificate uploaded.');
         }
@@ -106,10 +106,10 @@ class MemberController extends Controller
         return redirect('/admin/members/'.$m->id.'#course-h')->with('status', 'Certificate number '.$cert->ctn.' issued to '.$m->name.'.');
     }
 
-    public function certificateThumb(int $member): \Illuminate\Http\Response
+    public function certificateThumb(Request $request, int $member): \Illuminate\Http\Response
     {
         $cert = \App\Support\CourseCertificates::for($member);
-        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert) : null;
+        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert, $request->integer('page', 1)) : null;
         abort_unless($jpg, 404);
 
         return response($jpg, 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=600']);

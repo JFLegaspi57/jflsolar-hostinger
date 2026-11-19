@@ -16,7 +16,7 @@ final class CourseCertificates
 {
     private const TABLE = 'course_certificates';
 
-    private const TABLE_KEY = 'course-certificates-table-v3';
+    private const TABLE_KEY = 'course-certificates-table-v4';
 
     /** After this many reference numbers rejected as not matching a payment, the member can't send more. */
     public const MAX_WRONG_REFS = 3;
@@ -50,6 +50,8 @@ final class CourseCertificates
             'wrong_refs' => fn (Blueprint $t) => $t->unsignedTinyInteger('wrong_refs')->default(0),
             'wrong_last' => fn (Blueprint $t) => $t->string('wrong_last', 60)->nullable(),
             'wrong_popup' => fn (Blueprint $t) => $t->boolean('wrong_popup')->default(false),
+            // v4: picture of the second page (the lessons)
+            'image2' => fn (Blueprint $t) => $t->string('image2', 80)->nullable(),
         ];
         foreach ($add as $col => $def) {
             if (! Schema::hasColumn(self::TABLE, $col)) {
@@ -97,7 +99,7 @@ final class CourseCertificates
     {
         self::ensureTable();
         if ($c = self::for($memberId)) {
-            foreach (['image', 'pdf'] as $f) {
+            foreach (['image', 'image2', 'pdf'] as $f) {
                 if ($c->{$f}) {
                     @unlink(self::dir().'/'.basename($c->{$f}));
                 }
@@ -152,28 +154,31 @@ final class CourseCertificates
     }
 
     /** Stores the certificate picture (PNG/JPG, required once) and the PDF (optional). Returns an error or null. */
-    public static function saveFiles(int $memberId, ?\Illuminate\Http\UploadedFile $image, ?\Illuminate\Http\UploadedFile $pdf): ?string
+    public static function saveFiles(int $memberId, ?\Illuminate\Http\UploadedFile $image, ?\Illuminate\Http\UploadedFile $pdf, ?\Illuminate\Http\UploadedFile $image2 = null): ?string
     {
         $cert = self::for($memberId);
         if (! $cert) {
             return 'Issue the certificate number first.';
         }
-        if (! $image && ! $pdf) {
-            return 'Choose the certificate picture (PNG or JPG) and/or the PDF.';
+        if (! $image && ! $pdf && ! $image2) {
+            return 'Choose the certificate pictures (PNG or JPG) and/or the PDF.';
         }
         if (! is_dir(self::dir()) && ! @mkdir(self::dir(), 0775, true)) {
             return 'The certificate could not be stored.';
         }
         $update = [];
-        if ($image) {
-            $img = $image->isValid() && $image->getSize() <= 20 * 1024 * 1024 ? @imagecreatefromstring((string) file_get_contents($image->getRealPath())) : false;
+        foreach (['image' => $image, 'image2' => $image2] as $kind => $file) {
+            if (! $file) {
+                continue;
+            }
+            $img = $file->isValid() && $file->getSize() <= 20 * 1024 * 1024 ? @imagecreatefromstring((string) file_get_contents($file->getRealPath())) : false;
             if (! $img) {
-                return 'The certificate picture must be a PNG or JPG under 20 MB.';
+                return 'The certificate pictures must be PNG or JPG files under 20 MB.';
             }
             $name = 'cert-'.$cert->id.'-'.bin2hex(random_bytes(8)).'.png';
             imagepng($img, self::dir().'/'.$name, 6);
             imagedestroy($img);
-            $update['image'] = $name;
+            $update[$kind] = $name;
         }
         if ($pdf) {
             $head = $pdf->isValid() && $pdf->getSize() <= 20 * 1024 * 1024 ? (string) file_get_contents($pdf->getRealPath(), false, null, 0, 5) : '';
@@ -195,9 +200,9 @@ final class CourseCertificates
     }
 
     /** A small JPEG preview; until it is paid, it carries a "PREVIEW" mark. Null when there is no picture. */
-    public static function thumbnail(object $cert): ?string
+    public static function thumbnail(object $cert, int $page = 1): ?string
     {
-        $path = self::path($cert, 'image');
+        $path = self::path($cert, $page === 2 ? 'image2' : 'image');
         if (! $path || ! ($src = @imagecreatefrompng($path))) {
             return null;
         }

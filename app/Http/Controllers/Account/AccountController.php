@@ -39,11 +39,11 @@ class AccountController extends Controller
     }
 
     /** Small preview of the member's own certificate ("PREVIEW" mark until paid). */
-    public function certificateThumb(): \Illuminate\Http\Response
+    public function certificateThumb(Request $request): \Illuminate\Http\Response
     {
         $member = Members::current() ?? abort(404);
         $cert = \App\Support\CourseCertificates::for($member->id);
-        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert) : null;
+        $jpg = $cert ? \App\Support\CourseCertificates::thumbnail($cert, $request->integer('page', 1)) : null;
         abort_unless($jpg, 404);
 
         return response($jpg, 200, ['Content-Type' => 'image/jpeg', 'Cache-Control' => 'private, max-age=600', 'X-Content-Type-Options' => 'nosniff']);
