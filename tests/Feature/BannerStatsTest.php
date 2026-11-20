@@ -60,9 +60,8 @@ class BannerStatsTest extends TestCase
         $this->assertMatchesRegularExpression('/data-stat="members"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="subscribers"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="students"[^>]*>1</', $page->getContent());
-        $this->assertMatchesRegularExpression('/data-stat="students_online"[^>]*>1</', $page->getContent());
-        $page->assertSee('Students online now')->assertSee('Online visitors now');
-        $this->assertMatchesRegularExpression('/data-stat="online"[^>]*>2</', $page->getContent());
+        $page->assertDontSee('Students online now')->assertDontSee('Online visitors now')->assertSee('Online Course Students');
+        $this->assertStringNotContainsString('data-stat="online"', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="visits"[^>]*>4</', $page->getContent());
 
         $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['online' => 2, 'today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4, 'members' => 1, 'subscribers' => 1, 'students' => 1, 'students_online' => 1])->assertHeader('Cache-Control', 'no-store, private');

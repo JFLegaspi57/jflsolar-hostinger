@@ -27,9 +27,9 @@
                 <h1 id="hero-title" class="text-[2.35rem] leading-[1.08] font-extrabold sm:text-5xl lg:text-[3.15rem]">{{ PageText::get('home.hero.title') }}</h1>
                 <p class="mt-6 text-lg text-steel-100">{{ PageText::get('home.hero.intro') }}</p>
                 @if ($stats = \App\Support\Visitors::publicStats())
-                    <style>#live-stats, #live-stats-2 { max-width: 33rem; } #live-stats > div:first-child { grid-column: span 2; } @media (min-width: 640px) { #live-stats > div:first-child { grid-column: auto; } #live-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); } #live-stats-2 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }</style>
+                    <style>#live-stats, #live-stats-2 { max-width: 33rem; } #live-stats-2 > div:last-child { grid-column: span 2; } @media (min-width: 640px) { #live-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } #live-stats-2 { grid-template-columns: repeat(3, minmax(0, 1fr)); } #live-stats-2 > div:last-child { grid-column: auto; } }</style>
                     <dl id="live-stats" aria-label="Website visitors so far, updated live" class="mt-6 grid grid-cols-2 gap-1.5">
-                        @foreach (['online' => 'Online visitors now', 'today' => 'Today’s visitors', 'first' => 'First-time visitors', 'returning' => 'Returning visitors', 'visits' => 'Total visits'] as $key => $label)
+                        @foreach (['today' => 'Today’s visitors', 'first' => 'First-time visitors', 'returning' => 'Returning visitors', 'visits' => 'Total visits'] as $key => $label)
                             <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-2 py-1">
                                 <dt class="leading-tight text-steel-300" style="font-size: .65rem">{{ $label }}</dt>
                                 <dd data-stat="{{ $key }}" class="font-display text-base font-extrabold text-white tabular">{{ number_format($stats[$key] ?? 0) }}</dd>
@@ -37,7 +37,7 @@
                         @endforeach
                     </dl>
                     <dl id="live-stats-2" aria-label="JFL Solar community, updated live" class="mt-1.5 grid grid-cols-2 gap-1.5">
-                        @foreach (['members' => 'Members', 'subscribers' => 'Subscribers', 'students' => 'Online Course Students', 'students_online' => 'Students online now'] as $key => $label)
+                        @foreach (['members' => 'Members', 'subscribers' => 'Subscribers', 'students' => 'Online Course Students'] as $key => $label)
                             <div style="display: flex; flex-direction: column-reverse" class="rounded-[var(--radius-control)] border border-white/15 bg-white/5 px-2 py-1">
                                 <dt class="leading-tight text-steel-300" style="font-size: .65rem">{{ $label }}</dt>
                                 <dd data-stat="{{ $key }}" class="font-display text-base font-extrabold text-white tabular">{{ number_format($stats[$key] ?? 0) }}</dd>
