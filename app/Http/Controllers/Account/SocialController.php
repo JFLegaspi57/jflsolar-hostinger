@@ -88,7 +88,8 @@ class SocialController extends Controller
         Members::logActivity($member, 'login', null, $request->ip());
         \App\Support\Shop::mergeIntoAccount($member);
 
-        $to = $flow['next'] ?? '/account';
+        // A new account goes where the sign-up started (like email sign-up); a returning member lands on Your account.
+        $to = $created ? ($flow['next'] ?? '/account') : AuthController::afterLogin($flow['next'] ?? null);
 
         return $created
             ? redirect($to)->with('account_status', 'Welcome, '.$member->name.'! Your account is ready. You can sign in with '.$name.' any time.')

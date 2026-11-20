@@ -315,7 +315,7 @@ class MembersTest extends TestCase
         $this->get('/login')->assertDontSee('name="next" value="/login"', false);
 
         $this->member();
-        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => '/products?category=batteries'])->assertRedirect('/products?category=batteries');
+        $this->post('/login', ['email' => 'maria@example.com', 'password' => self::PASSWORD, 'next' => '/products?category=batteries'])->assertRedirect('/account');   // members always land on Your account
         $this->get('/products')->assertSee('Your account')->assertDontSee('id="auth-dialog"', false);
     }
 

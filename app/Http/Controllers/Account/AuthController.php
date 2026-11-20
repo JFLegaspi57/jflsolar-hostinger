@@ -134,7 +134,16 @@ class AuthController extends Controller
         Members::logActivity($member, 'login', null, $request->ip());
         \App\Support\Shop::mergeIntoAccount($member);
 
-        return redirect($this->next($request) ?? '/account');
+        return redirect(self::afterLogin($this->next($request)));
+    }
+
+    /**
+     * After signing in, members always land on Your account. Only something already in progress continues:
+     * a checkout, or a quotation being made from Build your own package.
+     */
+    public static function afterLogin(?string $next): string
+    {
+        return $next !== null && preg_match('#^/(?:checkout|account/quotation/from-build)(?:[/?]|$)#', $next) ? $next : '/account';
     }
 
     public function logout(Request $request): RedirectResponse
