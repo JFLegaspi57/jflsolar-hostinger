@@ -29,7 +29,7 @@ class ServicesPagesTest extends TestCase
     public function test_service_pages_open_and_highlight_services(): void
     {
         $this->get('/services/consultation')->assertOk()->assertSee('Solar PV Consultation')->assertSee('Second opinion on a quotation')
-            ->assertSee('aria-current="page"', false);
+            ->assertSee('aria-current="page"', false)->assertDontSee('id="reviews-title"', false);
         $this->get('/services/training-seminars')->assertOk()->assertSee('Training &amp; Seminars', false)->assertSee('Learn from the best')
             ->assertSee('href="/courses/solar-pv-system-design"', false)->assertSee('From our trainings and seminars')->assertSee('JFL Solar Training Center')->assertSee('/images/training-photo-01-640.jpg', false);
         $this->get('/services/sld-block-diagram')->assertOk()->assertSee('SLD &amp; Block Diagram', false)->assertSee('Single-line diagram (SLD)')
