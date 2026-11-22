@@ -237,6 +237,7 @@ Route::prefix('admin')->group(function () {
         });
 
         Route::get('blog/comments', [Admin\BlogCommentController::class, 'index']);
+        Route::get('blog/views', [Admin\BlogController::class, 'views']);
         Route::post('blog/comments/{comment}', [Admin\BlogCommentController::class, 'update'])->whereNumber('comment');
         Route::get('forum', [Admin\ForumController::class, 'index']);
         Route::post('forum/posts/{post}', [Admin\ForumController::class, 'post'])->whereNumber('post');

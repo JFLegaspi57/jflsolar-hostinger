@@ -1,13 +1,14 @@
 @php
     $rows = $posts->map(fn ($p) => [
         'id' => $p->id, 'name' => $p->title, 'status' => $p->status, 'isSample' => $p->is_sample, 'featured' => false,
-        'subtitle' => implode(' · ', array_filter([$p->published_at ? 'Published '.\App\Support\Blog::date($p) : 'Not yet published', ($photos[$p->id] ?? 0).' image(s)'])),
+        'subtitle' => implode(' · ', array_filter([$p->published_at ? 'Published '.\App\Support\Blog::date($p) : 'Not yet published', ($photos[$p->id] ?? 0).' image(s)', $p->published_at ? number_format($views[$p->slug]['views'] ?? 0).' view(s)' : null])),
     ])->all();
 @endphp
 <x-admin.layout title="Blog">
     <x-admin.page-title title="Blog" intro="Posts for JF Legaspi’s blog at /blog, linked from the founder section of the About page. Newest published posts show first.">
         <x-slot:action>
             <div class="flex flex-wrap gap-2">
+                <a href="/admin/blog/views" class="{{ \App\Support\Ui::button('secondary') }}">Views</a>
                 <a href="/admin/blog/comments" class="{{ \App\Support\Ui::button('secondary') }}">Comments @if ($waiting = \App\Support\BlogComments::waitingCount())<span class="tabular">({{ $waiting }} waiting)</span>@endif</a>
                 <x-admin.new-button href="/admin/blog/new">New post</x-admin.new-button>
             </div>

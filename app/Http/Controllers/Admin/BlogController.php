@@ -29,7 +29,18 @@ class BlogController extends Controller
         $posts = BlogPost::query()->where('status', $archived ? '=' : '!=', 'archived')->orderByRaw('published_at is null desc')->orderByDesc('published_at')->orderByDesc('created_at')->get();
         $photos = MediaAsset::query()->whereNotNull('blog_post_id')->where('kind', 'image')->selectRaw('blog_post_id, count(*) as n')->groupBy('blog_post_id')->pluck('n', 'blog_post_id');
 
-        return view('admin.blog.index', ['posts' => $posts, 'photos' => $photos, 'archived' => $archived]);
+        return view('admin.blog.index', ['posts' => $posts, 'photos' => $photos, 'archived' => $archived, 'views' => \App\Support\Visitors::blogViews()]);
+    }
+
+    /** Admin → Blog → Views: how many times each post was read. */
+    public function views(): View
+    {
+        $views = \App\Support\Visitors::blogViews();
+        $posts = BlogPost::query()->where('status', '!=', 'archived')->get()
+            ->map(fn ($p) => ['post' => $p] + ($views[$p->slug] ?? ['views' => 0, 'readers' => 0, 'tl' => 0, 'last30' => 0, 'avg' => null]))
+            ->sortByDesc('views')->values();
+
+        return view('admin.blog.views', ['rows' => $posts, 'since' => \App\Support\Visitors::firstPageViewDay()]);
     }
 
     public function create(Request $request): View
