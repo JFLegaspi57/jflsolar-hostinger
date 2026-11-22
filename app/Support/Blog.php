@@ -162,6 +162,19 @@ final class Blog
      */
     public const BANNER_EXCLUDE = ['/\bposters?\b/i', '/step[- ]by[- ]step/i'];
 
+    /** Posts that give only their cover photo to the random /blog banner (JF's choice; the other photos stay in the post). */
+    public const BANNER_COVER_ONLY = ['unparalleled-tech-support-first-solar-pv-installation'];
+
+    /**
+     * All photos the random /blog banner may show: big enough, not posters, and only the cover
+     * for posts listed in BANNER_COVER_ONLY.
+     */
+    public static function bannerPhotos(\Illuminate\Support\Collection $posts): \Illuminate\Support\Collection
+    {
+        return $posts->flatMap(fn ($p) => in_array($p->slug, self::BANNER_COVER_ONLY, true) ? array_filter([$p->cover]) : $p->photos)
+            ->filter(fn ($m) => self::bannerPhoto($m))->values();
+    }
+
     /** A photo that may be picked for the random /blog banner. */
     public static function bannerPhoto(\App\Models\MediaAsset $m): bool
     {

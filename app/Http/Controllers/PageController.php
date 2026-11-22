@@ -216,7 +216,7 @@ class PageController extends Controller
         $posts = \App\Support\Blog::published();
         // Banner: a random photo from all published posts (a new one on each visit); small photos would look
         // blurry, and step-by-step posters are left out (Blog::bannerPhoto).
-        $photos = $posts->flatMap(fn ($p) => $p->photos)->filter(fn ($m) => \App\Support\Blog::bannerPhoto($m));
+        $photos = \App\Support\Blog::bannerPhotos($posts);
 
         $banner = $photos->isNotEmpty() ? $photos->random() : null;
 
