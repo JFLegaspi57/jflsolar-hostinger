@@ -17,6 +17,13 @@
             [...$productCategories->map(fn ($c) => ['/products?category='.$c->slug.'#categories', $c->name, $currentCategory === $c->slug])->all(),
                 ['/account/quotation', \App\Support\Quotations::NAME, request()->is('account/quotation', 'account/quotation/*')]]];
     }
+    $subMenus['/services'] = ['Our services', ['/services', 'All Services', request()->is('services')], [
+        ['/projects', 'Installation', false],
+        ['/products', 'Supply', false],
+        ['/services/consultation', 'Consultation', request()->is('services/consultation')],
+        ['/services/training-seminars', 'Training & Seminars', request()->is('services/training-seminars')],
+        ['/services/sld-block-diagram', 'SLD & Block Diagram', request()->is('services/sld-block-diagram')],
+    ]];
     $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'), ltrim($i['href'], '/').'/*')], Site::ABOUT_MENU)];
     $subMenus['/packages'] = ['Package types', null, [
         ['/packages?type=materials', 'Materials Only', $currentPackageType === 'materials'],
