@@ -182,6 +182,9 @@ class MemberMessagesTest extends TestCase
         $rec = collect(\App\Support\CourseResults::record($m->id));
         $this->assertTrue($rec->isNotEmpty());
         $this->assertTrue($rec->every(fn ($r) => $r['result']['status'] === 'passed'));
+        // Each question records the lesson's model answer.
+        $saved = \Illuminate\Support\Facades\DB::table('course_quiz_results')->where('member_id', $m->id)->orderBy('q')->pluck('answer')->unique()->values()->all();
+        $this->assertSame(['A1', 'A2'], $saved);
         $this->post('/admin/members/'.$m->id.'/certificate', ['action' => 'reset-course'])->assertSessionHas('status');
         $this->assertSame([], \App\Support\CourseResults::record($m->id));
         $this->assertFalse(\App\Support\CourseResults::started($m->id));
