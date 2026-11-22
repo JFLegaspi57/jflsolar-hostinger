@@ -20,10 +20,17 @@
 
     <x-section labelledby="trainer-title">
         <x-section-heading id="trainer-title" eyebrow="Your trainer" title="JF Legaspi" />
-        <div class="mt-6 max-w-3xl space-y-4 text-lg text-steel-700">
+        {{-- Text with JF's YouTube Short beside it (stacked on phones). --}}
+        <div class="mt-6 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <div class="max-w-3xl space-y-4 text-lg text-steel-700">
             <p>JF Legaspi has a background in Electrical and Renewable Energy Engineering and lived and worked in Europe for more than three decades, where he was CTO of a solar company designing and managing mostly commercial and industrial solar PV installations.</p>
             <p>Today he is a regular resource person at solar PV seminars across the Philippines, organized by various solar companies. He is an educator by nature: he explains the technical side in plain words, so that every participant goes home able to do the work the right way.</p>
             <p>Read more <a href="/about" class="font-semibold text-steel-900 underline">about JF Legaspi and JFL Solar</a> or follow his <a href="/blog" class="font-semibold text-steel-900 underline">blog</a>.</p>
+        </div>
+        <div class="mx-auto w-full max-w-[18rem] overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: 9 / 16">
+            <iframe src="https://www.youtube-nocookie.com/embed/KYYRJXnzyQk" title="JF Legaspi, your trainer (YouTube Short)" loading="lazy"
+                allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe>
+        </div>
         </div>
     </x-section>
 
