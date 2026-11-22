@@ -30,7 +30,7 @@ class BlogMembersOnlyTest extends TestCase
         $this->get('/blog/inside-the-factory')->assertOk()
             ->assertSee('First paragraph about the visit.')->assertSee('The line')->assertSee('Second paragraph about the line.')
             ->assertDontSee('Third paragraph, members only.')->assertDontSee('A list item for members')
-            ->assertSee('Read the full post: free for members')
+            ->assertSee('Join free to read the rest')
             ->assertSee('href="/signup?next=%2Fblog%2Finside-the-factory"', false)
             ->assertSee('href="/login?next=%2Fblog%2Finside-the-factory"', false)
             ->assertSee('"isAccessibleForFree":false', false);
@@ -43,7 +43,7 @@ class BlogMembersOnlyTest extends TestCase
         $m = new Member;
         $m->forceFill(['name' => 'Maria Santos', 'email' => 'maria@example.com', 'password' => 'sunny days on the roof', 'status' => 'active'])->save();
         $this->actingAs($m, 'member')->get('/blog/inside-the-factory')->assertOk()
-            ->assertSee('Third paragraph, members only.')->assertSee('A list item for members')->assertDontSee('Read the full post: free for members');
+            ->assertSee('Third paragraph, members only.')->assertSee('A list item for members')->assertDontSee('Join free to read the rest');
         auth('member')->logout();
 
         $staff = User::query()->create(['name' => 'Editor', 'email' => 'editor@jflsolar.test', 'password' => 'a long test password', 'role' => 'editor', 'active' => true, 'must_change_password' => false]);

@@ -46,7 +46,7 @@ class BlogTagalogTest extends TestCase
         $this->get('/blog/inside-the-factory/tagalog')->assertOk()
             ->assertSee('<html lang="fil">', false)->assertSee('Sa loob ng pabrika')->assertSee('Panimula sa Filipino.')
             ->assertSee('12 Nobyembre 2026')->assertSee('Read in English')
-            ->assertSee('Basahin ang buong post: libre para sa mga miyembro')
+            ->assertSee('Gusto mo bang mabasa ang kabuuan? Sumali nang libre!')
             ->assertSee('href="/signup?next=%2Fblog%2Finside-the-factory%2Ftagalog"', false)
             ->assertDontSee('Bahagi para sa mga miyembro.')->assertDontSee('English opening.')
             ->assertSee('Mga reaksyon at komento');
