@@ -17,7 +17,7 @@
     description="Solar PV plans drawn the way they are done in the Philippines: single-line diagram, wiring and block diagram, design calculations and datasheets on A3 sheets, ready for the design professional's signature.">
     <x-page-hero eyebrow="Services" title="SLD & Block Diagram"
         intro="Complete solar PV plans on A3 sheets: single-line diagram, wiring and block diagram, design calculations and datasheets, laid out with a title block ready for your design professional's signature and seal."
-        image="/images/service-sld-banner-1280.jpg" srcset="/images/service-sld-banner-640.jpg 640w, /images/service-sld-banner-960.jpg 960w, /images/service-sld-banner-1280.jpg 1280w, /images/service-sld-banner-1920.jpg 1920w"
+        image="/images/service-sld-plan-1280.jpg" srcset="/images/service-sld-plan-640.jpg 640w, /images/service-sld-plan-960.jpg 960w, /images/service-sld-plan-1280.jpg 1280w, /images/service-sld-plan-1920.jpg 1920w"
         imageAlt="Wiring diagram and block diagram of a 16 kW Solis hybrid solar PV system with three PV strings, rapid shutdown device, Dyness batteries and automatic transfer switch" focus="30% 45%" :tilt="false" protect />
 
     <x-section labelledby="sheets-title">
