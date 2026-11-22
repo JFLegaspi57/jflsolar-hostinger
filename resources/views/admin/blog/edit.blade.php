@@ -6,7 +6,7 @@
         :intro="$isNew ? '“Save as draft” keeps it hidden while you write; “Save and publish” puts it on the blog straight away. You can add images after the first save.' : null" />
 
     @unless ($isNew)
-        <x-admin.edit-header entity="blog" :record="$post" :name="$post->title" :public-href="'/blog/'.$post->slug">
+        <x-admin.edit-header entity="blog" :record="$post" :name="$post->title" :public-href="'/blog/'.$post->slug" :preview-href="$post->status === 'draft' ? '/blog/'.$post->slug : null">
             @if ($post->published_at)<p class="mt-2 text-sm text-steel-600">Date shown on the post: {{ \App\Support\Blog::date($post) }}</p>@endif
         </x-admin.edit-header>
     @endunless

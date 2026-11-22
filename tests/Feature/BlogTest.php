@@ -37,6 +37,23 @@ class BlogTest extends TestCase
         $this->get('/blog')->assertSee('aria-current="page"', false);
     }
 
+    public function test_staff_can_preview_a_draft_post_that_visitors_cannot_see(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->post('/admin/blog', [
+            'title' => 'On my way to Mindoro', 'body' => 'A first installation for a new team, with our full technical support.', 'intent' => 'save',
+        ]);
+        $post = BlogPost::query()->firstOrFail();
+        $this->assertSame('draft', $post->status);
+        $this->actingAs($staff, 'web')->get('/admin/blog/'.$post->id)->assertSee('href="/blog/'.$post->slug.'"', false)->assertSee('Preview full page');
+        $this->actingAs($staff, 'web')->get('/blog/'.$post->slug)->assertOk()
+            ->assertSee('Staff preview: this post is not published yet.')->assertSee('A first installation for a new team')
+            ->assertSee('<meta name="robots" content="noindex', false);
+        auth('web')->logout();
+        $this->get('/blog/'.$post->slug)->assertNotFound();
+        $this->get('/blog')->assertDontSee('On my way to Mindoro');
+    }
+
     public function test_a_post_can_show_a_date_range(): void
     {
         $staff = $this->staff();
@@ -77,6 +94,8 @@ class BlogTest extends TestCase
         $post = BlogPost::query()->firstOrFail();
         $this->assertSame('draft', $post->status);
         $this->assertNull($post->published_at);
+        // Hidden from visitors (signed-in staff get a preview).
+        auth('web')->logout();
         $this->get('/blog/'.$post->slug)->assertNotFound();
 
         // Cover image upload, hidden while the post is a draft.
@@ -129,6 +148,7 @@ class BlogTest extends TestCase
 
         // Unpublish from the list hides it again.
         $this->actingAs($staff, 'web')->post('/admin/blog/'.$post->id.'/status', ['status' => 'draft']);
+        auth('web')->logout();
         $this->get('/blog/'.$post->slug)->assertNotFound();
         $this->get('/blog')->assertSee('The first post is on the way.');
     }
