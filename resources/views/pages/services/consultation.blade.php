@@ -17,8 +17,10 @@
 @endphp
 <x-site-layout title="Solar PV Consultation" path="/services/consultation"
     description="Talk to a solar PV engineer before you buy: bill and load review, system sizing, equipment selection, a second opinion on quotations, help with existing systems and net metering.">
-    <x-page-header eyebrow="Services" title="Solar PV Consultation"
-        intro="Talk to an engineer before you spend. We help you choose the right solar PV system, size it to your bills and loads, and avoid costly mistakes." />
+    <x-page-hero eyebrow="Services" title="Solar PV Consultation"
+        intro="Talk to an engineer before you spend. We help you choose the right solar PV system, size it to your bills and loads, and avoid costly mistakes."
+        image="/images/service-consultation-banner-1280.jpg" srcset="/images/service-consultation-banner-640.jpg 640w, /images/service-consultation-banner-960.jpg 960w, /images/service-consultation-banner-1280.jpg 1280w, /images/service-consultation-banner-1920.jpg 1920w"
+        imageAlt="A consultation at the JFL Solar office: clients seated across the desk from the engineer, with certificates and project photos on the wall" focus="48% 45%" />
 
     <x-section labelledby="help-title">
         <x-section-heading id="help-title" eyebrow="What we can help you with" title="Clear answers before you invest" />
