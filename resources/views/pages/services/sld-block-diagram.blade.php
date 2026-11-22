@@ -13,7 +13,7 @@
         'The loads, if you need a schedule of loads',
     ];
 @endphp
-<x-site-layout title="SLD & Block Diagram" path="/services/sld-block-diagram"
+<x-site-layout title="SLD & Block Diagram" path="/services/sld-block-diagram" :reviews-above-footer="false"
     description="Solar PV plans drawn the way they are done in the Philippines: single-line diagram, wiring and block diagram, design calculations and datasheets on A3 sheets, ready for the design professional's signature.">
     <x-page-hero eyebrow="Services" title="SLD & Block Diagram"
         intro="Complete solar PV plans on A3 sheets: single-line diagram, wiring and block diagram, design calculations and datasheets, laid out with a title block ready for your design professional's signature and seal."
@@ -66,7 +66,7 @@
     </style>
     <script>
         (function () {
-            // Deterrents only: a web page cannot fully stop screenshots or saving. The watermark is the real protection.
+            // Deterrents only: a web page cannot fully stop screenshots or saving.
             // No right-click menu, dragging or long-press saving on the banner.
             var guarded = function (t) { return t.closest && t.closest('.hero-media'); };
             document.addEventListener('contextmenu', function (e) { if (guarded(e.target)) e.preventDefault(); });
