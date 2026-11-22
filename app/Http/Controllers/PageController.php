@@ -221,7 +221,10 @@ class PageController extends Controller
 
     private function blogPostView(string $slug, bool $tagalog): View
     {
-        $post = \App\Support\Blog::find($slug) ?? abort(404);
+        // Signed-in staff can also open a draft post at its own address (a staff-only preview).
+        $post = \App\Support\Blog::find($slug)
+            ?? (auth('web')->check() ? \App\Support\Blog::findUnpublished($slug) : null)
+            ?? abort(404);
         $tl = \App\Support\Blog::tagalog($post);
         abort_if($tagalog && ! $tl, 404);
 

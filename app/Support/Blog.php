@@ -129,6 +129,15 @@ final class Blog
         return self::published()->firstWhere('slug', $slug);
     }
 
+    /** A post that is not published yet (draft), for signed-in staff to preview at its own address. */
+    public static function findUnpublished(string $slug): ?BlogPost
+    {
+        self::ensureTables();
+        $post = BlogPost::query()->where('slug', $slug)->where('status', 'draft')->first();
+
+        return $post ? self::withImages(collect([$post]))->first() : null;
+    }
+
     private static function withImages(Collection $posts): Collection
     {
         $images = $posts->isEmpty() ? collect() : MediaAsset::query()->whereIn('blog_post_id', $posts->pluck('id'))->where('kind', 'image')

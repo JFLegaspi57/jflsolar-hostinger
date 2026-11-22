@@ -40,7 +40,7 @@
         'mainEntityOfPage' => Site::url($pagePath),
     ];
 @endphp
-<x-site-layout :title="$title" :path="$pagePath" :description="$description" :noindex="$post->is_sample" :reviews-above-footer="false" :lang="$tagalog ? 'fil' : 'en-PH'">
+<x-site-layout :title="$title" :path="$pagePath" :description="$description" :noindex="$post->is_sample || $post->status !== 'published'" :reviews-above-footer="false" :lang="$tagalog ? 'fil' : 'en-PH'">
     <x-slot:head>
         @if ($tl)@include('partials.guide-hreflang', ['en' => $enPath])@endif
         <style>
@@ -118,6 +118,9 @@
                 @endif
             </div>
             @if ($post->is_sample && ! Site::isProduction())<div class="mt-3"><x-sample-badge label="Sample post" /></div>@endif
+            @if ($post->status !== 'published')
+                <p role="status" class="mt-4 rounded-[var(--radius-control)] border border-gold-500 bg-gold-50 px-4 py-3 text-sm font-semibold text-steel-900">Staff preview: this post is not published yet. Only signed-in staff can see it.</p>
+            @endif
             @if ($fullAccess)
                 <x-paragraphs :text="$text" class="mt-8 text-lg leading-relaxed text-steel-800" />
             @else
@@ -172,7 +175,9 @@
             </div>
         </article>
         <aside id="comments" class="bp-aside" style="scroll-margin-top: 6rem">
+            @if ($post->status === 'published')
             @include('partials.blog-comments')
+            @endif
         </aside>
         </div>
     </x-container>
