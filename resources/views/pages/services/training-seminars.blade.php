@@ -25,6 +25,7 @@
         <div class="max-w-3xl min-w-0 space-y-4 text-lg text-steel-700">
             <p>JF Legaspi has a background in Electrical and Renewable Energy Engineering and lived and worked in Europe for more than three decades, where he was CTO of a solar company designing and managing mostly commercial and industrial solar PV installations.</p>
             <p>Today he is a regular resource person at solar PV seminars across the Philippines, organized by various solar companies. He is an educator by nature: he explains the technical side in plain words, so that every participant goes home able to do the work the right way.</p>
+            <p>We also have our own <strong class="text-steel-900">JFL Solar Training Center</strong>, at the same address as our warehouse@if ($settings->warehouse_address): {{ $settings->warehouse_address }}@endif. It is fitted with solar panels, hybrid inverters, batteries and a wiring demo wall, so participants learn hands-on with real equipment.</p>
             <p>Read more <a href="/about" class="font-semibold text-steel-900 underline">about JF Legaspi and JFL Solar</a> or follow his <a href="/blog" class="font-semibold text-steel-900 underline">blog</a>.</p>
         </div>
         <div class="mx-auto w-[13rem] shrink-0 overflow-hidden md:mx-0 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: 9 / 16">
