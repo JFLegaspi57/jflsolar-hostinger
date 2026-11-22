@@ -33,6 +33,22 @@ class PageController extends Controller
         return view('pages.services', ['settings' => PublicContent::settings()]);
     }
 
+    /** Services sub-pages (Services menu): Consultation, Training & Seminars, SLD & Block Diagram. */
+    public function serviceConsultation(): View
+    {
+        return view('pages.services.consultation', ['settings' => PublicContent::settings()]);
+    }
+
+    public function serviceTraining(): View
+    {
+        return view('pages.services.training-seminars', ['settings' => PublicContent::settings()]);
+    }
+
+    public function serviceSld(): View
+    {
+        return view('pages.services.sld-block-diagram', ['settings' => PublicContent::settings()]);
+    }
+
     public function about(): View
     {
         $s = PublicContent::snapshot();
@@ -347,7 +363,7 @@ class PageController extends Controller
     public function sitemap(): Response
     {
         $s = PublicContent::snapshot();
-        $urls = collect(['/', '/services', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/faq/tagalog', '/delivery-rates', '/payment-methods', '/brands', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
+        $urls = collect(['/', '/services', '/services/consultation', '/services/training-seminars', '/services/sld-block-diagram', '/packages', '/packages/build-your-own', '/products', '/projects', '/pv-calculator', '/faq', '/faq/tagalog', '/delivery-rates', '/payment-methods', '/brands', '/net-metering', '/net-metering/tagalog', '/hybrid-pv-system-guide', '/hybrid-pv-system-guide/tagalog', '/grid-tied-pv-system-guide', '/grid-tied-pv-system-guide/tagalog', ...array_map(fn ($s) => '/brands/'.$s, array_keys(\App\Support\BrandArticles::available())), '/about', '/contact', '/privacy', '/terms'])->map(fn ($p) => ['loc' => Site::url($p === '/' ? '/' : $p), 'lastmod' => null]);
         foreach ([['packages', '/packages/'], ['products', '/products/'], ['projects', '/projects/']] as [$key, $prefix]) {
             foreach ($s[$key]->where('is_sample', false) as $item) {
                 $urls->push(['loc' => Site::url($prefix.$item->slug), 'lastmod' => $item->updated_at?->toAtomString()]);
