@@ -15,7 +15,7 @@
         ['Proposal and quotation', 'You receive a written proposal with the system design, equipment list, inclusions, exclusions and price.'],
     ];
 @endphp
-<x-site-layout title="Solar PV Consultation" path="/services/consultation"
+<x-site-layout title="Solar PV Consultation" path="/services/consultation" :reviews-above-footer="false"
     description="Talk to a solar PV engineer before you buy: bill and load review, system sizing, equipment selection, a second opinion on quotations, help with existing systems and net metering.">
     <x-page-hero eyebrow="Services" title="Solar PV Consultation"
         intro="Talk to an engineer before you spend. We help you choose the right solar PV system, size it to your bills and loads, and avoid costly mistakes."
