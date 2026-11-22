@@ -225,4 +225,19 @@ class BlogTest extends TestCase
         $this->actingAs($staff, 'web')->get('/admin/blog')->assertOk()->assertSee('3 view(s)')->assertSee('/admin/blog/views');
         $this->actingAs($staff, 'web')->get('/admin/blog/views')->assertOk()->assertSee('Blog views')->assertSee('Counting readers');
     }
+
+    public function test_some_posts_give_only_their_cover_to_the_blog_banner(): void
+    {
+        $m = fn (string $alt) => new MediaAsset(['alt' => $alt, 'width' => 1600]);
+        $cover = $m('Doc Vitto with his new solar PV system');
+        $only = new BlogPost(['slug' => 'unparalleled-tech-support-first-solar-pv-installation']);
+        $only->photos = collect([$cover, $m('Wiring inside the panel'), $m('Battery rack')]);
+        $only->cover = $cover;
+        $other = new BlogPost(['slug' => 'jf-visit-to-dyness']);
+        $other->photos = collect([$m('JF at Dyness'), $m('Dyness showroom')]);
+        $other->cover = $other->photos->first();
+
+        $alts = \App\Support\Blog::bannerPhotos(collect([$only, $other]))->pluck('alt')->all();
+        $this->assertSame(['Doc Vitto with his new solar PV system', 'JF at Dyness', 'Dyness showroom'], $alts);
+    }
 }
