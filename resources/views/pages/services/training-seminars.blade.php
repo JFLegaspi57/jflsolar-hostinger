@@ -13,8 +13,10 @@
 @endphp
 <x-site-layout title="Solar PV Training & Seminars" path="/services/training-seminars"
     description="Solar PV training and seminars with JF Legaspi: seminars for solar companies and organizations, a free online course, and hands-on guidance for new installers.">
-    <x-page-header eyebrow="Services" title="Training & Seminars"
-        intro="Learn from the best... learn it the right way! Solar PV training for installers, engineers, students and anyone who wants to understand solar PV systems properly." />
+    <x-page-hero eyebrow="Services" title="Training & Seminars"
+        intro="Learn from the best... learn it the right way! Solar PV training for installers, engineers, students and anyone who wants to understand solar PV systems properly."
+        image="/images/service-training-banner-1280.jpg" srcset="/images/service-training-banner-640.jpg 640w, /images/service-training-banner-960.jpg 960w, /images/service-training-banner-1280.jpg 1280w, /images/service-training-banner-1920.jpg 1920w"
+        imageAlt="A full seminar hall of solar PV installers and engineers listening to a talk, with the presentation on screen at the front" focus="40% 55%" />
 
     <x-section labelledby="trainer-title">
         <x-section-heading id="trainer-title" eyebrow="Your trainer" title="JF Legaspi" />
