@@ -20,19 +20,35 @@
 
     <x-section labelledby="trainer-title">
         <x-section-heading id="trainer-title" eyebrow="Your trainer" title="JF Legaspi" />
-        {{-- Text with JF's YouTube Short beside it (stacked on phones). --}}
+        {{-- Text with JF's YouTube Short beside it (stacked on phones). From tablet width the video is exactly as tall as the text (9:16, width follows). --}}
         <div class="mt-6 flex flex-col items-start gap-6 md:flex-row md:gap-8">
-        <div class="max-w-3xl min-w-0 space-y-4 text-lg text-steel-700">
+        <div id="trainer-text" class="max-w-3xl min-w-0 space-y-4 text-lg text-steel-700">
             <p>JF Legaspi has a background in Electrical and Renewable Energy Engineering and lived and worked in Europe for more than three decades, where he was CTO of a solar company designing and managing mostly commercial and industrial solar PV installations.</p>
             <p>Today he is a regular resource person at solar PV seminars across the Philippines, organized by various solar companies. He is an educator by nature: he explains the technical side in plain words, so that every participant goes home able to do the work the right way.</p>
             <p>We also have our own <strong class="text-steel-900">JFL Solar Training Center</strong>, at the same address as our warehouse@if ($settings->warehouse_address): {{ $settings->warehouse_address }}@endif. It is fitted with solar panels, hybrid inverters, batteries and a wiring demo wall, so participants learn hands-on with real equipment.</p>
             <p>Read more <a href="/about" class="font-semibold text-steel-900 underline">about JF Legaspi and JFL Solar</a> or follow his <a href="/blog" class="font-semibold text-steel-900 underline">blog</a>.</p>
         </div>
-        <div class="mx-auto w-[13rem] shrink-0 overflow-hidden md:mx-0 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: 9 / 16">
+        <div id="trainer-video" class="mx-auto w-[13rem] shrink-0 overflow-hidden md:mx-0 rounded-[var(--radius-panel)] border border-steel-200 bg-steel-950" style="aspect-ratio: 9 / 16">
             <iframe src="https://www.youtube-nocookie.com/embed/KYYRJXnzyQk" title="JF Legaspi, your trainer (YouTube Short)" loading="lazy"
                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" style="width: 100%; height: 100%; border: 0"></iframe>
         </div>
         </div>
+        <script>
+            (function () {
+                var text = document.getElementById('trainer-text'), video = document.getElementById('trainer-video');
+                if (!text || !video || !window.ResizeObserver) return;
+                var wide = window.matchMedia('(min-width: 48rem)');
+                function fit() {
+                    if (!wide.matches) { video.style.width = ''; video.style.height = ''; return; }
+                    var h = text.getBoundingClientRect().height;
+                    video.style.height = h + 'px';
+                    video.style.width = Math.round(h * 9 / 16) + 'px';
+                }
+                new ResizeObserver(fit).observe(text);
+                wide.addEventListener('change', fit);
+                fit();
+            })();
+        </script>
     </x-section>
 
     <x-section tone="muted" labelledby="offer-title">
