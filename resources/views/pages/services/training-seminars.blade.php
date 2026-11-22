@@ -15,8 +15,8 @@
     description="Solar PV training and seminars with JF Legaspi: seminars for solar companies and organizations, a free online course, and hands-on guidance for new installers.">
     <x-page-hero eyebrow="Services" title="Training & Seminars"
         intro="Learn from the best... learn it the right way! Solar PV training for installers, engineers, students and anyone who wants to understand solar PV systems properly."
-        image="/images/service-training-banner-1280.jpg" srcset="/images/service-training-banner-640.jpg 640w, /images/service-training-banner-960.jpg 960w, /images/service-training-banner-1280.jpg 1280w, /images/service-training-banner-1920.jpg 1920w"
-        imageAlt="A full seminar hall of solar PV installers and engineers listening to a talk, with the presentation on screen at the front" focus="40% 55%" />
+        image="/images/service-training-center-1280.jpg" srcset="/images/service-training-center-640.jpg 640w, /images/service-training-center-960.jpg 960w, /images/service-training-center-1280.jpg 1280w, /images/service-training-center-1920.jpg 1920w"
+        imageAlt="Trainees in matching JFL Solar shirts giving a thumbs up in front of the JFL Solar Training Center" focus="50% 45%" />
 
     <x-section labelledby="trainer-title">
         <x-section-heading id="trainer-title" eyebrow="Your trainer" title="JF Legaspi" />
@@ -61,6 +61,11 @@
     @php
         // Training photos: [number, available widths, alt text]. Files: /images/training-photo-NN-WIDTH.(jpg|webp)
         $photos = [
+            [13, [640, 1280], 'Trainees in matching JFL Solar shirts posing in front of the JFL Solar Training Center building'],
+            [14, [640, 1280], 'Training session inside the JFL Solar Training Center, with inverters and a meter on the demo wall'],
+            [15, [640, 1280], 'Lecture on AC and DC circuit breakers at the JFL Solar Training Center'],
+            [16, [640, 1280], 'Hands-on wiring practice on the inverter demo wall at the JFL Solar Training Center'],
+            [17, [640, 854], 'Group photo of a training batch inside the JFL Solar Training Center'],
             [1, [640, 1280], 'Seminar participants giving a thumbs up around inverters and batteries on the training tables'],
             [2, [640, 1280], 'Hands-on training group posing beside a lithium battery and a wired inverter demo board'],
             [3, [640, 1280], 'Large seminar group photo in a hotel function room with a solar panel on display'],
