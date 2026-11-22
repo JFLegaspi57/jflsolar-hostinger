@@ -28,6 +28,7 @@
             }
         }
         $preview = implode("\n", $kept);
+        $lockedPhotos = $more->count();
         $more = collect();
         $viewer = [];
     }
@@ -90,7 +91,7 @@
             .bp-gate { margin-top: 1.5rem; border: 1px solid var(--color-steel-200); border-top: 4px solid var(--color-gold-500); border-radius: var(--radius-panel); background: var(--color-steel-50); padding: 1.5rem; }
             .bp-gate h2 { font-size: 1.35rem; font-weight: 800; color: var(--color-steel-950); }
             .bp-gate ul { margin-top: .75rem; }
-            .bp-gate li { margin-left: 1.25rem; list-style: disc; color: var(--color-steel-800); }
+            .bp-gate li { display: flex; align-items: flex-start; gap: .5rem; color: var(--color-steel-800); }
             .bp-gate li + li { margin-top: .25rem; }
             .bp-gate-actions { margin-top: 1.25rem; display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; }
             .bp-lang { display: inline-flex; align-items: center; gap: .4rem; min-height: 2.75rem; font-weight: 700; color: var(--color-steel-900); text-decoration: underline; text-underline-offset: .2em; }
@@ -121,36 +122,52 @@
             @if ($post->status !== 'published')
                 <p role="status" class="mt-4 rounded-[var(--radius-control)] border border-gold-500 bg-gold-50 px-4 py-3 text-sm font-semibold text-steel-900">Staff preview: this post is not published yet. Only signed-in staff can see it.</p>
             @endif
+            @unless ($fullAccess)
+                <p class="mt-4 rounded-[var(--radius-control)] border border-steel-200 bg-steel-50 px-4 py-3 text-sm text-steel-800">
+                    {{ $tagalog ? 'Libre para sa mga miyembro ang buong post at mga larawan.' : 'The full post and photos are free for members.' }}
+                    <a href="/signup?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">{{ $tagalog ? 'Mag-sign up nang libre' : 'Sign up free' }}</a>
+                    {{ $tagalog ? 'o' : 'or' }} <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">{{ $tagalog ? 'mag-sign in' : 'sign in' }}</a>.
+                </p>
+            @endunless
             @if ($fullAccess)
                 <x-paragraphs :text="$text" class="mt-8 text-lg leading-relaxed text-steel-800" />
             @else
                 <div class="bp-preview"><x-paragraphs :text="$preview" class="mt-8 text-lg leading-relaxed text-steel-800" /></div>
+                @php
+                    $lockedPhotos = $lockedPhotos ?? 0;
+                    $g = $tagalog ? [
+                        'title' => 'Gusto mo bang mabasa ang kabuuan? Sumali nang libre!',
+                        'lead' => $lockedPhotos > 0
+                            ? "Naghihintay sa iyo ang buong kuwento at {$lockedPhotos} larawan. Libre ang JFL Solar account at wala pang isang minuto ang pag-sign up."
+                            : 'Naghihintay sa iyo ang buong kuwento. Libre ang JFL Solar account at wala pang isang minuto ang pag-sign up.',
+                        'perks' => ['Basahin nang buo ang bawat blog post, kasama ang lahat ng larawan', 'Gumawa, mag-save at mag-print ng sarili mong solar PV quotation gamit ang Make a Quotation', 'Mag-react at mag-comment sa mga post', 'Magtanong at sumali sa mga talakayan sa aming forum'],
+                        'free' => 'Libre. Walang bayad, walang credit card.',
+                        'email' => 'Mag-sign up gamit ang email', 'member' => 'Miyembro ka na?', 'signin' => 'Mag-sign in',
+                    ] : [
+                        'title' => 'Enjoying the story? Join free to read the rest',
+                        'lead' => $lockedPhotos > 0
+                            ? "The full story and {$lockedPhotos} photos are waiting for you. A JFL Solar account is free, and signing up takes less than a minute."
+                            : 'The full story is waiting for you. A JFL Solar account is free, and signing up takes less than a minute.',
+                        'perks' => ['Read every blog post in full, with all the photos', 'Make, save and print your own solar PV quotations with Make a Quotation', 'React to and comment on posts', 'Ask questions and join the discussions in our forum'],
+                        'free' => 'Free. No payment, no credit card.',
+                        'email' => 'Sign up with email', 'member' => 'Already a member?', 'signin' => 'Sign in',
+                    ];
+                @endphp
                 <section class="bp-gate" aria-labelledby="bp-gate-title">
-                    @if ($tagalog)
-                        <h2 id="bp-gate-title">Basahin ang buong post: libre para sa mga miyembro</h2>
-                        <p class="mt-2 text-steel-800">Gumawa ng libreng JFL Solar account para mabasa nang buo ang bawat blog post, kasama ang lahat ng larawan.</p>
-                        <ul>
-                            <li>Buong artikulo at mga photo gallery</li>
-                            <li>Mag-react at mag-comment sa mga post</li>
-                            <li>Sumali sa mga talakayan sa aming forum</li>
-                        </ul>
-                        <div class="bp-gate-actions">
-                            <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Mag-sign up nang libre</a>
-                            <span class="text-steel-700">Miyembro ka na? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Mag-sign in</a></span>
-                        </div>
-                    @else
-                        <h2 id="bp-gate-title">Read the full post: free for members</h2>
-                        <p class="mt-2 text-steel-800">Create a free JFL Solar account to read every blog post in full, with all the photos.</p>
-                        <ul>
-                            <li>Full articles and photo galleries</li>
-                            <li>React to and comment on posts</li>
-                            <li>Join the discussions in our forum</li>
-                        </ul>
-                        <div class="bp-gate-actions">
-                            <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">Sign up free</a>
-                            <span class="text-steel-700">Already a member? <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">Sign in</a></span>
-                        </div>
-                    @endif
+                    <p class="text-sm font-semibold tracking-wide text-gold-800 uppercase">{{ $tagalog ? 'Para sa mga miyembro' : 'Members only' }}</p>
+                    <h2 id="bp-gate-title" class="mt-1">{{ $g['title'] }}</h2>
+                    <p class="mt-2 text-steel-800">{{ $g['lead'] }}</p>
+                    <ul class="bp-perks">
+                        @foreach ($g['perks'] as $perk)
+                            <li><x-icon name="check" class="mt-1 size-4 shrink-0 text-gold-800" />{{ $perk }}</li>
+                        @endforeach
+                    </ul>
+                    <p class="mt-3 text-sm font-semibold text-steel-900">{{ $g['free'] }}</p>
+                    @include('partials.social-login', ['mode' => 'signup', 'next' => $pagePath])
+                    <div class="bp-gate-actions">
+                        <a href="/signup?next={{ $nextPath }}" class="{{ Ui::button('primary', 'lg') }}">{{ $g['email'] }}</a>
+                        <span class="text-steel-700">{{ $g['member'] }} <a href="/login?next={{ $nextPath }}" class="font-semibold text-steel-900 underline">{{ $g['signin'] }}</a></span>
+                    </div>
                 </section>
             @endif
             @if ($more->isNotEmpty())
