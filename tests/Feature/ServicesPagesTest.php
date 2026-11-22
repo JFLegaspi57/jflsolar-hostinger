@@ -33,7 +33,7 @@ class ServicesPagesTest extends TestCase
         $this->get('/services/training-seminars')->assertOk()->assertSee('Training &amp; Seminars', false)->assertSee('Learn from the best')
             ->assertSee('href="/courses/solar-pv-system-design"', false);
         $this->get('/services/sld-block-diagram')->assertOk()->assertSee('SLD &amp; Block Diagram', false)->assertSee('Single-line diagram (SLD)')
-            ->assertSee('/images/service-sld-sample-1600.jpg', false);
+            ->assertSee('/images/service-sld-banner-1280.jpg', false)->assertDontSee('service-sld-sample', false);
         $this->get('/sitemap.xml')->assertSee('/services/consultation')->assertSee('/services/sld-block-diagram');
     }
 }
