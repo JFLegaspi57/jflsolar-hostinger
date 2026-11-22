@@ -336,4 +336,55 @@ final class Visitors
 
         return (int) DB::table('visitor_ids')->count();
     }
+
+    /**
+     * Views of every blog post, all time (English and Filipino pages together), keyed by slug:
+     * views, different readers, Filipino-page views, views in the last 30 days, average seconds on the page.
+     * Staff, robots and "do not track" browsers are not counted (see CountVisitors).
+     *
+     * @return array<string, array{views: int, readers: int, tl: int, last30: int, avg: ?int}>
+     */
+    public static function blogViews(): array
+    {
+        self::ensureTables();
+        $since30 = CarbonImmutable::now(self::TZ)->subDays(29)->toDateString();
+        $rows = DB::table('page_views')->where('path', 'like', '/blog/%')
+            ->get(['path', 'id_hash', 'day', 'duration_s']);
+        $out = [];
+        $readers = [];
+        $secs = [];
+        foreach ($rows as $r) {
+            if (! preg_match('#^/blog/([a-z0-9-]+)(/tagalog)?/?$#', $r->path, $m)) {
+                continue;
+            }
+            $slug = $m[1];
+            $out[$slug] ??= ['views' => 0, 'readers' => 0, 'tl' => 0, 'last30' => 0, 'avg' => null];
+            $out[$slug]['views']++;
+            if (! empty($m[2])) {
+                $out[$slug]['tl']++;
+            }
+            if ((string) $r->day >= $since30) {
+                $out[$slug]['last30']++;
+            }
+            $readers[$slug][$r->id_hash] = true;
+            if ($r->duration_s !== null) {
+                $secs[$slug][] = min((int) $r->duration_s, self::MAX_PAGE_SECONDS);
+            }
+        }
+        foreach ($out as $slug => &$v) {
+            $v['readers'] = count($readers[$slug] ?? []);
+            $v['avg'] = isset($secs[$slug]) ? (int) round(array_sum($secs[$slug]) / count($secs[$slug])) : null;
+        }
+
+        return $out;
+    }
+
+    /** First day page views were counted (or null if none yet). */
+    public static function firstPageViewDay(): ?string
+    {
+        self::ensureTables();
+        $d = DB::table('page_views')->min('day');
+
+        return $d ? (string) $d : null;
+    }
 }

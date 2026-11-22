@@ -207,4 +207,22 @@ class BlogTest extends TestCase
         $this->assertFalse(\App\Support\Blog::bannerPhoto($m('Step-by-step wiring of the inverter')));
         $this->assertFalse(\App\Support\Blog::bannerPhoto($m('JF on stage', 600)));   // too small
     }
+
+    public function test_staff_see_how_many_times_each_post_was_viewed(): void
+    {
+        $staff = $this->staff();
+        $this->actingAs($staff, 'web')->post('/admin/blog', [
+            'title' => 'Counting readers', 'body' => 'A post that a few people read, some in Filipino.', 'intent' => 'publish',
+        ]);
+        $post = BlogPost::query()->firstOrFail();
+        \App\Support\Visitors::recordPage('aaaaaaaaaaaaaaaaaaaaaaa1', 'visitor-one', '/blog/'.$post->slug);
+        \App\Support\Visitors::recordPage('aaaaaaaaaaaaaaaaaaaaaaa2', 'visitor-one', '/blog/'.$post->slug);
+        \App\Support\Visitors::recordPage('aaaaaaaaaaaaaaaaaaaaaaa3', 'visitor-two', '/blog/'.$post->slug.'/tagalog');
+        \App\Support\Visitors::recordPage('aaaaaaaaaaaaaaaaaaaaaaa4', 'visitor-two', '/blog');
+
+        $v = \App\Support\Visitors::blogViews()[$post->slug];
+        $this->assertSame([3, 2, 1, 3], [$v['views'], $v['readers'], $v['tl'], $v['last30']]);
+        $this->actingAs($staff, 'web')->get('/admin/blog')->assertOk()->assertSee('3 view(s)')->assertSee('/admin/blog/views');
+        $this->actingAs($staff, 'web')->get('/admin/blog/views')->assertOk()->assertSee('Blog views')->assertSee('Counting readers');
+    }
 }
