@@ -18,6 +18,9 @@ final class CourseResults
 
     private const TABLE = 'course_quiz_results';
 
+    /** Answer text once saved by the "mark passed" staff tool (now the model answer is saved instead). */
+    private const STAFF_MARK = '(marked passed by staff)';
+
     private const TABLE_KEY = 'course-quiz-results-v3';
 
     /** The last lesson each member opened (one row per member). */
@@ -75,7 +78,8 @@ final class CourseResults
 
     /**
      * Staff tool: marks every question of every published lesson "correct" for a member (and the lessons opened),
-     * e.g. for a test account. Questions the member already answered correctly keep their answer. Returns lessons done.
+     * e.g. for a test account, recording the lesson's model answer as their answer. Questions the member already
+     * answered correctly in their own words keep their answer. Returns lessons done.
      */
     public static function markAllPassed(int $memberId, ?int $onlyLessonId = null): int
     {
@@ -85,12 +89,13 @@ final class CourseResults
         $now = now();
         $n = 0;
         foreach ($lessons as $l) {
-            $total = CourseQuiz::count((string) ($bodies[$l->id] ?? ''));
-            for ($q = 0; $q < $total; $q++) {
-                $have = DB::table(self::TABLE)->where(['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q])->value('verdict');
-                if ($have !== 'correct') {
+            $questions = CourseQuiz::questions((string) ($bodies[$l->id] ?? ''));
+            foreach ($questions as $q => $question) {
+                $have = DB::table(self::TABLE)->where(['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q])->first(['verdict', 'answer']);
+                if (! $have || $have->verdict !== 'correct' || $have->answer === self::STAFF_MARK) {
+                    $answer = mb_substr($question['a'], 0, 1500) ?: self::STAFF_MARK;
                     DB::table(self::TABLE)->upsert(
-                        [['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q, 'verdict' => 'correct', 'answer' => '(marked passed by staff)', 'created_at' => $now, 'updated_at' => $now]],
+                        [['member_id' => $memberId, 'lesson_id' => $l->id, 'q' => $q, 'verdict' => 'correct', 'answer' => $answer, 'created_at' => $now, 'updated_at' => $now]],
                         ['member_id', 'lesson_id', 'q'], ['verdict', 'answer', 'updated_at']);
                 }
             }
