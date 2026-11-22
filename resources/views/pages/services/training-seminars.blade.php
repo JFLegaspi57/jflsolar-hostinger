@@ -58,5 +58,72 @@
         </ul>
     </x-section>
 
+    @php
+        // Training photos: [number, available widths, alt text]. Files: /images/training-photo-NN-WIDTH.(jpg|webp)
+        $photos = [
+            [1, [640, 1280], 'Seminar participants giving a thumbs up around inverters and batteries on the training tables'],
+            [2, [640, 1280], 'Hands-on training group posing beside a lithium battery and a wired inverter demo board'],
+            [3, [640, 1280], 'Large seminar group photo in a hotel function room with a solar panel on display'],
+            [4, [640, 1280], 'Training graduates holding their certificates in matching shirts'],
+            [5, [640, 1280], 'Seminar participants seated and standing for a group photo in front of solar panels'],
+            [6, [640, 1280], 'Seminar group giving thumbs up in a function room with a yellow wall and a solar panel'],
+            [7, [640, 1280], 'Group photo at an in-depth seminar on solar energy, with the seminar banner on screen'],
+            [8, [640, 1280], 'Full room of seminar participants at blue-covered tables posing for a group photo'],
+            [9, [640, 1280], 'Seminar participants at blue tables listening to a talk'],
+            [10, [640, 1224], 'JF Legaspi presenting commissioning steps on a screen to a standing audience'],
+            [11, [640, 720], 'Small-group training photo in a classroom with wooden walls'],
+            [12, [640, 1280], 'JF Legaspi taking a selfie with seminar participants at red tables behind him'],
+        ];
+        $tp = fn (int $n, int $w, string $ext = 'jpg') => sprintf('/images/training-photo-%02d-%d.%s', $n, $w, $ext);
+    @endphp
+    <x-section tone="muted" labelledby="gallery-title">
+        <x-section-heading id="gallery-title" eyebrow="Gallery" title="From our trainings and seminars" />
+        <ul class="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
+            @foreach ($photos as $k => [$n, $ws, $alt])
+                <li>
+                    <button type="button" class="tr-photo group block w-full overflow-hidden rounded-[var(--radius-panel)] bg-steel-200" data-i="{{ $k }}" aria-label="Open photo: {{ $alt }}">
+                        <picture>
+                            <source type="image/webp" srcset="{{ collect($ws)->map(fn ($w) => $tp($n, $w, 'webp').' '.$w.'w')->implode(', ') }}" sizes="(min-width: 64rem) 24rem, 50vw">
+                            <img src="{{ $tp($n, $ws[0]) }}" srcset="{{ collect($ws)->map(fn ($w) => $tp($n, $w).' '.$w.'w')->implode(', ') }}" sizes="(min-width: 64rem) 24rem, 50vw"
+                                alt="{{ $alt }}" loading="lazy" decoding="async" draggable="false" class="aspect-[4/3] h-full w-full object-cover transition duration-300 group-hover:scale-105">
+                        </picture>
+                    </button>
+                </li>
+            @endforeach
+        </ul>
+    </x-section>
+
+    <dialog id="tr-viewer" class="m-auto w-[min(96vw,80rem)] bg-transparent p-0 backdrop:bg-steel-950/90" aria-label="Training photos">
+        <figure class="relative">
+            <img src="" alt="" draggable="false" class="mx-auto max-h-[85vh] w-auto rounded-[var(--radius-panel)]">
+            <figcaption class="mt-3 flex items-center justify-between gap-3 text-sm text-white">
+                <button type="button" data-prev class="rounded-full bg-white/15 px-4 py-2 font-semibold hover:bg-white/25">← Previous</button>
+                <span data-count></span>
+                <span class="flex gap-2">
+                    <button type="button" data-next class="rounded-full bg-white/15 px-4 py-2 font-semibold hover:bg-white/25">Next →</button>
+                    <button type="button" data-close class="rounded-full bg-white px-4 py-2 font-semibold text-steel-950">Close</button>
+                </span>
+            </figcaption>
+        </figure>
+    </dialog>
+    <script>
+        (function () {
+            var photos = @json(collect($photos)->map(fn ($p) => ['src' => $tp($p[0], end($p[1])), 'alt' => $p[2]])->values());
+            var dlg = document.getElementById('tr-viewer'), img = dlg.querySelector('img'), count = dlg.querySelector('[data-count]'), at = 0;
+            function show(i) { at = (i + photos.length) % photos.length; img.src = photos[at].src; img.alt = photos[at].alt; count.textContent = (at + 1) + ' / ' + photos.length; }
+            document.querySelectorAll('.tr-photo').forEach(function (b) { b.addEventListener('click', function () { show(+b.dataset.i); dlg.showModal(); }); });
+            dlg.querySelector('[data-prev]').addEventListener('click', function () { show(at - 1); });
+            dlg.querySelector('[data-next]').addEventListener('click', function () { show(at + 1); });
+            dlg.querySelector('[data-close]').addEventListener('click', function () { dlg.close(); });
+            dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+            dlg.addEventListener('keydown', function (e) { if (e.key === 'ArrowRight') show(at + 1); if (e.key === 'ArrowLeft') show(at - 1); });
+            // Deterrent against saving: no context menu or dragging on the photos.
+            document.querySelectorAll('.tr-photo, #tr-viewer img').forEach(function (el) {
+                el.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+                el.addEventListener('dragstart', function (e) { e.preventDefault(); });
+            });
+        })();
+    </script>
+
     @include('partials.service-cta', ['ctaTitle' => 'Invite JF to your seminar', 'ctaText' => 'Tell us about your audience, the topics you need and the date and venue you have in mind.'])
 </x-site-layout>
