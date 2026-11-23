@@ -478,6 +478,34 @@ final class CourseResults
         return $ids ? DB::table('members')->whereIn('id', $ids)->whereNotIn('id', self::hiddenIds() ?: [0])->where('status', 'active')->count() : 0;
     }
 
+    /** How many active members have passed every lesson of the course (hidden members left out). */
+    public static function passedCount(): int
+    {
+        self::ensureTable();
+        $lessons = Course::lessons()->values();
+        $ids = $lessons->pluck('id')->all();
+        $n = count($ids);
+        if ($n === 0) {
+            return 0;
+        }
+        $active = DB::table('members')->where('status', 'active')->whereNotIn('id', self::hiddenIds() ?: [0])->pluck('id')->flip();
+        $totals = DB::table('course_lessons')->whereIn('id', $ids)->pluck('body', 'id')->map(fn ($b) => CourseQuiz::count((string) $b));
+        $passedBy = [];
+        $rows = DB::table(self::TABLE)->whereIn('lesson_id', $ids)->get(['member_id', 'lesson_id', 'q', 'verdict']);
+        foreach ($rows->groupBy(fn ($r) => $r->member_id.'-'.$r->lesson_id) as $group) {
+            $first = $group->first();
+            if (! isset($active[$first->member_id])) {
+                continue;
+            }
+            $total = (int) ($totals[$first->lesson_id] ?? 0);
+            if (self::summary($group->filter(fn ($a) => $a->q < $total)->pluck('verdict', 'q')->all(), $total)['status'] === 'passed') {
+                $passedBy[$first->member_id] = ($passedBy[$first->member_id] ?? 0) + 1;
+            }
+        }
+
+        return count(array_filter($passedBy, fn ($c) => $c >= $n));
+    }
+
     /** The member has opened at least one lesson or checked an answer. */
     public static function started(int $memberId): bool
     {

@@ -99,6 +99,7 @@ final class Visitors
                     'members' => $safe(fn () => DB::table('members')->where('status', 'active')->count()),
                     'subscribers' => $safe(fn () => DB::table('newsletter_subscribers')->whereNull('unsubscribed_at')->count()),
                     'students' => $safe(fn () => CourseResults::studentCount()),
+                    'passed' => $safe(fn () => Cache::remember('public-course-passed', 60, fn () => CourseResults::passedCount())),
                     'students_online' => $safe(fn () => Members::online()->count()),   // same list as Admin → Members → Online now
                 ];
             });
