@@ -28,10 +28,10 @@
         <dl class="ba-facts mt-4">
             <div><dt>Energy</dt><dd>16.5 kWh<small>51.2 V × 324 Ah</small></dd></div>
             <div><dt>Cells</dt><dd>LiFePO4<small>CATL EV-grade cells</small></dd></div>
-            <div><dt>Cycle life</dt><dd>10,000+ cycles<small>under the maker’s test conditions</small></dd></div>
+            <div><dt>Cycle life</dt><dd>8,000 cycles<small>from the manufacturer’s datasheet</small></dd></div>
             <div><dt>Expansion</dt><dd>Up to 20 in parallel<small>start with one, add more later</small></dd></div>
             <div><dt>Monitoring</dt><dd>Wi-Fi and Bluetooth app<small>smart BMS with cell balancing</small></dd></div>
-            <div><dt>Enclosure</dt><dd>IP54, wall-mounted<small>discharge from −20 to 40 °C</small></dd></div>
+            <div><dt>Enclosure</dt><dd>IP54, floor-standing or wall-mounted<small>discharge from −20 to 40 °C</small></dd></div>
         </dl>
         <p class="mt-4">51.2 V is the standard for “48 V” home batteries, so it suits the low-voltage hybrid and off-grid inverters most Filipino homes use.</p>
     </section>
