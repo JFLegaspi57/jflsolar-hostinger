@@ -26,6 +26,7 @@
             @media (min-width: 40rem) { .up-card { grid-template-columns: 10rem minmax(0, 1fr); } }
             .up-poster { border-radius: .5rem; }
             .up-label { letter-spacing: .12em; }
+            .up-full { display: inline-block; border-radius: .4rem; background: #b91c1c; color: #fff; font-weight: 800; letter-spacing: .06em; }
         </style>
         <x-section labelledby="upcoming-title" class="up-sem">
             <x-section-heading id="upcoming-title" eyebrow="Upcoming" title="{{ count($upcoming) > 1 ? 'Upcoming seminars' : 'Upcoming seminar' }}" />
@@ -37,10 +38,13 @@
                             <img src="/images/{{ $sem['poster'] }}-640.jpg" alt="" width="640" height="800" loading="lazy" decoding="async" class="up-poster mx-auto w-40 border border-steel-200">
                         </picture>
                         <div>
+                            @if (! empty($sem['full']))
+                                <p class="up-full mb-2 px-3 py-1 text-sm uppercase">Fully booked!</p>
+                            @endif
                             <p class="text-sm up-label font-extrabold uppercase text-gold-800">{{ $sem['kind'] }} · {{ $sem['when'] }}</p>
                             <h3 class="mt-1 text-2xl font-bold text-steel-950 group-hover:underline">{{ $sem['title'] }}</h3>
                             <p class="mt-2 text-steel-700">{{ $sem['where'] }}. {{ $sem['who'] }}. With guest speaker JF Legaspi, in partnership with {{ $sem['partner'] }}</p>
-                            <span class="mt-3 inline-block font-semibold text-steel-900 underline">See details and reserve a slot →</span>
+                            <span class="mt-3 inline-block font-semibold text-steel-900 underline">{{ empty($sem['full']) ? 'See details and reserve a slot →' : 'See details →' }}</span>
                         </div>
                     </a>
                 @endforeach
