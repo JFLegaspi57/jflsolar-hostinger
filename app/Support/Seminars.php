@@ -22,10 +22,10 @@ class Seminars
             'end' => '2026-11-29',
             'when' => 'November 28–29, 2026',
             'where' => 'P-4, Brgy. Bonifacio, Surigao City, Surigao del Norte',
-            'who' => 'Open to all DIYers and electricians',
+            'who' => 'Open to all DIYers, electricians, professional installers and engineers',
             'partner' => 'Early Sky Builders Inc.',
             'full' => true, // Fully booked: no more reservations.
-            'poster' => 'seminar-surigao-2026-poster',
+            'poster' => 'seminar-surigao-2026-poster-v2',
             'speakers' => [
                 ['Guest Speaker', 'JF Legaspi', 'JFL Solar CEO & Founder of Lithium Power Philippines'],
                 ['Lecturer', 'Engr. Joselito S. Baldapan, PEE', 'Founder of Early Sky Builders Inc. and lecturer at the Early Sky Training and Development Center'],
