@@ -28,6 +28,10 @@ class ContactController extends Controller
         $product = $pkg ? null : $s['products']->firstWhere('slug', $pick('product'));
         if ($pkg) {
             $values = array_merge($values, ['item_type' => 'package', 'item_slug' => $pkg->slug, 'item_name' => $pkg->name, 'inquiry_type' => 'package']);
+            // From "Customize this package": describe the visitor's own setup and estimated price.
+            if ($request->query('custom') === '1' && ($lines = \App\Support\PackageCustomizer::lines($pkg))) {
+                $values['message'] = \App\Support\PackageCustomizer::summary($pkg, \App\Support\PackageCustomizer::choose($pkg, $lines, $request->query()));
+            }
         } elseif ($product) {
             $values = array_merge($values, ['item_type' => 'product', 'item_slug' => $product->slug, 'item_name' => $product->name, 'inquiry_type' => 'equipment']);
         }

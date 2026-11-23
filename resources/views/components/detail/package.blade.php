@@ -8,6 +8,7 @@
     $warranty = $pkg->warranty_terms ?: ($settings->general_warranty ?: 'Warranty terms to be confirmed.');
     $promo = $pkg->promo_state ?? $pkg->promoState();
     $build = \App\Support\PackageBuilder::lines($pkg);
+    $custom = $build ? [] : \App\Support\PackageCustomizer::lines($pkg);
 @endphp
 {{-- Shared by the public page and the admin draft preview ($admin = staff-only media URLs). --}}
 <article aria-labelledby="pkg-title">
@@ -34,6 +35,7 @@
                     <a href="#build" class="{{ Ui::button('primary', 'lg', 'mt-6 w-full') }}"><x-icon name="cart" class="size-5" /> Add to Basket and Customize</a>
                 @else
                     <a href="{{ $askHref }}" class="{{ Ui::button('primary', 'lg', 'mt-6 w-full') }}">Ask About This Package</a>
+                    @if ($custom)<a href="#customize" class="{{ Ui::button('secondary', 'lg', 'mt-3 w-full') }}">Customize This Package</a>@endif
                     <a href="{{ Site::telHref($settings->phone_e164) }}" class="mt-3 flex min-h-11 items-center justify-center gap-2 font-semibold text-steel-900 hover:underline"><x-icon name="phone" class="size-4" /> Call {{ $settings->phone_display }}</a>
                 @endif
                 @if ($settings->service_area_note)<p class="mt-4 border-t border-steel-200 pt-4 text-sm text-steel-600">{{ $settings->service_area_note }}</p>@endif
@@ -47,6 +49,8 @@
 
             @if ($build)
                 <x-package-builder :lines="$build" :action="'/packages/'.$pkg->slug.'/basket'" />
+            @elseif ($custom)
+                <x-package-customizer :pkg="$pkg" :lines="$custom" />
             @endif
 
             @if ($pkg->images->isNotEmpty())
