@@ -20,7 +20,7 @@
         .sem-tagline { font-style: italic; }
         .sem-poster { box-shadow: 0 10px 30px rgb(15 23 42 / .18); }
         .sem-num { background: var(--color-gold-400); }
-        .sem-full { display: inline-flex; align-items: center; gap: .5rem; border-radius: .5rem; background: #b91c1c; color: #fff; font-weight: 800; letter-spacing: .06em; }
+        .sem-full { display: flex; width: fit-content; align-items: center; gap: .5rem; border-radius: .5rem; background: #b91c1c; color: #fff; font-weight: 800; letter-spacing: .06em; }
     </style>
     <x-section labelledby="sem-title" class="sem-top">
         <nav aria-label="Breadcrumb" class="text-sm text-steel-600">
@@ -30,6 +30,9 @@
         </nav>
         <div class="sem-grid mt-6">
             <div>
+                @if ($full)
+                    <p class="sem-full mb-3 px-4 py-2 text-lg uppercase">Fully booked!</p>
+                @endif
                 <p class="inline-block sem-kind bg-steel-900 px-3 py-1.5 text-sm font-extrabold uppercase text-white">{{ $s['kind'] }}</p>
                 <h1 id="sem-title" class="mt-4 text-4xl font-extrabold leading-tight text-steel-950 sm:text-5xl">{{ $s['title'] }}</h1>
                 <p class="sem-tagline mt-3 text-xl text-steel-700">“{{ $s['tagline'] }}”</p>
