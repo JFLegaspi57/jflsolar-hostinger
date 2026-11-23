@@ -21,7 +21,7 @@
         ['/projects', 'Installation', false],
         ['/products', 'Supply', false],
         ['/services/consultation', 'Consultation', request()->is('services/consultation')],
-        ['/services/training-seminars', 'Training & Seminars', request()->is('services/training-seminars')],
+        ['/services/training-seminars', 'Training & Seminars', request()->is('services/training-seminars', 'services/training-seminars/*')],
         ['/services/sld-block-diagram', 'SLD & Block Diagram', request()->is('services/sld-block-diagram')],
     ]];
     $subMenus['/about'] = ['About JFL Solar', null, array_map(fn ($i) => [$i['href'], $i['label'], request()->is(ltrim($i['href'], '/'), ltrim($i['href'], '/').'/*')], Site::ABOUT_MENU)];

@@ -16,6 +16,7 @@ Route::get('/', [PageController::class, 'home']);
 Route::get('/services', [PageController::class, 'services']);
 Route::get('/services/consultation', [PageController::class, 'serviceConsultation']);
 Route::get('/services/training-seminars', [PageController::class, 'serviceTraining']);
+Route::get('/services/training-seminars/{slug}', [PageController::class, 'seminar']);
 Route::get('/services/sld-block-diagram', [PageController::class, 'serviceSld']);
 Route::get('/about', [PageController::class, 'about']);
 Route::get('/packages', [PageController::class, 'packages']);
