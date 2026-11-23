@@ -17,7 +17,8 @@ final class PackageBuilder
      */
     public static function lines(Package $pkg): array
     {
-        if (! Shop::visible() || empty($pkg->components)) {
+        // Complete (installed) packages are customized with PackageCustomizer, never sold through the basket.
+        if (! Shop::visible() || empty($pkg->components) || ($pkg->package_type ?? '') === 'installed_system') {
             return [];
         }
         $bySlug = Shop::catalog()->keyBy('slug');

@@ -215,7 +215,7 @@ final class FormParser
                 continue;
             }
             // Optional 4th column: the products customers can buy for this component (web addresses
-            // after /products/, comma separated, the first is the default). Turns on "Build your package".
+            // after /products/, comma separated, the first is the default). Turns on "Build your package" (equipment bundles) or "Customize this package" (installed systems).
             $slugs = array_values(array_unique(array_filter(array_map(fn ($x) => strtolower(trim(preg_replace('#^.*/products/#', '', trim($x)), " /\t")), explode(',', $products)))));
             foreach ($slugs as $slug) {
                 if (! preg_match('/^[a-z0-9][a-z0-9-]{0,159}$/', $slug)) {
