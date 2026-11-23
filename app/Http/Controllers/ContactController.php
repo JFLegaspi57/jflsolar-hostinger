@@ -35,6 +35,12 @@ class ContactController extends Controller
         } elseif ($product) {
             $values = array_merge($values, ['item_type' => 'product', 'item_slug' => $product->slug, 'item_name' => $product->name, 'inquiry_type' => 'equipment']);
         }
+        // From a seminar page ("Reserve a Slot"): start the message for them.
+        if (! $pkg && ! $product && $request->query('from') === 'seminar' && ($sem = \App\Support\Seminars::find($pick('seminar')))) {
+            $values['inquiry_type'] = 'other';
+            $values['message'] = "I would like to join the {$sem['kind']} \"{$sem['title']}\" on {$sem['when']} in {$sem['where']}.\n\nNumber of participants: ";
+        }
+
         // Coming from the solar calculator: re-run it from the same query and pre-fill the message.
         if (! $pkg && ! $product && $request->query('from') === 'calculator') {
             $in = SolarCalculator::input($request->query());

@@ -36,4 +36,21 @@ class ServicesPagesTest extends TestCase
             ->assertSee('/images/service-sld-plan-1280.jpg', false)->assertDontSee('service-sld-sample', false)->assertDontSee('id="reviews-title"', false);
         $this->get('/sitemap.xml')->assertSee('/services/consultation')->assertSee('/services/sld-block-diagram');
     }
+
+    public function test_seminar_page_and_upcoming_card(): void
+    {
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-11-23 10:00', 'Asia/Manila'));
+        $url = '/services/training-seminars/solar-pv-installation-seminar-surigao-2026';
+        $this->get('/services/training-seminars')->assertOk()->assertSee('Upcoming seminar')->assertSee('href="'.$url.'"', false);
+        $this->get($url)->assertOk()->assertSee('Solar Photovoltaic Installation')->assertSee('November 28–29, 2026')
+            ->assertSee('Engr. Joselito S. Baldapan, PEE')->assertSee('Reserve a Slot')->assertSee('seminar-surigao-2026-poster-640.jpg', false)
+            ->assertSee('aria-current="page"', false)->assertDontSee('This seminar has ended');
+        $this->get('/contact?from=seminar&seminar=solar-pv-installation-seminar-surigao-2026')->assertOk()->assertSee('I would like to join the 2-Day Seminar', false);
+        $this->get('/sitemap.xml')->assertSee($url);
+        $this->get('/services/training-seminars/nope')->assertNotFound();
+
+        $this->travelTo(\Carbon\CarbonImmutable::parse('2026-11-30 08:00', 'Asia/Manila'));
+        $this->get('/services/training-seminars')->assertOk()->assertDontSee('Upcoming seminar');
+        $this->get($url)->assertOk()->assertSee('This seminar has ended')->assertDontSee('Reserve a Slot');
+    }
 }

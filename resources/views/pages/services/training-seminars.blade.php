@@ -18,6 +18,36 @@
         image="/images/service-training-center-1280.jpg" srcset="/images/service-training-center-640.jpg 640w, /images/service-training-center-960.jpg 960w, /images/service-training-center-1280.jpg 1280w, /images/service-training-center-1920.jpg 1920w"
         imageAlt="Trainees in matching JFL Solar shirts giving a thumbs up in front of the JFL Solar Training Center" focus="50% 45%" />
 
+    @if ($upcoming = \App\Support\Seminars::upcoming())
+        <style>
+            .up-sem { padding-bottom: 1rem !important; }
+            .up-card { display: grid; gap: 1.5rem; align-items: center; }
+            .up-card:hover { border-color: var(--color-gold-400); }
+            @media (min-width: 40rem) { .up-card { grid-template-columns: 10rem minmax(0, 1fr); } }
+            .up-poster { border-radius: .5rem; }
+            .up-label { letter-spacing: .12em; }
+        </style>
+        <x-section labelledby="upcoming-title" class="up-sem">
+            <x-section-heading id="upcoming-title" eyebrow="Upcoming" title="{{ count($upcoming) > 1 ? 'Upcoming seminars' : 'Upcoming seminar' }}" />
+            <div class="mt-8 grid gap-6">
+                @foreach ($upcoming as $sem)
+                    <a href="{{ $sem['url'] }}" class="up-card group rounded-[var(--radius-panel)] border border-steel-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-6">
+                        <picture>
+                            <source type="image/webp" srcset="/images/{{ $sem['poster'] }}-640.webp">
+                            <img src="/images/{{ $sem['poster'] }}-640.jpg" alt="" width="640" height="800" loading="lazy" decoding="async" class="up-poster mx-auto w-40 border border-steel-200">
+                        </picture>
+                        <div>
+                            <p class="text-sm up-label font-extrabold uppercase text-gold-800">{{ $sem['kind'] }} · {{ $sem['when'] }}</p>
+                            <h3 class="mt-1 text-2xl font-bold text-steel-950 group-hover:underline">{{ $sem['title'] }}</h3>
+                            <p class="mt-2 text-steel-700">{{ $sem['where'] }}. {{ $sem['who'] }}. With guest speaker JF Legaspi, in partnership with {{ $sem['partner'] }}</p>
+                            <span class="mt-3 inline-block font-semibold text-steel-900 underline">See details and reserve a slot →</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </x-section>
+    @endif
+
     <x-section labelledby="trainer-title">
         <x-section-heading id="trainer-title" eyebrow="Your trainer" title="JF Legaspi" />
         {{-- Text with JF's YouTube Short beside it (stacked on phones). From tablet width the video is exactly as tall as the text (9:16, width follows). --}}
