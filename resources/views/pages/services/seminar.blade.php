@@ -3,6 +3,7 @@
     use App\Support\Site;
     use App\Support\Ui;
     $over = Seminars::isOver($s);
+    $full = ! $over && ! empty($s['full']);
     $img = fn (int $w, string $ext = 'jpg') => '/images/'.$s['poster'].'-'.$w.'.'.$ext;
     $card = 'rounded-[var(--radius-panel)] border border-steel-200 bg-white p-6';
     $join = '/contact?from=seminar&seminar='.$s['slug'].'#quote';
@@ -19,6 +20,7 @@
         .sem-tagline { font-style: italic; }
         .sem-poster { box-shadow: 0 10px 30px rgb(15 23 42 / .18); }
         .sem-num { background: var(--color-gold-400); }
+        .sem-full { display: inline-flex; align-items: center; gap: .5rem; border-radius: .5rem; background: #b91c1c; color: #fff; font-weight: 800; letter-spacing: .06em; }
     </style>
     <x-section labelledby="sem-title" class="sem-top">
         <nav aria-label="Breadcrumb" class="text-sm text-steel-600">
@@ -43,12 +45,14 @@
                     @endforeach
                 </dl>
                 <p class="mt-8 text-lg text-steel-700">JFL Solar, in partnership with {{ $s['partner'] }}, brings a two-day seminar and workshop on installing solar PV systems the right way: from the basics of solar energy and choosing the components, to a hands-on installation demonstration and the safety rules every installer must follow.</p>
-                @unless ($over)
+                @if ($full)
+                    <p class="mt-8 rounded-[var(--radius-panel)] border border-steel-300 bg-steel-50 p-4 font-semibold text-steel-800">Fully booked! Thank you for your interest. All slots for this seminar are taken. Watch our <a href="{{ Seminars::BASE }}" class="underline">Training &amp; Seminars</a> page and our Facebook page for the next one.</p>
+                @elseif (! $over)
                     <div class="mt-8 flex flex-wrap gap-3">
                         <a href="{{ $join }}" class="{{ Ui::button('primary', 'lg') }}">Reserve a Slot</a>
                         <a href="{{ Site::telHref($settings->phone_e164) }}" class="{{ Ui::button('secondary', 'lg') }}">Call {{ $settings->phone_display }}</a>
                     </div>
-                @endunless
+                @endif
             </div>
             <a href="{{ $img(1080) }}" target="_blank" rel="noopener" class="block overflow-hidden rounded-[var(--radius-panel)] border border-steel-200 sem-poster" aria-label="Open the seminar poster in full size">
                 <picture>
@@ -91,5 +95,5 @@
         <p class="mt-6 max-w-3xl text-lg text-steel-700">Get a head start with our free online course <a href="{{ \App\Support\Course::PATH }}" class="font-semibold text-steel-900 underline">{{ \App\Support\Course::TITLE }}</a>, or read our guides on <a href="/hybrid-pv-system-guide" class="font-semibold text-steel-900 underline">hybrid</a> and <a href="/grid-tied-pv-system-guide" class="font-semibold text-steel-900 underline">grid-tied</a> solar PV systems.</p>
     </x-section>
 
-    @include('partials.service-cta', ['ctaTitle' => $over ? 'Invite JF to your seminar' : 'Join the seminar', 'ctaText' => $over ? 'Tell us about your audience, the topics you need and the date and venue you have in mind.' : 'Send us an inquiry to reserve your slot or ask about the seminar.'])
+    @include('partials.service-cta', ['ctaTitle' => ($over || $full) ? 'Invite JF to your seminar' : 'Join the seminar', 'ctaText' => ($over || $full) ? 'Tell us about your audience, the topics you need and the date and venue you have in mind.' : 'Send us an inquiry to reserve your slot or ask about the seminar.'])
 </x-site-layout>

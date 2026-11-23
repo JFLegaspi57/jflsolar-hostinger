@@ -41,9 +41,9 @@ class ServicesPagesTest extends TestCase
     {
         $this->travelTo(\Carbon\CarbonImmutable::parse('2026-11-23 10:00', 'Asia/Manila'));
         $url = '/services/training-seminars/solar-pv-installation-seminar-surigao-2026';
-        $this->get('/services/training-seminars')->assertOk()->assertSee('Upcoming seminar')->assertSee('href="'.$url.'"', false);
+        $this->get('/services/training-seminars')->assertOk()->assertSee('Upcoming seminar')->assertSee('Fully booked!')->assertSee('href="'.$url.'"', false);
         $this->get($url)->assertOk()->assertSee('Solar Photovoltaic Installation')->assertSee('November 28–29, 2026')
-            ->assertSee('Engr. Joselito S. Baldapan, PEE')->assertSee('Reserve a Slot')->assertSee('seminar-surigao-2026-poster-640.jpg', false)
+            ->assertSee('Engr. Joselito S. Baldapan, PEE')->assertSee('Fully booked!')->assertDontSee('Reserve a Slot')->assertSee('seminar-surigao-2026-poster-640.jpg', false)
             ->assertSee('aria-current="page"', false)->assertDontSee('This seminar has ended');
         $this->get('/contact?from=seminar&seminar=solar-pv-installation-seminar-surigao-2026')->assertOk()->assertSee('I would like to join the 2-Day Seminar', false);
         $this->get('/sitemap.xml')->assertSee($url);
@@ -51,6 +51,6 @@ class ServicesPagesTest extends TestCase
 
         $this->travelTo(\Carbon\CarbonImmutable::parse('2026-11-30 08:00', 'Asia/Manila'));
         $this->get('/services/training-seminars')->assertOk()->assertDontSee('Upcoming seminar');
-        $this->get($url)->assertOk()->assertSee('This seminar has ended')->assertDontSee('Reserve a Slot');
+        $this->get($url)->assertOk()->assertSee('This seminar has ended')->assertDontSee('Reserve a Slot')->assertDontSee('Fully booked!');
     }
 }

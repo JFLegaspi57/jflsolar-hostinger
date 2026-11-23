@@ -7,6 +7,7 @@ use Carbon\CarbonImmutable;
 /**
  * Seminars and workshops JF speaks at, each with its own page under /services/training-seminars/{slug}.
  * Upcoming ones (until their last day, Manila time) are also announced on the Training & Seminars page.
+ * 'full' => true marks a seminar as fully booked (badge shown, no Reserve a Slot button).
  */
 class Seminars
 {
@@ -23,6 +24,7 @@ class Seminars
             'where' => 'P-4, Brgy. Bonifacio, Surigao City, Surigao del Norte',
             'who' => 'Open to all DIYers and electricians',
             'partner' => 'Early Sky Builders Inc.',
+            'full' => true, // Fully booked: no more reservations.
             'poster' => 'seminar-surigao-2026-poster',
             'speakers' => [
                 ['Guest Speaker', 'JF Legaspi', 'JFL Solar CEO & Founder of Lithium Power Philippines'],
