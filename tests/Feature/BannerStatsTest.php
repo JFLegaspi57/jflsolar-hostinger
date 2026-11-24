@@ -60,36 +60,10 @@ class BannerStatsTest extends TestCase
         $this->assertMatchesRegularExpression('/data-stat="members"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="subscribers"[^>]*>1</', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="students"[^>]*>1</', $page->getContent());
-        $page->assertSee('Passed the course');
-        $this->assertMatchesRegularExpression('/data-stat="passed"[^>]*>0</', $page->getContent());
         $page->assertDontSee('Students online now')->assertDontSee('Online visitors now')->assertSee('Online Course Students');
         $this->assertStringNotContainsString('data-stat="online"', $page->getContent());
         $this->assertMatchesRegularExpression('/data-stat="visits"[^>]*>4</', $page->getContent());
 
-        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['online' => 2, 'today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4, 'members' => 1, 'subscribers' => 1, 'students' => 1, 'passed' => 0, 'students_online' => 1])->assertHeader('Cache-Control', 'no-store, private');
-    }
-
-    public function test_passed_count_is_members_who_passed_every_lesson(): void
-    {
-        $this->get('/login');
-        \App\Support\Members::ensureTables();
-        $a = (new Member)->forceFill(['name' => 'A', 'email' => 'a@example.com', 'password' => 'x long password', 'status' => 'active']);
-        $a->save();
-        $b = (new Member)->forceFill(['name' => 'B', 'email' => 'b@example.com', 'password' => 'x long password', 'status' => 'active']);
-        $b->save();
-        $c = (new Member)->forceFill(['name' => 'C', 'email' => 'c@example.com', 'password' => 'x long password', 'status' => 'disabled']);
-        $c->save();
-        \App\Support\Course::ensureTables();
-        foreach ([1, 2] as $n) {
-            DB::table('course_lessons')->insert(['slug' => 'pass-'.$n, 'title' => 'Pass lesson '.$n, 'summary' => 's', 'position' => $n, 'status' => 'published', 'created_at' => now(), 'updated_at' => now(),
-                'body' => '<h2>Check your understanding</h2><details><summary><strong>1. Q'.$n.'?</strong></summary><p>A.</p></details>']);
-        }
-        $lessons = \App\Support\Course::lessons();
-        \App\Support\CourseResults::markAllPassed((int) $a->id);
-        \App\Support\CourseResults::markAllPassed((int) $c->id);   // disabled: not counted
-        \App\Support\CourseResults::markAllPassed((int) $b->id, (int) $lessons->first()->id);   // one lesson only: not counted
-        $this->assertSame(1, \App\Support\CourseResults::passedCount());
-        Cache::flush();
-        $this->getJson('/stats/visitors')->assertOk()->assertJsonPath('passed', 1);
+        $this->getJson('/stats/visitors')->assertOk()->assertExactJson(['online' => 2, 'today' => 2, 'first' => 2, 'returning' => 1, 'visits' => 4, 'members' => 1, 'subscribers' => 1, 'students' => 1, 'students_online' => 1])->assertHeader('Cache-Control', 'no-store, private');
     }
 }
