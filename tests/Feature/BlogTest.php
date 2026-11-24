@@ -226,18 +226,25 @@ class BlogTest extends TestCase
         $this->actingAs($staff, 'web')->get('/admin/blog/views')->assertOk()->assertSee('Blog views')->assertSee('Counting readers');
     }
 
-    public function test_some_posts_give_only_their_cover_to_the_blog_banner(): void
+    public function test_the_blog_banner_uses_one_picture_per_post(): void
     {
-        $m = fn (string $alt) => new MediaAsset(['alt' => $alt, 'width' => 1600]);
-        $cover = $m('Doc Vitto with his new solar PV system');
-        $only = new BlogPost(['slug' => 'unparalleled-tech-support-first-solar-pv-installation']);
-        $only->photos = collect([$cover, $m('Wiring inside the panel'), $m('Battery rack')]);
-        $only->cover = $cover;
-        $other = new BlogPost(['slug' => 'jf-visit-to-dyness']);
-        $other->photos = collect([$m('JF at Dyness'), $m('Dyness showroom')]);
-        $other->cover = $other->photos->first();
+        $m = fn (string $alt, int $w = 1600) => new MediaAsset(['alt' => $alt, 'width' => $w]);
+        $a = new BlogPost(['slug' => 'unparalleled-tech-support-first-solar-pv-installation']);
+        $a->photos = collect([$m('Doc Vitto with his new solar PV system'), $m('Wiring inside the panel'), $m('Battery rack')]);
+        $a->cover = $a->photos->first();
+        $b = new BlogPost(['slug' => 'jf-visit-to-dyness']);
+        $b->photos = collect([$m('JF at Dyness'), $m('Dyness showroom')]);
+        $b->cover = $b->photos->last();
+        // Cover too small: the post's first usable photo stands in for it.
+        $c = new BlogPost(['slug' => 'small-cover']);
+        $c->photos = collect([$m('Small cover', 600), $m('Step-by-step wiring poster'), $m('Team on the roof')]);
+        $c->cover = $c->photos->first();
+        // No usable photo at all: the post is left out.
+        $d = new BlogPost(['slug' => 'no-photo']);
+        $d->photos = collect([$m('Tiny', 500)]);
+        $d->cover = $d->photos->first();
 
-        $alts = \App\Support\Blog::bannerPhotos(collect([$only, $other]))->pluck('alt')->all();
-        $this->assertSame(['Doc Vitto with his new solar PV system', 'JF at Dyness', 'Dyness showroom'], $alts);
+        $alts = \App\Support\Blog::bannerPhotos(collect([$a, $b, $c, $d]))->pluck('alt')->all();
+        $this->assertSame(['Doc Vitto with his new solar PV system', 'Dyness showroom', 'Team on the roof'], $alts);
     }
 }
