@@ -3,7 +3,7 @@
     use App\Support\Site;
 @endphp
 <x-site-layout title="Blog by JF Legaspi" path="/blog" :reviews-above-footer="false" description="The blog of JF Legaspi of JFL Solar: notes, lessons and stories about solar PV systems, projects and the business.">
-    {{-- Banner: a random photo from the published posts; JF on stage at the GoodWe summit when there are none. --}}
+    {{-- Banner: a random post's picture (its cover photo), one picture per post; JF on stage at the GoodWe summit when there are none. --}}
     @if ($banner)
         <x-page-hero eyebrow="{{ Blog::AUTHOR }}" title="Blog" intro="Notes, lessons and stories from the field: solar PV systems, projects and running JFL Solar."
             :image="$banner->url($banner->bestWidth(1280))" :srcset="$banner->srcset()" :image-alt="$banner->alt"

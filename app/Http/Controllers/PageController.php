@@ -222,8 +222,8 @@ class PageController extends Controller
     public function blog(): View
     {
         $posts = \App\Support\Blog::published();
-        // Banner: a random photo from all published posts (a new one on each visit); small photos would look
-        // blurry, and step-by-step posters are left out (Blog::bannerPhoto).
+        // Banner: one picture per published post (its cover), a random post on each visit; small photos would
+        // look blurry, and step-by-step posters are left out (Blog::bannerPhotos).
         $photos = \App\Support\Blog::bannerPhotos($posts);
 
         $banner = $photos->isNotEmpty() ? $photos->random() : null;
