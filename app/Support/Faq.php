@@ -7,7 +7,7 @@ use App\Models\SiteSetting;
 /** Frequently asked questions (wording editable in Admin → Page text → FAQ). */
 final class Faq
 {
-    public const COUNT = 20;
+    public const COUNT = 22;
 
     /** Question number => page linked under the answer. */
     public const LINKS = [
@@ -24,6 +24,8 @@ final class Faq
         14 => ['/projects', 'See our projects'],
         16 => ['/services', 'How our support works'],
         17 => ['/net-metering', 'Read our net metering guide'],
+        21 => ['/contact', 'See our address and hours'],
+        22 => ['/products', 'Browse products'],
     ];
 
     /** @return list<array{q: string, a: string, link: ?array{0: string, 1: string}}> */

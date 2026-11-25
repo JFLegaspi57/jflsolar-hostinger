@@ -163,6 +163,10 @@ final class PageTextData
         'faq.q19.a' => 'It depends on the size of the system. A 6, 8 or 10 kW hybrid solar PV system takes 4 to 5 days. A 12, 16 or 18 kW hybrid solar PV system normally takes up to one week, if the weather is good. When it rains, we don\'t work on the roof, for the safety of our technical team.',
         'faq.q20.q' => 'Do you do one-day installation?',
         'faq.q20.a' => 'No. We believe that rushing things often leads to mistakes. A solar PV system is a serious matter: our clients invest their hard-earned money in it, so we take the time to do every step right.',
+        'faq.q21.q' => 'Can I see the products before I buy or before they are shipped?',
+        'faq.q21.a' => 'Yes. You are welcome to see and check your items at our warehouse in Dasmariñas, Cavite before you pay or before we ship them. Please call our Sales team on {phone} first, so we can set a time and have your items ready. Our Contact page shows the address, map and opening hours.',
+        'faq.q22.q' => 'What is the warranty for inverters and batteries?',
+        'faq.q22.a' => 'It depends on the brand and model. GoodWe hybrid inverters (GW6000 to GW12K) have a 5-year replacement warranty, and a 10-year replacement warranty when you pair your GoodWe inverter with a GoodWe battery. Solis hybrid inverters have 5 years standard in Southeast Asia, with extensions available. LuxPower hybrid inverters have 5 or 10 years, depending on the model, and the LuxPower SNA 12K off-grid inverter has 2 years. Dyness and Alltopelec (ATE) batteries have a 5-year warranty. Each product page shows the exact warranty, and your quotation states the terms and claim process in writing. To start a claim, call or message us with your order or quotation number, a short description of the problem and photos if you have them.',
     ];
 
     public const PAGES = [
@@ -472,7 +476,7 @@ final class PageTextData
                     ],
                 ],
                 [
-                    'title' => 'Questions 17 to 18',
+                    'title' => 'Questions 17 to 20',
                     'note' => null,
                     'fields' => [
                         ['key' => 'faq.q17.q', 'label' => 'Question 17', 'kind' => 'line'],
@@ -483,6 +487,16 @@ final class PageTextData
                         ['key' => 'faq.q19.a', 'label' => 'Answer 19', 'kind' => 'paragraph'],
                         ['key' => 'faq.q20.q', 'label' => 'Question 20', 'kind' => 'line'],
                         ['key' => 'faq.q20.a', 'label' => 'Answer 20', 'kind' => 'paragraph'],
+                    ],
+                ],
+                [
+                    'title' => 'Questions 21 to 22',
+                    'note' => null,
+                    'fields' => [
+                        ['key' => 'faq.q21.q', 'label' => 'Question 21', 'kind' => 'line'],
+                        ['key' => 'faq.q21.a', 'label' => 'Answer 21', 'kind' => 'paragraph'],
+                        ['key' => 'faq.q22.q', 'label' => 'Question 22', 'kind' => 'line'],
+                        ['key' => 'faq.q22.a', 'label' => 'Answer 22', 'kind' => 'paragraph'],
                     ],
                 ],
             ],
