@@ -89,6 +89,45 @@ class AccountController extends Controller
         return back();
     }
 
+    /** The member asks to use a new email address; it takes effect only after they confirm it from that inbox. */
+    public function changeEmail(Request $request): RedirectResponse
+    {
+        $member = Members::current() ?? abort(redirect('/login?next=%2Faccount%23email'));
+        $email = mb_strtolower(trim(Input::str($request, 'email')));
+        $back = fn (string $msg) => redirect('/account#email')->withInput(['email' => $email])->withErrors(['email' => $msg]);
+        if (! filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 190) {
+            return $back('Please enter a valid email address, e.g. juan@gmail.com.');
+        }
+        if ($email === mb_strtolower($member->email)) {
+            return $back('That is already the email on your account.');
+        }
+        if (\App\Models\Member::query()->where('email', $email)->exists()) {
+            return $back('Another account already uses this email. Sign in with it, or use a different address.');
+        }
+        $token = \App\Support\EmailChange::start($member, $email);
+        try {
+            \Illuminate\Support\Facades\Mail::to($email)->send(new \App\Mail\MemberEmailChange($member, \App\Support\Site::url('/account/email/confirm/'.$token)));
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('[members] email change mail failed', ['error' => $e::class]);
+
+            return $back('We could not send the confirmation email just now. Please try again in a few minutes.');
+        }
+
+        return redirect('/account#email')->with('account_status', 'We sent a confirmation link to '.$email.'. Open it within 24 hours to finish the change. No email? Check your spam folder.');
+    }
+
+    /** Confirmation link from the new inbox: apply the email change. */
+    public function confirmEmail(string $token): RedirectResponse
+    {
+        $member = \App\Support\EmailChange::confirm($token);
+        $to = Members::current() ? '/account#email' : '/login';
+        if (! $member) {
+            return redirect($to)->with('account_error', 'This confirmation link has expired or was already used. Please enter your new email again on your account page.');
+        }
+
+        return redirect($to)->with('account_status', 'Your email is now '.$member->email.'. Use it the next time you sign in.');
+    }
+
     /** The member closes a personal message from JFL Solar. */
     public function closeMessage(int $id): RedirectResponse
     {

@@ -205,6 +205,15 @@
         </div>
     </div>
 </header>
+{{-- A signed-in member with an unread personal message from JFL Solar sees this on every page until they read and close it. --}}
+@if ($member && ! request()->is('account') && ($unreadMessages = \App\Support\MemberMessages::open($member->id)->count()))
+    <div role="status" class="border-b border-[#bfdbfe] bg-[#eff6ff]">
+        <x-container class="flex flex-wrap items-center justify-between gap-2 py-2.5 text-steel-900">
+            <p class="font-semibold">✉️ You have {{ $unreadMessages === 1 ? 'a message' : $unreadMessages.' messages' }} from JFL Solar.</p>
+            <a href="/account" class="font-semibold underline underline-offset-2">Read {{ $unreadMessages === 1 ? 'it' : 'them' }} on your account page</a>
+        </x-container>
+    </div>
+@endif
 @unless ($member)
     @include('partials.auth-dialog')
 @endunless
