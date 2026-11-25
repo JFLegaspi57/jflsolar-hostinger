@@ -173,6 +173,21 @@
                     </form>
                 </section>
 
+                <section id="email" aria-labelledby="email-h" class="{{ $card }}">
+                    <h2 id="email-h" class="text-xl font-bold text-steel-950">Change email</h2>
+                    <p class="mt-2 text-steel-700">Your account email is <strong class="text-steel-950">{{ $member->email }}</strong>. We send your password reset links, order updates and newsletters there.</p>
+                    @if ($pendingEmail = \App\Support\EmailChange::pending($member->id))
+                        <p class="mt-2 text-sm text-steel-700">Waiting for you to confirm <strong>{{ $pendingEmail }}</strong>: open the link we emailed there.</p>
+                    @endif
+                    <form method="post" action="/account/email" class="mt-4 space-y-4">
+                        @csrf
+                        <x-form-field id="a-email" label="New email address" hint="We email a confirmation link to the new address. Your email changes only after you open it." :error="$err('email')">
+                            <input id="a-email" name="email" type="email" autocomplete="email" value="{{ old('email') }}" maxlength="190" required aria-describedby="a-email-hint{{ $err('email') ? ' a-email-error' : '' }}" @if ($err('email')) aria-invalid="true" @endif class="{{ $input }}">
+                        </x-form-field>
+                        <button type="submit" class="{{ Ui::button('primary') }}">Send confirmation link</button>
+                    </form>
+                </section>
+
                 <section id="password" aria-labelledby="password-h" class="{{ $card }}">
                     <h2 id="password-h" class="text-xl font-bold text-steel-950">Change password</h2>
                     <form method="post" action="/account/password" class="mt-4 space-y-4">
